@@ -1,0 +1,92 @@
+// Portale GLV — Schema Prisma
+// Database: Neon PostgreSQL
+// Aggiorna con: npx prisma db push
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String        @id @default(cuid())
+  email            String        @unique
+  password         String        // bcrypt hash
+  fullName         String?
+  stripeCustomerId String?       @unique
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  subscription     Subscription?
+  purchases        Purchase[]
+  progress         Progress[]
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubId       String   @unique
+  stripePriceId     String
+  plan              String   // "monthly" | "annual"
+  status            String   // "active" | "canceled" | "past_due" | "trialing"
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Course {
+  id          String     @id @default(cuid())
+  slug        String     @unique
+  lang        String     // "Latino" | "Greco Antico" | "Egiziano Geroglifico" | "Ebraico Biblico" | "Didattica"
+  level       String     // "A1.1" | "A1.2" | ...
+  title       String
+  description String     @db.Text
+  priceEur    Int        // prezzo acquisto singolo in centesimi (es. 13000 = €130)
+  isNew       Boolean    @default(false)
+  isPublished Boolean    @default(true)
+  sortOrder   Int        @default(0)
+  createdAt   DateTime   @default(now())
+  lessons     Lesson[]
+  purchases   Purchase[]
+  progress    Progress[]
+}
+
+model Lesson {
+  id          String  @id @default(cuid())
+  courseId    String
+  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  vimeoUrl    String? // link privato Vimeo (visibile solo a chi ha accesso)
+  durationMin Int     @default(0)
+  isFree      Boolean @default(false) // lezioni di anteprima gratuite
+  sortOrder   Int     @default(0)
+}
+
+model Purchase {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course   @relation(fields: [courseId], references: [id])
+  stripePaymentId String
+  amountEur       Int      // importo pagato in centesimi
+  createdAt       DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model Progress {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id])
+  percent   Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, courseId])
+}

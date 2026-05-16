@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalogo Corsi | GrecoLatinoVivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────────────────── -->
+  <nav class="glv-nav">
+    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="profilo.html">Profilo</a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-avatar">M</div>
+      <button class="btn btn-ghost btn-sm" data-logout>Esci</button>
+    </div>
+  </nav>
+
+  <!-- ── HEADER PAGINA ─────────────────────────────────────────── -->
+  <div style="padding: calc(var(--nav-height) + 40px) 48px 32px;">
+    <h2>Catalogo corsi</h2>
+    <p class="text-secondary" style="margin-top:8px;">
+      L'intero catalogo dei corsi disponibili sul portale. L'abbonamento dà accesso a tutti i contenuti.
+    </p>
+  </div>
+
+  <!-- ── FILTRI ────────────────────────────────────────────────── -->
+  <div class="catalog-filters">
+    <button class="filter-tab active" data-lang="Tutti">Tutti</button>
+    <button class="filter-tab" data-lang="Latino">Latino</button>
+    <button class="filter-tab" data-lang="Greco Antico">Greco Antico</button>
+    <button class="filter-tab" data-lang="Egiziano Geroglifico">Egiziano Geroglifico</button>
+    <button class="filter-tab" data-lang="Ebraico Biblico">Ebraico Biblico</button>
+    <button class="filter-tab" data-lang="Corsi Brevi">Corsi Brevi</button>
+    <button class="filter-tab" data-lang="Didattica">Didattica</button>
+  </div>
+
+  <!-- ── CONTENT ───────────────────────────────────────────────── -->
+  <div class="catalog-content">
+    <div class="course-grid" id="catalog-grid">
+      <!-- Popolato da JS initCatalogFilters -->
+    </div>
+    <p class="text-muted" style="text-align:center; margin-top:32px;">
+      Il catalogo viene aggiornato periodicamente con nuovi corsi e moduli.
+    </p>
+  </div>
+
+  <!-- ── FOOTER ────────────────────────────────────────────────── -->
+  <footer class="glv-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2025 GrecoLatinoVivo. Tutti i diritti riservati.</p>
+      <p>portale.grecolatinovivo.it</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

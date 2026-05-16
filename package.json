@@ -1,0 +1,27 @@
+{
+  "name": "portale-glv",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "@prisma/client": "^5.13.0",
+    "stripe": "^15.7.0",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "resend": "^3.2.0",
+    "cookie": "^0.6.0",
+    "micro": "^10.0.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.13.0"
+  }
+}

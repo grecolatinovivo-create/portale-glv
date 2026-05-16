@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profilo | GrecoLatinoVivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── NAV ──────────────────────────────────────────────────── -->
+  <nav class="glv-nav">
+    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
+    <div class="nav-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="catalogo.html">Catalogo</a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-avatar">M</div>
+      <button class="btn btn-ghost btn-sm" data-logout>Esci</button>
+    </div>
+  </nav>
+
+  <!-- ── PROFILE HERO ──────────────────────────────────────────── -->
+  <div class="profile-hero">
+    <div class="profile-avatar-large">M</div>
+    <div>
+      <h2>Mario Rossi</h2>
+      <p class="text-secondary" style="margin-top:4px;">mario@esempio.it</p>
+      <div class="profile-plan-badge">
+        <i class="fas fa-star"></i>
+        Abbonato Annuale
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SEZIONI PROFILO ────────────────────────────────────────── -->
+  <div class="profile-section">
+
+    <!-- CARD ABBONAMENTO -->
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <h4>Il mio abbonamento</h4>
+        <button class="btn btn-sm btn-outline">Gestisci</button>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
+        <div>
+          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Piano</p>
+          <p style="font-weight:700;">Annuale</p>
+        </div>
+        <div>
+          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Rinnovo</p>
+          <p style="font-weight:700;">15 maggio 2026</p>
+        </div>
+        <div>
+          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Stato</p>
+          <p style="color:var(--success); font-weight:700;">
+            <i class="fas fa-check-circle"></i> Attivo
+          </p>
+        </div>
+      </div>
+      <div style="margin-top:20px; padding:16px; background:var(--bg-card); border-radius:6px; border:1px solid var(--accent-light);">
+        <p style="font-size:13px; color:var(--text-secondary);">
+          Il tuo abbonamento include accesso illimitato a tutto il catalogo GLV. Puoi disdire in qualsiasi momento dalla pagina di gestione.
+        </p>
+      </div>
+    </div>
+
+    <!-- CARD CORSI IN CORSO -->
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <h4>Corsi in corso</h4>
+      </div>
+
+      <!-- Latino A1.1 -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:12px;">
+        <div style="flex:1; min-width:200px;">
+          <p style="font-weight:600; margin-bottom:8px;">Latino A1.1 – Principianti</p>
+          <div style="height:4px; background:#e0e0e0; border-radius:2px;">
+            <div style="width:65%; height:100%; background:var(--accent); border-radius:2px;"></div>
+          </div>
+        </div>
+        <span class="text-muted" style="font-size:13px; flex-shrink:0;">65% completato</span>
+      </div>
+
+      <!-- Greco Antico A1.1 -->
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; flex-wrap:wrap; gap:12px;">
+        <div style="flex:1; min-width:200px;">
+          <p style="font-weight:600; margin-bottom:8px;">Greco Antico A1.1 – Principianti</p>
+          <div style="height:4px; background:#e0e0e0; border-radius:2px;">
+            <div style="width:30%; height:100%; background:var(--accent); border-radius:2px;"></div>
+          </div>
+        </div>
+        <span class="text-muted" style="font-size:13px; flex-shrink:0;">30% completato</span>
+      </div>
+    </div>
+
+    <!-- CARD IMPOSTAZIONI -->
+    <div class="profile-card">
+      <div class="profile-card-header">
+        <h4>Impostazioni account</h4>
+      </div>
+      <form onsubmit="return false;">
+        <div>
+          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Nome</label>
+          <input
+            type="text"
+            value="Mario Rossi"
+            style="width:100%; background:#fff; border:1.5px solid var(--border); color:var(--text-primary); padding:10px 14px; border-radius:4px; margin-bottom:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          />
+        </div>
+        <div>
+          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Email</label>
+          <input
+            type="email"
+            value="mario@esempio.it"
+            style="width:100%; background:#fff; border:1.5px solid var(--border); color:var(--text-primary); padding:10px 14px; border-radius:4px; margin-bottom:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color .2s;"
+            onfocus="this.style.borderColor='var(--accent)'"
+            onblur="this.style.borderColor='var(--border)'"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary">Salva modifiche</button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- ── FOOTER ────────────────────────────────────────────────── -->
+  <footer class="glv-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2025 GrecoLatinoVivo. Tutti i diritti riservati.</p>
+      <p>portale.grecolatinovivo.it</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
