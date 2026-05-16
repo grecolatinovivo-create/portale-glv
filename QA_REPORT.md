@@ -1,60 +1,58 @@
-# QA REPORT — Portale GLV
+# QA Report — Mobile Experience GLV Portal
+*16 maggio 2026 — viewport target: 375px iPhone / 390px iPhone Pro*
 
-## Verifica struttura file
-✅ index.html — landing (297 righe)
-✅ dashboard.html — home abbonato (132 righe)
-✅ corso.html — pagina singolo corso (completo)
-✅ catalogo.html — catalogo con filtri (completo)
-✅ profilo.html — area profilo (completo)
-✅ css/style.css — design system (460 righe)
-✅ js/app.js — logica + mock data (220 righe)
+## Livello di rischio residuo: BASSO
 
-## Test funzionalità
+## Riepilogo
+- Problemi critici trovati e corretti: 4
+- Regressioni desktop: 0
+- CSS bilanciato: ✅ (339 { = 339 })
+- JS sintassi: ✅ node --check OK
 
-| Funzione | Stato | Note |
-|---|---|---|
-| Navbar scroll → sfondo scuro | ✅ | initNav() con classe .scrolled |
-| Pricing toggle mensile/annuale | ✅ | data-price-monthly/annual aggiornati via JS |
-| FAQ accordion apri/chiudi | ✅ | maxHeight animato, un solo aperto alla volta |
-| Filtri catalogo per lingua | ✅ | initCatalogFilters() + data-lang matching |
-| Row dashboard popolate da JS | ✅ | tutti gli id row-* presenti e corrispondenti |
-| Row preview landing con lock | ✅ | buildCard con opt locked:true |
-| Corso page dinamica via ?id= | ✅ | initCorsoPage() legge URL params |
-| Progress bar corsi in corso | ✅ | nel profilo e nelle card (css card-progress) |
-| Login demo (localStorage) | ✅ | data-demo-login → Auth.login() → dashboard |
-| Logout (pulisce localStorage) | ✅ | data-logout → Auth.logout() → index |
-| Link tra pagine coerenti | ✅ | verificato grep su tutti i file |
-| Responsive mobile | ✅ | media query a 768px e 1100px |
-| CSS variables dark theme | ✅ | :root con tutti i token |
-| Hover card Netflix (scale) | ✅ | transform scale(1.08) con z-index |
-| Card info tooltip su hover | ✅ | display:none → display:block on :hover |
+## Cosa funziona
+- ✅ Bottom nav iniettata via JS su tutte le 5 pagine (< 768px)
+- ✅ Bottom nav: 4 tab con icone + label (WCAG 2.4.6)
+- ✅ Voce attiva rilevata da window.location.pathname
+- ✅ Toast spostato sopra bottom nav: bottom: calc(60px + 20px)
+- ✅ body.padding-bottom = var(--bottom-nav-height) su mobile
+- ✅ Cards 75vw con scroll-snap su mobile
+- ✅ card-btn-play/add: 44×44px (WCAG 2.5.5)
+- ✅ card-desc nascosta su mobile (più respiro, decisione CLA+UX)
+- ✅ catalog-filters: overflow-x scroll, no wrap
+- ✅ pricing-cards: stack verticale, width 100% (override inline 300px con !important)
+- ✅ corso-cta-card nascosta su mobile
+- ✅ Sticky CTA bar su corso.html: prezzo + bottone fisso sopra bottom nav
+- ✅ Sticky CTA nascosta quando il video player è aperto (MutationObserver)
+- ✅ grid-template-columns:1fr 1fr → 1fr su mobile (div selector)
+- ✅ Sezioni con padding inline 48px → 16px mobile
+- ✅ viewport-fit=cover su tutte le 5 pagine (safe area iPhone)
+- ✅ footer con padding-bottom = bottom-nav-height + 24px
+- ✅ Modali: slide-up dal basso su mobile (border-radius top, no padding)
 
 ## Problemi corretti durante QA
 
-1. **catalogo.html: `data-lang` mismatch** — I tab usano "Egiziano Geroglifico" e "Ebraico Biblico" in forma lunga: verificato che corrispondono esattamente agli stessi valori nella proprietà `lang` del COURSES array. ✅
+### Bug 1 — Selector CSS sbagliato per griglia 2-colonne
+- Prima: `section[style*="grid-template-columns:1fr 1fr"]` → non matchava
+- Dopo: `div[style*="grid-template-columns:1fr 1fr"]` → corretto
 
-2. **app.js: initCorsoPage non trovava corso-hero-color** — Aggiunto controllo `if (!thumb) return;` per evitare errori su pagine che non hanno l'elemento. ✅
+### Bug 2 — Sticky CTA leggeva onclick dal pulsante statico
+- Prima: `btnDesktop.getAttribute('onclick')` → onclick hardcoded 'lat-a11'
+- Dopo: slug letto da URLSearchParams → slug corretto per ogni corso
 
-3. **pricing-toggle: prezzi annuali mostrati di default** — Il toggle "Annuale" ha classe `active` di default e il valore iniziale nei tag è quello annuale (8,25). Il toggle mensile switcherà correttamente. ✅
+### Bug 3 — Prezzo sticky CTA poteva essere vuoto
+- Prima: leggeva da `.corso-price .js-corso-price` (selector troppo specifico)
+- Dopo: legge da `.js-corso-price` globale (già popolato da initCorsoPage)
 
-4. **course-grid in catalogo: width card** — Il CSS `.course-grid .course-card { width: 100% }` gestisce correttamente l'espansione nella griglia. ✅
+### Bug 4 — nav-right btn-ghost visibile su mobile
+- Prima: solo nav-links nascosti, rimasto il bottone "Esci"
+- Dopo: `.nav-right .btn-ghost { display: none }` su mobile
 
-## Cosa resta aperto (da fare in produzione)
+## Raccomandazioni aperte
+- [ ] Testare su device fisico iOS (Safari) per safe-area-inset-bottom
+- [ ] Testare landscape mode (90° rotation) su iPhone
+- [ ] Valutare swipe gesture orizzontale su testimonials (carousel mobile)
+- [ ] Profilo.html: verificare che le progress bar dei corsi siano leggibili a 375px
 
-- [ ] Sostituire COURSES mock con query Supabase reale
-- [ ] Sostituire Auth mock con Supabase Auth
-- [ ] Collegare pulsanti Stripe a endpoint reale (attualmente solo UI)
-- [ ] Aggiungere player Vimeo embed nella pagina corso (iframe protetto)
-- [ ] Aggiungere gestione cookie banner (GDPR)
-- [ ] Implementare ricerca globale (nav-search-btn)
-- [ ] Hero billboard dashboard: auto-rotate tra corsi in evidenza (ogni 8s)
-- [ ] Aggiungere thumbnail reali (oggi: gradienti CSS)
-- [ ] Form profilo: collegare a Supabase per aggiornamento dati
-- [ ] Import automatico corsi da dump MySQL portale Aruba
-
-## Valutazione finale QA
-
-**Mockup funzionale**: ✅ pronto per review e test utente
-**API-ready**: ✅ struttura JS sostituibile con fetch reali
-**Design system**: ✅ CSS variables, dark theme coerente, responsive
-**Neuromarketing funnel**: ✅ social proof, pricing anchoring annuale, garanzia 30gg, urgency 7 giorni gratis
+## Note
+Nessuna regressione desktop rilevata. I breakpoint 768px e 480px sono addittivi
+e non sovrascrivono le regole desktop se non esplicitamente necessario.

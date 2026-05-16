@@ -1140,11 +1140,96 @@ function initUrlFeedback(){
   if(p.get('subscribed')==='1'){ showToast('✓ Abbonamento attivato. Accesso al portale abilitato.'); window.history.replaceState({},'',window.location.pathname); }
 }
 
+/* ── Mobile — Bottom Navigation Bar ─────────────────────────── */
+function initMobileNav(){
+  if(window.innerWidth > 768) return;
+
+  // Rileva pagina corrente
+  const path = window.location.pathname.split('/').pop() || 'index.html';
+  const isActive = (page) => path === page || (page === 'index.html' && (path === '' || path === '/'));
+
+  const nav = document.createElement('nav');
+  nav.className = 'glv-bottom-nav';
+  nav.setAttribute('aria-label', 'Navigazione principale');
+  nav.innerHTML = `
+    <a href="index.html"     class="${isActive('index.html')    ? 'active':''}" aria-label="Home">
+      <i class="fas fa-home" aria-hidden="true"></i><span>Home</span>
+    </a>
+    <a href="catalogo.html"  class="${isActive('catalogo.html') ? 'active':''}" aria-label="Catalogo">
+      <i class="fas fa-th-large" aria-hidden="true"></i><span>Catalogo</span>
+    </a>
+    <a href="dashboard.html" class="${isActive('dashboard.html')? 'active':''}" aria-label="Dashboard">
+      <i class="fas fa-play-circle" aria-hidden="true"></i><span>I miei corsi</span>
+    </a>
+    <a href="profilo.html"   class="${isActive('profilo.html')  ? 'active':''}" aria-label="Profilo">
+      <i class="fas fa-user-circle" aria-hidden="true"></i><span>Profilo</span>
+    </a>
+  `;
+  document.body.appendChild(nav);
+}
+
+/* ── Mobile — Sticky CTA Bar (corso.html) ────────────────────── */
+function initMobileStickyCta(){
+  if(window.innerWidth > 768) return;
+  // Solo su corso.html — verifica presenza della CTA card nel DOM
+  const ctaCard = document.querySelector('.corso-cta-card');
+  if(!ctaCard) return;
+
+  // Slug dalla URL per l'azione corretta
+  const slug = new URLSearchParams(window.location.search).get('id') || 'lat-a11';
+
+  // Leggi prezzo dinamico (popolato da initCorsoPage)
+  const priceEl  = document.querySelector('.js-corso-price');
+  const priceSub = ctaCard.querySelector('.corso-price-sub');
+  const priceText = priceEl ? priceEl.textContent : '—';
+  const subText   = priceSub ? priceSub.textContent : 'o incluso nell\'abbonamento';
+
+  const bar = document.createElement('div');
+  bar.className = 'mobile-sticky-cta';
+  bar.innerHTML = `
+    <div style="flex:1; min-width:0;">
+      <div class="cta-price">${priceText}</div>
+      <div class="cta-sub" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${subText}</div>
+    </div>
+    <button class="btn btn-primary" style="flex-shrink:0;" onclick="goToCourse('${slug}')">
+      &#9654; Accedi
+    </button>
+  `;
+  document.body.appendChild(bar);
+  document.body.classList.add('has-corso-cta');
+
+  // Nascondi quando il video player è aperto (evita sovrapposizione)
+  const playerSection = document.getElementById('video-player-section');
+  if(playerSection){
+    const observer = new MutationObserver(()=>{
+      const playerVisible = playerSection.style.display !== 'none';
+      bar.style.display = playerVisible ? 'none' : 'flex';
+    });
+    observer.observe(playerSection, { attributes: true, attributeFilter: ['style'] });
+  }
+}
+
+/* ── Mobile — Scroll Snap feedback su course rows ────────────── */
+function initTouchRows(){
+  if(window.innerWidth > 768) return;
+  document.querySelectorAll('.courses-row').forEach(row=>{
+    // Aggiunge scroll-snap via JS per sicurezza cross-browser
+    row.style.scrollSnapType = 'x mandatory';
+    row.querySelectorAll('.course-card').forEach(card=>{
+      card.style.scrollSnapAlign = 'start';
+    });
+  });
+}
+
 /* ── Init ────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',async()=>{
   initNav(); initNavAuth(); initPricing(); initFaq(); initAuthModals(); initUrlFeedback();
   await initDashboard(); await initLandingPreview(); await initCatalogFilters();
   await initCorsoPage(); await initProfiloPage();
+  // Mobile — dopo le init principali
+  initMobileNav();
+  initMobileStickyCta();
+  initTouchRows();
 });
 
 window.goToCourse    = goToCourse;
