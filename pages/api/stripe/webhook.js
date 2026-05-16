@@ -2,6 +2,19 @@ const { prisma } = require('../../../lib/prisma');
 const { stripe } = require('../../../lib/stripe');
 const { sendSubscriptionEmail, sendCoursePurchaseEmail } = require('../../../lib/resend');
 
+// Mappa tutti e 6 i Price ID Stripe al nome del piano interno
+function getPlanFromPriceId(priceId) {
+  const map = {
+    [process.env.STRIPE_PRICE_CULTURA_MONTHLY]:    'cultura_monthly',
+    [process.env.STRIPE_PRICE_CULTURA_ANNUAL]:     'cultura_annual',
+    [process.env.STRIPE_PRICE_LINGUAE_MONTHLY]:    'linguae_monthly',
+    [process.env.STRIPE_PRICE_LINGUAE_ANNUAL]:     'linguae_annual',
+    [process.env.STRIPE_PRICE_ACCADEMIA_MONTHLY]:  'accademia_monthly',
+    [process.env.STRIPE_PRICE_ACCADEMIA_ANNUAL]:   'accademia_annual',
+  };
+  return map[priceId] || null;
+}
+
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -30,7 +43,7 @@ async function handler(req, res) {
         if (type === 'subscription') {
           const sub = await stripe.subscriptions.retrieve(session.subscription);
           const priceId = sub.items.data[0].price.id;
-          const plan = priceId === process.env.STRIPE_PRICE_ANNUAL ? 'annual' : 'monthly';
+          const plan = getPlanFromPriceId(priceId) || 'linguae_monthly';
 
           await prisma.subscription.upsert({
             where: { stripeSubId: sub.id },

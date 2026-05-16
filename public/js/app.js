@@ -787,9 +787,29 @@ const Courses = {
 };
 
 /* ── Payments ────────────────────────────────────────────────── */
+
+// Cache dei 6 price ID caricati da /api/config/prices
+window.__GLV_PRICES = {};
+fetch('/api/config/prices').then(r=>r.json()).then(d=>{ window.__GLV_PRICES = d; }).catch(()=>{});
+
+// Restituisce il period attivo in base al toggle (mensile/annuale)
+function getCurrentBillingPeriod() {
+  const togA = document.getElementById('tog-annual');
+  return (togA && togA.classList.contains('active')) ? 'annual' : 'monthly';
+}
+
 const Payments = {
-  async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId:window.__GLV_PRICE_MONTHLY || 'STRIPE_PRICE_MONTHLY' }); },
-  async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId:window.__GLV_PRICE_ANNUAL  || 'STRIPE_PRICE_ANNUAL'  }); },
+  // Avvia checkout per un piano specifico con il periodo corrente del toggle
+  async subscribe(plan) {
+    const period = getCurrentBillingPeriod();
+    const key = `${plan}_${period}`;
+    const priceId = window.__GLV_PRICES[key];
+    if (!priceId) { alert('Prezzo non disponibile. Riprova tra qualche secondo.'); return; }
+    return Payments._checkout({ type:'subscription', priceId });
+  },
+  // Legacy — usati da [data-subscribe-monthly/annual] nel dashboard
+  async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId: window.__GLV_PRICES['linguae_monthly'] || '' }); },
+  async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId: window.__GLV_PRICES['linguae_annual']  || '' }); },
   async buyCourse(slug)    { return Payments._checkout({ type:'course', courseSlug:slug }); },
   async openPortal() {
     try { const d = await API.post('/api/stripe/portal',{}); if (d.url) window.location.href = d.url; }
@@ -1111,7 +1131,19 @@ function showAuthModal(mode){
     const errEl=document.getElementById('auth-error'); const btn=f.querySelector('[type="submit"]');
     btn.disabled=true; btn.textContent='Attendere...';
     const result=mode==='login'?await Auth.login(email,password):await Auth.register(email,password,fullName);
-    if(result.ok){ modal.remove(); window.location.href='dashboard.html'; }
+    if(result.ok){
+      modal.remove();
+      const pendingPlan   = sessionStorage.getItem('glv_pending_plan');
+      const pendingPeriod = sessionStorage.getItem('glv_pending_period') || getCurrentBillingPeriod();
+      if(pendingPlan){
+        sessionStorage.removeItem('glv_pending_plan');
+        sessionStorage.removeItem('glv_pending_period');
+        const key = `${pendingPlan}_${pendingPeriod}`;
+        const priceId = window.__GLV_PRICES[key];
+        if(priceId){ await Payments._checkout({ type:'subscription', priceId }); return; }
+      }
+      window.location.href='dashboard.html';
+    }
     else{ errEl.textContent=result.error||'Errore. Riprova.'; errEl.style.display='block'; btn.disabled=false; btn.textContent=mode==='login'?'Accedi →':'Registrati →'; }
   });
 }
@@ -1123,8 +1155,20 @@ function showToast(msg, color='#232323'){
 }
 
 function initAuthModals(){
-  document.querySelectorAll('[data-open-login]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();showAuthModal('login');}));
-  document.querySelectorAll('[data-open-register]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();showAuthModal('register');}));
+  document.querySelectorAll('[data-open-login]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault();
+    const plan = btn.dataset.plan || null;
+    if (plan) sessionStorage.setItem('glv_pending_plan', plan);
+    if (plan) sessionStorage.setItem('glv_pending_period', getCurrentBillingPeriod());
+    showAuthModal('login');
+  }));
+  document.querySelectorAll('[data-open-register]').forEach(btn=>btn.addEventListener('click',e=>{
+    e.preventDefault();
+    const plan = btn.dataset.plan || null;
+    if (plan) sessionStorage.setItem('glv_pending_plan', plan);
+    if (plan) sessionStorage.setItem('glv_pending_period', getCurrentBillingPeriod());
+    showAuthModal('register');
+  }));
   document.querySelectorAll('[data-demo-login]').forEach(btn=>btn.addEventListener('click',async e=>{
     e.preventDefault();
     const r=await Auth.login('demo@grecolatinovivo.it','demo1234');
