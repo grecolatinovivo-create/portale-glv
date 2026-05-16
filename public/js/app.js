@@ -801,15 +801,28 @@ function getCurrentBillingPeriod() {
 const Payments = {
   // Avvia checkout per un piano specifico con il periodo corrente del toggle
   async subscribe(plan) {
+    // FIX: guard su window.__GLV_PRICES — potrebbe non essere ancora caricato (race condition)
+    if (!window.__GLV_PRICES) {
+      try {
+        const d = await fetch('/api/config/prices').then(r => r.json());
+        window.__GLV_PRICES = d;
+      } catch {
+        alert('Impossibile caricare i prezzi. Controlla la connessione e riprova.');
+        return;
+      }
+    }
     const period = getCurrentBillingPeriod();
     const key = `${plan}_${period}`;
     const priceId = window.__GLV_PRICES[key];
-    if (!priceId) { alert('Prezzo non disponibile. Riprova tra qualche secondo.'); return; }
+    if (!priceId) {
+      alert('Prezzo non ancora disponibile. Attendi qualche secondo e riprova.');
+      return;
+    }
     return Payments._checkout({ type:'subscription', priceId });
   },
   // Legacy — usati da [data-subscribe-monthly/annual] nel dashboard
-  async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId: window.__GLV_PRICES['linguae_monthly'] || '' }); },
-  async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId: window.__GLV_PRICES['linguae_annual']  || '' }); },
+  async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_monthly'] || '' }); },
+  async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_annual']  || '' }); },
   async buyCourse(slug)    { return Payments._checkout({ type:'course', courseSlug:slug }); },
   async openPortal() {
     try { const d = await API.post('/api/stripe/portal',{}); if (d.url) window.location.href = d.url; }
