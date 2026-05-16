@@ -1,6 +1,6 @@
 const { prisma } = require('../../../lib/prisma');
 const { stripe } = require('../../../lib/stripe');
-const { requireAuth } = require('../../../lib/auth');
+const { withAuth } = require('../../../lib/auth');
 
 async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -14,23 +14,24 @@ async function handler(req, res) {
       return res.status(400).json({ error: 'Parametro type non valido' });
     }
 
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
-    if (!user) {
-      return res.status(404).json({ error: 'Utente non trovato' });
-    }
+    // Utente opzionale — req.user è già popolato da withAuth se loggato, null altrimenti
+    const user = req.user ? await prisma.user.findUnique({ where: { id: req.user.id } }) : null;
 
-    // Cerca o crea il customer Stripe
-    let customerId = user.stripeCustomerId;
-    if (!customerId) {
-      const customer = await stripe.customers.create({
-        email: user.email,
-        name: user.fullName || '',
-      });
-      customerId = customer.id;
-      await prisma.user.update({
-        where: { id: req.user.id },
-        data: { stripeCustomerId: customerId },
-      });
+    let customerParam = {};
+    if (user) {
+      let customerId = user.stripeCustomerId;
+      if (!customerId) {
+        const customer = await stripe.customers.create({
+          email: user.email,
+          name: user.fullName || '',
+        });
+        customerId = customer.id;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { stripeCustomerId: customerId },
+        });
+      }
+      customerParam = { customer: customerId };
     }
 
     if (type === 'subscription') {
@@ -39,7 +40,7 @@ async function handler(req, res) {
       }
 
       const session = await stripe.checkout.sessions.create({
-        customer: customerId,
+        ...customerParam,
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard.html?subscribed=1`,
@@ -49,14 +50,11 @@ async function handler(req, res) {
         custom_fields: [
           {
             key: 'codice_fiscale',
-            label: {
-              type: 'custom',
-              custom: 'Codice Fiscale / P.IVA (necessario per fattura)',
-            },
+            label: { type: 'custom', custom: 'Codice Fiscale / P.IVA (necessario per fattura)' },
             type: 'text',
           },
         ],
-        metadata: { userId: req.user.id, type: 'subscription' },
+        metadata: { userId: user?.id || '', type: 'subscription' },
       });
 
       return res.status(200).json({ url: session.url });
@@ -66,21 +64,20 @@ async function handler(req, res) {
       if (!courseSlug) {
         return res.status(400).json({ error: 'courseSlug obbligatorio per course' });
       }
+      if (!user) {
+        return res.status(401).json({ error: 'Devi essere loggato per acquistare un corso' });
+      }
 
       const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
-      if (!course) {
-        return res.status(404).json({ error: 'Corso non trovato' });
-      }
+      if (!course) return res.status(404).json({ error: 'Corso non trovato' });
 
       const existingPurchase = await prisma.purchase.findUnique({
-        where: { userId_courseId: { userId: req.user.id, courseId: course.id } },
+        where: { userId_courseId: { userId: user.id, courseId: course.id } },
       });
-      if (existingPurchase) {
-        return res.status(409).json({ error: 'Corso già acquistato' });
-      }
+      if (existingPurchase) return res.status(409).json({ error: 'Corso già acquistato' });
 
       const session = await stripe.checkout.sessions.create({
-        customer: customerId,
+        ...customerParam,
         mode: 'payment',
         line_items: [
           {
@@ -99,19 +96,11 @@ async function handler(req, res) {
         custom_fields: [
           {
             key: 'codice_fiscale',
-            label: {
-              type: 'custom',
-              custom: 'Codice Fiscale / P.IVA (necessario per fattura)',
-            },
+            label: { type: 'custom', custom: 'Codice Fiscale / P.IVA (necessario per fattura)' },
             type: 'text',
           },
         ],
-        metadata: {
-          userId: req.user.id,
-          courseId: course.id,
-          courseSlug,
-          type: 'course',
-        },
+        metadata: { userId: user.id, courseId: course.id, courseSlug, type: 'course' },
       });
 
       return res.status(200).json({ url: session.url });
@@ -122,4 +111,4 @@ async function handler(req, res) {
   }
 }
 
-module.exports = requireAuth(handler);
+module.exports = withAuth(handler);

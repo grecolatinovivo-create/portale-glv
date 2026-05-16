@@ -1162,11 +1162,11 @@ function initAuthModals(){
     if (plan) sessionStorage.setItem('glv_pending_period', getCurrentBillingPeriod());
     showAuthModal('login');
   }));
-  document.querySelectorAll('[data-open-register]').forEach(btn=>btn.addEventListener('click',e=>{
+  document.querySelectorAll('[data-open-register]').forEach(btn=>btn.addEventListener('click',async e=>{
     e.preventDefault();
     const plan = btn.dataset.plan || null;
-    if (plan) sessionStorage.setItem('glv_pending_plan', plan);
-    if (plan) sessionStorage.setItem('glv_pending_period', getCurrentBillingPeriod());
+    // Se il pulsante ha un piano → vai diretto al checkout (Stripe raccoglie email e dati)
+    if (plan) { await Payments.subscribe(plan); return; }
     showAuthModal('register');
   }));
   document.querySelectorAll('[data-demo-login]').forEach(btn=>btn.addEventListener('click',async e=>{
