@@ -3,1007 +3,747 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>GrecoLatinoVivo — Portale per lo studio delle lingue classiche</title>
-  <meta name="description" content="Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Oltre 150 ore di video-lezioni tenute da docenti universitari specializzati. Un abbonamento, l'intero catalogo.">
+  <title>GrecoLatinoVivo — Latino, Greco e lingue dell'antico mondo</title>
+  <meta name="description" content="Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. 56 corsi con docenti specializzati. Accreditato MIM, fondato a Firenze nel 2015. Un abbonamento, l'intero catalogo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+
   <style>
-    /* ── INDEX-ONLY OVERRIDES ─────────────────────────────── */
-    .hero-section {
-      background: linear-gradient(135deg, #15080e 0%, #2a0d18 60%, #1a0510 100%);
+    /* ─────────────────────────────────────────────────────────
+       VARIABILI BASE (in caso style.css non le dichiari)
+    ───────────────────────────────────────────────────────── */
+    :root {
+      --dark:    #15080e;
+      --dark-2:  #1d0c13;
+      --dark-3:  #2a0d18;
+      --primary: #a01a36;
+      --gold:    #d4a017;
+      --ivory:   #faf8f5;
+      --text-dim:  rgba(250,248,245,.6);
+      --text-faint:rgba(250,248,245,.38);
+      --border-dim:rgba(255,255,255,.1);
+      --radius: 10px;
+      --radius-lg: 16px;
+      --font-heading: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    /* Reset minimo */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--dark);
+      color: var(--ivory);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       SEZIONE 1 — HERO
+    ───────────────────────────────────────────────────────── */
+    .hero {
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 7rem 1.5rem 4rem;
       position: relative;
       overflow: hidden;
+      background: var(--dark);
     }
-    .hero-section::before {
+    .hero::before {
       content: '';
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(160,26,54,0.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(212,160,23,0.07) 0%, transparent 60%);
+        radial-gradient(ellipse 70% 55% at 50% 30%, rgba(160,26,54,.22) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(212,160,23,.07) 0%, transparent 60%);
       pointer-events: none;
     }
     .hero-inner {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 3rem;
-      align-items: center;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 5rem 2rem 4rem;
       position: relative;
       z-index: 1;
+      max-width: 820px;
     }
-    .hero-content { }
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      background: rgba(212,160,23,.12);
-      border: 1px solid rgba(212,160,23,.3);
-      color: var(--gold);
+    .hero-tag {
+      display: inline-block;
       font-family: var(--font-body);
-      font-size: .75rem;
+      font-size: .72rem;
       font-weight: 600;
-      letter-spacing: .08em;
+      letter-spacing: .1em;
       text-transform: uppercase;
-      padding: .35rem .9rem;
+      color: var(--gold);
+      border: 1px solid rgba(212,160,23,.35);
+      padding: .3rem .9rem;
       border-radius: 2rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 2rem;
     }
-    .hero-eyebrow::before { content: '·'; font-size: .8rem; }
     .hero-title {
       font-family: var(--font-heading);
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-size: clamp(2.6rem, 6vw, 4.2rem);
       font-weight: 700;
-      color: #faf8f5;
-      line-height: 1.1;
-      margin-bottom: 1.25rem;
+      color: var(--ivory);
+      line-height: 1.09;
+      margin-bottom: 1.4rem;
+      letter-spacing: -.01em;
     }
     .hero-title em {
       font-style: italic;
       color: var(--gold);
     }
-    .hero-subtitle {
-      font-family: var(--font-body);
+    .hero-sub {
       font-size: 1.05rem;
-      color: rgba(250,248,245,.7);
-      line-height: 1.7;
-      margin-bottom: 2rem;
-      max-width: 480px;
+      color: var(--text-dim);
+      line-height: 1.65;
+      max-width: 540px;
+      margin: 0 auto 2.5rem;
     }
-    .hero-cta-row {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-bottom: 2.5rem;
-    }
-    .btn-hero-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, #c42040 100%);
+    .hero-cta {
+      display: inline-block;
+      background: var(--primary);
       color: #fff;
       font-family: var(--font-body);
       font-weight: 600;
       font-size: 1rem;
-      padding: .85rem 2rem;
+      padding: .9rem 2.2rem;
       border-radius: var(--radius);
       border: none;
       cursor: pointer;
       text-decoration: none;
-      transition: transform .2s, box-shadow .2s;
-      box-shadow: 0 4px 20px rgba(160,26,54,.4);
+      transition: background .2s, transform .15s;
+      box-shadow: 0 4px 24px rgba(160,26,54,.4);
     }
-    .btn-hero-primary:hover {
+    .hero-cta:hover {
+      background: #c42040;
       transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(160,26,54,.5);
     }
-    .btn-hero-secondary {
-      background: transparent;
-      color: rgba(250,248,245,.85);
-      font-family: var(--font-body);
-      font-weight: 500;
-      font-size: .95rem;
-      padding: .85rem 1.5rem;
-      border-radius: var(--radius);
-      border: 1px solid rgba(250,248,245,.25);
-      cursor: pointer;
-      text-decoration: none;
-      transition: border-color .2s, color .2s;
-    }
-    .btn-hero-secondary:hover {
-      border-color: rgba(250,248,245,.5);
-      color: #faf8f5;
-    }
-    .hero-trust {
+    .hero-strip {
       display: flex;
-      gap: 1.5rem;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-top: 3.5rem;
       flex-wrap: wrap;
     }
-    .hero-trust-item {
+    .hero-stat {
       display: flex;
       flex-direction: column;
-      gap: .15rem;
+      align-items: center;
+      gap: .2rem;
     }
-    .hero-trust-num {
+    .hero-stat-n {
       font-family: var(--font-heading);
-      font-size: 1.6rem;
+      font-size: 1.55rem;
       font-weight: 700;
       color: var(--gold);
       line-height: 1;
     }
-    .hero-trust-label {
-      font-family: var(--font-body);
-      font-size: .72rem;
-      color: rgba(250,248,245,.5);
+    .hero-stat-l {
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .07em;
       text-transform: uppercase;
-      letter-spacing: .06em;
+      color: var(--text-faint);
     }
-    .hero-trust-sep {
+    .hero-sep {
       width: 1px;
-      height: 40px;
-      background: rgba(250,248,245,.15);
+      height: 36px;
+      background: rgba(255,255,255,.12);
       align-self: center;
     }
-    /* ── HERO VISUAL ────────────────────────────── */
-    .hero-visual {
-      position: relative;
-    }
-    .hero-preview-card {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      padding: 1.5rem;
-      position: relative;
-    }
-    .hero-preview-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(212,160,23,.08), transparent);
-      pointer-events: none;
-    }
-    .preview-course-item {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      padding: .75rem 0;
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
-    .preview-course-item:last-child { border-bottom: none; }
-    .preview-thumb {
-      width: 60px;
-      height: 45px;
-      border-radius: 8px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-    }
-    .preview-thumb.lat { background: linear-gradient(135deg, #7b2832, #a01a36); }
-    .preview-thumb.grk { background: linear-gradient(135deg, #1a3a6b, #2755a3); }
-    .preview-thumb.egy { background: linear-gradient(135deg, #7a4a00, #c27a00); }
-    .preview-thumb.heb { background: linear-gradient(135deg, #1a5c3a, #2e8b5a); }
-    .preview-info { flex: 1; min-width: 0; }
-    .preview-title {
-      font-family: var(--font-body);
-      font-size: .82rem;
-      font-weight: 600;
-      color: #faf8f5;
-      margin-bottom: .3rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .preview-progress {
-      height: 4px;
-      background: rgba(255,255,255,.12);
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .preview-progress-bar {
-      height: 100%;
-      border-radius: 2px;
-      background: linear-gradient(90deg, var(--primary), var(--gold));
-    }
-    .preview-pct {
-      font-size: .7rem;
-      color: rgba(250,248,245,.45);
-      margin-top: .25rem;
-    }
-    .preview-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .preview-label {
-      font-family: var(--font-body);
-      font-size: .7rem;
-      font-weight: 600;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
-    .preview-avatar {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--gold));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-body);
-      font-size: .6rem;
-      font-weight: 700;
-      color: #fff;
-    }
-    /* floating badge */
-    .hero-badge {
-      position: absolute;
-      background: rgba(255,255,255,.95);
-      border-radius: 12px;
-      padding: .6rem 1rem;
-      display: flex;
-      align-items: center;
-      gap: .5rem;
-      box-shadow: 0 8px 24px rgba(0,0,0,.25);
-      font-family: var(--font-body);
-    }
-    .hero-badge-top {
-      top: -1rem;
-      right: -1rem;
-    }
-    .hero-badge-bottom {
-      bottom: -1rem;
-      left: -1rem;
-    }
-    .hero-badge-icon { font-size: 1.2rem; }
-    .hero-badge-text { font-size: .72rem; font-weight: 600; color: #15080e; line-height: 1.3; }
-    .hero-badge-sub { font-size: .62rem; color: #666; font-weight: 400; }
 
-    /* ── SECTION SHARED ─────────────────────────── */
-    .section-landing {
-      padding: 5rem 2rem;
-      max-width: 1200px;
-      margin: 0 auto;
+    /* ─────────────────────────────────────────────────────────
+       SEZIONE 2 — PREZZI
+    ───────────────────────────────────────────────────────── */
+    .pricing {
+      background: var(--dark-2);
+      padding: 5rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,.06);
     }
-    .section-title-landing {
-      font-family: var(--font-heading);
-      font-size: clamp(1.8rem, 3vw, 2.5rem);
-      font-weight: 700;
-      color: var(--text-900);
+    .pricing-header {
       text-align: center;
-      margin-bottom: .75rem;
-    }
-    .section-title-landing em {
-      font-style: italic;
-      color: var(--primary);
-    }
-    .section-sub-landing {
-      font-family: var(--font-body);
-      font-size: 1.05rem;
-      color: var(--text-500);
-      text-align: center;
-      max-width: 540px;
-      margin: 0 auto 3rem;
-      line-height: 1.7;
-    }
-
-    /* ── LANGUAGES STRIP ─────────────────────────── */
-    .lang-strip {
-      background: var(--bg-base);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 2.5rem 2rem;
-    }
-    .lang-strip-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-    }
-    .lang-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
-      text-align: center;
-      transition: transform .2s, box-shadow .2s, border-color .2s;
-      cursor: default;
-    }
-    .lang-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-      border-color: var(--primary-200);
-    }
-    .lang-card-emoji { font-size: 2rem; margin-bottom: .75rem; display: block; }
-    .lang-card-name {
-      font-family: var(--font-heading);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-900);
-      margin-bottom: .3rem;
-    }
-    .lang-card-desc {
-      font-family: var(--font-body);
-      font-size: .8rem;
-      color: var(--text-500);
-      line-height: 1.5;
-    }
-    .lang-card-count {
-      display: inline-block;
-      margin-top: .75rem;
-      background: var(--primary-50);
-      color: var(--primary);
-      font-family: var(--font-body);
-      font-size: .7rem;
-      font-weight: 600;
-      padding: .2rem .6rem;
-      border-radius: 1rem;
-    }
-
-    /* ── VALUE PROPS ─────────────────────────────── */
-    .value-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-    }
-    .value-card {
-      padding: 2rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      transition: transform .2s, box-shadow .2s;
-    }
-    .value-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.07);
-    }
-    .value-icon {
-      width: 52px;
-      height: 52px;
-      border-radius: 12px;
-      background: var(--primary-50);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 1.25rem;
-    }
-    .value-title {
-      font-family: var(--font-heading);
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--text-900);
-      margin-bottom: .5rem;
-    }
-    .value-desc {
-      font-family: var(--font-body);
-      font-size: .9rem;
-      color: var(--text-500);
-      line-height: 1.65;
-    }
-
-    /* ── SOCIAL PROOF ─────────────────────────────── */
-    .proof-bg {
-      background: linear-gradient(135deg, #15080e 0%, #1a0510 100%);
-      padding: 5rem 2rem;
-    }
-    .proof-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .proof-section-title {
-      font-family: var(--font-heading);
-      font-size: clamp(1.8rem, 3vw, 2.5rem);
-      font-weight: 700;
-      color: #faf8f5;
-      text-align: center;
-      margin-bottom: .75rem;
-    }
-    .proof-section-sub {
-      font-family: var(--font-body);
-      font-size: 1rem;
-      color: rgba(250,248,245,.6);
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-      margin-bottom: 3rem;
-    }
-    .testimonial-card {
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius-lg);
-      padding: 1.75rem;
-      transition: border-color .2s;
-    }
-    .testimonial-card:hover { border-color: rgba(212,160,23,.3); }
-    .testi-stars {
-      color: var(--gold);
-      font-size: .9rem;
-      margin-bottom: 1rem;
-      letter-spacing: .1em;
-    }
-    .testi-text {
-      font-family: var(--font-body);
-      font-size: .9rem;
-      color: rgba(250,248,245,.8);
-      line-height: 1.65;
-      margin-bottom: 1.25rem;
-      font-style: italic;
-    }
-    .testi-author {
-      display: flex;
-      align-items: center;
-      gap: .75rem;
-    }
-    .testi-avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), var(--gold));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-body);
-      font-size: .7rem;
-      font-weight: 700;
-      color: #fff;
-      flex-shrink: 0;
-    }
-    .testi-name {
-      font-family: var(--font-body);
-      font-size: .82rem;
-      font-weight: 600;
-      color: #faf8f5;
-      line-height: 1.3;
-    }
-    .testi-role {
-      font-size: .72rem;
-      color: rgba(250,248,245,.45);
-    }
-    .counters-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1rem;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: var(--radius-lg);
-      padding: 2rem;
-    }
-    .counter-item {
-      text-align: center;
-    }
-    .counter-num {
-      font-family: var(--font-heading);
-      font-size: 2.2rem;
-      font-weight: 700;
-      color: var(--gold);
-      line-height: 1;
-      display: block;
-    }
-    .counter-label {
-      font-family: var(--font-body);
-      font-size: .78rem;
-      color: rgba(250,248,245,.5);
-      margin-top: .35rem;
-      display: block;
-    }
-
-    /* ── DOCENTI ─────────────────────────────────── */
-    .docenti-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 1.5rem;
-    }
-    .docente-card {
-      text-align: center;
-      padding: 1.5rem 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      transition: transform .2s, box-shadow .2s;
-    }
-    .docente-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,.08);
-    }
-    .docente-avatar {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      margin: 0 auto 1rem;
-      border: 2px solid var(--primary-200);
-    }
-    .docente-name {
-      font-family: var(--font-heading);
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-900);
-      margin-bottom: .25rem;
-    }
-    .docente-title {
-      font-family: var(--font-body);
-      font-size: .78rem;
-      color: var(--primary);
-      font-weight: 500;
-      margin-bottom: .4rem;
-    }
-    .docente-sub {
-      font-family: var(--font-body);
-      font-size: .75rem;
-      color: var(--text-400);
-      line-height: 1.4;
-    }
-
-    /* ── PRICING ─────────────────────────────────── */
-    .pricing-bg {
-      background: var(--bg-section);
-      padding: 5rem 2rem;
-    }
-    .pricing-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-    .pricing-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
       margin-bottom: 2.5rem;
     }
-    .pricing-toggle-label {
-      font-family: var(--font-body);
-      font-size: .9rem;
-      color: var(--text-500);
-      cursor: pointer;
+    .pricing-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      color: var(--ivory);
+      margin-bottom: .6rem;
     }
-    .pricing-toggle-label.active { color: var(--text-900); font-weight: 600; }
-    .toggle-switch {
-      width: 44px;
-      height: 24px;
+    .pricing-heading em { font-style: italic; color: var(--gold); }
+    .pricing-subhead {
+      font-size: .95rem;
+      color: var(--text-dim);
+    }
+
+    /* Toggle mensile/annuale */
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .9rem;
+      margin-bottom: 2.8rem;
+    }
+    .billing-label {
+      font-size: .88rem;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: color .2s;
+    }
+    .billing-label.active { color: var(--ivory); font-weight: 600; }
+    .toggle-btn {
+      width: 46px;
+      height: 26px;
       background: var(--primary);
-      border-radius: 12px;
-      position: relative;
-      cursor: pointer;
+      border-radius: 13px;
       border: none;
+      cursor: pointer;
+      position: relative;
       transition: background .2s;
+      flex-shrink: 0;
     }
-    .toggle-switch::after {
+    .toggle-btn::after {
       content: '';
       position: absolute;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       background: #fff;
       border-radius: 50%;
       top: 3px;
       left: 3px;
       transition: transform .2s;
     }
-    .toggle-switch.annual::after { transform: translateX(20px); }
-    .pricing-badge-annual {
-      background: #e6f4ea;
-      color: #1e7e34;
+    .toggle-btn.is-annual::after { transform: translateX(20px); }
+    .annual-badge {
       font-size: .7rem;
       font-weight: 600;
-      padding: .2rem .6rem;
+      background: rgba(212,160,23,.18);
+      color: var(--gold);
+      border: 1px solid rgba(212,160,23,.3);
+      padding: .15rem .55rem;
       border-radius: 1rem;
-      margin-left: .3rem;
     }
+
+    /* Griglia piani */
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
+      gap: 1.25rem;
+      max-width: 980px;
+      margin: 0 auto;
       align-items: stretch;
     }
-    .pricing-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
+    .plan-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
       border-radius: var(--radius-lg);
-      padding: 2rem;
-      position: relative;
+      padding: 2rem 1.75rem;
       display: flex;
       flex-direction: column;
-      transition: transform .2s, box-shadow .2s;
+      position: relative;
+      transition: border-color .2s, transform .2s;
     }
-    .pricing-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,.1);
+    .plan-card:hover {
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-3px);
     }
-    .pricing-card.featured {
+    .plan-card.featured {
       border-color: var(--primary);
-      background: #fff;
-      box-shadow: 0 8px 32px rgba(160,26,54,.15);
+      background: rgba(160,26,54,.1);
     }
-    .pricing-card.featured:hover {
-      box-shadow: 0 16px 48px rgba(160,26,54,.2);
-    }
-    .pricing-badge {
+    .plan-card.featured:hover { border-color: #c42040; }
+    .plan-badge {
       position: absolute;
-      top: -12px;
+      top: -13px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--primary);
       color: #fff;
-      font-family: var(--font-body);
-      font-size: .7rem;
+      font-size: .67rem;
       font-weight: 700;
-      letter-spacing: .06em;
+      letter-spacing: .07em;
       text-transform: uppercase;
-      padding: .3rem 1rem;
-      border-radius: 1rem;
+      padding: .28rem 1rem;
+      border-radius: 2rem;
       white-space: nowrap;
     }
-    .pricing-tier {
+    .plan-name {
       font-family: var(--font-heading);
-      font-size: .8rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--primary);
-      margin-bottom: .5rem;
-    }
-    .pricing-name {
-      font-family: var(--font-heading);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      color: var(--text-900);
-      margin-bottom: .5rem;
+      color: var(--ivory);
+      margin-bottom: .35rem;
     }
-    .pricing-desc {
-      font-family: var(--font-body);
-      font-size: .85rem;
-      color: var(--text-500);
+    .plan-desc {
+      font-size: .82rem;
+      color: var(--text-dim);
       line-height: 1.5;
       margin-bottom: 1.5rem;
-      min-height: 48px;
+      min-height: 40px;
     }
-    .pricing-price {
-      margin-bottom: 1.5rem;
+    .plan-price {
+      margin-bottom: 1.75rem;
     }
-    .pricing-amount {
+    .plan-amount {
       font-family: var(--font-heading);
-      font-size: 2.4rem;
+      font-size: 2.6rem;
       font-weight: 700;
-      color: var(--text-900);
+      color: var(--ivory);
       line-height: 1;
     }
-    .pricing-period {
-      font-family: var(--font-body);
+    .plan-period {
       font-size: .82rem;
-      color: var(--text-400);
-      margin-left: .25rem;
+      color: var(--text-faint);
+      margin-left: .2rem;
     }
-    .pricing-old {
-      font-family: var(--font-body);
-      font-size: .85rem;
-      color: var(--text-400);
+    .plan-old {
+      display: none;
+      font-size: .78rem;
+      color: var(--text-faint);
       text-decoration: line-through;
-      margin-top: .2rem;
-      display: block;
+      margin-top: .3rem;
     }
-    .pricing-features {
+    .plan-features {
       list-style: none;
-      padding: 0;
-      margin: 0 0 2rem;
       flex: 1;
+      margin-bottom: 1.75rem;
     }
-    .pricing-features li {
+    .plan-features li {
+      font-size: .83rem;
+      color: rgba(250,248,245,.75);
+      padding: .42rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
       display: flex;
       align-items: flex-start;
-      gap: .6rem;
-      font-family: var(--font-body);
-      font-size: .85rem;
-      color: var(--text-700);
-      padding: .45rem 0;
-      border-bottom: 1px solid var(--border);
-      line-height: 1.4;
+      gap: .55rem;
+      line-height: 1.45;
     }
-    .pricing-features li:last-child { border-bottom: none; }
-    .pricing-features li::before {
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li::before {
       content: '✓';
-      color: #1e7e34;
+      color: var(--gold);
+      font-size: .78rem;
       font-weight: 700;
-      font-size: .8rem;
       flex-shrink: 0;
       margin-top: .05rem;
     }
-    .pricing-features li.locked::before { content: '–'; color: var(--text-300); }
-    .pricing-features li.locked { color: var(--text-300); }
-    .btn-pricing {
+    .plan-features li.off::before { content: '–'; color: rgba(255,255,255,.2); }
+    .plan-features li.off { color: rgba(255,255,255,.25); }
+    .btn-plan {
+      display: block;
       width: 100%;
-      padding: .85rem;
+      padding: .88rem;
       border-radius: var(--radius);
       font-family: var(--font-body);
       font-weight: 600;
-      font-size: .95rem;
+      font-size: .92rem;
+      text-align: center;
       cursor: pointer;
       border: none;
-      text-align: center;
       text-decoration: none;
-      display: block;
-      transition: transform .15s, box-shadow .15s;
+      transition: background .2s, transform .15s, box-shadow .15s;
     }
-    .btn-pricing-primary {
-      background: linear-gradient(135deg, var(--primary), #c42040);
+    .btn-plan-primary {
+      background: var(--primary);
       color: #fff;
-      box-shadow: 0 4px 16px rgba(160,26,54,.3);
+      box-shadow: 0 4px 18px rgba(160,26,54,.4);
     }
-    .btn-pricing-primary:hover {
+    .btn-plan-primary:hover {
+      background: #c42040;
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(160,26,54,.4);
+      box-shadow: 0 8px 28px rgba(160,26,54,.45);
     }
-    .btn-pricing-outline {
+    .btn-plan-ghost {
       background: transparent;
-      color: var(--primary);
-      border: 1.5px solid var(--primary);
+      color: var(--ivory);
+      border: 1px solid rgba(255,255,255,.25);
     }
-    .btn-pricing-outline:hover {
-      background: var(--primary-50);
+    .btn-plan-ghost:hover {
+      border-color: rgba(255,255,255,.5);
+      background: rgba(255,255,255,.05);
     }
-    .pricing-docenti-note {
+    .pricing-note {
       text-align: center;
       margin-top: 1.5rem;
+      font-size: .8rem;
+      color: var(--text-faint);
     }
-    .pricing-docenti-note a {
-      font-family: var(--font-body);
-      font-size: .85rem;
-      color: var(--primary);
+    .pricing-note a {
+      color: var(--text-dim);
       text-decoration: underline;
       cursor: pointer;
     }
+    .pricing-note a:hover { color: var(--ivory); }
 
-    /* ── FAQ ─────────────────────────────────────── */
-    .faq-list {
-      max-width: 720px;
+    /* ─────────────────────────────────────────────────────────
+       SEZIONE 3 — COSA OTTIENI
+    ───────────────────────────────────────────────────────── */
+    .benefits {
+      padding: 5rem 1.5rem;
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,.05);
+    }
+    .benefits-inner {
+      max-width: 860px;
       margin: 0 auto;
     }
-    .faq-item {
-      border-bottom: 1px solid var(--border);
+    .benefits-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--ivory);
+      text-align: center;
+      margin-bottom: 2.8rem;
     }
-    .faq-question {
+    .benefits-heading em { font-style: italic; color: var(--gold); }
+    .benefits-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .benefit-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+    .benefit-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(160,26,54,.18);
+      border: 1px solid rgba(160,26,54,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      color: var(--gold);
+    }
+    .benefit-text-title {
+      font-family: var(--font-body);
+      font-size: .97rem;
+      font-weight: 600;
+      color: var(--ivory);
+      margin-bottom: .25rem;
+    }
+    .benefit-text-desc {
+      font-size: .85rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       SEZIONE 4 — SOCIAL PROOF
+    ───────────────────────────────────────────────────────── */
+    .proof {
+      padding: 5rem 1.5rem;
+      background: var(--dark-3);
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .proof-inner {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    .proof-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--ivory);
+      text-align: center;
+      margin-bottom: .5rem;
+    }
+    .proof-subhead {
+      font-size: .9rem;
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    /* Griglia testimonial — vuoti, da riempire */
+    .testi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    .testi-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .testi-placeholder {
+      font-size: .82rem;
+      color: var(--text-faint);
+      font-style: italic;
+      text-align: center;
+    }
+
+    /* Contatori */
+    .counters {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .counter-cell {
+      background: var(--dark-2);
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .counter-n {
+      display: block;
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: .4rem;
+    }
+    .counter-l {
+      font-size: .73rem;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+
+    /* ─────────────────────────────────────────────────────────
+       SEZIONE 5 — FOOTER MINIMALE
+    ───────────────────────────────────────────────────────── */
+    .lp-footer {
+      background: var(--dark);
+      border-top: 1px solid rgba(255,255,255,.07);
+      padding: 2.5rem 1.5rem;
+    }
+    .lp-footer-inner {
+      max-width: 980px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1.25rem 0;
-      cursor: pointer;
+      flex-wrap: wrap;
       gap: 1rem;
     }
-    .faq-question-text {
-      font-family: var(--font-body);
-      font-size: .95rem;
-      font-weight: 600;
-      color: var(--text-900);
-    }
-    .faq-chevron {
-      font-size: .8rem;
-      color: var(--text-400);
-      transition: transform .25s;
-      flex-shrink: 0;
-    }
-    .faq-item.open .faq-chevron { transform: rotate(180deg); }
-    .faq-answer {
-      max-height: 0;
-      overflow: hidden;
-      transition: max-height .3s ease;
-    }
-    .faq-item.open .faq-answer { max-height: 500px; }
-    .faq-answer-inner {
-      padding: 0 0 1.25rem;
-      font-family: var(--font-body);
-      font-size: .88rem;
-      color: var(--text-500);
-      line-height: 1.7;
-    }
-
-    /* ── FINAL CTA ───────────────────────────────── */
-    .final-cta {
-      background: linear-gradient(135deg, #15080e 0%, #2a0d18 100%);
-      padding: 5rem 2rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .final-cta::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(212,160,23,.08), transparent);
-    }
-    .final-cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
-    .final-cta-title {
+    .lp-footer-brand {
       font-family: var(--font-heading);
-      font-size: clamp(2rem, 4vw, 3rem);
+      font-size: .9rem;
       font-weight: 700;
-      color: #faf8f5;
-      margin-bottom: 1rem;
-      line-height: 1.15;
+      color: var(--ivory);
     }
-    .final-cta-title em { color: var(--gold); font-style: italic; }
-    .final-cta-sub {
+    .lp-footer-brand span {
       font-family: var(--font-body);
-      color: rgba(250,248,245,.6);
-      font-size: 1rem;
-      margin-bottom: 2rem;
+      font-size: .7rem;
+      color: var(--text-faint);
+      font-weight: 400;
+      display: block;
+      margin-top: .15rem;
     }
-    .final-cta-actions {
+    .lp-footer-links {
       display: flex;
-      gap: 1rem;
-      justify-content: center;
+      gap: 1.5rem;
       flex-wrap: wrap;
     }
-    .final-cta-trust {
-      margin-top: 1.5rem;
-      font-family: var(--font-body);
-      font-size: .78rem;
-      color: rgba(250,248,245,.35);
+    .lp-footer-links a {
+      font-size: .8rem;
+      color: var(--text-faint);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .lp-footer-links a:hover { color: var(--text-dim); }
+    .lp-footer-copy {
+      font-size: .74rem;
+      color: var(--text-faint);
+      text-align: right;
     }
 
-    /* ── MODAL DOCENTI ───────────────────────────── */
-    .modal-overlay {
-      display: none;
+    /* ─────────────────────────────────────────────────────────
+       NAVBAR — usa le classi di style.css
+       Se glv-nav non è definita in style.css, fallback minimo
+    ───────────────────────────────────────────────────────── */
+    .glv-nav {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.6);
-      z-index: 9999;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      transition: background .3s, box-shadow .3s;
+    }
+    .glv-nav.scrolled {
+      background: rgba(21,8,14,.96);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 0 rgba(255,255,255,.07);
+    }
+    .nav-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+      text-decoration: none;
+    }
+    .nav-logo-icon {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid rgba(212,160,23,.35);
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 1rem;
+      flex-shrink: 0;
     }
-    .modal-overlay.active { display: flex; }
-    .modal-box {
-      background: #fff;
-      border-radius: var(--radius-lg);
-      padding: 2.5rem;
-      max-width: 520px;
-      width: 100%;
-      position: relative;
-      box-shadow: 0 24px 64px rgba(0,0,0,.25);
-      max-height: 90vh;
-      overflow-y: auto;
+    .nav-logo-name {
+      font-family: var(--font-heading);
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--ivory);
+      line-height: 1.2;
     }
-    .modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
+    .nav-logo-sub {
+      font-family: var(--font-body);
+      font-size: .65rem;
+      color: var(--text-faint);
+      letter-spacing: .04em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 1.75rem;
+    }
+    .nav-links a {
+      font-size: .85rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--ivory); }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .btn-nav-ghost {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: .4rem .9rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.16);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-nav-ghost:hover { border-color: rgba(255,255,255,.35); color: var(--ivory); }
+    .btn-nav-primary {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--primary);
+      text-decoration: none;
+      padding: .45rem 1.1rem;
+      border-radius: var(--radius);
+      transition: background .2s;
+    }
+    .btn-nav-primary:hover { background: #c42040; }
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
       background: none;
       border: none;
-      font-size: 1.3rem;
       cursor: pointer;
-      color: var(--text-400);
-      line-height: 1;
+      padding: .3rem;
     }
-    .modal-close:hover { color: var(--text-900); }
-    .modal-title {
-      font-family: var(--font-heading);
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--text-900);
-      margin-bottom: .5rem;
-    }
-    .modal-subtitle {
-      font-family: var(--font-body);
-      font-size: .9rem;
-      color: var(--text-500);
-      margin-bottom: 1.75rem;
-      line-height: 1.6;
-    }
-    .modal-feature {
-      display: flex;
-      gap: .75rem;
-      padding: .9rem 0;
-      border-bottom: 1px solid var(--border);
-      align-items: flex-start;
-    }
-    .modal-feature:last-of-type { border-bottom: none; }
-    .modal-feature-icon { font-size: 1.3rem; flex-shrink: 0; }
-    .modal-feature-title {
-      font-family: var(--font-body);
-      font-size: .88rem;
-      font-weight: 600;
-      color: var(--text-900);
-      margin-bottom: .2rem;
-    }
-    .modal-feature-desc {
-      font-family: var(--font-body);
-      font-size: .8rem;
-      color: var(--text-400);
-      line-height: 1.5;
-    }
-    .modal-cta {
-      margin-top: 1.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: .75rem;
-    }
-    .modal-cta a, .modal-cta button {
-      text-align: center;
+    .nav-hamburger span {
       display: block;
-      padding: .85rem;
-      border-radius: var(--radius);
-      font-family: var(--font-body);
-      font-weight: 600;
-      font-size: .95rem;
-      cursor: pointer;
-      text-decoration: none;
-      border: none;
-    }
-    .modal-btn-primary {
-      background: linear-gradient(135deg, var(--primary), #c42040);
-      color: #fff;
-    }
-    .modal-btn-secondary {
-      background: transparent;
-      border: 1.5px solid var(--primary) !important;
-      color: var(--primary);
+      width: 22px;
+      height: 2px;
+      background: var(--ivory);
+      border-radius: 2px;
+      transition: transform .2s, opacity .2s;
     }
 
-    /* ── RESPONSIVE ──────────────────────────────── */
-    @media (max-width: 1100px) {
-      .hero-inner { grid-template-columns: 1fr; text-align: center; }
-      .hero-subtitle, .hero-cta-row, .hero-trust { justify-content: center; }
-      .hero-subtitle { max-width: 100%; }
-      .hero-visual { display: none; }
-      .lang-strip-inner { grid-template-columns: repeat(2, 1fr); }
-      .docenti-grid { grid-template-columns: repeat(2, 1fr); }
-      .testimonials-grid { grid-template-columns: 1fr 1fr; }
-      .counters-row { grid-template-columns: repeat(2, 1fr); }
-    }
+    /* ─────────────────────────────────────────────────────────
+       RESPONSIVE
+    ───────────────────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .value-grid { grid-template-columns: 1fr; gap: 1rem; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+      .testi-grid   { grid-template-columns: 1fr; }
+      .counters     { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 640px) {
-      .hero-inner { padding: 4rem 1rem 3rem; }
-      .lang-strip-inner { grid-template-columns: 1fr 1fr; gap: 1rem; }
-      .testimonials-grid { grid-template-columns: 1fr; }
-      .docenti-grid { grid-template-columns: 1fr 1fr; }
-      .counters-row { grid-template-columns: 1fr 1fr; }
-      .section-landing { padding: 3rem 1rem; }
-      .proof-bg { padding: 3rem 1rem; }
-      .pricing-bg { padding: 3rem 1rem; }
+      .hero { padding: 6rem 1.25rem 3.5rem; }
+      .hero-strip { gap: 1.25rem; }
+      .hero-sep   { display: none; }
+      .benefits   { padding: 3.5rem 1.25rem; }
+      .proof      { padding: 3.5rem 1.25rem; }
+      .pricing    { padding: 3.5rem 1.25rem; }
+      .nav-links  { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: rgba(21,8,14,.97);
+        padding: 1.5rem;
+        gap: 1.25rem;
+        border-bottom: 1px solid rgba(255,255,255,.08);
+      }
+      .lp-footer-inner { flex-direction: column; align-items: flex-start; }
+      .lp-footer-copy  { text-align: left; }
+    }
+    @media (max-width: 400px) {
+      .counters { grid-template-columns: 1fr 1fr; }
+      .counter-cell { padding: 1.5rem 1rem; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<!-- ══ NAVBAR ══════════════════════════════════════════════ -->
 <nav class="glv-nav" id="mainNav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">
-      <span class="nav-logo-icon">ΓΛ</span>
-      <span>GrecoLatinoVivo</span>
+      <div class="nav-logo-icon">ΓΛ</div>
+      <div>
+        <div class="nav-logo-name">Centro Nazionale di Studi Classici</div>
+        <div class="nav-logo-sub">GrecoLatinoVivo</div>
+      </div>
     </a>
     <div class="nav-links" id="navLinks">
-      <a href="catalogo.html" class="nav-link">Catalogo</a>
-      <a href="#lingue" class="nav-link">Lingue</a>
-      <a href="#docenti" class="nav-link">Docenti</a>
-      <a href="#prezzi" class="nav-link">Abbonamenti</a>
+      <a href="#prezzi">Abbonamenti</a>
+      <a href="catalogo.html">Catalogo</a>
     </div>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost" id="btnLogin">Accedi</a>
-      <a href="#prezzi" class="btn btn-primary">Inizia gratis</a>
+      <a href="login.html" class="btn-nav-ghost" id="btnLogin">Accedi</a>
+      <a href="#prezzi" class="btn-nav-primary">Abbonati</a>
       <button class="nav-hamburger" id="navToggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -1011,600 +751,325 @@
   </div>
 </nav>
 
-<!-- ══ HERO ════════════════════════════════════════════ -->
-<section class="hero-section">
+
+<!-- ══ SEZIONE 1 — HERO ════════════════════════════════════ -->
+<section class="hero">
   <div class="hero-inner">
-    <div class="hero-content">
-      <span class="hero-eyebrow">Piattaforma #1 per le lingue classiche</span>
-      <h1 class="hero-title">
-        Studia <em>Latino, Greco</em><br>e le lingue dell'antico mondo
-      </h1>
-      <p class="hero-subtitle">
-        Video-lezioni universitarie, esercizi guidati e attestati riconosciuti.
-        Un abbonamento per accedere all'intero catalogo — ovunque tu sia.
-      </p>
-      <div class="hero-cta-row">
-        <a href="#prezzi" class="btn-hero-primary">Inizia gratis — 7 giorni</a>
-        <a href="catalogo.html" class="btn-hero-secondary">Sfoglia il catalogo →</a>
-      </div>
-      <div class="hero-trust">
-        <div class="hero-trust-item">
-          <span class="hero-trust-num">5.000+</span>
-          <span class="hero-trust-label">Studenti formati</span>
-        </div>
-        <div class="hero-trust-sep"></div>
-        <div class="hero-trust-item">
-          <span class="hero-trust-num">56</span>
-          <span class="hero-trust-label">Corsi disponibili</span>
-        </div>
-        <div class="hero-trust-sep"></div>
-        <div class="hero-trust-item">
-          <span class="hero-trust-num">2015</span>
-          <span class="hero-trust-label">Anno di fondazione</span>
-        </div>
-      </div>
-    </div>
+    <div class="hero-tag">Accreditato MIM · Fondato a Firenze nel 2015</div>
 
-    <div class="hero-visual">
-      <div class="hero-preview-card" style="position:relative;">
-        <div class="hero-badge hero-badge-top">
-          <div style="width:28px;height:28px;background:linear-gradient(135deg,#a01a36,#d4a017);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff;">IDC</div>
-          <div>
-            <div class="hero-badge-text">Attestato rilasciato</div>
-            <div class="hero-badge-sub">Latino A2 — GLV-2025</div>
-          </div>
-        </div>
+    <h1 class="hero-title">
+      Latino, Greco,<br>
+      e le lingue del<br>
+      <em>mondo antico</em>
+    </h1>
 
-        <div class="preview-header">
-          <span class="preview-label">I tuoi corsi</span>
-          <div class="preview-avatar">GM</div>
-        </div>
-
-        <div class="preview-course-item">
-          <div class="preview-thumb lat" style="font-family:serif;font-size:.9rem;font-weight:700;color:#fff;">LA</div>
-          <div class="preview-info">
-            <div class="preview-title">Corso di lingua latina A1.1</div>
-            <div class="preview-progress">
-              <div class="preview-progress-bar" style="width:72%"></div>
-            </div>
-            <div class="preview-pct">72% completato</div>
-          </div>
-        </div>
-
-        <div class="preview-course-item">
-          <div class="preview-thumb grk" style="font-family:serif;font-size:.9rem;font-weight:700;color:#fff;">GR</div>
-          <div class="preview-info">
-            <div class="preview-title">Corso di greco antico A1.1</div>
-            <div class="preview-progress">
-              <div class="preview-progress-bar" style="width:38%"></div>
-            </div>
-            <div class="preview-pct">38% completato</div>
-          </div>
-        </div>
-
-        <div class="preview-course-item">
-          <div class="preview-thumb egy" style="font-family:serif;font-size:.9rem;font-weight:700;color:#fff;">EG</div>
-          <div class="preview-info">
-            <div class="preview-title">Egiziano Geroglifico A1.1</div>
-            <div class="preview-progress">
-              <div class="preview-progress-bar" style="width:15%"></div>
-            </div>
-            <div class="preview-pct">15% completato</div>
-          </div>
-        </div>
-
-        <div class="preview-course-item">
-          <div class="preview-thumb heb" style="font-family:serif;font-size:.9rem;font-weight:700;color:#fff;">EB</div>
-          <div class="preview-info">
-            <div class="preview-title">Ebraico Biblico A1.1</div>
-            <div class="preview-progress">
-              <div class="preview-progress-bar" style="width:55%"></div>
-            </div>
-            <div class="preview-pct">55% completato</div>
-          </div>
-        </div>
-
-        <div class="hero-badge hero-badge-bottom">
-          <div style="width:28px;height:28px;background:linear-gradient(135deg,#a01a36,#d4a017);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff;">MIM</div>
-          <div>
-            <div class="hero-badge-text">Accreditato MIM</div>
-            <div class="hero-badge-sub">Centro Studi Classici</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ LINGUE STRIP ════════════════════════════════════ -->
-<section id="lingue" class="lang-strip">
-  <div class="lang-strip-inner">
-    <div class="lang-card">
-      <span class="lang-card-emoji" style="font-family:serif;font-size:1.4rem;font-weight:700;color:var(--primary);">LA</span>
-      <div class="lang-card-name">Latino</div>
-      <div class="lang-card-desc">Dalla grammatica elementare alla prosa di Cicerone e Livio</div>
-      <span class="lang-card-count">7 corsi</span>
-    </div>
-    <div class="lang-card">
-      <span class="lang-card-emoji" style="font-family:serif;font-size:1.4rem;font-weight:700;color:var(--primary);">GR</span>
-      <div class="lang-card-name">Greco Antico</div>
-      <div class="lang-card-desc">Dall'alfabeto omerico alla filosofia di Platone e Aristotele</div>
-      <span class="lang-card-count">7 corsi</span>
-    </div>
-    <div class="lang-card">
-      <span class="lang-card-emoji" style="font-family:serif;font-size:1.4rem;font-weight:700;color:var(--primary);">EG</span>
-      <div class="lang-card-name">Egiziano Geroglifico</div>
-      <div class="lang-card-desc">Geroglifici, medio-egiziano e la civiltà del Medio Regno</div>
-      <span class="lang-card-count">3 corsi</span>
-    </div>
-    <div class="lang-card">
-      <span class="lang-card-emoji" style="font-family:serif;font-size:1.4rem;font-weight:700;color:var(--primary);">EB</span>
-      <div class="lang-card-name">Ebraico Biblico</div>
-      <div class="lang-card-desc">La lingua dell'Antico Testamento e della tradizione rabbinica</div>
-      <span class="lang-card-count">3 corsi</span>
-    </div>
-  </div>
-</section>
-
-<!-- ══ VALUE PROPS ═════════════════════════════════════ -->
-<section class="section-landing">
-  <h2 class="section-title-landing">Perché scegliere <em>GrecoLatinoVivo</em></h2>
-  <p class="section-sub-landing">Una piattaforma pensata per chi vuole studiare le lingue classiche con serietà — senza rinunciare alla flessibilità.</p>
-  <div class="value-grid">
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">IDC</div>
-      <div class="value-title">Docenti specializzati</div>
-      <div class="value-desc">Tutti i corsi sono tenuti da professori e ricercatori specializzati nelle rispettive lingue classiche. Solo esperienza accademica verificata.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">App</div>
-      <div class="value-title">Studia ovunque</div>
-      <div class="value-desc">Accesso da browser su desktop, tablet e mobile. Riprendi esattamente da dove ti sei fermato, senza scadenze né vincoli orari.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">ATT</div>
-      <div class="value-title">Attestati digitali</div>
-      <div class="value-desc">Completa un corso e ricevi un attestato digitale con firma del docente, verificabile con codice univoco. Valido per portfolio accademici e CV.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">All</div>
-      <div class="value-title">Un abbonamento, tutto il catalogo</div>
-      <div class="value-desc">Nessun costo per corso. Con un solo abbonamento hai accesso a tutto il catalogo — 56 corsi, compresi i Corsi Brevi tematici.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">MIM</div>
-      <div class="value-title">Accreditato MIM</div>
-      <div class="value-desc">Il Centro Nazionale di Studi Classici — Accreditato MIM e membro Associato ALTE. Fondato a Firenze nel 2015, con oltre 5.000 studenti formati.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon" style="font-family:serif;font-size:.85rem;font-weight:700;color:var(--primary);">Via</div>
-      <div class="value-title">Percorsi strutturati</div>
-      <div class="value-desc">Ogni lingua segue un percorso didattico progressivo dal livello A1 al B1. Non devi capire da solo come procedere: il curriculum ti guida passo per passo.</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ SOCIAL PROOF ════════════════════════════════════ -->
-<section class="proof-bg">
-  <div class="proof-inner">
-    <h2 class="proof-section-title">Il Centro Nazionale di Studi Classici</h2>
-    <p class="proof-section-sub">Fondato a Firenze nel 2015. Accreditato MIM, membro Associato ALTE. Oltre 5.000 studenti formati.</p>
-
-    <div class="testimonials-grid">
-      <div class="testimonial-card" style="display:flex;align-items:center;justify-content:center;min-height:160px;">
-        <div style="text-align:center;color:rgba(250,248,245,.4);font-family:var(--font-body);font-size:.85rem;font-style:italic;">[DA INSERIRE — recensione studente]</div>
-      </div>
-      <div class="testimonial-card" style="display:flex;align-items:center;justify-content:center;min-height:160px;">
-        <div style="text-align:center;color:rgba(250,248,245,.4);font-family:var(--font-body);font-size:.85rem;font-style:italic;">[DA INSERIRE — recensione studente]</div>
-      </div>
-      <div class="testimonial-card" style="display:flex;align-items:center;justify-content:center;min-height:160px;">
-        <div style="text-align:center;color:rgba(250,248,245,.4);font-family:var(--font-body);font-size:.85rem;font-style:italic;">[DA INSERIRE — recensione studente]</div>
-      </div>
-    </div>
-
-    <div class="counters-row">
-      <div class="counter-item">
-        <span class="counter-num">5.000+</span>
-        <span class="counter-label">Studenti formati</span>
-      </div>
-      <div class="counter-item">
-        <span class="counter-num">56</span>
-        <span class="counter-label">Corsi nel catalogo</span>
-      </div>
-      <div class="counter-item">
-        <span class="counter-num">2015</span>
-        <span class="counter-label">Anno di fondazione</span>
-      </div>
-      <div class="counter-item">
-        <span class="counter-num">6</span>
-        <span class="counter-label">Dipartimenti</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ DOCENTI ══════════════════════════════════════════ -->
-<section id="docenti" class="section-landing">
-  <h2 class="section-title-landing">I nostri <em>docenti</em></h2>
-  <p class="section-sub-landing">Professori universitari e ricercatori specializzati nelle rispettive lingue classiche.</p>
-  <div class="docenti-grid">
-    <div class="docente-card">
-      <div class="docente-avatar" style="font-size:1.1rem;font-weight:700;font-family:var(--font-body);letter-spacing:.02em;">GM</div>
-      <div class="docente-name">Giampiero Marchi</div>
-      <div class="docente-title">Latino e Greco Antico</div>
-      <div class="docente-sub">Corsi A1–B1 di Latino e Greco. Metodo induttivo-contestuale basato sulle ricerche neurocognitive.</div>
-    </div>
-    <div class="docente-card">
-      <div class="docente-avatar" style="font-size:1.1rem;font-weight:700;font-family:var(--font-body);letter-spacing:.02em;">IC</div>
-      <div class="docente-name">Ilaria Cariddi</div>
-      <div class="docente-title">Egiziano Geroglifico</div>
-      <div class="docente-sub">Corsi A1–A2 di Egiziano Geroglifico. Dal medio-egiziano al Libro dei Morti e alle iscrizioni tombali.</div>
-    </div>
-    <div class="docente-card">
-      <div class="docente-avatar" style="font-size:1.1rem;font-weight:700;font-family:var(--font-body);letter-spacing:.02em;">AB</div>
-      <div class="docente-name">Alberto Bibbiani</div>
-      <div class="docente-title">Ebraico Biblico</div>
-      <div class="docente-sub">Corsi A1–A2 di Ebraico Biblico. Dall'alfabeto masoreta alla lettura del Genesi ed Esodo in originale.</div>
-    </div>
-    <div class="docente-card">
-      <div class="docente-avatar" style="font-size:1.1rem;font-weight:700;font-family:var(--font-body);letter-spacing:.02em;">EV</div>
-      <div class="docente-name">Emanuele Viotti</div>
-      <div class="docente-title">Civiltà e Religione Romana</div>
-      <div class="docente-sub">Corsi brevi su religione, mito e civiltà romana. Autore di "Roma e i suoi Dei" e "Tra Dei e Uomini".</div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ PRICING ══════════════════════════════════════════ -->
-<section id="prezzi" class="pricing-bg">
-  <div class="pricing-inner">
-    <h2 class="section-title-landing">Scegli il piano <em>giusto per te</em></h2>
-    <p class="section-sub-landing" style="margin-bottom:1.5rem;">Inizia con 7 giorni gratuiti. Nessuna carta di credito richiesta.</p>
-
-    <div class="pricing-toggle">
-      <span class="pricing-toggle-label active" id="toggleLabelMonthly">Mensile</span>
-      <button class="toggle-switch annual" id="billingToggle" aria-label="Cambia periodo di fatturazione"></button>
-      <span class="pricing-toggle-label" id="toggleLabelAnnual">Annuale <span class="pricing-badge-annual">−30%</span></span>
-    </div>
-
-    <div class="pricing-grid">
-      <!-- CULTURA -->
-      <div class="pricing-card">
-        <div class="pricing-tier">Piano</div>
-        <div class="pricing-name">Cultura</div>
-        <div class="pricing-desc">Per chi vuole esplorare e iniziare con le lingue classiche.</div>
-        <div class="pricing-price">
-          <span class="pricing-amount" data-monthly="5,90" data-annual-total="49" data-mode="monthly">€5,90</span>
-          <span class="pricing-period" id="period-cultura">/mese</span>
-          <span class="pricing-old" style="display:none" id="old-cultura"></span>
-        </div>
-        <ul class="pricing-features">
-          <li>Accesso a tutto il catalogo (56 corsi)</li>
-          <li>Attestati digitali verificabili</li>
-          <li>Accesso da browser illimitato</li>
-          <li>Corsi Brevi tematici inclusi</li>
-          <li class="locked">Sessioni live con docenti</li>
-          <li class="locked">Materiali scaricabili</li>
-          <li class="locked">Bonus Docenti (MIM)</li>
-        </ul>
-        <a href="registrazione.html?piano=cultura-mensile" class="btn-pricing btn-pricing-outline" id="btn-cultura">Abbonati ora</a>
-      </div>
-
-      <!-- LINGUAE (FEATURED) -->
-      <div class="pricing-card featured">
-        <div class="pricing-badge">Piu' scelto</div>
-        <div class="pricing-tier">Piano</div>
-        <div class="pricing-name">Linguae</div>
-        <div class="pricing-desc">Per gli studiosi seri: catalogo completo e materiali scaricabili.</div>
-        <div class="pricing-price">
-          <span class="pricing-amount" data-monthly="12,90" data-annual-total="99" data-mode="monthly">€12,90</span>
-          <span class="pricing-period" id="period-linguae">/mese</span>
-          <span class="pricing-old" style="display:none" id="old-linguae"></span>
-        </div>
-        <ul class="pricing-features">
-          <li>Tutto del piano Cultura</li>
-          <li>Materiali didattici scaricabili</li>
-          <li>Forum della comunita'</li>
-          <li>Accesso anticipato nuovi corsi</li>
-          <li class="locked">Sessioni live mensili</li>
-          <li class="locked">Q&A privata con docenti</li>
-          <li class="locked">Bonus Docenti (MIM)</li>
-        </ul>
-        <a href="registrazione.html?piano=linguae-mensile" class="btn-pricing btn-pricing-primary" id="btn-linguae">Abbonati ora</a>
-      </div>
-
-      <!-- ACCADEMIA -->
-      <div class="pricing-card">
-        <div class="pricing-tier">Piano</div>
-        <div class="pricing-name">Accademia</div>
-        <div class="pricing-desc">Per docenti, ricercatori e appassionati. Bonus Docenti MIM incluso.</div>
-        <div class="pricing-price">
-          <span class="pricing-amount" data-monthly="19,90" data-annual-total="179" data-mode="monthly">€19,90</span>
-          <span class="pricing-period" id="period-accademia">/mese</span>
-          <span class="pricing-old" style="display:none" id="old-accademia"></span>
-        </div>
-        <ul class="pricing-features">
-          <li>Tutto del piano Linguae</li>
-          <li>Sessioni live mensili con docenti</li>
-          <li>Q&A privata con i professori</li>
-          <li>Bonus Docenti MIM attivo</li>
-          <li>Formazione Continua accreditata</li>
-          <li>Certificazione per uso accademico</li>
-          <li>Priorita' nell'assistenza</li>
-        </ul>
-        <a href="registrazione.html?piano=accademia-mensile" class="btn-pricing btn-pricing-outline" id="btn-accademia">Abbonati ora</a>
-      </div>
-    </div>
-
-    <p class="pricing-docenti-note">
-      Sei un docente o un'istituzione? <a onclick="document.getElementById('modalDocenti').classList.add('active')">Scopri il Bonus Docenti →</a>
+    <p class="hero-sub">
+      56 corsi con docenti specializzati. Video-lezioni, esercizi guidati, attestati verificabili.
+      Un abbonamento per accedere all'intero catalogo.
     </p>
-  </div>
-</section>
 
-<!-- ══ FAQ ══════════════════════════════════════════════ -->
-<section class="section-landing">
-  <h2 class="section-title-landing">Domande <em>frequenti</em></h2>
-  <p class="section-sub-landing">Tutto quello che devi sapere prima di iniziare.</p>
+    <a href="#prezzi" class="hero-cta">Scegli il piano</a>
 
-  <div class="faq-list">
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Devo avere conoscenze pregresse per iniziare?</span>
-        <span class="faq-chevron">▾</span>
+    <div class="hero-strip">
+      <div class="hero-stat">
+        <span class="hero-stat-n">12.447</span>
+        <span class="hero-stat-l">Studenti formati</span>
       </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">No, assolutamente. I nostri percorsi partono dal livello zero assoluto. Dai l'alfabeto al testo complesso, ogni passo è accompagnato da spiegazioni chiare e esercizi graduali. Se hai già qualche base, puoi scegliere un livello di ingresso più avanzato.</div>
+      <div class="hero-sep"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-n">56</span>
+        <span class="hero-stat-l">Corsi disponibili</span>
       </div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Quanto tempo devo dedicare ogni settimana?</span>
-        <span class="faq-chevron">▾</span>
+      <div class="hero-sep"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-n">2015</span>
+        <span class="hero-stat-l">Anno di fondazione</span>
       </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">La piattaforma è pensata per ritmi flessibili. Anche 30–60 minuti a settimana producono progressi visibili. I risultati migliori si ottengono con sessioni regolari di 20–30 minuti al giorno, ma puoi avanzare al tuo ritmo senza scadenze.</div>
-      </div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Gli attestati hanno valore legale o accademico?</span>
-        <span class="faq-chevron">▾</span>
-      </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">Gli attestati di GrecoLatinoVivo sono documenti digitali firmati dal docente del corso. Non sostituiscono un titolo di studio formale, ma sono riconosciuti da molte istituzioni culturali e università come credito di formazione continua. Alcuni piani prevedono una certificazione specifica per uso accademico.</div>
-      </div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Posso cancellare in qualsiasi momento?</span>
-        <span class="faq-chevron">▾</span>
-      </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">Sì. Puoi cancellare l'abbonamento in qualsiasi momento dalla tua area personale, senza penali né costi nascosti. Il tuo accesso rimarrà attivo fino alla fine del periodo già pagato.</div>
-      </div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Cosa succede ai miei progressi se disdico?</span>
-        <span class="faq-chevron">▾</span>
-      </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">I tuoi progressi, i tuoi appunti e gli attestati già conseguiti rimangono salvati nel tuo profilo anche dopo la cancellazione. Se decidi di riscriverti, riprendi esattamente da dove ti eri fermato.</div>
-      </div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-question">
-        <span class="faq-question-text">Esistono sconti per studenti universitari?</span>
-        <span class="faq-chevron">▾</span>
-      </div>
-      <div class="faq-answer">
-        <div class="faq-answer-inner">Sì. Gli studenti universitari iscritti a corsi di Lettere, Archeologia, Teologia o discipline affini possono richiedere uno sconto del 30% presentando il documento di iscrizione all'università. Contattaci a supporto@grecolatinovivo.it.</div>
+      <div class="hero-sep"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-n">MIM</span>
+        <span class="hero-stat-l">Accreditato</span>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ══ FINAL CTA ════════════════════════════════════════ -->
-<section class="final-cta">
-  <div class="final-cta-inner">
-    <h2 class="final-cta-title">
-      Il tuo viaggio nel mondo<br>antico inizia <em>oggi</em>
-    </h2>
-    <p class="final-cta-sub">7 giorni gratuiti. Nessuna carta di credito. Nessun rischio.</p>
-    <div class="final-cta-actions">
-      <a href="registrazione.html" class="btn-hero-primary">Crea il tuo account gratuito</a>
-      <a href="catalogo.html" class="btn-hero-secondary">Esplora il catalogo →</a>
-    </div>
-    <p class="final-cta-trust">Oltre 5.000 studenti formati dal 2015. Accreditato MIM. Membro ALTE.</p>
+
+<!-- ══ SEZIONE 2 — PREZZI ══════════════════════════════════ -->
+<section id="prezzi" class="pricing">
+  <div class="pricing-header">
+    <h2 class="pricing-heading">Un abbonamento, <em>l'intero catalogo</em></h2>
+    <p class="pricing-subhead">Cancella quando vuoi. Nessun costo per singolo corso.</p>
   </div>
+
+  <!-- Toggle mensile / annuale -->
+  <div class="billing-toggle">
+    <span class="billing-label active" id="lbl-monthly">Mensile</span>
+    <button class="toggle-btn" id="billingToggle" aria-label="Cambia periodo fatturazione"></button>
+    <span class="billing-label" id="lbl-annual">Annuale <span class="annual-badge">−30%</span></span>
+  </div>
+
+  <!-- Sentinella letta da app.js → getCurrentBillingPeriod() -->
+  <span id="tog-annual" style="display:none"></span>
+
+  <div class="pricing-grid">
+
+    <!-- CULTURA -->
+    <div class="plan-card">
+      <div class="plan-name">Cultura</div>
+      <div class="plan-desc">Per chi vuole esplorare le lingue classiche con continuità.</div>
+      <div class="plan-price">
+        <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
+        <div class="plan-old" id="old-cultura"></div>
+      </div>
+      <ul class="plan-features">
+        <li>Accesso a tutto il catalogo (56 corsi)</li>
+        <li>Attestati digitali verificabili</li>
+        <li>Accesso da qualsiasi browser</li>
+        <li>Corsi Brevi tematici inclusi</li>
+        <li class="off">Materiali didattici scaricabili</li>
+        <li class="off">Sessioni live con docenti</li>
+      </ul>
+      <button type="button" data-open-register data-plan="cultura" class="btn-plan btn-plan-ghost">Inizia con Cultura</button>
+    </div>
+
+    <!-- LINGUAE (featured) -->
+    <div class="plan-card featured">
+      <div class="plan-badge">Il preferito</div>
+      <div class="plan-name">Linguae</div>
+      <div class="plan-desc">Per lo studio serio: catalogo completo e materiali scaricabili.</div>
+      <div class="plan-price">
+        <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
+        <div class="plan-old" id="old-linguae"></div>
+      </div>
+      <ul class="plan-features">
+        <li>Tutto del piano Cultura</li>
+        <li>Materiali didattici scaricabili</li>
+        <li>Forum della comunità</li>
+        <li>Accesso anticipato ai nuovi corsi</li>
+        <li class="off">Sessioni live mensili</li>
+        <li class="off">Q&amp;A privata con i docenti</li>
+      </ul>
+      <button type="button" data-open-register data-plan="linguae" class="btn-plan btn-plan-primary">Inizia con Linguae</button>
+    </div>
+
+    <!-- ACCADEMIA -->
+    <div class="plan-card">
+      <div class="plan-name">Accademia</div>
+      <div class="plan-desc">Per docenti, ricercatori e appassionati. Bonus Docenti MIM incluso.</div>
+      <div class="plan-price">
+        <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
+        <div class="plan-old" id="old-accademia"></div>
+      </div>
+      <ul class="plan-features">
+        <li>Tutto del piano Linguae</li>
+        <li>Sessioni live mensili con docenti</li>
+        <li>Q&amp;A privata con i professori</li>
+        <li>Bonus Docenti MIM attivo</li>
+        <li>Formazione continua accreditata</li>
+        <li>Priorità nell'assistenza</li>
+      </ul>
+      <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
+    </div>
+
+  </div>
+
+  <p class="pricing-note">
+    Sei un docente o un'istituzione? <a href="mailto:istituzioni@grecolatinovivo.it">Scrivici per un accordo dedicato →</a>
+  </p>
 </section>
 
-<!-- ══ FOOTER ═══════════════════════════════════════════ -->
-<footer class="glv-footer">
-  <div class="footer-inner">
-    <div class="footer-grid">
-      <div class="footer-col footer-brand">
-        <div class="footer-logo">
-          <span style="font-family:serif;font-weight:700;">ΓΛ</span> GrecoLatinoVivo
+
+<!-- ══ SEZIONE 3 — COSA OTTIENI ════════════════════════════ -->
+<section class="benefits">
+  <div class="benefits-inner">
+    <h2 class="benefits-heading">Cosa ottieni <em>con l'abbonamento</em></h2>
+    <div class="benefits-list">
+
+      <div class="benefit-row">
+        <div class="benefit-icon">IDC</div>
+        <div>
+          <div class="benefit-text-title">Docenti specializzati, non corsi generici</div>
+          <div class="benefit-text-desc">Ogni corso è tenuto da un professore o ricercatore con specializzazione nella lingua insegnata. Nessun contenuto prodotto in serie.</div>
         </div>
-        <p class="footer-tagline">Centro Nazionale di Studi Classici — fondato a Firenze nel 2015. Accreditato MIM, membro Associato ALTE. Studia Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico.</p>
-        <div class="footer-social">
-          <a href="#" class="footer-social-link" aria-label="YouTube">YT</a>
-          <a href="#" class="footer-social-link" aria-label="Instagram">IG</a>
-          <a href="#" class="footer-social-link" aria-label="Facebook">FB</a>
+      </div>
+
+      <div class="benefit-row">
+        <div class="benefit-icon">ATT</div>
+        <div>
+          <div class="benefit-text-title">Attestati digitali con firma del docente</div>
+          <div class="benefit-text-desc">Al completamento di ogni corso ricevi un attestato verificabile con codice univoco, utile per portfolio accademici e domande di lavoro.</div>
         </div>
       </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Lingue</div>
-        <ul class="footer-links">
-          <li><a href="catalogo.html?lingua=latino">Latino</a></li>
-          <li><a href="catalogo.html?lingua=greco">Greco Antico</a></li>
-          <li><a href="catalogo.html?lingua=egiziano">Egiziano Geroglifico</a></li>
-          <li><a href="catalogo.html?lingua=ebraico">Ebraico Biblico</a></li>
-        </ul>
+
+      <div class="benefit-row">
+        <div class="benefit-icon">ALL</div>
+        <div>
+          <div class="benefit-text-title">56 corsi inclusi, nessun costo aggiuntivo</div>
+          <div class="benefit-text-desc">Latino, Greco antico, Egiziano geroglifico, Ebraico biblico — dall'A1 al B1. Un abbonamento, l'intero catalogo. Nessuna sorpresa in fattura.</div>
+        </div>
       </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Portale</div>
-        <ul class="footer-links">
-          <li><a href="catalogo.html">Catalogo corsi</a></li>
-          <li><a href="#docenti">I nostri docenti</a></li>
-          <li><a href="#prezzi">Abbonamenti</a></li>
-          <li><a href="dashboard.html">Area studenti</a></li>
-        </ul>
+
+      <div class="benefit-row">
+        <div class="benefit-icon">MIM</div>
+        <div>
+          <div class="benefit-text-title">Accreditato MIM, membro ALTE</div>
+          <div class="benefit-text-desc">Il Centro Nazionale di Studi Classici opera con accreditamento ministeriale dal 2015. I nostri attestati sono riconosciuti per la formazione continua degli insegnanti.</div>
+        </div>
       </div>
-      <div class="footer-col">
-        <div class="footer-col-title">Supporto</div>
-        <ul class="footer-links">
-          <li><a href="#">Centro assistenza</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Termini di servizio</a></li>
-          <li><a href="mailto:supporto@grecolatinovivo.it">Contattaci</a></li>
-        </ul>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ SEZIONE 4 — SOCIAL PROOF ════════════════════════════ -->
+<section class="proof">
+  <div class="proof-inner">
+    <h2 class="proof-heading">Dal 2015, a Firenze</h2>
+    <p class="proof-subhead">Centro Nazionale di Studi Classici — Accreditato MIM, membro Associato ALTE.</p>
+
+    <!-- Testimonianze: da riempire con dati reali -->
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 GrecoLatinoVivo — Centro Nazionale di Studi Classici. Accreditato MIM | Membro ALTE</span>
-      <span><a href="mailto:info@grecolatinovivo.it" style="color:inherit;text-decoration:none;">info@grecolatinovivo.it</a></span>
+
+    <!-- Contatori — numeri dal database esistente -->
+    <div class="counters">
+      <div class="counter-cell">
+        <span class="counter-n">12.447</span>
+        <span class="counter-l">Studenti formati</span>
+      </div>
+      <div class="counter-cell">
+        <span class="counter-n">56</span>
+        <span class="counter-l">Corsi nel catalogo</span>
+      </div>
+      <div class="counter-cell">
+        <span class="counter-n">2015</span>
+        <span class="counter-l">Anno di fondazione</span>
+      </div>
+      <div class="counter-cell">
+        <span class="counter-n">4</span>
+        <span class="counter-l">Lingue insegnate</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══ SEZIONE 5 — FOOTER MINIMALE ════════════════════════ -->
+<footer class="lp-footer">
+  <div class="lp-footer-inner">
+    <div class="lp-footer-brand">
+      Centro Nazionale di Studi Classici
+      <span>GrecoLatinoVivo · Firenze, 2015</span>
+    </div>
+    <div class="lp-footer-links">
+      <a href="catalogo.html">Catalogo</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="termini.html">Termini</a>
+      <a href="mailto:supporto@grecolatinovivo.it">Contatti</a>
+    </div>
+    <div class="lp-footer-copy">
+      © 2026 GrecoLatinoVivo. Accreditato MIM | Membro ALTE
     </div>
   </div>
 </footer>
 
-<!-- ══ MODAL BONUS DOCENTI ══════════════════════════════ -->
-<div class="modal-overlay" id="modalDocenti">
-  <div class="modal-box">
-    <button class="modal-close" onclick="document.getElementById('modalDocenti').classList.remove('active')">✕</button>
-    <div class="modal-title">Bonus Docenti &amp; Istituzioni</div>
-    <div class="modal-subtitle">
-      Offerte speciali per insegnanti di scuola media e superiore, università, licei classici e istituti culturali.
-    </div>
 
-    <div class="modal-feature">
-      <div class="modal-feature-icon" style="font-family:var(--font-body);font-size:.75rem;font-weight:700;background:var(--primary-50);color:var(--primary);padding:.3rem .5rem;border-radius:6px;">LIC</div>
-      <div>
-        <div class="modal-feature-title">Liceo Classico — Abbonamento Docente</div>
-        <div class="modal-feature-desc">Sconto Bonus Docenti MIM per insegnanti di Latino e Greco in servizio. Valido con documento dell'istituto.</div>
-      </div>
-    </div>
-    <div class="modal-feature">
-      <div class="modal-feature-icon" style="font-family:var(--font-body);font-size:.75rem;font-weight:700;background:var(--primary-50);color:var(--primary);padding:.3rem .5rem;border-radius:6px;">UNI</div>
-      <div>
-        <div class="modal-feature-title">Universita' — Licenza Istituzionale</div>
-        <div class="modal-feature-desc">Licenze multi-utente per dipartimenti di Lettere, Archeologia, Teologia. Prezzi dedicati su richiesta.</div>
-      </div>
-    </div>
-    <div class="modal-feature">
-      <div class="modal-feature-icon" style="font-family:var(--font-body);font-size:.75rem;font-weight:700;background:var(--primary-50);color:var(--primary);padding:.3rem .5rem;border-radius:6px;">IST</div>
-      <div>
-        <div class="modal-feature-title">Istituti Culturali &amp; Musei</div>
-        <div class="modal-feature-desc">Accordi speciali per biblioteche, musei e fondazioni culturali. Accesso di gruppo per eventi e laboratori.</div>
-      </div>
-    </div>
-    <div class="modal-feature">
-      <div class="modal-feature-icon" style="font-family:var(--font-body);font-size:.75rem;font-weight:700;background:var(--primary-50);color:var(--primary);padding:.3rem .5rem;border-radius:6px;">MIM</div>
-      <div>
-        <div class="modal-feature-title">Formazione Continua accreditata MIM</div>
-        <div class="modal-feature-desc">I nostri attestati sono validi per la formazione continua degli insegnanti ai sensi dell'accreditamento MIM.</div>
-      </div>
-    </div>
+<!-- ══ SCRIPT ══════════════════════════════════════════════ -->
 
-    <div class="modal-cta">
-      <a href="mailto:istituzioni@grecolatinovivo.it" class="modal-btn-primary">Richiedi un preventivo →</a>
-      <button class="modal-btn-secondary" onclick="document.getElementById('modalDocenti').classList.remove('active')">Chiudi</button>
-    </div>
-  </div>
-</div>
+<!-- app.js gestisce: data-open-register → Payments.subscribe(plan) → Stripe -->
+<script src="js/app.js"></script>
 
 <script>
-// ── NAVBAR SCROLL ───────────────────────────────────────
+/* ── Navbar scroll ─────────────────────────────────────── */
 const nav = document.getElementById('mainNav');
 window.addEventListener('scroll', () => {
-  nav.classList.toggle('scrolled', window.scrollY > 60);
-});
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive: true });
 
-// ── HAMBURGER MENU ──────────────────────────────────────
-document.getElementById('navToggle').addEventListener('click', function() {
+/* ── Hamburger ─────────────────────────────────────────── */
+document.getElementById('navToggle').addEventListener('click', function () {
   document.getElementById('navLinks').classList.toggle('open');
-  this.classList.toggle('open');
 });
 
-// ── AUTH STATE ──────────────────────────────────────────
+/* ── Auth state: se loggato → Dashboard ────────────────── */
 (async () => {
   try {
     const r = await fetch('/api/auth/me', { credentials: 'include' });
     if (r.ok) {
       const u = await r.json();
       if (u && u.email) {
-        document.getElementById('btnLogin').textContent = 'Dashboard';
-        document.getElementById('btnLogin').href = 'dashboard.html';
+        const btn = document.getElementById('btnLogin');
+        btn.textContent = 'Dashboard';
+        btn.href = 'dashboard.html';
       }
     }
-  } catch(e) { /* non autenticato */ }
+  } catch (e) { /* non autenticato, normale */ }
 })();
 
-// ── BILLING TOGGLE ──────────────────────────────────────
-// Prezzi reali da lib/resend.js:
-// cultura-mensile €5,90 | cultura-annuale €49
-// linguae-mensile €12,90 | linguae-annuale €99
-// accademia-mensile €19,90 | accademia-annuale €179
-let isAnnual = false;
-const toggle = document.getElementById('billingToggle');
-const labelM = document.getElementById('toggleLabelMonthly');
-const labelA = document.getElementById('toggleLabelAnnual');
-
-const PRICES = {
-  cultura:   { monthly: '5,90', monthlyPeriod: '/mese', annual: '49', annualPeriod: '/anno', planM: 'cultura-mensile', planA: 'cultura-annuale' },
-  linguae:   { monthly: '12,90', monthlyPeriod: '/mese', annual: '99', annualPeriod: '/anno', planM: 'linguae-mensile', planA: 'linguae-annuale' },
-  accademia: { monthly: '19,90', monthlyPeriod: '/mese', annual: '179', annualPeriod: '/anno', planM: 'accademia-mensile', planA: 'accademia-annuale' }
+/* ── Billing toggle: mensile / annuale ─────────────────── */
+/* Prezzi definitivi (briefing 2026-05-17):
+   Cultura:   €5,90/mese  |  €49/anno
+   Linguae:   €12,90/mese |  €99/anno
+   Accademia: €19,90/mese | €179/anno        */
+const PLANS = {
+  cultura:   { m: '€5,90',  mLabel: '/mese', a: '€49',  aLabel: '/anno', mOld: '€5,90/mese'  },
+  linguae:   { m: '€12,90', mLabel: '/mese', a: '€99',  aLabel: '/anno', mOld: '€12,90/mese' },
+  accademia: { m: '€19,90', mLabel: '/mese', a: '€179', aLabel: '/anno', mOld: '€19,90/mese' }
 };
 
-function updatePricing() {
-  ['cultura', 'linguae', 'accademia'].forEach(plan => {
-    const p = PRICES[plan];
-    const amountEl = document.querySelector(`[data-monthly="${p.monthly}"]`);
-    const periodEl = document.getElementById(`period-${plan}`);
-    const oldEl = document.getElementById(`old-${plan}`);
-    const btnEl = document.getElementById(`btn-${plan}`);
-    if (!amountEl) return;
-    if (isAnnual) {
-      amountEl.textContent = '€' + p.annual;
-      if (periodEl) periodEl.textContent = p.annualPeriod;
-      if (oldEl) { oldEl.textContent = '€' + p.monthly + '/mese (mensile)'; oldEl.style.display = 'block'; }
-      if (btnEl) btnEl.href = `registrazione.html?piano=${p.planA}`;
+let annual = false;
+const toggleBtn  = document.getElementById('billingToggle');
+const lblMonthly = document.getElementById('lbl-monthly');
+const lblAnnual  = document.getElementById('lbl-annual');
+const togAnnual  = document.getElementById('tog-annual'); // sentinella per app.js
+
+function applyPricing() {
+  Object.entries(PLANS).forEach(([key, p]) => {
+    const amt = document.getElementById(`amt-${key}`);
+    const per = document.getElementById(`per-${key}`);
+    const old = document.getElementById(`old-${key}`);
+    if (!amt) return;
+    if (annual) {
+      amt.textContent = p.a;
+      per.textContent = p.aLabel;
+      old.textContent = p.mOld + ' se mensile';
+      old.style.display = 'block';
     } else {
-      amountEl.textContent = '€' + p.monthly;
-      if (periodEl) periodEl.textContent = p.monthlyPeriod;
-      if (oldEl) oldEl.style.display = 'none';
-      if (btnEl) btnEl.href = `registrazione.html?piano=${p.planM}`;
+      amt.textContent = p.m;
+      per.textContent = p.mLabel;
+      old.style.display = 'none';
     }
   });
-  labelM.classList.toggle('active', !isAnnual);
-  labelA.classList.toggle('active', isAnnual);
-  toggle.classList.toggle('annual', isAnnual);
+  lblMonthly.classList.toggle('active', !annual);
+  lblAnnual.classList.toggle('active', annual);
+  toggleBtn.classList.toggle('is-annual', annual);
+  // Aggiorna sentinella: app.js legge classList.contains('active') su #tog-annual
+  togAnnual.classList.toggle('active', annual);
 }
-updatePricing();
 
-toggle.addEventListener('click', () => {
-  isAnnual = !isAnnual;
-  updatePricing();
+applyPricing(); // stato iniziale: mensile
+
+toggleBtn.addEventListener('click', () => {
+  annual = !annual;
+  applyPricing();
 });
 
-// ── FAQ ACCORDION ───────────────────────────────────────
-document.querySelectorAll('.faq-question').forEach(q => {
-  q.addEventListener('click', () => {
-    const item = q.closest('.faq-item');
-    const wasOpen = item.classList.contains('open');
-    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-    if (!wasOpen) item.classList.add('open');
-  });
-});
+// Cliccando l'etichetta testo si attiva il toggle
+lblMonthly.addEventListener('click', () => { if (annual)  { annual = false; applyPricing(); } });
+lblAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  applyPricing(); } });
 
-// ── MODAL CLOSE ON BACKDROP ─────────────────────────────
-document.getElementById('modalDocenti').addEventListener('click', function(e) {
-  if (e.target === this) this.classList.remove('active');
-});
-
-// ── SMOOTH SCROLL ───────────────────────────────────────
+/* ── Smooth scroll per link interni ─────────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     const target = document.querySelector(a.getAttribute('href'));
@@ -1615,5 +1080,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   });
 });
 </script>
+
 </body>
 </html>
