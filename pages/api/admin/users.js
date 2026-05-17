@@ -1,0 +1,129 @@
+// pages/api/admin/users.js
+// GET  — lista utenti con abbonamento e acquisti
+// POST — sospendi / riattiva un utente (action: "suspend" | "restore")
+// Accessibile solo all'admin (email = ADMIN_EMAIL)
+//
+// NOTA: "sospendere" un utente NON cancella i dati. Imposta un flag isSuspended
+// che il middleware withAuth controlla. Gli acquisti singoli rimangono validi
+// a livello di DB; solo il login viene bloccato (403) mentre l'account è sospeso.
+
+const { prisma } = require('../../../lib/prisma');
+const { withAuth } = require('../../../lib/auth');
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+
+module.exports = withAuth(async function handler(req, res) {
+  if (!req.user || req.user.email !== ADMIN_EMAIL) {
+    return res.status(403).json({ error: 'Accesso non autorizzato' });
+  }
+
+  // ── GET — lista utenti ───────────────────────────────────────────
+  if (req.method === 'GET') {
+    try {
+      const { search, page = 1, limit = 30 } = req.query;
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+
+      const where = search
+        ? {
+            OR: [
+              { email: { contains: search, mode: 'insensitive' } },
+              { fullName: { contains: search, mode: 'insensitive' } },
+            ],
+          }
+        : {};
+
+      const [total, users] = await Promise.all([
+        prisma.user.count({ where }),
+        prisma.user.findMany({
+          where,
+          skip,
+          take: parseInt(limit),
+          orderBy: { createdAt: 'desc' },
+          select: {
+            id: true,
+            email: true,
+            fullName: true,
+            createdAt: true,
+            isSuspended: true,
+            subscriptions: {
+              where: { status: { in: ['active', 'trialing'] } },
+              select: { id: true, plan: true, status: true, currentPeriodEnd: true },
+              take: 1,
+            },
+            purchases: {
+              select: { id: true, courseId: true, createdAt: true },
+            },
+            certificates: {
+              select: { id: true, certCode: true, issuedAt: true, revokedAt: true },
+            },
+            _count: {
+              select: { lessonProgress: true },
+            },
+          },
+        }),
+      ]);
+
+      return res.status(200).json({
+        users,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          pages: Math.ceil(total / parseInt(limit)),
+        },
+      });
+    } catch (err) {
+      console.error('[admin/users GET]', err);
+      // Gestisci il caso in cui isSuspended non esiste ancora nello schema
+      if (err.code === 'P2025' || err.message?.includes('isSuspended')) {
+        return res.status(500).json({
+          error: 'Campo isSuspended non ancora nel DB. Esegui: npx prisma db push',
+        });
+      }
+      return res.status(500).json({ error: 'Errore interno del server' });
+    }
+  }
+
+  // ── POST — sospendi / riattiva ───────────────────────────────────
+  if (req.method === 'POST') {
+    const { userId, action } = req.body || {};
+
+    if (!userId || !['suspend', 'restore'].includes(action)) {
+      return res.status(400).json({ error: 'userId e action (suspend|restore) sono obbligatori' });
+    }
+
+    // Non permettere di sospendere se stesso
+    if (userId === req.user.userId) {
+      return res.status(400).json({ error: 'Non puoi sospendere il tuo stesso account' });
+    }
+
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) return res.status(404).json({ error: 'Utente non trovato' });
+
+      const updated = await prisma.user.update({
+        where: { id: userId },
+        data: { isSuspended: action === 'suspend' },
+        select: { id: true, email: true, fullName: true, isSuspended: true },
+      });
+
+      await prisma.adminLog.create({
+        data: {
+          adminEmail: req.user.email,
+          action: action === 'suspend' ? 'SUSPEND_USER' : 'RESTORE_USER',
+          targetType: 'user',
+          targetId: userId,
+          payload: JSON.stringify({ email: user.email, fullName: user.fullName }),
+        },
+      });
+
+      return res.status(200).json({ ok: true, user: updated });
+    } catch (err) {
+      console.error('[admin/users POST]', err);
+      return res.status(500).json({ error: 'Errore interno del server' });
+    }
+  }
+
+  res.setHeader('Allow', ['GET', 'POST']);
+  return res.status(405).json({ error: 'Metodo non consentito' });
+});

@@ -74,14 +74,18 @@ module.exports = withAuth(async function handler(req, res) {
 
   // ── POST: azioni admin ────────────────────────────────────────
   if (req.method === 'POST') {
-    const { action, certCode } = req.body || {};
+    // Accetta sia certId (ID primario) che certCode (per compatibilità)
+    const { action, certId, certCode } = req.body || {};
 
-    if (!action || !certCode) {
-      return res.status(400).json({ error: 'action e certCode sono obbligatori' });
+    if (!action || (!certId && !certCode)) {
+      return res.status(400).json({ error: 'action e certId (o certCode) sono obbligatori' });
     }
 
     try {
-      const cert = await prisma.certificate.findUnique({ where: { certCode } });
+      const cert = certId
+        ? await prisma.certificate.findUnique({ where: { id: certId } })
+        : await prisma.certificate.findUnique({ where: { certCode } });
+
       if (!cert) return res.status(404).json({ error: 'Attestato non trovato' });
 
       // ── REVOCA ────────────────────────────────────────────────
@@ -90,8 +94,17 @@ module.exports = withAuth(async function handler(req, res) {
           return res.status(400).json({ error: 'Attestato già revocato' });
         }
         await prisma.certificate.update({
-          where: { certCode },
+          where: { id: cert.id },
           data: { revokedAt: new Date(), revokedBy: ADMIN_EMAIL },
+        });
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: ADMIN_EMAIL,
+            action: 'REVOKE_CERT',
+            targetType: 'certificate',
+            targetId: cert.id,
+            payload: JSON.stringify({ certCode: cert.certCode }),
+          },
         });
         return res.status(200).json({ ok: true, message: 'Attestato revocato' });
       }
@@ -99,8 +112,17 @@ module.exports = withAuth(async function handler(req, res) {
       // ── RIPRISTINO (annulla revoca) ────────────────────────────
       if (action === 'restore') {
         await prisma.certificate.update({
-          where: { certCode },
+          where: { id: cert.id },
           data: { revokedAt: null, revokedBy: null },
+        });
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: ADMIN_EMAIL,
+            action: 'RESTORE_CERT',
+            targetType: 'certificate',
+            targetId: cert.id,
+            payload: JSON.stringify({ certCode: cert.certCode }),
+          },
         });
         return res.status(200).json({ ok: true, message: 'Attestato ripristinato' });
       }
@@ -108,11 +130,38 @@ module.exports = withAuth(async function handler(req, res) {
       // ── RIGENERA CODICE ────────────────────────────────────────
       if (action === 'regenerate') {
         const { generateCertCode } = require('../../../lib/certificate');
+        const oldCode = cert.certCode;
         const newCode = generateCertCode();
+
         await prisma.certificate.update({
-          where: { certCode },
+          where: { id: cert.id },
           data: { certCode: newCode, revokedAt: null, revokedBy: null },
         });
+
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: ADMIN_EMAIL,
+            action: 'REGENERATE_CERT',
+            targetType: 'certificate',
+            targetId: cert.id,
+            payload: JSON.stringify({ oldCode, newCode }),
+          },
+        });
+
+        // Tenta di inviare email con il nuovo codice (non bloccante)
+        try {
+          const [certUser, certCourse] = await Promise.all([
+            prisma.user.findUnique({ where: { id: cert.userId }, select: { fullName: true, email: true } }),
+            prisma.course.findUnique({ where: { id: cert.courseId }, select: { title: true, slug: true } }),
+          ]);
+          if (certUser && certCourse) {
+            const { sendCertificateEmail } = require('../../../lib/resend');
+            await sendCertificateEmail(certUser, certCourse, newCode);
+          }
+        } catch (emailErr) {
+          console.error('[admin/certificates] Errore invio email rigenera:', emailErr);
+        }
+
         return res.status(200).json({ ok: true, newCertCode: newCode });
       }
 

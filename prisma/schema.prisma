@@ -18,6 +18,7 @@ model User {
   email        String   @unique
   fullName     String?
   passwordHash String
+  isSuspended  Boolean  @default(false)  // true = admin ha bloccato l'account
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -40,6 +41,11 @@ model Course {
   isAvailable   Boolean  @default(true)   // false = "coming soon" nel catalogo
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
+
+  // Scadenza accesso da abbonamento (null = nessuna scadenza)
+  // Non influisce mai sugli acquisti singoli (Purchase).
+  expiresAt            DateTime? // data oltre la quale l'abbonato perde l'accesso
+  availableUntilLabel  String?   // es. "Disponibile fino al 30 giugno 2025"
 
   lessons        Lesson[]
   purchases      Purchase[]
@@ -122,4 +128,15 @@ model Certificate {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])   // un solo attestato per coppia utente+corso
+}
+
+// Audit trail di tutte le azioni admin — non cancellabile, append-only
+model AdminLog {
+  id         String   @id @default(cuid())
+  adminEmail String              // email dell'admin che ha agito
+  action     String              // es. "REVOKE_CERT" | "RESTORE_CERT" | "SET_EXPIRY" | "SUSPEND_USER"
+  targetType String              // "certificate" | "course" | "user" | "subscription"
+  targetId   String              // ID dell'entità modificata
+  payload    String?  @db.Text  // JSON con i dettagli dell'azione (before/after)
+  createdAt  DateTime @default(now())
 }

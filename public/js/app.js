@@ -912,7 +912,8 @@ function buildCard(course, opts={}) {
         <span class="card-badge badge-lang">${course.lang}</span>
         <span class="card-badge badge-level">${course.level}</span>
         ${course.isNew?'<span class="card-badge badge-new">NUOVO</span>':''}
-
+        ${course.showUrgency && course.isExpired ? '<span class="card-badge badge-expired">SCADUTO</span>' : ''}
+        ${course.showUrgency && course.isExpiringSoon && !course.isExpired ? '<span class="card-badge badge-urgency">⏳ ' + (course.availableUntilLabel || 'In scadenza') + '</span>' : ''}
       </div>
       ${course.teacher?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;"><i class="fas fa-user-tie" style="margin-right:4px;opacity:.7;"></i>${course.teacher}</div>`:''}
       ${course.hours?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-clock" style="margin-right:4px;"></i>${course.hours} ore · Asincrono${course.lang==='Corsi Brevi'?'':' · MIUR accreditato'}</div>`:''}
