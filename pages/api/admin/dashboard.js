@@ -25,22 +25,39 @@ export default withAuth(async function handler(req, res) {
     const [
       totalUsers,
       newUsersLast30,
+      newUsersLast7,
+      suspendedUsers,
       activeSubscriptions,
+      newSubscriptionsLast30,
       totalCertificates,
       revokedCertificates,
       totalCourses,
       completedCoursesLast30,
+      totalPurchases,
+      subscriptionsByPlan,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+      prisma.user.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+      prisma.user.count({ where: { isSuspended: true } }),
       prisma.subscription.count({
         where: { status: { in: ['active', 'trialing'] } },
+      }),
+      prisma.subscription.count({
+        where: { createdAt: { gte: thirtyDaysAgo } },
       }),
       prisma.certificate.count(),
       prisma.certificate.count({ where: { revokedAt: { not: null } } }),
       prisma.course.count({ where: { isAvailable: true } }),
       prisma.certificate.count({
         where: { issuedAt: { gte: thirtyDaysAgo }, revokedAt: null },
+      }),
+      prisma.purchase.count(),
+      prisma.subscription.groupBy({
+        by: ['plan'],
+        where: { status: { in: ['active', 'trialing'] } },
+        _count: { plan: true },
+        orderBy: { _count: { plan: 'desc' } },
       }),
     ]);
 
@@ -76,7 +93,15 @@ export default withAuth(async function handler(req, res) {
       metrics: {
         totalUsers,
         newUsersLast30,
+        newUsersLast7,
+        suspendedUsers,
         activeSubscriptions,
+        newSubscriptionsLast30,
+        totalPurchases,
+        subscriptionsByPlan: subscriptionsByPlan.map(s => ({
+          plan: s.plan,
+          count: s._count.plan,
+        })),
         certificates: {
           total: totalCertificates,
           revoked: revokedCertificates,

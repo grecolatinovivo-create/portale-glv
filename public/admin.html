@@ -404,13 +404,19 @@
       </button>
 
       <div class="nav-label">Gestione</div>
-      <button class="nav-item" data-section="courses" onclick="showSection('courses', this)">
-        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.396 0 2.7.37 3.8 1.016A7.969 7.969 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.396 0-2.7.37-3.8 1.016A7.97 7.97 0 009 4.804zM15 8.25A2.25 2.25 0 0112.75 6v-.5a.75.75 0 011.5 0V6A.75.75 0 0115 6.75v1.5z"/></svg>
-        Corsi
-      </button>
       <button class="nav-item" data-section="users" onclick="showSection('users', this)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
-        Utenti
+        Iscritti
+        <span id="nav-badge-users" style="margin-left:auto;background:rgba(201,168,76,.25);color:var(--gold2);font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none"></span>
+      </button>
+      <button class="nav-item" data-section="subscriptions" onclick="showSection('subscriptions', this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM2 9v5a2 2 0 002 2h12a2 2 0 002-2V9H2zm3 1a1 1 0 000 2h.01a1 1 0 000-2H5zm4 0a1 1 0 000 2h4a1 1 0 000-2H9z"/></svg>
+        Abbonamenti
+        <span id="nav-badge-subs" style="margin-left:auto;background:rgba(22,163,74,.2);color:#16a34a;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;display:none"></span>
+      </button>
+      <button class="nav-item" data-section="courses" onclick="showSection('courses', this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.396 0 2.7.37 3.8 1.016A7.969 7.969 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.396 0-2.7.37-3.8 1.016A7.97 7.97 0 009 4.804z"/></svg>
+        Corsi
       </button>
       <button class="nav-item" data-section="certificates" onclick="showSection('certificates', this)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 3a3 3 0 00-3 3v8a3 3 0 003 3h8a3 3 0 003-3V6a3 3 0 00-3-3H6zm-1 3a1 1 0 011-1h8a1 1 0 011 1v8a1 1 0 01-1 1H6a1 1 0 01-1-1V6zm5 4a1 1 0 100-2 1 1 0 000 2zm-2 1a3 3 0 116 0 3 3 0 01-6 0z" clip-rule="evenodd"/></svg>
@@ -422,6 +428,23 @@
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 000 2h14a1 1 0 100-2H3zm0 4a1 1 0 000 2h10a1 1 0 100-2H3zm0 4a1 1 0 100 2h6a1 1 0 100-2H3z" clip-rule="evenodd"/></svg>
         Log azioni
       </button>
+
+      <div class="nav-label">Strumenti</div>
+      <a class="nav-item" href="https://dashboard.stripe.com" target="_blank" rel="noopener">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4zM2 9v5a2 2 0 002 2h12a2 2 0 002-2V9H2z"/></svg>
+        Stripe
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;margin-left:auto;opacity:.5"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/></svg>
+      </a>
+      <a class="nav-item" href="https://vercel.com/dashboard" target="_blank" rel="noopener">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        Vercel
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;margin-left:auto;opacity:.5"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/></svg>
+      </a>
+      <a class="nav-item" href="https://console.neon.tech" target="_blank" rel="noopener">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z"/><path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z"/><path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z"/></svg>
+        Neon DB
+        <svg viewBox="0 0 20 20" fill="currentColor" style="width:11px;height:11px;margin-left:auto;opacity:.5"><path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"/></svg>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -510,6 +533,25 @@
               <tbody id="courses-table">
                 <tr class="loading-row"><td colspan="5">Caricamento…</td></tr>
               </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+           SEZIONE: ABBONAMENTI
+           ══════════════════════════════════════ -->
+      <section id="section-subscriptions" class="section">
+        <div class="metrics-grid" id="subs-metrics-grid" style="margin-bottom:24px"></div>
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Abbonamenti attivi per piano</div>
+            <a href="https://dashboard.stripe.com/subscriptions" target="_blank" class="btn btn-outline btn-sm">Apri Stripe →</a>
+          </div>
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Piano</th><th>Attivi</th><th>% del totale</th></tr></thead>
+              <tbody id="subs-table"><tr class="loading-row"><td colspan="3">Caricamento…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -743,20 +785,22 @@ function showSection(name, btn) {
   if (btn) btn.classList.add('active');
 
   const titles = {
-    dashboard:    'Dashboard',
-    courses:      'Gestione Corsi',
-    users:        'Gestione Utenti',
-    certificates: 'Gestione Attestati',
-    logs:         'Log Azioni',
+    dashboard:     'Dashboard',
+    courses:       'Gestione Corsi',
+    subscriptions: 'Abbonamenti',
+    users:         'Iscritti',
+    certificates:  'Attestati',
+    logs:          'Log Azioni',
   };
   document.getElementById('topbar-title').textContent = titles[name] || name;
 
   // Carica dati della sezione
-  if (name === 'dashboard')    loadDashboard();
-  if (name === 'courses')      loadCourses();
-  if (name === 'users')        { usersPage = 1; loadUsers(); }
-  if (name === 'certificates') loadCerts();
-  if (name === 'logs')         loadLogs();
+  if (name === 'dashboard')     loadDashboard();
+  if (name === 'courses')       loadCourses();
+  if (name === 'subscriptions') loadSubscriptions();
+  if (name === 'users')         { usersPage = 1; loadUsers(); }
+  if (name === 'certificates')  loadCerts();
+  if (name === 'logs')          loadLogs();
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -768,26 +812,50 @@ async function loadDashboard() {
     if (!r.ok) throw new Error(await r.text());
     const { metrics, expiringCourses, recentLogs } = await r.json();
 
-    // Metriche
+    // Badge nav
+    const nb = document.getElementById('nav-badge-users');
+    if (metrics.totalUsers > 0) { nb.textContent = metrics.totalUsers; nb.style.display = 'inline'; }
+    const ns = document.getElementById('nav-badge-subs');
+    if (metrics.activeSubscriptions > 0) { ns.textContent = metrics.activeSubscriptions; ns.style.display = 'inline'; }
+
+    // Metriche — 8 card
     document.getElementById('metrics-grid').innerHTML = `
       <div class="metric-card accent">
-        <div class="metric-label">Utenti totali</div>
+        <div class="metric-label">👥 Iscritti totali</div>
         <div class="metric-value">${metrics.totalUsers}</div>
-        <div class="metric-sub">+${metrics.newUsersLast30} negli ultimi 30 giorni</div>
+        <div class="metric-sub">+${metrics.newUsersLast30} ultimi 30 gg · +${metrics.newUsersLast7} questa settimana</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Abbonamenti attivi</div>
+        <div class="metric-label">🟢 Abbonamenti attivi</div>
         <div class="metric-value">${metrics.activeSubscriptions}</div>
+        <div class="metric-sub">+${metrics.newSubscriptionsLast30} nuovi negli ultimi 30 gg</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">🛒 Acquisti singoli</div>
+        <div class="metric-value">${metrics.totalPurchases}</div>
+        <div class="metric-sub">Corsi acquistati a vita</div>
       </div>
       <div class="metric-card gold">
-        <div class="metric-label">Attestati emessi</div>
+        <div class="metric-label">🏛 Attestati validi</div>
         <div class="metric-value">${metrics.certificates.active}</div>
-        <div class="metric-sub">${metrics.certificates.revoked} revocati · +${metrics.certificates.issuedLast30} negli ultimi 30 gg</div>
+        <div class="metric-sub">${metrics.certificates.revoked} revocati · +${metrics.certificates.issuedLast30} ultimi 30 gg</div>
       </div>
       <div class="metric-card">
-        <div class="metric-label">Corsi nel catalogo</div>
+        <div class="metric-label">📚 Corsi nel catalogo</div>
         <div class="metric-value">${metrics.totalCourses}</div>
+        <div class="metric-sub">Solo corsi visibili</div>
       </div>
+      ${metrics.suspendedUsers > 0 ? `
+      <div class="metric-card" style="border-color:#fecaca">
+        <div class="metric-label" style="color:#b91c1c">⛔ Account sospesi</div>
+        <div class="metric-value" style="color:#dc2626">${metrics.suspendedUsers}</div>
+        <div class="metric-sub">Clicca Iscritti per gestirli</div>
+      </div>` : `
+      <div class="metric-card" style="border-color:#bbf7d0">
+        <div class="metric-label" style="color:#15803d">✅ Account sospesi</div>
+        <div class="metric-value" style="color:#16a34a">0</div>
+        <div class="metric-sub">Nessun account bloccato</div>
+      </div>`}
     `;
 
     // Banner corsi in scadenza
@@ -954,6 +1022,67 @@ async function saveCourse() {
 }
 
 /* ─────────────────────────────────────────────────────────────
+   ABBONAMENTI
+───────────────────────────────────────────────────────────── */
+async function loadSubscriptions() {
+  try {
+    const r = await fetch('/api/admin/dashboard');
+    if (!r.ok) throw new Error();
+    const { metrics } = await r.json();
+    const plans = metrics.subscriptionsByPlan || [];
+    const total = metrics.activeSubscriptions || 0;
+
+    const planLabels = {
+      'cultura-mensile':   { label:'Cultura Mensile',   color:'#e0f2fe',text:'#0369a1' },
+      'cultura-annuale':   { label:'Cultura Annuale',   color:'#e0f2fe',text:'#0369a1' },
+      'linguae-mensile':   { label:'Linguae Mensile',   color:'#ede9fe',text:'#6d28d9' },
+      'linguae-annuale':   { label:'Linguae Annuale',   color:'#ede9fe',text:'#6d28d9' },
+      'accademia-mensile': { label:'Accademia Mensile', color:'#fef3c7',text:'#92400e' },
+      'accademia-annuale': { label:'Accademia Annuale', color:'#fef3c7',text:'#92400e' },
+    };
+
+    // Counter cards
+    document.getElementById('subs-metrics-grid').innerHTML = `
+      <div class="metric-card">
+        <div class="metric-label">Abbonamenti attivi</div>
+        <div class="metric-value" style="color:var(--green)">${total}</div>
+        <div class="metric-sub">+${metrics.newSubscriptionsLast30} nuovi negli ultimi 30 gg</div>
+      </div>
+      <div class="metric-card accent">
+        <div class="metric-label">Piani attivi</div>
+        <div class="metric-value">${plans.length}</div>
+        <div class="metric-sub">su 6 piani disponibili</div>
+      </div>
+    `;
+
+    // Tabella breakdown
+    const tbody = document.getElementById('subs-table');
+    if (plans.length === 0) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="3">Nessun abbonamento attivo</td></tr>';
+      return;
+    }
+    tbody.innerHTML = plans.map(p => {
+      const info = planLabels[p.plan] || { label: p.plan, color: '#f3f4f6', text: '#374151' };
+      const pct = total > 0 ? Math.round(p.count / total * 100) : 0;
+      return `<tr>
+        <td><span style="background:${info.color};color:${info.text};padding:3px 10px;border-radius:10px;font-size:12px;font-weight:600">${info.label}</span></td>
+        <td><strong style="font-size:15px">${p.count}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;background:var(--gray-100);border-radius:4px;height:8px;overflow:hidden">
+              <div style="width:${pct}%;background:${info.text};height:100%;border-radius:4px"></div>
+            </div>
+            <span style="font-size:12px;color:var(--gray-400);width:32px;text-align:right">${pct}%</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  } catch {
+    document.getElementById('subs-table').innerHTML = '<tr class="empty-row"><td colspan="3">Errore nel caricamento</td></tr>';
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
    UTENTI
 ───────────────────────────────────────────────────────────── */
 async function loadUsers() {
@@ -991,28 +1120,67 @@ async function loadUsers() {
 
     tbody.innerHTML = users.map(u => {
       const sub = u.subscriptions?.[0];
-      const subBadge = sub
-        ? `<span class="badge badge-green">${escHtml(sub.plan)}</span>`
-        : '<span class="badge badge-gray">Nessuno</span>';
+
+      // Piano: label leggibile e colore
+      const planLabels = {
+        'cultura-mensile':   { label: 'Cultura', sub: 'mensile',   color: '#e0f2fe', text: '#0369a1' },
+        'cultura-annuale':   { label: 'Cultura', sub: 'annuale',   color: '#e0f2fe', text: '#0369a1' },
+        'linguae-mensile':   { label: 'Linguae',  sub: 'mensile',  color: '#ede9fe', text: '#6d28d9' },
+        'linguae-annuale':   { label: 'Linguae',  sub: 'annuale',  color: '#ede9fe', text: '#6d28d9' },
+        'accademia-mensile': { label: 'Accademia',sub: 'mensile',  color: '#fef3c7', text: '#92400e' },
+        'accademia-annuale': { label: 'Accademia',sub: 'annuale',  color: '#fef3c7', text: '#92400e' },
+      };
+      let subCell;
+      if (sub) {
+        const p = planLabels[sub.plan] || { label: sub.plan, sub: '', color: '#dcfce7', text: '#15803d' };
+        const statusDot = sub.status === 'active' ? '🟢' : sub.status === 'trialing' ? '🟡' : '🔴';
+        subCell = `<span style="display:inline-flex;flex-direction:column;gap:1px">
+          <span style="background:${p.color};color:${p.text};font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">${statusDot} ${p.label}</span>
+          <span style="font-size:10px;color:var(--gray-400);padding-left:2px">${p.sub}</span>
+        </span>`;
+      } else {
+        subCell = '<span style="font-size:12px;color:var(--gray-400)">— nessuno</span>';
+      }
+
+      // Avatar
+      const initials = (u.fullName || u.email).slice(0,1).toUpperCase();
+      const avatarColor = u.isSuspended ? '#dc2626' : '#6b2737';
+      const avatar = `<div style="width:32px;height:32px;border-radius:50%;background:${avatarColor};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;">${initials}</div>`;
 
       const statusBadge = u.isSuspended
-        ? '<span class="badge badge-red">Sospeso</span>'
-        : '<span class="badge badge-green">Attivo</span>';
+        ? '<span class="badge badge-red">⛔ Sospeso</span>'
+        : '<span class="badge badge-green">✓ Attivo</span>';
 
       const actionBtn = u.isSuspended
         ? `<button class="btn btn-success btn-sm" onclick="promptUserAction('${u.id}', 'restore', '${escAttr(u.email)}')">Riattiva</button>`
         : `<button class="btn btn-danger btn-sm" onclick="promptUserAction('${u.id}', 'suspend', '${escAttr(u.email)}')">Sospendi</button>`;
 
+      const purchases = u.purchases?.length || 0;
+      const certs = u.certificates?.length || 0;
+
       return `
         <tr>
           <td>
-            <strong>${escHtml(u.fullName || '—')}</strong>
-            <div class="course-meta">${escHtml(u.email)}</div>
+            <div style="display:flex;align-items:center;gap:10px">
+              ${avatar}
+              <div>
+                <div style="font-weight:600;font-size:14px;color:var(--gray-900)">${escHtml(u.fullName || '(nessun nome)')}</div>
+                <div style="font-size:12px;color:var(--gray-400)">${escHtml(u.email)}</div>
+              </div>
+            </div>
           </td>
-          <td>${subBadge}</td>
-          <td><span style="font-size:13px">${u.purchases?.length || 0} corsi</span></td>
-          <td><span style="font-size:13px">${u.certificates?.length || 0}</span></td>
-          <td><span style="font-size:13px">${formatDateShort(u.createdAt)}</span></td>
+          <td>${subCell}</td>
+          <td style="text-align:center">
+            ${purchases > 0
+              ? `<span style="font-size:14px;font-weight:600;color:var(--gray-900)">${purchases}</span><div style="font-size:11px;color:var(--gray-400)">corsi</div>`
+              : `<span style="font-size:12px;color:var(--gray-400)">—</span>`}
+          </td>
+          <td style="text-align:center">
+            ${certs > 0
+              ? `<span style="font-size:14px;font-weight:600;color:var(--gold)">${certs}</span><div style="font-size:11px;color:var(--gray-400)">attestati</div>`
+              : `<span style="font-size:12px;color:var(--gray-400)">—</span>`}
+          </td>
+          <td><span style="font-size:13px;color:var(--gray-600)">${formatDateShort(u.createdAt)}</span></td>
           <td>${statusBadge}</td>
           <td>${actionBtn}</td>
         </tr>
