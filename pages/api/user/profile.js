@@ -3,7 +3,7 @@
 const { prisma } = require('../../../lib/prisma');
 const { requireAuth } = require('../../../lib/auth');
 
-module.exports = requireAuth(async function handler(req, res) {
+export default requireAuth(async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const user = await prisma.user.findUnique({

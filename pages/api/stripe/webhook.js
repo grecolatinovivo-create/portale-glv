@@ -150,5 +150,5 @@ async function handler(req, res) {
   return res.status(200).json({ received: true });
 }
 
-module.exports = handler;
-module.exports.config = { api: { bodyParser: false } };
+export default handler;
+export const config = { api: { bodyParser: false } };

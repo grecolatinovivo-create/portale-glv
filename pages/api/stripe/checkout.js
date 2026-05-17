@@ -118,4 +118,4 @@ async function handler(req, res) {
   }
 }
 
-module.exports = withAuth(handler);
+export default withAuth(handler);

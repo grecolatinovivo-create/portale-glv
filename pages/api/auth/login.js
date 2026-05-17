@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const { prisma } = require('../../../lib/prisma');
 const { signToken, setAuthCookie } = require('../../../lib/auth');
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Metodo non consentito' });
