@@ -1195,7 +1195,11 @@ function showAuthModal(mode){
       <form id="auth-form">
         ${mode==='register'?`<input name="fullName" type="text" placeholder="Nome e cognome" style="${IS}">`:''}
         <input name="email" type="email" placeholder="Email" required style="${IS}">
-        <input name="password" type="password" placeholder="Password" required style="${IS}">
+        ${mode==='register'?`<input name="confirmEmail" type="email" placeholder="Conferma email" required style="${IS}">`:''}
+        <div style="position:relative;margin-bottom:12px;">
+          <input name="password" id="glv-pw-input" type="password" placeholder="Password" required style="display:block;width:100%;padding:12px 44px 12px 14px;background:#fff;border:1.5px solid #e0e0e0;color:#232323;border-radius:4px;font-family:inherit;font-size:14px;box-sizing:border-box;transition:border-color .2s;">
+          <button type="button" id="glv-pw-toggle" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;font-size:17px;padding:0;line-height:1;" title="Mostra/nascondi password">👁</button>
+        </div>
         <button type="submit" style="display:block;width:100%;padding:14px;background:#232323;color:#fff;border:none;border-radius:4px;font-family:Montserrat,sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:4px;">
           ${mode==='login'?'Accedi →':'Registrati →'}
         </button>
@@ -1208,10 +1212,22 @@ function showAuthModal(mode){
       </p>
     </div>`;
   document.body.appendChild(modal);
+  // Occhiolino mostra/nascondi password
+  document.getElementById('glv-pw-toggle').addEventListener('click',function(){
+    const inp=document.getElementById('glv-pw-input');
+    const show=inp.type==='password';
+    inp.type=show?'text':'password';
+    this.style.color=show?'#a01a36':'#aaa';
+  });
   document.getElementById('auth-form').addEventListener('submit',async e=>{
     e.preventDefault();
     const f=e.target; const email=f.email.value.trim(); const password=f.password.value; const fullName=f.fullName?.value?.trim();
     const errEl=document.getElementById('auth-error'); const btn=f.querySelector('[type="submit"]');
+    // Valida doppia email in fase di registrazione
+    if(mode==='register'){
+      const confirmEmail=f.confirmEmail?.value?.trim();
+      if(email!==confirmEmail){ errEl.textContent='Le email non corrispondono.'; errEl.style.display='block'; return; }
+    }
     btn.disabled=true; btn.textContent='Attendere...';
     const result=mode==='login'?await Auth.login(email,password):await Auth.register(email,password,fullName);
     if(result.ok){
