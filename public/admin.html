@@ -358,7 +358,7 @@
       text-align: center; padding: 40px;
       background: var(--white); border-radius: 20px;
       box-shadow: 0 4px 40px rgba(0,0,0,0.08);
-      width: 340px;
+      width: 340px; max-width: 92vw;
     }
     .gate-logo {
       font-family: 'Cormorant Garamond', serif;
@@ -373,6 +373,101 @@
     }
     .gate-msg { font-size: 14px; color: var(--gray-600); }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ══════════════════════════════════════════════════════
+       MOBILE RESPONSIVE — admin panel
+       Target: 375px–768px
+    ══════════════════════════════════════════════════════ */
+
+    /* Bottone hamburger nel topbar per aprire/chiudere la sidebar */
+    #sidebar-toggle {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: var(--bordeaux); padding: 4px;
+      flex-direction: column; gap: 5px;
+      margin-right: 8px;
+    }
+    #sidebar-toggle span {
+      display: block; width: 20px; height: 2px;
+      background: var(--bordeaux); border-radius: 2px;
+      transition: all 0.2s;
+    }
+    #sidebar-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #sidebar-toggle.open span:nth-child(2) { opacity: 0; }
+    #sidebar-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Overlay scuro dietro sidebar aperta su mobile */
+    #sidebar-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 99;
+    }
+    #sidebar-overlay.visible { display: block; }
+
+    @media (max-width: 768px) {
+      /* Mostra il bottone hamburger nel topbar */
+      #sidebar-toggle { display: flex; }
+
+      /* Sidebar: nascosta a sinistra, scorre dentro quando aperta */
+      #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 101;
+      }
+      #sidebar.open { transform: translateX(0); }
+
+      /* Main: occupa tutta la larghezza (nessun margin-left) */
+      #main { margin-left: 0; }
+
+      /* Topbar: padding ridotto */
+      #topbar { padding: 0 16px; }
+      .topbar-title { font-size: 17px; }
+
+      /* Content: padding ridotto */
+      #content { padding: 16px; }
+
+      /* Metriche: 2 colonne invece di auto-fit */
+      .metrics-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+      /* Dashboard panel grid: colonna unica */
+      .admin-two-col {
+        grid-template-columns: 1fr !important;
+      }
+
+      /* Tabelle: scroll orizzontale */
+      .panel-body { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .panel-body table { min-width: 500px; }
+
+      /* Modal: full-width su mobile */
+      .modal { width: 100% !important; max-width: 100vw !important;
+        border-radius: 16px 16px 0 0 !important;
+        position: fixed; bottom: 0; left: 0; right: 0;
+        max-height: 90vh; overflow-y: auto;
+      }
+      .modal-overlay { align-items: flex-end !important; }
+
+      /* Filtri e toolbar: wrap su mobile */
+      .panel-header { flex-wrap: wrap; gap: 8px; }
+      .search-box { width: 100% !important; }
+
+      /* Paginazione semplificata */
+      .pagination { padding: 10px 12px; }
+      .page-info { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      /* Metriche: colonna unica su schermi molto piccoli */
+      .metrics-grid { grid-template-columns: 1fr; }
+      .metric-value { font-size: 24px; }
+
+      /* Azioni tabella: una per riga */
+      td .btn { display: block; margin-bottom: 4px; width: 100%; text-align: center; }
+      td .btn + .btn { margin-left: 0; }
+
+      /* Content più stretto */
+      #content { padding: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -389,6 +484,9 @@
 
 <!-- ── APP (visibile solo dopo verifica) ──────────── -->
 <div id="app" style="display:none">
+
+  <!-- Overlay mobile per chiudere sidebar toccando fuori -->
+  <div id="sidebar-overlay" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
   <aside id="sidebar">
@@ -464,6 +562,10 @@
   <!-- MAIN -->
   <main id="main">
     <header id="topbar">
+      <!-- Hamburger: visibile solo su mobile via CSS -->
+      <button id="sidebar-toggle" aria-label="Apri menu" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
       <div class="topbar-title" id="topbar-title">Dashboard</div>
       <span class="topbar-badge">Admin</span>
     </header>
@@ -483,7 +585,7 @@
           <div id="expiring-banner-text"></div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="admin-two-col" style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div class="panel">
             <div class="panel-header">
               <div class="panel-title">Corsi in scadenza (entro 14 giorni)</div>
@@ -1473,6 +1575,31 @@ function formatDateShort(iso) {
    AVVIO
 ───────────────────────────────────────────────────────────── */
 init();
+
+/* ── Sidebar mobile: apri/chiudi ──────────────────────────── */
+function toggleSidebar() {
+  var sidebar  = document.getElementById('sidebar');
+  var overlay  = document.getElementById('sidebar-overlay');
+  var toggle   = document.getElementById('sidebar-toggle');
+  var isOpen   = sidebar.classList.toggle('open');
+  overlay.classList.toggle('visible', isOpen);
+  toggle.classList.toggle('open', isOpen);
+}
+function closeSidebar() {
+  var sidebar = document.getElementById('sidebar');
+  var overlay = document.getElementById('sidebar-overlay');
+  var toggle  = document.getElementById('sidebar-toggle');
+  sidebar.classList.remove('open');
+  overlay.classList.remove('visible');
+  toggle.classList.remove('open');
+}
+
+/* Chiudi sidebar quando si seleziona una voce di menu su mobile */
+document.querySelectorAll('#sidebar .nav-item').forEach(function (item) {
+  item.addEventListener('click', function () {
+    if (window.innerWidth <= 768) closeSidebar();
+  });
+});
 </script>
 </body>
 </html>

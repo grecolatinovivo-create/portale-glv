@@ -1688,3 +1688,36 @@ body.has-corso-cta { padding-bottom: 80px; }
   .course-grid { grid-template-columns: 1fr; }
   .corso-body { padding: 16px 16px 48px; }
 }
+
+/* ── Extra mobile fixes (375-480px) ───────────────────────── */
+@media (max-width: 640px) {
+  /* Container padding ridotto su mobile */
+  .container { padding: 0 16px; }
+
+  /* Footer a colonna unica */
+  .footer-grid { grid-template-columns: 1fr !important; padding: 32px 16px !important; gap: 28px !important; }
+  .footer-bottom { padding: 14px 16px !important; flex-direction: column; text-align: left; gap: 6px; }
+
+  /* Bottoni full-width su schermi piccoli */
+  .landing-hero-actions .btn { width: 100%; justify-content: center; }
+
+  /* Corsi row — previene overflow orizzontale */
+  .courses-row { padding-left: 16px; padding-right: 16px; }
+  .section-row { padding-left: 16px !important; padding-right: 16px !important; }
+
+  /* Tabelle responsive — avvolte in scroll orizzontale */
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table-responsive table { min-width: 480px; }
+
+  /* Nav actions: nascondi testo negli elementi ghost su mobile */
+  .nav-actions .btn-ghost { display: none; }
+}
+
+@media (max-width: 390px) {
+  /* iPhone 14 e simili */
+  body { font-size: 15px; }
+  .btn { font-size: 13px; padding: 10px 18px; }
+  h1 { font-size: clamp(24px, 7vw, 36px); }
+  h2 { font-size: clamp(20px, 6vw, 28px); }
+  .counter-row { gap: 20px; }
+}

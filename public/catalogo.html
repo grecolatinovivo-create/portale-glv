@@ -275,6 +275,11 @@
       .catalog-page-header { padding: 3rem 1rem 2rem; }
       #catalog-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
     }
+    @media (max-width: 420px) {
+      /* Su iPhone SE/mini: colonna unica per le card */
+      #catalog-grid { grid-template-columns: 1fr; }
+      .catalog-layout { padding: .75rem; }
+    }
   </style>
 </head>
 <body>

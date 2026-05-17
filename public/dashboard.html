@@ -781,9 +781,32 @@
       .btn-resume { padding: 10px 20px; font-size: 12px; }
       .dash-certificates { padding: 28px 16px 0; }
     }
+    @media (max-width: 768px) {
+      /* Hamburger: visibile su mobile */
+      .nav-hamburger { display: flex !important; }
+      /* Nav links: nascoste di default, visibili quando open */
+      .glv-nav .nav-links { display: none; }
+      .glv-nav .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: var(--nav-height);
+        left: 0; right: 0;
+        background: var(--bg-white);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem;
+        gap: .25rem;
+        box-shadow: var(--shadow-md);
+        z-index: 999;
+      }
+      .glv-nav .nav-links.open a { padding: .75rem 1rem; display: block; width: 100%; }
+      /* Nascondi elementi non essenziali nella nav su mobile */
+      .btn-ghost, .text-muted[data-logout] { display: none; }
+    }
     @media (max-width: 480px) {
-      .nav-links { display: none; }
       .glv-nav { padding: 0 16px; }
+      /* Bottom padding per bottom nav */
+      body { padding-bottom: 56px; }
     }
   </style>
 </head>
@@ -806,12 +829,15 @@
       <a href="catalogo.html?lang=Ebraico">Ebraico</a>
     </div>
     <div class="nav-right">
-      <button class="nav-search-btn" title="Cerca"><i class="fas fa-search"></i></button>
+      <button class="nav-search-btn" title="Cerca" style="display:none" class="dash-search-hide"><i class="fas fa-search"></i></button>
       <a href="profilo.html" class="btn btn-ghost" style="font-size:12px;">Il mio piano</a>
       <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="window.location.href='profilo.html'">
         <div class="nav-avatar" id="nav-avatar" title="Vai al profilo"></div>
       </div>
       <a href="#" class="text-muted" style="font-size:12px;color:var(--text-muted);" data-logout>Esci</a>
+      <button class="nav-hamburger" id="dashNavToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
 
@@ -1268,6 +1294,17 @@
         })
         .catch(function () { window.location.href = '/'; });
     });
+
+    /* ── Hamburger mobile (dashboard) ──────────────────── */
+    (function () {
+      var toggle = document.getElementById('dashNavToggle');
+      var navLinks = document.querySelector('.glv-nav .nav-links');
+      if (!toggle || !navLinks) return;
+      toggle.addEventListener('click', function () {
+        var isOpen = navLinks.classList.toggle('open');
+        toggle.classList.toggle('open', isOpen);
+      });
+    })();
   </script>
 </body>
 </html>
