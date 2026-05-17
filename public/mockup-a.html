@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrecoLatinoVivo — Mockup A: Netflix Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0a0a0a;
+      --bg-card:  #141414;
+      --bg-card2: #1c1c1c;
+      --text:     #ffffff;
+      --text-dim: rgba(255,255,255,.55);
+      --text-faint: rgba(255,255,255,.3);
+      --gold:     #c9962a;
+      --gold-lt:  #e8c875;
+      --border:   rgba(255,255,255,.08);
+      --font: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.5;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5vw;
+      height: 64px;
+      background: rgba(10,10,10,.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-size: .95rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--gold); }
+    nav a.btn-nav {
+      font-size: .82rem;
+      font-weight: 600;
+      padding: .45rem 1.2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      background: var(--gold);
+      color: #0a0a0a;
+      transition: opacity .2s;
+    }
+    nav a.btn-nav:hover { opacity: .85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7rem 5vw 5rem;
+      background: var(--bg);
+    }
+    .hero-inner { max-width: 760px; }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 2rem;
+    }
+    .hero-title {
+      font-size: clamp(2.8rem, 6.5vw, 5rem);
+      font-weight: 800;
+      line-height: 1.04;
+      letter-spacing: -.03em;
+      color: var(--text);
+      margin-bottom: 1.5rem;
+    }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      font-weight: 400;
+    }
+    .hero-actions {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 700;
+      font-size: .95rem;
+      padding: .85rem 2.2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: opacity .2s, transform .15s;
+    }
+    .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-ghost {
+      display: inline-block;
+      background: transparent;
+      color: var(--text);
+      font-weight: 500;
+      font-size: .95rem;
+      padding: .85rem 2.2rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,.2);
+      text-decoration: none;
+      transition: border-color .2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,.5); }
+
+    .hero-meta {
+      margin-top: 3rem;
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat-n {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .hero-stat-l {
+      font-size: .75rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+    }
+    .hero-divider {
+      width: 1px;
+      background: var(--border);
+      align-self: stretch;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section { padding: 6rem 5vw; }
+    .section-label {
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .section-sub {
+      font-size: 1rem;
+      color: var(--text-dim);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* ── PIANI ── */
+    .piani { background: var(--bg); border-top: 1px solid var(--border); }
+    .piani-header { max-width: 1100px; margin: 0 auto 3rem; }
+    .piani-toggle {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      margin-top: 1.5rem;
+    }
+    .toggle-label {
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+    .toggle-track {
+      width: 44px; height: 24px;
+      background: rgba(255,255,255,.12);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+    }
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+    .toggle-badge {
+      font-size: .72rem;
+      font-weight: 600;
+      background: rgba(201,150,42,.15);
+      color: var(--gold);
+      padding: .25rem .65rem;
+      border-radius: 2rem;
+      border: 1px solid rgba(201,150,42,.25);
+    }
+
+    .piani-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .piano-card {
+      background: var(--bg-card);
+      padding: 2.5rem 2rem;
+      position: relative;
+    }
+    .piano-card.featured {
+      background: var(--bg-card2);
+    }
+    .piano-card.featured::before {
+      content: 'PIU SCELTO';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      text-align: center;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: #0a0a0a;
+      background: var(--gold);
+      padding: .4rem;
+    }
+    .piano-name {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      margin-bottom: 1rem;
+    }
+    .piano-price {
+      margin-bottom: 1.5rem;
+    }
+    .piano-amount {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      color: var(--text);
+    }
+    .piano-period {
+      font-size: .82rem;
+      color: var(--text-faint);
+      margin-left: .2rem;
+    }
+    .piano-annual {
+      font-size: .8rem;
+      color: var(--text-faint);
+      margin-top: .25rem;
+    }
+    .piano-desc {
+      font-size: .88rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+    .piano-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+    .piano-features li {
+      font-size: .85rem;
+      color: var(--text-dim);
+      padding: .4rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: baseline;
+      gap: .5rem;
+    }
+    .piano-features li:last-child { border-bottom: none; }
+    .feat-yes { color: var(--gold); font-size: .7rem; }
+    .feat-no  { color: var(--text-faint); font-size: .7rem; }
+    .btn-piano {
+      display: block;
+      text-align: center;
+      padding: .8rem;
+      border-radius: 4px;
+      font-size: .88rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: opacity .2s;
+      background: rgba(255,255,255,.07);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .btn-piano:hover { opacity: .8; }
+    .btn-piano.gold {
+      background: var(--gold);
+      color: #0a0a0a;
+      border: none;
+    }
+
+    /* ── COSA OTTIENI ── */
+    .benefici { background: var(--bg-card); border-top: 1px solid var(--border); }
+    .benefici-inner { max-width: 1100px; margin: 0 auto; }
+    .benefici-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+    .benefit-item { }
+    .benefit-num {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: var(--gold);
+      margin-bottom: .75rem;
+    }
+    .benefit-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: .5rem;
+    }
+    .benefit-desc {
+      font-size: .88rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    /* ── SOCIAL PROOF ── */
+    .testimoni { background: var(--bg); border-top: 1px solid var(--border); }
+    .testimoni-inner { max-width: 1100px; margin: 0 auto; }
+    .testimoni-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .testimone {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2rem;
+    }
+    .testimone-text {
+      font-size: .92rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testimone-meta { display: flex; gap: .75rem; align-items: center; }
+    .testimone-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+    .testimone-name {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .testimone-role {
+      font-size: .75rem;
+      color: var(--text-faint);
+    }
+    .testimone-badge {
+      margin-top: .3rem;
+      display: inline-block;
+      font-size: .65rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,150,42,.25);
+      padding: .15rem .5rem;
+      border-radius: 3px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 3rem 5vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo {
+      font-size: .85rem;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+    .footer-logo span { color: var(--gold); }
+    .footer-copy {
+      font-size: .78rem;
+      color: var(--text-faint);
+    }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: .78rem;
+      color: var(--text-faint);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--text-dim); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .piani-grid {
+        grid-template-columns: 1fr;
+        background: transparent;
+        gap: 1rem;
+      }
+      .piano-card {
+        border-radius: 6px;
+        border: 1px solid var(--border);
+      }
+      .benefici-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .testimoni-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-meta {
+        gap: 1.5rem;
+      }
+      .hero-divider { display: none; }
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.25rem;
+      }
+      .footer-links { flex-wrap: wrap; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: 2.4rem; }
+      .section { padding: 4rem 1.25rem; }
+      nav { padding: 0 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#"><span>G</span>LV</a>
+    <a class="btn-nav" href="#">Inizia ora</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <span class="hero-eyebrow">Fondato a Firenze nel 2015 · Accreditato MIM</span>
+      <h1 class="hero-title">Le lingue<br>dell'antico mondo.</h1>
+      <p class="hero-sub">Latino, Greco, Egiziano geroglifico, Ebraico biblico. Leggere i testi originali dal primo giorno. 56 corsi con docenti specializzati. Un abbonamento.</p>
+      <div class="hero-actions">
+        <a href="#piani" class="btn-primary">Scegli il piano</a>
+        <a href="#catalogo" class="btn-ghost">Esplora i corsi</a>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <span class="hero-stat-n">56</span>
+          <span class="hero-stat-l">Corsi disponibili</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-n">+2/mese</span>
+          <span class="hero-stat-l">Nuovi corsi garantiti</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-n">2015</span>
+          <span class="hero-stat-l">Anno di fondazione</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIANI -->
+  <section class="section piani" id="piani">
+    <div class="piani-header">
+      <p class="section-label">Abbonamenti</p>
+      <h2 class="section-title">Un piano per ogni percorso</h2>
+      <p class="section-sub">Il catalogo cresce ogni mese: 2 nuovi corsi garantiti. Cancella quando vuoi.</p>
+      <div class="piani-toggle">
+        <span class="toggle-label">Mensile</span>
+        <div class="toggle-track"><div class="toggle-thumb"></div></div>
+        <span class="toggle-label">Annuale</span>
+        <span class="toggle-badge">Risparmio fino al 25%</span>
+      </div>
+    </div>
+
+    <div class="piani-grid">
+
+      <!-- CULTURA -->
+      <div class="piano-card">
+        <p class="piano-name">Cultura</p>
+        <div class="piano-price">
+          <span class="piano-amount">5,90€</span><span class="piano-period">/mese</span>
+          <p class="piano-annual">oppure 49€/anno</p>
+        </div>
+        <p class="piano-desc">32 corsi brevi di cultura classica. Miti, storia, filosofia, arte antica.</p>
+        <ul class="piano-features">
+          <li><span class="feat-yes">&#10003;</span> 32 corsi brevi di cultura classica</li>
+          <li><span class="feat-no">&#10005;</span> Corsi di lingua</li>
+          <li><span class="feat-no">&#10005;</span> Formazione docenti</li>
+        </ul>
+        <a href="#" class="btn-piano">Inizia con Cultura</a>
+      </div>
+
+      <!-- LINGUAE -->
+      <div class="piano-card featured">
+        <p class="piano-name">Linguae</p>
+        <div class="piano-price">
+          <span class="piano-amount">12,90€</span><span class="piano-period">/mese</span>
+          <p class="piano-annual">oppure 99€/anno</p>
+        </div>
+        <p class="piano-desc">Corsi brevi + 20 corsi di lingua: Latino, Greco, Egiziano, Ebraico dal livello A1 al B1.</p>
+        <ul class="piano-features">
+          <li><span class="feat-yes">&#10003;</span> Tutti i 32 corsi brevi</li>
+          <li><span class="feat-yes">&#10003;</span> 20 corsi di lingua A1&rarr;B1</li>
+          <li><span class="feat-no">&#10005;</span> Formazione docenti</li>
+        </ul>
+        <a href="#" class="btn-piano gold">Inizia con Linguae</a>
+      </div>
+
+      <!-- ACCADEMIA -->
+      <div class="piano-card">
+        <p class="piano-name">Accademia</p>
+        <div class="piano-price">
+          <span class="piano-amount">19,90€</span><span class="piano-period">/mese</span>
+          <p class="piano-annual">oppure 179€/anno</p>
+        </div>
+        <p class="piano-desc">Accesso completo: tutto Linguae, formazione docenti, crediti MIM/CFU, sessioni live.</p>
+        <ul class="piano-features">
+          <li><span class="feat-yes">&#10003;</span> Tutto il piano Linguae</li>
+          <li><span class="feat-yes">&#10003;</span> 4 moduli formazione docenti</li>
+          <li><span class="feat-yes">&#10003;</span> Crediti MIM/CFU &amp; Bonus Docenti</li>
+          <li><span class="feat-yes">&#10003;</span> Sessioni live e Q&amp;A privata</li>
+        </ul>
+        <a href="#" class="btn-piano">Inizia con Accademia</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- COSA OTTIENI -->
+  <section class="section benefici">
+    <div class="benefici-inner">
+      <p class="section-label">Il catalogo</p>
+      <h2 class="section-title">Cosa trovi nell'abbonamento</h2>
+      <p class="section-sub">Contenuti prodotti da docenti universitari e ricercatori specializzati.</p>
+      <div class="benefici-grid">
+        <div class="benefit-item">
+          <p class="benefit-num">01</p>
+          <p class="benefit-title">32 corsi brevi di cultura classica</p>
+          <p class="benefit-desc">Mitologia, storia di Roma e Grecia, filosofia antica, arte e archeologia. Lezioni da 15 a 40 minuti, fruibili in qualsiasi ordine.</p>
+        </div>
+        <div class="benefit-item">
+          <p class="benefit-num">02</p>
+          <p class="benefit-title">Corsi di lingua dal livello A1 al B1</p>
+          <p class="benefit-desc">Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Metodo basato sulla lettura di testi originali fin dalla prima lezione.</p>
+        </div>
+        <div class="benefit-item">
+          <p class="benefit-num">03</p>
+          <p class="benefit-title">Formazione docenti (piano Accademia)</p>
+          <p class="benefit-desc">4 moduli: Elementa, Principia, Grammatica, Litterae. Accreditati MIM. Validi per il Bonus Docenti e per crediti CFU.</p>
+        </div>
+        <div class="benefit-item">
+          <p class="benefit-num">04</p>
+          <p class="benefit-title">+2 nuovi corsi ogni mese</p>
+          <p class="benefit-desc">Il catalogo cresce costantemente. Ogni abbonato riceve accesso immediato ai nuovi contenuti senza costi aggiuntivi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOCIAL PROOF -->
+  <section class="section testimoni">
+    <div class="testimoni-inner">
+      <p class="section-label">Chi ha scelto GLV</p>
+      <h2 class="section-title">Cosa dicono i nostri iscritti</h2>
+      <div class="testimoni-grid">
+        <div class="testimone">
+          <p class="testimone-text">"Dopo vent'anni in cattedra al Liceo Classico avevo bisogno di aggiornare il mio approccio didattico, non solo accumulare crediti. Il modulo Principia ha cambiato davvero il modo in cui presento la sintassi del periodo ai miei studenti."</p>
+          <div class="testimone-meta">
+            <div class="testimone-avatar">ME</div>
+            <div>
+              <p class="testimone-name">Marta Esposito</p>
+              <p class="testimone-role">Docente di Latino e Greco, Napoli</p>
+              <span class="testimone-badge">Piano Accademia</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimone">
+          <p class="testimone-text">"Ho completato il modulo B1 di Latino in tre mesi, alternandolo con i corsi brevi sulla filosofia stoica. La qualità dei docenti è universitaria, il formato è quello di una piattaforma moderna. Raro trovare entrambe le cose."</p>
+          <div class="testimone-meta">
+            <div class="testimone-avatar">LS</div>
+            <div>
+              <p class="testimone-name">Lorenzo Salvetti</p>
+              <p class="testimone-role">Studente di Filologia, Bologna</p>
+              <span class="testimone-badge">Piano Linguae</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimone">
+          <p class="testimone-text">"Sessantadue anni, nessuna formazione classica alle spalle. Ho cominciato dal corso sulla mitologia greca quasi per curiosita. Tre mesi dopo sto seguendo le lezioni di Greco antico. Non credevo fosse possibile a questa eta."</p>
+          <div class="testimone-meta">
+            <div class="testimone-avatar">FN</div>
+            <div>
+              <p class="testimone-name">Francesca Nardi</p>
+              <p class="testimone-role">Appassionata di cultura classica, Torino</p>
+              <span class="testimone-badge">Piano Cultura</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo"><span>G</span>recoLatinoVivo</div>
+    <p class="footer-copy">© 2025 GrecoLatinoVivo · Firenze · P.IVA 06XXXXXXXX</p>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Termini</a>
+      <a href="#">Contatti</a>
+    </div>
+  </footer>
+
+</body>
+</html>

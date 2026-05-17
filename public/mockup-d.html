@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrecoLatinoVivo — Mockup D: The Economist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300;1,8..60,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f5f0e8;
+      --bg-darker:  #ede8dc;
+      --bg-dark:    #1a1a1a;
+      --red:        #8b1a1a;
+      --red-lt:     #a82020;
+      --text:       #1a1a1a;
+      --text-mid:   #5a5a5a;
+      --text-faint: #9a9a9a;
+      --border:     #c8c0b0;
+      --border-lt:  #ddd7cc;
+      --font-serif: 'Source Serif 4', Georgia, serif;
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-serif);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.55;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--red);
+      color: rgba(255,255,255,.9);
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: .45rem 1rem;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg);
+      border-bottom: 3px solid var(--red);
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 4vw;
+      display: flex;
+      align-items: stretch;
+      justify-content: space-between;
+      height: 56px;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: .01em;
+    }
+    .nav-logo em { font-style: italic; color: var(--red); }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .nav-link-d {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--text-mid);
+      text-decoration: none;
+      border-bottom: 2px solid transparent;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      transition: color .2s, border-color .2s;
+    }
+    .nav-link-d:hover { color: var(--red); border-bottom-color: var(--red); }
+    .nav-cta-d {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      background: var(--red);
+      color: #fff;
+      padding: .45rem 1.25rem;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .nav-cta-d:hover { background: var(--red-lt); }
+
+    /* ── HERO — LAYOUT EDITORIALE ── */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 4vw 0;
+    }
+    .hero-dateline {
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--red);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: .6rem;
+      margin-bottom: 2rem;
+    }
+    .hero-layout {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 3rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .hero-main { }
+    .hero-kicker {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+      margin-bottom: .75rem;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--text);
+      margin-bottom: 1.25rem;
+      letter-spacing: -.01em;
+    }
+    .hero-title em { font-style: italic; }
+    .hero-standfirst {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: var(--text-mid);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      border-left: 3px solid var(--red);
+      padding-left: 1rem;
+    }
+    .hero-actions-d {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn-red {
+      display: inline-block;
+      background: var(--red);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .75rem 1.75rem;
+      text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-red:hover { background: var(--red-lt); }
+    .btn-text-d {
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--red);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .hero-sidebar {
+      border-left: 1px solid var(--border);
+      padding-left: 2rem;
+    }
+    .sidebar-label {
+      font-family: var(--font-body);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 1.25rem;
+    }
+    .sidebar-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .sidebar-stat {
+      border-left: 3px solid var(--border);
+      padding-left: .75rem;
+    }
+    .sidebar-n {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      display: block;
+      line-height: 1.1;
+    }
+    .sidebar-l {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      color: var(--text-mid);
+      font-weight: 400;
+    }
+    .sidebar-box {
+      background: var(--red);
+      color: #fff;
+      padding: 1.25rem 1.25rem;
+    }
+    .sidebar-box-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: .5rem;
+    }
+    .sidebar-box-text {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      line-height: 1.6;
+      color: rgba(255,255,255,.82);
+      margin-bottom: 1rem;
+    }
+    .sidebar-box-cta {
+      display: block;
+      text-align: center;
+      background: #fff;
+      color: var(--red);
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .6rem;
+      text-decoration: none;
+    }
+
+    /* ── PIANI — LAYOUT GIORNALE ── */
+    .piani {
+      background: var(--bg-darker);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 4rem 0;
+    }
+    .piani-inner { max-width: 1200px; margin: 0 auto; padding: 0 4vw; }
+    .piani-heading-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+    }
+    .piani-section-label {
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+    .piani-section-title {
+      font-family: var(--font-display);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .piani-section-note {
+      font-family: var(--font-serif);
+      font-size: .88rem;
+      color: var(--text-mid);
+      font-style: italic;
+    }
+
+    .piani-grid-d {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+    }
+    .piano-d {
+      padding: 2.25rem 2rem;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+      position: relative;
+    }
+    .piano-d:last-child { border-right: none; }
+    .piano-d.featured {
+      background: var(--red);
+      color: #fff;
+    }
+    .piano-d-header {
+      border-bottom: 2px solid;
+      padding-bottom: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .piano-d.featured .piano-d-header { border-color: rgba(255,255,255,.3); }
+    .piano-d:not(.featured) .piano-d-header { border-color: var(--border); }
+    .piano-d-name {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: .2rem;
+    }
+    .piano-d-category {
+      font-family: var(--font-body);
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .piano-d.featured .piano-d-category { color: rgba(255,255,255,.7); }
+    .piano-d:not(.featured) .piano-d-category { color: var(--text-mid); }
+    .piano-d-price {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: .3rem;
+    }
+    .piano-d.featured .piano-d-price { color: #fff; }
+    .piano-d-period {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      margin-bottom: 1.25rem;
+    }
+    .piano-d.featured .piano-d-period { color: rgba(255,255,255,.7); }
+    .piano-d:not(.featured) .piano-d-period { color: var(--text-mid); }
+    .piano-d-annual {
+      font-family: var(--font-serif);
+      font-size: .82rem;
+      font-style: italic;
+      margin-bottom: 1.25rem;
+    }
+    .piano-d.featured .piano-d-annual { color: rgba(255,255,255,.75); }
+    .piano-d:not(.featured) .piano-d-annual { color: var(--text-mid); }
+    .piano-d-desc {
+      font-family: var(--font-serif);
+      font-size: .9rem;
+      line-height: 1.65;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid;
+    }
+    .piano-d.featured .piano-d-desc { border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.85); }
+    .piano-d:not(.featured) .piano-d-desc { border-color: var(--border-lt); color: var(--text-mid); }
+    .piano-d-features {
+      list-style: none;
+      margin-bottom: 2rem;
+    }
+    .piano-d-features li {
+      font-family: var(--font-serif);
+      font-size: .85rem;
+      padding: .4rem 0;
+      border-bottom: 1px solid;
+      display: flex;
+      align-items: baseline;
+      gap: .5rem;
+    }
+    .piano-d.featured .piano-d-features li { border-color: rgba(255,255,255,.12); color: rgba(255,255,255,.85); }
+    .piano-d:not(.featured) .piano-d-features li { border-color: var(--border-lt); color: var(--text-mid); }
+    .piano-d-features li:last-child { border-bottom: none; }
+    .d-yes { font-size: .65rem; }
+    .piano-d.featured .d-yes { color: rgba(255,255,255,.8); }
+    .piano-d:not(.featured) .d-yes { color: var(--red); }
+    .d-no { font-size: .65rem; opacity: .4; }
+    .btn-piano-d {
+      display: block;
+      text-align: center;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .85rem;
+      text-decoration: none;
+      transition: background .2s, color .2s;
+    }
+    .piano-d.featured .btn-piano-d {
+      background: #fff;
+      color: var(--red);
+    }
+    .piano-d.featured .btn-piano-d:hover {
+      background: rgba(255,255,255,.9);
+    }
+    .piano-d:not(.featured) .btn-piano-d {
+      background: var(--bg-darker);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .piano-d:not(.featured) .btn-piano-d:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    /* ── COSA OTTIENI ── */
+    .benefici-d {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 4vw;
+    }
+    .benefici-d-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .benefici-d-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .benefici-d-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+    }
+    .benefit-d {
+      padding: 2rem 1.75rem;
+      border-right: 1px solid var(--border);
+    }
+    .benefit-d:last-child { border-right: none; }
+    .benefit-d-num {
+      font-family: var(--font-body);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      color: var(--red);
+      text-transform: uppercase;
+      margin-bottom: .75rem;
+    }
+    .benefit-d-title {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: .6rem;
+      line-height: 1.25;
+    }
+    .benefit-d-desc {
+      font-family: var(--font-serif);
+      font-size: .85rem;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    /* ── TESTIMONI ── */
+    .testimoni-d {
+      background: var(--bg-darker);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .testimoni-d-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4rem 4vw;
+    }
+    .testimoni-d-header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 2.5rem;
+      display: flex;
+      align-items: baseline;
+      gap: 1.5rem;
+    }
+    .testimoni-d-title {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+    .testimoni-d-subtitle {
+      font-family: var(--font-serif);
+      font-size: .9rem;
+      font-style: italic;
+      color: var(--text-mid);
+    }
+    .testimoni-d-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--border);
+    }
+    .testimone-d {
+      padding: 2.25rem 2rem;
+      border-right: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .testimone-d:last-child { border-right: none; }
+    .testimone-d-quote {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: .75rem;
+      opacity: .6;
+    }
+    .testimone-d-text {
+      font-family: var(--font-serif);
+      font-size: .92rem;
+      color: var(--text-mid);
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      font-style: italic;
+    }
+    .testimone-d-rule {
+      width: 2rem;
+      height: 2px;
+      background: var(--red);
+      margin-bottom: 1rem;
+    }
+    .testimone-d-name {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .testimone-d-role {
+      font-family: var(--font-serif);
+      font-size: .8rem;
+      color: var(--text-mid);
+      font-style: italic;
+      margin-bottom: .5rem;
+    }
+    .testimone-d-badge {
+      font-family: var(--font-body);
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--red);
+      border: 1px solid currentColor;
+      padding: .2rem .6rem;
+      display: inline-block;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg-dark);
+      color: rgba(255,255,255,.7);
+      padding: 3rem 4vw;
+    }
+    .footer-d-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: flex-start;
+    }
+    .footer-d-logo {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      display: block;
+      margin-bottom: .5rem;
+    }
+    .footer-d-logo em { font-style: italic; color: #d97070; }
+    .footer-d-copy {
+      font-family: var(--font-body);
+      font-size: .72rem;
+    }
+    .footer-d-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .footer-d-links a {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.5);
+      text-decoration: none;
+    }
+    .footer-d-links a:hover { color: rgba(255,255,255,.85); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-layout { grid-template-columns: 1fr; gap: 2rem; }
+      .hero-sidebar { border-left: none; border-top: 1px solid var(--border); padding-left: 0; padding-top: 2rem; }
+      .sidebar-stats { flex-direction: row; flex-wrap: wrap; gap: 1rem; }
+      .sidebar-stat { flex: 1; min-width: 120px; }
+      .piani-grid-d { grid-template-columns: 1fr; }
+      .piano-d { border-right: none; border-bottom: 1px solid var(--border); }
+      .piano-d:last-child { border-bottom: none; }
+      .benefici-d-grid { grid-template-columns: 1fr 1fr; }
+      .benefit-d:nth-child(2n) { border-right: none; }
+      .benefit-d:nth-child(1), .benefit-d:nth-child(2) { border-bottom: 1px solid var(--border); }
+      .testimoni-d-grid { grid-template-columns: 1fr; }
+      .testimone-d { border-right: none; border-bottom: 1px solid var(--border); }
+      .testimone-d:last-child { border-bottom: none; }
+    }
+    @media (max-width: 600px) {
+      nav { position: sticky; }
+      .nav-links { gap: .75rem; }
+      .nav-link-d { display: none; }
+      .hero { padding: 2rem 1.25rem 0; }
+      .piani-inner { padding: 0 1.25rem; }
+      .benefici-d { padding: 3rem 1.25rem; }
+      .benefici-d-grid { grid-template-columns: 1fr; }
+      .benefit-d { border-right: none; border-bottom: 1px solid var(--border); }
+      .benefit-d:last-child { border-bottom: none; }
+      .testimoni-d-inner { padding: 3rem 1.25rem; }
+      .testimoni-d-header { flex-direction: column; gap: .5rem; }
+      .footer-d-inner { flex-direction: column; gap: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">Fondato a Firenze nel 2015 &mdash; Accreditato MIM &mdash; Formazione continua per docenti e appassionati</div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a class="nav-logo" href="#"><em>Greco</em>LatinoVivo</a>
+      <div class="nav-links">
+        <a class="nav-link-d" href="#piani">Abbonamenti</a>
+        <a class="nav-link-d" href="#catalogo">Catalogo</a>
+        <a class="nav-link-d" href="#">Accedi</a>
+        <a class="nav-cta-d" href="#">Abbonati ora</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero" id="hero">
+    <p class="hero-dateline">Lingue classiche &mdash; Formazione e cultura</p>
+    <div class="hero-layout">
+      <div class="hero-main">
+        <p class="hero-kicker">Piattaforma di formazione in lingue antiche</p>
+        <h1 class="hero-title">Le lingue<br><em>dell'antico mondo</em><br>in un abbonamento.</h1>
+        <p class="hero-standfirst">Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Leggere i testi originali dal primo giorno. 56 corsi prodotti da docenti universitari e ricercatori specializzati.</p>
+        <div class="hero-actions-d">
+          <a href="#piani" class="btn-red">Scegli il piano</a>
+          <a href="#" class="btn-text-d">Sfoglia il catalogo</a>
+        </div>
+      </div>
+      <div class="hero-sidebar">
+        <p class="sidebar-label">Il catalogo in cifre</p>
+        <div class="sidebar-stats">
+          <div class="sidebar-stat">
+            <span class="sidebar-n">56</span>
+            <span class="sidebar-l">Corsi disponibili</span>
+          </div>
+          <div class="sidebar-stat">
+            <span class="sidebar-n">4</span>
+            <span class="sidebar-l">Lingue insegnate</span>
+          </div>
+          <div class="sidebar-stat">
+            <span class="sidebar-n">+2 / mese</span>
+            <span class="sidebar-l">Nuovi corsi garantiti</span>
+          </div>
+        </div>
+        <div class="sidebar-box">
+          <p class="sidebar-box-title">Accademia: crediti MIM</p>
+          <p class="sidebar-box-text">Il piano Accademia e accreditato MIM. Valido per il Bonus Docenti e per crediti CFU di aggiornamento professionale.</p>
+          <a href="#piani" class="sidebar-box-cta">Dettagli piano Accademia</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PIANI -->
+  <section class="piani" id="piani">
+    <div class="piani-inner">
+      <div class="piani-heading-row">
+        <div>
+          <p class="piani-section-label">Abbonamenti</p>
+          <h2 class="piani-section-title">Tre piani, un catalogo.</h2>
+        </div>
+        <p class="piani-section-note">Prezzi mensili. Piano annuale disponibile con risparmio fino al 25%. Cancella quando vuoi.</p>
+      </div>
+      <div class="piani-grid-d">
+
+        <div class="piano-d">
+          <div class="piano-d-header">
+            <p class="piano-d-category">Piano base</p>
+            <p class="piano-d-name">Cultura</p>
+          </div>
+          <div class="piano-d-price">5,90€</div>
+          <p class="piano-d-period">al mese</p>
+          <p class="piano-d-annual">oppure 49€ all'anno</p>
+          <p class="piano-d-desc">32 corsi brevi di cultura classica: mitologia, storia antica, filosofia, arte e archeologia.</p>
+          <ul class="piano-d-features">
+            <li><span class="d-yes">&#10003;</span> 32 corsi brevi di cultura classica</li>
+            <li><span class="d-no">&#10005;</span> Corsi di lingua</li>
+            <li><span class="d-no">&#10005;</span> Formazione docenti</li>
+          </ul>
+          <a href="#" class="btn-piano-d">Abbonati a Cultura</a>
+        </div>
+
+        <div class="piano-d featured">
+          <div class="piano-d-header">
+            <p class="piano-d-category">Piano piu scelto</p>
+            <p class="piano-d-name">Linguae</p>
+          </div>
+          <div class="piano-d-price">12,90€</div>
+          <p class="piano-d-period">al mese</p>
+          <p class="piano-d-annual">oppure 99€ all'anno</p>
+          <p class="piano-d-desc">Corsi brevi piu 20 corsi di lingua da A1 a B1: Latino, Greco antico, Egiziano geroglifico, Ebraico biblico.</p>
+          <ul class="piano-d-features">
+            <li><span class="d-yes">&#10003;</span> Tutti i 32 corsi brevi</li>
+            <li><span class="d-yes">&#10003;</span> 20 corsi di lingua A1&rarr;B1</li>
+            <li><span class="d-no">&#10005;</span> Formazione docenti</li>
+          </ul>
+          <a href="#" class="btn-piano-d">Abbonati a Linguae</a>
+        </div>
+
+        <div class="piano-d">
+          <div class="piano-d-header">
+            <p class="piano-d-category">Piano completo</p>
+            <p class="piano-d-name">Accademia</p>
+          </div>
+          <div class="piano-d-price">19,90€</div>
+          <p class="piano-d-period">al mese</p>
+          <p class="piano-d-annual">oppure 179€ all'anno</p>
+          <p class="piano-d-desc">Accesso completo: tutto il piano Linguae, formazione docenti accreditata MIM, sessioni live mensili e Q&amp;A privata.</p>
+          <ul class="piano-d-features">
+            <li><span class="d-yes">&#10003;</span> Tutto il piano Linguae</li>
+            <li><span class="d-yes">&#10003;</span> 4 moduli formazione docenti</li>
+            <li><span class="d-yes">&#10003;</span> Crediti MIM/CFU &amp; Bonus Docenti</li>
+            <li><span class="d-yes">&#10003;</span> Sessioni live e Q&amp;A privata</li>
+          </ul>
+          <a href="#" class="btn-piano-d">Abbonati ad Accademia</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- COSA OTTIENI -->
+  <section id="catalogo">
+    <div class="benefici-d">
+      <div class="benefici-d-header">
+        <h2 class="benefici-d-title">Cosa trovi nell'abbonamento</h2>
+        <p style="font-family:var(--font-serif);font-size:.88rem;font-style:italic;color:var(--text-mid);">Contenuti prodotti da docenti universitari specializzati.</p>
+      </div>
+      <div class="benefici-d-grid">
+        <div class="benefit-d">
+          <p class="benefit-d-num">01 &mdash; Cultura</p>
+          <h3 class="benefit-d-title">32 corsi brevi di cultura classica</h3>
+          <p class="benefit-d-desc">Mitologia, storia di Roma e Grecia, filosofia antica, arte e archeologia. Lezioni da 15 a 40 minuti, fruibili in qualsiasi ordine.</p>
+        </div>
+        <div class="benefit-d">
+          <p class="benefit-d-num">02 &mdash; Lingua</p>
+          <h3 class="benefit-d-title">Corsi di lingua dal livello A1 al B1</h3>
+          <p class="benefit-d-desc">Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Metodo basato sulla lettura diretta dei testi originali.</p>
+        </div>
+        <div class="benefit-d">
+          <p class="benefit-d-num">03 &mdash; Formazione</p>
+          <h3 class="benefit-d-title">Formazione docenti (piano Accademia)</h3>
+          <p class="benefit-d-desc">4 moduli MIM: Elementa, Principia, Grammatica, Litterae. Validi per il Bonus Docenti e per crediti CFU.</p>
+        </div>
+        <div class="benefit-d">
+          <p class="benefit-d-num">04 &mdash; Aggiornamento</p>
+          <h3 class="benefit-d-title">+2 nuovi corsi ogni mese</h3>
+          <p class="benefit-d-desc">Il catalogo cresce costantemente. Ogni abbonato riceve accesso immediato ai nuovi contenuti senza costi aggiuntivi.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONI -->
+  <section class="testimoni-d">
+    <div class="testimoni-d-inner">
+      <div class="testimoni-d-header">
+        <h2 class="testimoni-d-title">Chi ha scelto GLV</h2>
+        <span class="testimoni-d-subtitle">Tre voci dall'abbonamento</span>
+      </div>
+      <div class="testimoni-d-grid">
+        <div class="testimone-d">
+          <div class="testimone-d-quote">"</div>
+          <p class="testimone-d-text">Dopo vent'anni in cattedra al Liceo Classico avevo bisogno di aggiornare il mio approccio didattico, non solo accumulare crediti. Il modulo Principia ha cambiato davvero il modo in cui presento la sintassi del periodo ai miei studenti.</p>
+          <div class="testimone-d-rule"></div>
+          <p class="testimone-d-name">Marta Esposito</p>
+          <p class="testimone-d-role">Docente di Latino e Greco, Napoli</p>
+          <span class="testimone-d-badge">Piano Accademia</span>
+        </div>
+        <div class="testimone-d">
+          <div class="testimone-d-quote">"</div>
+          <p class="testimone-d-text">Ho completato il modulo B1 di Latino in tre mesi, alternandolo con i corsi brevi sulla filosofia stoica. La qualita dei docenti e universitaria, il formato e quello di una piattaforma moderna. Raro trovare entrambe le cose.</p>
+          <div class="testimone-d-rule"></div>
+          <p class="testimone-d-name">Lorenzo Salvetti</p>
+          <p class="testimone-d-role">Studente di Filologia, Bologna</p>
+          <span class="testimone-d-badge">Piano Linguae</span>
+        </div>
+        <div class="testimone-d">
+          <div class="testimone-d-quote">"</div>
+          <p class="testimone-d-text">Sessantadue anni, nessuna formazione classica alle spalle. Ho cominciato dal corso sulla mitologia greca quasi per curiosita. Tre mesi dopo sto seguendo le lezioni di Greco antico.</p>
+          <div class="testimone-d-rule"></div>
+          <p class="testimone-d-name">Francesca Nardi</p>
+          <p class="testimone-d-role">Appassionata di cultura classica, Torino</p>
+          <span class="testimone-d-badge">Piano Cultura</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-d-inner">
+      <div>
+        <span class="footer-d-logo"><em>Greco</em>LatinoVivo</span>
+        <p class="footer-d-copy">© 2025 GrecoLatinoVivo · Firenze · Accreditato MIM · P.IVA 06XXXXXXXX</p>
+      </div>
+      <div class="footer-d-links">
+        <a href="#">Privacy</a>
+        <a href="#">Termini di utilizzo</a>
+        <a href="#">Contatti</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

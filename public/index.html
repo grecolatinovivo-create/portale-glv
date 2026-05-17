@@ -15,14 +15,14 @@
        VARIABILI BASE (in caso style.css non le dichiari)
     ───────────────────────────────────────────────────────── */
     :root {
-      --dark:    #15080e;
-      --dark-2:  #1d0c13;
-      --dark-3:  #2a0d18;
+      --dark:    #0a0a0a;
+      --dark-2:  #111111;
+      --dark-3:  #141414;
       --primary: #a01a36;
-      --gold:    #d4a017;
-      --ivory:   #faf8f5;
-      --text-dim:  rgba(250,248,245,.6);
-      --text-faint:rgba(250,248,245,.38);
+      --gold:    #c9962a;
+      --ivory:   #f5f5f5;
+      --text-dim:  rgba(245,245,245,.6);
+      --text-faint:rgba(245,245,245,.35);
       --border-dim:rgba(255,255,255,.1);
       --radius: 10px;
       --radius-lg: 16px;
@@ -55,16 +55,8 @@
       overflow: hidden;
       background: var(--dark);
     }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% 25%, rgba(212,160,23,.13) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(212,160,23,.06) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(212,160,23,.05) 0%, transparent 55%);
-      pointer-events: none;
-    }
+    /* Nessun gradiente di sfondo — superficie piatta */
+    .hero::before { display: none; }
     .hero-inner {
       position: relative;
       z-index: 1;
@@ -74,11 +66,11 @@
       display: inline-block;
       font-family: var(--font-body);
       font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
+      font-weight: 500;
+      letter-spacing: .12em;
       text-transform: uppercase;
-      color: var(--gold);
-      border: 1px solid rgba(212,160,23,.35);
+      color: rgba(245,245,245,.5);
+      border: 1px solid rgba(255,255,255,.14);
       padding: .3rem .9rem;
       border-radius: 2rem;
       margin-bottom: 2rem;
@@ -94,7 +86,7 @@
     }
     .hero-title em {
       font-style: italic;
-      color: var(--gold);
+      color: #e8c875;
     }
     .hero-sub {
       font-size: 1.05rem;
@@ -106,23 +98,21 @@
     .hero-cta {
       display: inline-block;
       background: var(--gold);
-      color: #15080e;
+      color: #0a0a0a;
       font-family: var(--font-body);
       font-weight: 700;
-      font-size: 1rem;
-      padding: .9rem 2.2rem;
+      font-size: .95rem;
+      padding: .85rem 2rem;
       border-radius: var(--radius);
       border: none;
       cursor: pointer;
       text-decoration: none;
-      transition: background .2s, transform .15s, box-shadow .15s;
-      box-shadow: 0 4px 24px rgba(212,160,23,.35);
-      letter-spacing: .01em;
+      transition: opacity .2s, transform .15s;
+      letter-spacing: .02em;
     }
     .hero-cta:hover {
-      background: #e8b820;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(212,160,23,.45);
+      opacity: .88;
+      transform: translateY(-1px);
     }
     .hero-strip {
       display: flex;
@@ -139,9 +129,9 @@
     }
     .hero-stat-n {
       font-family: var(--font-heading);
-      font-size: 1.55rem;
+      font-size: 1.45rem;
       font-weight: 700;
-      color: var(--gold);
+      color: #e8c875;
       line-height: 1;
     }
     .hero-stat-l {
@@ -164,7 +154,7 @@
     .pricing {
       background: var(--dark-2);
       padding: 5rem 1.5rem;
-      border-top: 1px solid rgba(255,255,255,.06);
+      border-top: 1px solid rgba(255,255,255,.07);
     }
     .pricing-header {
       text-align: center;
@@ -256,17 +246,17 @@
       transform: translateY(-3px);
     }
     .plan-card.featured {
-      border-color: rgba(212,160,23,.55);
-      background: rgba(212,160,23,.07);
+      border-color: rgba(201,150,42,.4);
+      background: rgba(255,255,255,.04);
     }
-    .plan-card.featured:hover { border-color: rgba(212,160,23,.85); }
+    .plan-card.featured:hover { border-color: rgba(201,150,42,.65); }
     .plan-badge {
       position: absolute;
       top: -13px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--gold);
-      color: #15080e;
+      color: #0a0a0a;
       font-size: .67rem;
       font-weight: 700;
       letter-spacing: .07em;
@@ -353,14 +343,12 @@
     }
     .btn-plan-primary {
       background: var(--gold);
-      color: #15080e;
+      color: #0a0a0a;
       font-weight: 700;
-      box-shadow: 0 4px 18px rgba(212,160,23,.35);
     }
     .btn-plan-primary:hover {
-      background: #e8b820;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(212,160,23,.45);
+      opacity: .88;
+      transform: translateY(-1px);
     }
     .btn-plan-ghost {
       background: transparent;
@@ -416,20 +404,20 @@
       gap: 1.25rem;
     }
     .benefit-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(212,160,23,.1);
-      border: 1px solid rgba(212,160,23,.25);
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       font-family: var(--font-body);
-      font-size: .7rem;
-      font-weight: 700;
+      font-size: .68rem;
+      font-weight: 600;
       letter-spacing: .04em;
-      color: var(--gold);
+      color: rgba(245,245,245,.5);
     }
     .benefit-text-title {
       font-family: var(--font-body);
@@ -622,21 +610,19 @@
        NAVBAR — usa le classi di style.css
        Se glv-nav non è definita in style.css, fallback minimo
     ───────────────────────────────────────────────────────── */
+    /* REGOLA 0 — Nav sempre dark, niente warm-tinted */
     .glv-nav {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       z-index: 100;
-      /* Sempre scura — niente bianco al caricamento */
-      background: rgba(21,8,14,.82);
+      background: rgba(10,10,10,.92);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.07);
       transition: background .3s, box-shadow .3s;
     }
     .glv-nav.scrolled {
-      background: rgba(21,8,14,.97);
+      background: rgba(10,10,10,.97);
       box-shadow: 0 1px 0 rgba(255,255,255,.08);
     }
     .nav-inner {
@@ -712,15 +698,14 @@
       font-family: var(--font-body);
       font-size: .85rem;
       font-weight: 700;
-      color: #15080e;
+      color: #0a0a0a;
       background: var(--gold);
       text-decoration: none;
       padding: .45rem 1.1rem;
       border-radius: var(--radius);
-      transition: background .2s, box-shadow .2s;
-      box-shadow: 0 2px 12px rgba(212,160,23,.3);
+      transition: opacity .2s;
     }
-    .btn-nav-primary:hover { background: #e8b820; box-shadow: 0 4px 18px rgba(212,160,23,.4); }
+    .btn-nav-primary:hover { opacity: .85; }
     .nav-hamburger {
       display: none;
       flex-direction: column;
@@ -763,7 +748,7 @@
         top: 60px;
         left: 0;
         right: 0;
-        background: rgba(21,8,14,.97);
+        background: rgba(10,10,10,.97);
         padding: 1.5rem;
         gap: 1.25rem;
         border-bottom: 1px solid rgba(255,255,255,.08);
@@ -834,13 +819,13 @@
       </div>
       <div class="hero-sep"></div>
       <div class="hero-stat">
-        <span class="hero-stat-n">2015</span>
-        <span class="hero-stat-l">Anno di fondazione</span>
+        <span class="hero-stat-n">+2/mese</span>
+        <span class="hero-stat-l">Nuovi corsi garantiti</span>
       </div>
       <div class="hero-sep"></div>
       <div class="hero-stat">
-        <span class="hero-stat-n">MIM</span>
-        <span class="hero-stat-l">Accreditato</span>
+        <span class="hero-stat-n">2015</span>
+        <span class="hero-stat-l">Fondato a Firenze</span>
       </div>
     </div>
   </div>
@@ -851,7 +836,7 @@
 <section id="prezzi" class="pricing">
   <div class="pricing-header">
     <h2 class="pricing-heading">Un abbonamento, <em>l'intero catalogo</em></h2>
-    <p class="pricing-subhead">Cancella quando vuoi. Nessun costo per singolo corso.</p>
+    <p class="pricing-subhead">Il catalogo cresce ogni mese: 2 nuovi corsi garantiti. Cancella quando vuoi.</p>
   </div>
 
   <!-- Toggle mensile / annuale -->
@@ -869,42 +854,40 @@
     <!-- CULTURA -->
     <div class="plan-card">
       <div class="plan-name">Cultura</div>
-      <div class="plan-desc">Per esplorare le lingue classiche con continuità e senza vincoli.</div>
+      <div class="plan-desc">Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
         <div class="plan-old" id="old-cultura"></div>
       </div>
       <ul class="plan-features">
-        <li>56 corsi: Latino, Greco, Egiziano, Ebraico — A1→B1</li>
-        <li>Corsi Brevi tematici (storia, civiltà, testi)</li>
+        <li>Corsi Brevi di cultura classica — mondo greco, Roma, Egitto, Bibbia, storia antica</li>
         <li>Attestati digitali con codice univoco verificabile</li>
         <li>Video-lezioni senza scadenza, accesso illimitato</li>
-        <li class="off">Materiali scaricabili (PDF, esercizi, glossari)</li>
-        <li class="off">Forum e comunità di studenti</li>
-        <li class="off">Sessioni live mensili con i docenti</li>
-        <li class="off">Bonus Docenti MIM</li>
+        <li>2 nuovi corsi al mese inclusi automaticamente</li>
+        <li class="off">Corsi di lingua (Latino, Greco, Egiziano, Ebraico)</li>
+        <li class="off">Formazione docenti accreditata MIM</li>
+        <li class="off">Bonus Docenti — detraibilità fiscale</li>
       </ul>
       <button type="button" data-open-register data-plan="cultura" class="btn-plan btn-plan-ghost">Inizia con Cultura</button>
     </div>
 
     <!-- LINGUAE (featured) -->
     <div class="plan-card featured">
-      <div class="plan-badge">Il preferito</div>
+      <div class="plan-badge">Il più scelto</div>
       <div class="plan-name">Linguae</div>
-      <div class="plan-desc">Per lo studio serio: catalogo completo, materiali e comunità.</div>
+      <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
         <div class="plan-old" id="old-linguae"></div>
       </div>
       <ul class="plan-features">
-        <li>Tutto il piano Cultura incluso</li>
-        <li>Materiali scaricabili: PDF, esercizi, glossari per ogni corso</li>
-        <li>Forum della comunità — confronto tra studenti e docenti</li>
-        <li>Accesso anticipato ai nuovi corsi (beta chiusa)</li>
-        <li>Storico delle lezioni e note personali</li>
-        <li class="off">Sessioni live mensili con i docenti</li>
-        <li class="off">Q&amp;A privata con i professori</li>
-        <li class="off">Bonus Docenti MIM</li>
+        <li>Tutto il piano Cultura (corsi brevi)</li>
+        <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
+        <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
+        <li>Attestati digitali verificabili per ogni corso completato</li>
+        <li>2 nuovi corsi al mese inclusi automaticamente</li>
+        <li class="off">Corsi di formazione docenti (4 moduli didattici)</li>
+        <li class="off">Bonus Docenti MIM — detraibilità fiscale</li>
       </ul>
       <button type="button" data-open-register data-plan="linguae" class="btn-plan btn-plan-primary">Inizia con Linguae</button>
     </div>
@@ -912,20 +895,18 @@
     <!-- ACCADEMIA -->
     <div class="plan-card">
       <div class="plan-name">Accademia</div>
-      <div class="plan-desc">Per docenti e ricercatori. Con Bonus Docenti MIM e formazione continua.</div>
+      <div class="plan-desc">Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti incluso.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
         <div class="plan-old" id="old-accademia"></div>
       </div>
       <ul class="plan-features">
         <li>Tutto il piano Linguae incluso</li>
-        <li>Sessioni live mensili con i docenti (diretta + registrazione)</li>
-        <li>Q&amp;A privata asincrona con i professori del corso</li>
-        <li>Bonus Docenti MIM attivo — spesa detraibile al 100%</li>
-        <li>Formazione continua accreditata (crediti CFU compatibili)</li>
-        <li>Risposta garantita entro 24h dall'assistenza</li>
-        <li>Fattura elettronica per enti e scuole</li>
-        <li>Accesso prioritario agli eventi in presenza a Firenze</li>
+        <li>4 moduli di formazione docenti: Elementa, Principia, Grammatica, Litterae</li>
+        <li>Accreditamento MIM — crediti CFU compatibili per la carriera docente</li>
+        <li>Bonus Docenti attivo — spesa detraibile al 100%</li>
+        <li>Sessioni live mensili con i docenti</li>
+        <li>Q&amp;A privata con i professori del corso</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
     </div>
