@@ -56,6 +56,15 @@
     </div>
   </div>
 
+  <!-- ── I MIEI CORSI IN CORSO ─────────────────────────────── -->
+  <div id="section-progress" style="display:none; padding:32px 48px 0;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:8px;">
+      <h3 style="font-family:'Montserrat',sans-serif; font-size:18px; font-weight:700;">I miei corsi</h3>
+      <a href="profilo.html" style="font-size:13px; color:var(--accent); text-decoration:none; font-weight:600;">Vedi attestati →</a>
+    </div>
+    <div id="progress-list" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px;"></div>
+  </div>
+
   <!-- ── CONTINUA A STUDIARE ─────────────────────────────── -->
   <div class="section-row">
     <div class="row-header">
@@ -140,6 +149,110 @@
     </div>
   </footer>
 
+  <script>
+    /* ── FUNZIONE PROGRESSI CORSI ──────────────────────────────── */
+    function loadProgress() {
+      fetch('/api/progress')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data || !data.courses || data.courses.length === 0) return;
+
+          var section = document.getElementById('section-progress');
+          var list    = document.getElementById('progress-list');
+          section.style.display = 'block';
+
+          data.courses.forEach(function(c) {
+            var pct  = c.percent;
+            var done = c.completedLessons;
+            var tot  = c.totalLessons;
+            var nextLabel = c.nextLesson
+              ? 'Prossima: ' + c.nextLesson.title
+              : (pct === 100 ? '✓ Completato' : '—');
+            var lastDate = c.lastWatchedAt
+              ? 'Ultimo accesso ' + new Date(c.lastWatchedAt).toLocaleDateString('it-IT')
+              : '';
+
+            var card = document.createElement('div');
+            card.style.cssText = 'background:#fff;border-radius:10px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .2s;';
+            card.onmouseenter = function() { this.style.boxShadow = '0 4px 16px rgba(0,0,0,.12)'; };
+            card.onmouseleave = function() { this.style.boxShadow = '0 2px 8px rgba(0,0,0,.05)'; };
+            card.onclick = function() { window.location.href = 'corso.html?id=' + c.slug; };
+
+            var barColor = pct === 100 ? '#34c759' : 'var(--accent)';
+
+            card.innerHTML =
+              '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">' +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:4px;">' + (c.lang || '') + '</div>' +
+                  '<div style="font-weight:700;font-size:14px;line-height:1.3;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + c.title + '</div>' +
+                '</div>' +
+                '<span style="font-size:14px;font-weight:800;color:' + barColor + ';margin-left:12px;flex-shrink:0;">' + pct + '%</span>' +
+              '</div>' +
+              '<div style="height:6px;background:#e0e0e0;border-radius:3px;margin-bottom:10px;">' +
+                '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:3px;transition:width .4s;"></div>' +
+              '</div>' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;">' +
+                '<div style="font-size:12px;color:var(--text-muted);">' +
+                  done + ' / ' + tot + ' lezioni' +
+                  (lastDate ? ' · <span>' + lastDate + '</span>' : '') +
+                '</div>' +
+              '</div>' +
+              '<div style="margin-top:8px;font-size:12px;color:' + (pct === 100 ? '#34c759' : 'var(--accent)') + ';font-weight:600;">' +
+                nextLabel +
+              '</div>';
+
+            list.appendChild(card);
+          });
+        })
+        .catch(function() { /* silently ignore progress errors */ });
+    }
+  </script>
   <script src="js/app.js"></script>
+  <script>
+    // Nasconde il contenuto fino alla verifica dell'autenticazione (evita flash)
+    document.documentElement.style.visibility = 'hidden';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/api/auth/me')
+        .then(function (res) {
+          if (res.status === 401) { window.location.href = '/'; return null; }
+          if (!res.ok) { window.location.href = '/'; return null; }
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data) return;
+          document.documentElement.style.visibility = '';
+          window.GLV_USER = data.user;
+
+          // Aggiorna avatar navbar
+          var avatar = document.querySelector('.nav-avatar');
+          if (avatar && data.user) {
+            var name = data.user.fullName || data.user.email || '';
+            avatar.textContent = name.charAt(0).toUpperCase();
+          }
+
+          // Carica progressi corsi
+          loadProgress();
+
+          // Banner abbonamento assente
+          if (data.user && !data.user.subscription) {
+            var banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
+            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
+            document.body.insertBefore(banner, document.body.firstChild);
+          }
+
+          // Logout
+          document.querySelectorAll('[data-logout]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.preventDefault();
+              fetch('/api/auth/logout', { method: 'POST' })
+                .finally(function () { window.location.href = '/'; });
+            });
+          });
+        })
+        .catch(function () { window.location.href = '/'; });
+    });
+  </script>
 </body>
 </html>

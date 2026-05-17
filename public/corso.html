@@ -81,7 +81,7 @@
           </div>
         </div>
         <p class="corso-price"><span class="js-corso-price">130 €</span></p>
-        <p class="corso-price-sub">oppure incluso nell'abbonamento da €8,25/mese</p>
+        <p class="corso-price-sub">oppure incluso nell'abbonamento da €5,90/mese (piano Cultura)</p>
         <button class="btn btn-primary btn-full" onclick="goToCourse('lat-a11')">&#9654; Accedi al corso</button>
         <button class="btn btn-outline btn-full" style="margin-top:10px;">Abbonamento — accesso a tutto il catalogo</button>
         <div class="corso-cta-divider"></div>
@@ -133,6 +133,17 @@
 
   <!-- ── VIDEO PLAYER ─────────────────────────────────────────── -->
   <section id="video-player-section" style="display:none; padding:0 48px 32px;">
+    <!-- Barra di avanzamento del corso sopra il player -->
+    <div id="course-progress-bar-wrap" style="display:none; margin-bottom:12px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
+        <span style="font-size:12px; color:var(--text-muted);" id="progress-bar-label">0 / 0 lezioni completate</span>
+        <span style="font-size:12px; font-weight:700; color:var(--accent);" id="progress-bar-pct">0%</span>
+      </div>
+      <div style="height:4px; background:#e0e0e0; border-radius:2px;">
+        <div id="progress-bar-fill" style="width:0%; height:100%; background:var(--accent); border-radius:2px; transition:width .5s;"></div>
+      </div>
+    </div>
+
     <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; background:#000; box-shadow:0 8px 32px rgba(0,0,0,.25);">
       <iframe id="vimeo-iframe"
         src=""
@@ -141,11 +152,16 @@
         allowfullscreen>
       </iframe>
     </div>
-    <div id="video-player-title" style="margin-top:12px; font-size:14px; font-weight:600; color:var(--text-primary);"></div>
-    <button onclick="document.getElementById('video-player-section').style.display='none';"
-      style="margin-top:8px; font-size:12px; color:var(--text-muted); background:none; border:none; cursor:pointer; padding:0;">
-      <i class="fas fa-times"></i> Chiudi player
-    </button>
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:8px;">
+      <div>
+        <div id="video-player-title" style="font-size:14px; font-weight:600; color:var(--text-primary);"></div>
+        <div id="video-player-status" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
+      </div>
+      <button onclick="closePlayer()"
+        style="font-size:12px; color:var(--text-muted); background:none; border:none; cursor:pointer; padding:0;">
+        <i class="fas fa-times"></i> Chiudi player
+      </button>
+    </div>
   </section>
 
   <!-- ── LEZIONI ───────────────────────────────────────────────── -->
@@ -312,6 +328,319 @@
     </div>
   </footer>
 
+  <!-- Vimeo Player SDK per il tracking -->
+  <script src="https://player.vimeo.com/api/player.js"></script>
   <script src="js/app.js"></script>
+  <script>
+    // Sovrascrive playLesson di app.js per iniettare il tracking Vimeo
+    // Viene eseguito dopo il caricamento di app.js
+    (function() {
+      var _origPlayLesson = window.playLesson;
+      window.playLesson = function(vimeoUrl, title, isPreview, lessonId, resumeAt) {
+        // Chiama prima la funzione originale (gestisce preview overlay, ecc.)
+        _origPlayLesson(vimeoUrl, title, isPreview, lessonId, resumeAt || 0);
+        // Poi aggancia il tracking se abbiamo un lessonId
+        if (lessonId) {
+          // Cerca il resume point dal progresso già caricato
+          var lp = window.GLV_LESSON_PROGRESS && window.GLV_LESSON_PROGRESS[lessonId];
+          var resume = resumeAt || (lp && lp.resumeAt) || 0;
+          openLessonWithTracking(lessonId, vimeoUrl, title, resume);
+        }
+      };
+    })();
+  </script>
+  <script>
+    document.documentElement.style.visibility = 'hidden';
+
+    // ── STATO GLOBALE TRACKING ─────────────────────────────────
+    var GLV_TRACKING = {
+      player:         null,   // istanza Vimeo.Player
+      lessonId:       null,   // ID DB della lezione corrente
+      courseId:       null,   // ID DB del corso corrente (slug usato per API)
+      courseSlug:     null,
+      saveInterval:   null,   // timer per salvataggio ogni 10s
+      totalSeconds:   0,
+      isSaving:       false,
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/api/auth/me')
+        .then(function (res) {
+          if (res.status === 401) { window.location.href = '/'; return null; }
+          if (!res.ok) { window.location.href = '/'; return null; }
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data) return;
+          document.documentElement.style.visibility = '';
+          window.GLV_USER = data.user;
+
+          var avatar = document.querySelector('.nav-avatar');
+          if (avatar && data.user) {
+            var name = data.user.fullName || data.user.email || '';
+            avatar.textContent = name.charAt(0).toUpperCase();
+          }
+
+          if (data.user && !data.user.subscription) {
+            var banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
+            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
+            document.body.insertBefore(banner, document.body.firstChild);
+          }
+
+          document.querySelectorAll('[data-logout]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.preventDefault();
+              fetch('/api/auth/logout', { method: 'POST' })
+                .finally(function () { window.location.href = '/'; });
+            });
+          });
+
+          // Carica progresso del corso corrente
+          var urlParams = new URLSearchParams(window.location.search);
+          var courseSlug = urlParams.get('id');
+          if (courseSlug) {
+            GLV_TRACKING.courseSlug = courseSlug;
+            loadCourseProgress(courseSlug);
+          }
+        })
+        .catch(function () { window.location.href = '/'; });
+    });
+
+    // ── CARICA PROGRESSO CORSO ─────────────────────────────────
+    function loadCourseProgress(slug) {
+      fetch('/api/progress/course/' + slug)
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data) return;
+          GLV_TRACKING.courseId = data.courseId;
+
+          // Aggiorna barra progresso
+          updateProgressBar(data.completedLessons, data.totalLessons, data.percent);
+
+          // Memorizza i dati di progresso per ogni lezione nel DOM
+          // (usati per mostrare il checkmark e il punto di ripresa)
+          window.GLV_LESSON_PROGRESS = {};
+          (data.lessons || []).forEach(function(lp) {
+            window.GLV_LESSON_PROGRESS[lp.id] = lp;
+          });
+
+          // Aggiorna visivamente l'elenco lezioni (check/progresso)
+          refreshLessonListUI();
+        })
+        .catch(function() { /* silently ignore */ });
+    }
+
+    function updateProgressBar(completed, total, pct) {
+      var wrap  = document.getElementById('course-progress-bar-wrap');
+      var fill  = document.getElementById('progress-bar-fill');
+      var label = document.getElementById('progress-bar-label');
+      var pctEl = document.getElementById('progress-bar-pct');
+      if (!wrap) return;
+      wrap.style.display = 'block';
+      if (fill)  fill.style.width = (pct || 0) + '%';
+      if (label) label.textContent = (completed || 0) + ' / ' + (total || 0) + ' lezioni completate';
+      if (pctEl) pctEl.textContent = (pct || 0) + '%';
+      // Cambia colore a verde quando completato
+      if (pct === 100 && fill) fill.style.background = '#34c759';
+    }
+
+    function refreshLessonListUI() {
+      if (!window.GLV_LESSON_PROGRESS) return;
+      document.querySelectorAll('[data-lesson-id]').forEach(function(el) {
+        var lid = el.getAttribute('data-lesson-id');
+        var lp  = window.GLV_LESSON_PROGRESS[lid];
+        if (!lp) return;
+
+        // Aggiunge badge "Completata" se lp.completed
+        var statusEl = el.querySelector('.lesson-status');
+        if (statusEl) {
+          if (lp.completed) {
+            statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#34c759;"></i>';
+          } else if (lp.watchedSeconds > 0) {
+            var pct = lp.percentWatched || 0;
+            statusEl.innerHTML = '<span style="font-size:11px;color:var(--accent);">' + pct + '%</span>';
+          }
+        }
+      });
+    }
+
+    // ── AVVIA PLAYER CON TRACKING ──────────────────────────────
+    function openLessonWithTracking(lessonId, vimeoUrl, lessonTitle, resumeAt) {
+      // Ferma il tracking precedente
+      stopTracking();
+
+      var section = document.getElementById('video-player-section');
+      var iframe  = document.getElementById('vimeo-iframe');
+      var titleEl = document.getElementById('video-player-title');
+      var statusEl = document.getElementById('video-player-status');
+
+      section.style.display = 'block';
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      if (titleEl) titleEl.textContent = lessonTitle || 'Lezione';
+      if (statusEl) statusEl.textContent = '';
+
+      // Costruisce URL Vimeo con autoplay e resume
+      var vimeoId = extractVimeoId(vimeoUrl);
+      var src = vimeoId
+        ? 'https://player.vimeo.com/video/' + vimeoId + '?autoplay=1&api=1'
+        : vimeoUrl;
+
+      iframe.src = src;
+
+      GLV_TRACKING.lessonId = lessonId;
+
+      // Inizializza il Vimeo Player SDK
+      try {
+        GLV_TRACKING.player = new Vimeo.Player(iframe);
+        var player = GLV_TRACKING.player;
+
+        // Seek al punto di ripresa (dopo che il video è pronto)
+        player.ready().then(function() {
+          if (resumeAt && resumeAt > 5) {
+            player.setCurrentTime(resumeAt).catch(function() {});
+            if (statusEl) statusEl.textContent = 'Ripreso da ' + formatTime(resumeAt);
+          }
+          // Ottieni durata totale
+          player.getDuration().then(function(dur) {
+            GLV_TRACKING.totalSeconds = Math.round(dur || 0);
+          }).catch(function() {});
+        });
+
+        // Evento: video terminato → salva come completato
+        player.on('ended', function() {
+          if (statusEl) statusEl.textContent = '✓ Lezione completata!';
+          saveProgress(true);
+        });
+
+        // Evento: video in pausa → salva posizione
+        player.on('pause', function() {
+          saveProgress(false);
+        });
+
+        // Salvataggio periodico ogni 10 secondi durante la riproduzione
+        GLV_TRACKING.saveInterval = setInterval(function() {
+          if (!GLV_TRACKING.isSaving) {
+            saveProgress(false);
+          }
+        }, 10000);
+
+      } catch(e) {
+        console.warn('[GLV] Vimeo Player SDK non disponibile:', e);
+      }
+    }
+
+    // ── SALVA PROGRESSO AL SERVER ──────────────────────────────
+    function saveProgress(forceComplete) {
+      if (!GLV_TRACKING.lessonId || !GLV_TRACKING.courseSlug) return;
+      if (GLV_TRACKING.isSaving) return;
+
+      var player = GLV_TRACKING.player;
+      if (!player) return;
+
+      GLV_TRACKING.isSaving = true;
+
+      Promise.all([
+        player.getCurrentTime().catch(function() { return 0; }),
+        player.getDuration().catch(function() { return GLV_TRACKING.totalSeconds || 0; }),
+      ]).then(function(results) {
+        var currentTime = Math.round(results[0] || 0);
+        var duration    = Math.round(results[1] || GLV_TRACKING.totalSeconds || 0);
+        var watched     = forceComplete ? duration : currentTime;
+
+        return fetch('/api/progress/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lessonId:       GLV_TRACKING.lessonId,
+            watchedSeconds: watched,
+            totalSeconds:   duration,
+            resumeAt:       currentTime,
+          }),
+        });
+      }).then(function(r) {
+        return r.ok ? r.json() : null;
+      }).then(function(data) {
+        GLV_TRACKING.isSaving = false;
+        if (!data) return;
+
+        // Aggiorna barra di avanzamento del corso
+        if (data.coursePercent !== undefined) {
+          loadCourseProgress(GLV_TRACKING.courseSlug);
+        }
+
+        // Se il corso è stato completato al 100% → mostra banner
+        if (data.courseCompleted && data.certificateIssued) {
+          showCertificateBanner(data.certCode);
+        }
+      }).catch(function() {
+        GLV_TRACKING.isSaving = false;
+      });
+    }
+
+    // ── BANNER ATTESTATO SBLOCCATO ─────────────────────────────
+    function showCertificateBanner(certCode) {
+      if (document.getElementById('cert-banner')) return;
+      var banner = document.createElement('div');
+      banner.id = 'cert-banner';
+      banner.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0d0d0d;color:#fff;border:2px solid #c9a84c;border-radius:12px;padding:20px 24px;z-index:10000;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.3);font-family:Roboto,sans-serif;';
+      banner.innerHTML =
+        '<div style="display:flex;align-items:flex-start;gap:12px;">' +
+          '<span style="font-size:28px;">🏛</span>' +
+          '<div>' +
+            '<p style="font-weight:700;font-size:15px;margin-bottom:4px;color:#c9a84c;">Corso completato!</p>' +
+            '<p style="font-size:13px;color:#b3b3b3;margin-bottom:12px;">Il tuo attestato è pronto. Riceverai una email a breve.</p>' +
+            '<a href="/api/progress/certificate/' + GLV_TRACKING.courseSlug + '" ' +
+               'style="display:inline-block;background:#a01a36;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">' +
+              '⬇ Scarica attestato' +
+            '</a>' +
+            '<button onclick="document.getElementById(\'cert-banner\').remove()" ' +
+              'style="display:block;margin-top:8px;color:#666;background:none;border:none;font-size:12px;cursor:pointer;padding:0;">Chiudi</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(banner);
+    }
+
+    // ── CHIUDI PLAYER ──────────────────────────────────────────
+    function closePlayer() {
+      saveProgress(false);
+      stopTracking();
+      var section = document.getElementById('video-player-section');
+      if (section) section.style.display = 'none';
+      var iframe = document.getElementById('vimeo-iframe');
+      if (iframe) iframe.src = '';
+    }
+
+    function stopTracking() {
+      if (GLV_TRACKING.saveInterval) {
+        clearInterval(GLV_TRACKING.saveInterval);
+        GLV_TRACKING.saveInterval = null;
+      }
+      if (GLV_TRACKING.player) {
+        try { GLV_TRACKING.player.off('ended'); GLV_TRACKING.player.off('pause'); } catch(e) {}
+        GLV_TRACKING.player = null;
+      }
+      GLV_TRACKING.lessonId = null;
+    }
+
+    // ── UTILITIES ──────────────────────────────────────────────
+    function extractVimeoId(url) {
+      if (!url) return null;
+      var m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+      return m ? m[1] : null;
+    }
+
+    function formatTime(secs) {
+      var m = Math.floor(secs / 60);
+      var s = Math.round(secs % 60);
+      return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    // Salva prima di uscire dalla pagina
+    window.addEventListener('beforeunload', function() {
+      saveProgress(false);
+    });
+  </script>
 </body>
 </html>

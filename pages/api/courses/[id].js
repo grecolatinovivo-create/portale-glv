@@ -4,7 +4,7 @@
 const { prisma } = require('../../../lib/prisma');
 const { withAuth } = require('../../../lib/auth');
 
-export default withAuth(async function handler(req, res) {
+module.exports = withAuth(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     return res.status(405).json({ error: 'Metodo non consentito' });
@@ -27,19 +27,19 @@ export default withAuth(async function handler(req, res) {
     let hasAccess = false;
 
     if (req.user) {
-      // Controlla abbonamento attivo
-      const subscription = await prisma.subscription.findUnique({
-        where: { userId: req.user.id },
+      // Controlla abbonamento attivo — findFirst perché userId non è unique su Subscription
+      const subscription = await prisma.subscription.findFirst({
+        where: {
+          userId: req.user.userId,      // corretto: req.user.userId (non .id)
+          status: { in: ['active', 'trialing'] },
+        },
       });
-
-      if (subscription && ['active', 'trialing'].includes(subscription.status)) {
-        hasAccess = true;
-      }
+      if (subscription) hasAccess = true;
 
       // Controlla acquisto singolo corso
       if (!hasAccess) {
         const purchase = await prisma.purchase.findFirst({
-          where: { userId: req.user.id, courseId: course.id },
+          where: { userId: req.user.userId, courseId: course.id },
         });
         if (purchase) hasAccess = true;
       }

@@ -1022,7 +1022,7 @@ async function initLandingPreview(){
 /* ── Video Player (globale, usato da initCorsoPage) ─────────── */
 let _previewTimer = null;
 
-function playLesson(vimeoUrl, title, isPreview) {
+function playLesson(vimeoUrl, title, isPreview, lessonId, resumeAt) {
   const section = document.getElementById('video-player-section');
   const iframe  = document.getElementById('vimeo-iframe');
   const titleEl = document.getElementById('video-player-title');
@@ -1112,7 +1112,8 @@ async function initCorsoPage(){
       const hasVideo = !!l.vimeoUrl;
       return `
       <div class="lesson-item ${l.isFree?'free':''}" style="cursor:${canPlay&&hasVideo?'pointer':'default'};"
-           onclick="${canPlay&&hasVideo?`playLesson('${l.vimeoUrl}','${l.title.replace(/'/g,"\\'")}',${l.isFree&&!course.hasAccess})`:''}" >
+           data-lesson-id="${l.id||''}"
+           onclick="${canPlay&&hasVideo?`playLesson('${l.vimeoUrl}','${l.title.replace(/'/g,"\\'")}',${l.isFree&&!course.hasAccess},'${l.id||''}',${0})`:''}" >
         <span class="lesson-num">${String(i+1).padStart(2,'0')}</span>
         <span class="lesson-title">${l.title}</span>
         <span class="lesson-duration">${l.durationMin||'90'} min</span>

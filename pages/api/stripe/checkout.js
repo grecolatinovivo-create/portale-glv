@@ -1,121 +1,60 @@
-const { prisma } = require('../../../lib/prisma');
+// pages/api/stripe/checkout.js — Crea sessione Stripe Checkout per abbonamento
+
 const { stripe } = require('../../../lib/stripe');
-const { withAuth } = require('../../../lib/auth');
+const { requireAuth } = require('../../../lib/auth');
+const { getPriceId, PLANS } = require('../../../lib/resend');
+
+// Lista dei 6 planId validi
+const VALID_PLAN_IDS = Object.keys(PLANS);
 
 async function handler(req, res) {
+  // Accetta solo richieste POST
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ error: 'Metodo non consentito' });
+  }
+
+  const { planId } = req.body || {};
+
+  // Validazione planId
+  if (!planId) {
+    return res.status(400).json({ error: 'Il campo planId è obbligatorio' });
+  }
+
+  if (!VALID_PLAN_IDS.includes(planId)) {
+    return res.status(400).json({
+      error: `Piano non valido. Scegli uno tra: ${VALID_PLAN_IDS.join(', ')}`,
+    });
   }
 
   try {
-    const { type, priceId, courseSlug } = req.body;
+    // Recupera il Price ID Stripe per il piano richiesto
+    const priceId = getPriceId(planId);
 
-    if (!type || (type !== 'subscription' && type !== 'course')) {
-      return res.status(400).json({ error: 'Parametro type non valido' });
+    if (!priceId) {
+      console.error(`[checkout] Price ID mancante per il piano: ${planId}`);
+      return res.status(500).json({ error: 'Configurazione del piano non disponibile' });
     }
 
-    // Utente opzionale — req.user è già popolato da withAuth se loggato, null altrimenti
-    const user = req.user ? await prisma.user.findUnique({ where: { id: req.user.id } }) : null;
+    // Crea la sessione Stripe Checkout in modalità abbonamento
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      line_items: [{ price: priceId, quantity: 1 }],
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard.html?checkout=success`,
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/index.html#prezzi`,
+      customer_email: req.user.email,
+      metadata: {
+        userId: req.user.userId,
+        planId,
+      },
+    });
 
-    let customerParam = {};
-    if (user) {
-      let customerId = user.stripeCustomerId;
-      if (!customerId) {
-        const customer = await stripe.customers.create({
-          email: user.email,
-          name: user.fullName || '',
-        });
-        customerId = customer.id;
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { stripeCustomerId: customerId },
-        });
-      }
-      customerParam = { customer: customerId };
-    }
-
-    if (type === 'subscription') {
-      if (!priceId) {
-        return res.status(400).json({ error: 'priceId obbligatorio per subscription' });
-      }
-
-      const session = await stripe.checkout.sessions.create({
-        ...customerParam,
-        mode: 'subscription',
-        line_items: [{ price: priceId, quantity: 1 }],
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard.html?subscribed=1`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/index.html#prezzi`,
-        locale: 'it',
-        billing_address_collection: 'required',
-        allow_promotion_codes: true,
-        subscription_data: {
-          metadata: { userId: user?.id || '', type: 'subscription' },
-        },
-        custom_fields: [
-          {
-            key: 'codice_fiscale',
-            label: { type: 'custom', custom: 'Codice Fiscale / P.IVA (necessario per fattura)' },
-            type: 'text',
-          },
-        ],
-        metadata: { userId: user?.id || '', type: 'subscription' },
-      });
-
-      return res.status(200).json({ url: session.url });
-    }
-
-    if (type === 'course') {
-      if (!courseSlug) {
-        return res.status(400).json({ error: 'courseSlug obbligatorio per course' });
-      }
-      if (!user) {
-        return res.status(401).json({ error: 'Devi essere loggato per acquistare un corso' });
-      }
-
-      const course = await prisma.course.findUnique({ where: { slug: courseSlug } });
-      if (!course) return res.status(404).json({ error: 'Corso non trovato' });
-
-      const existingPurchase = await prisma.purchase.findUnique({
-        where: { userId_courseId: { userId: user.id, courseId: course.id } },
-      });
-      if (existingPurchase) return res.status(409).json({ error: 'Corso già acquistato' });
-
-      const session = await stripe.checkout.sessions.create({
-        ...customerParam,
-        mode: 'payment',
-        line_items: [
-          {
-            price_data: {
-              currency: 'eur',
-              product_data: { name: course.title },
-              unit_amount: course.priceEur,
-            },
-            quantity: 1,
-          },
-        ],
-        success_url: `${process.env.NEXT_PUBLIC_APP_URL}/corso.html?id=${courseSlug}&purchased=1`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/corso.html?id=${courseSlug}`,
-        locale: 'it',
-        billing_address_collection: 'required',
-        custom_fields: [
-          {
-            key: 'codice_fiscale',
-            label: { type: 'custom', custom: 'Codice Fiscale / P.IVA (necessario per fattura)' },
-            type: 'text',
-          },
-        ],
-        metadata: { userId: user.id, courseId: course.id, courseSlug, type: 'course' },
-      });
-
-      return res.status(200).json({ url: session.url });
-    }
+    return res.status(200).json({ url: session.url });
   } catch (err) {
     console.error('[checkout] Errore:', err);
-    // Restituisce il messaggio REALE dell'errore (Stripe, Prisma, ecc.)
-    // così il browser può mostrarlo all'utente invece del generico "Errore interno del server"
-    const message = err?.message || 'Errore interno del server';
-    return res.status(500).json({ error: message });
+    return res.status(500).json({ error: err.message || 'Errore interno del server' });
   }
 }
 
-export default withAuth(handler);
+// Protegge la route con requireAuth: richiede JWT valido nel cookie
+module.exports = requireAuth(handler);

@@ -70,33 +70,25 @@
       </div>
     </div>
 
-    <!-- CARD CORSI IN CORSO -->
+    <!-- CARD CORSI IN CORSO (dati reali) -->
     <div class="profile-card">
       <div class="profile-card-header">
         <h4>Corsi in corso</h4>
       </div>
-
-      <!-- Latino A1.1 -->
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:12px;">
-        <div style="flex:1; min-width:200px;">
-          <p style="font-weight:600; margin-bottom:8px;">Latino A1.1 – Principianti</p>
-          <div style="height:4px; background:#e0e0e0; border-radius:2px;">
-            <div style="width:65%; height:100%; background:var(--accent); border-radius:2px;"></div>
-          </div>
-        </div>
-        <span class="text-muted" style="font-size:13px; flex-shrink:0;">65% completato</span>
+      <div id="profile-courses-list">
+        <p style="color:var(--text-muted); font-size:13px;">Caricamento...</p>
       </div>
+    </div>
 
-      <!-- Greco Antico A1.1 -->
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; flex-wrap:wrap; gap:12px;">
-        <div style="flex:1; min-width:200px;">
-          <p style="font-weight:600; margin-bottom:8px;">Greco Antico A1.1 – Principianti</p>
-          <div style="height:4px; background:#e0e0e0; border-radius:2px;">
-            <div style="width:30%; height:100%; background:var(--accent); border-radius:2px;"></div>
-          </div>
-        </div>
-        <span class="text-muted" style="font-size:13px; flex-shrink:0;">30% completato</span>
+    <!-- CARD ATTESTATI -->
+    <div class="profile-card" id="card-attestati" style="display:none;">
+      <div class="profile-card-header">
+        <h4>I miei attestati</h4>
+        <span style="font-size:11px; background:var(--accent-light); color:var(--accent); padding:2px 10px; border-radius:3px; font-weight:700;">
+          <span id="certs-count">0</span> disponibili
+        </span>
       </div>
+      <div id="profile-certs-list"></div>
     </div>
 
     <!-- CARD IMPOSTAZIONI -->
@@ -140,5 +132,145 @@
   </footer>
 
   <script src="js/app.js"></script>
+  <script>
+    /* ── PROGRESSI E ATTESTATI ─────────────────────────────────── */
+    function loadProfileData() {
+      // Progressi corsi
+      fetch('/api/progress')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          var el = document.getElementById('profile-courses-list');
+          if (!el) return;
+          if (!data || !data.courses || data.courses.length === 0) {
+            el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Nessun corso avviato ancora. <a href="catalogo.html" style="color:var(--accent);">Sfoglia il catalogo →</a></p>';
+            return;
+          }
+          el.innerHTML = '';
+          data.courses.forEach(function(c, i) {
+            var pct = c.percent;
+            var barColor = pct === 100 ? '#34c759' : 'var(--accent)';
+            var isLast = i === data.courses.length - 1;
+            var row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:14px 0;' +
+              (isLast ? '' : 'border-bottom:1px solid var(--border);') +
+              'flex-wrap:wrap;gap:12px;cursor:pointer;';
+            row.onclick = function() { window.location.href = 'corso.html?id=' + c.slug; };
+            row.innerHTML =
+              '<div style="flex:1;min-width:200px;">' +
+                '<p style="font-weight:600;margin-bottom:4px;font-size:14px;">' + c.title + '</p>' +
+                '<div style="height:4px;background:#e0e0e0;border-radius:2px;">' +
+                  '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:2px;transition:width .4s;"></div>' +
+                '</div>' +
+                (c.nextLesson && pct < 100
+                  ? '<p style="font-size:11px;color:var(--accent);margin-top:4px;">Prossima: ' + c.nextLesson.title + '</p>'
+                  : (pct === 100 ? '<p style="font-size:11px;color:#34c759;margin-top:4px;">✓ Completato</p>' : '')) +
+              '</div>' +
+              '<span style="font-size:13px;color:' + barColor + ';font-weight:700;flex-shrink:0;">' + pct + '%</span>';
+            el.appendChild(row);
+          });
+        })
+        .catch(function() {
+          var el = document.getElementById('profile-courses-list');
+          if (el) el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Impossibile caricare i progressi.</p>';
+        });
+
+      // Attestati
+      fetch('/api/progress/certificates')
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (!data || !data.certificates || data.certificates.length === 0) return;
+          var card  = document.getElementById('card-attestati');
+          var list  = document.getElementById('profile-certs-list');
+          var count = document.getElementById('certs-count');
+          if (!card || !list) return;
+          card.style.display = 'block';
+          if (count) count.textContent = data.certificates.length;
+          data.certificates.forEach(function(cert, i) {
+            var isLast = i === data.certificates.length - 1;
+            var dateStr = cert.completedAt
+              ? new Date(cert.completedAt).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' })
+              : '—';
+            var row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:14px 0;' +
+              (isLast ? '' : 'border-bottom:1px solid var(--border);') +
+              'flex-wrap:wrap;gap:12px;';
+            row.innerHTML =
+              '<div style="flex:1;min-width:200px;">' +
+                '<p style="font-weight:600;font-size:14px;margin-bottom:2px;">' + cert.title + '</p>' +
+                '<p style="font-size:12px;color:var(--text-muted);">Completato il ' + dateStr + '</p>' +
+              '</div>' +
+              '<div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">' +
+                '<a href="/api/progress/certificate/' + cert.slug + '" ' +
+                   'style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;" ' +
+                   'title="Scarica attestato PDF">' +
+                  '<i class="fas fa-download"></i> Scarica' +
+                '</a>' +
+                '<a href="/verifica.html?code=' + (cert.certCode || '') + '" ' +
+                   'target="_blank" ' +
+                   'style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:12px;text-decoration:none;" ' +
+                   'title="Verifica autenticità">' +
+                  '<i class="fas fa-shield-alt"></i> Verifica' +
+                '</a>' +
+              '</div>';
+            list.appendChild(row);
+          });
+        })
+        .catch(function() { /* silently ignore */ });
+    }
+
+    document.documentElement.style.visibility = 'hidden';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      fetch('/api/auth/me')
+        .then(function (res) {
+          if (res.status === 401) { window.location.href = '/'; return null; }
+          if (!res.ok) { window.location.href = '/'; return null; }
+          return res.json();
+        })
+        .then(function (data) {
+          if (!data) return;
+          document.documentElement.style.visibility = '';
+          window.GLV_USER = data.user;
+
+          var avatar = document.querySelector('.nav-avatar');
+          if (avatar && data.user) {
+            var name = data.user.fullName || data.user.email || '';
+            avatar.textContent = name.charAt(0).toUpperCase();
+          }
+
+          // Carica progressi e attestati
+          loadProfileData();
+
+          // Popola dati profilo con dati reali
+          if (data.user) {
+            var profileAvatarLarge = document.querySelector('.profile-avatar-large');
+            if (profileAvatarLarge) {
+              var n = data.user.fullName || data.user.email || '';
+              profileAvatarLarge.textContent = n.charAt(0).toUpperCase();
+            }
+            var profileH2 = document.querySelector('.profile-hero h2');
+            if (profileH2 && data.user.fullName) profileH2.textContent = data.user.fullName;
+            var profileEmail = document.querySelector('.profile-hero .text-secondary');
+            if (profileEmail && data.user.email) profileEmail.textContent = data.user.email;
+          }
+
+          if (data.user && !data.user.subscription) {
+            var banner = document.createElement('div');
+            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
+            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
+            document.body.insertBefore(banner, document.body.firstChild);
+          }
+
+          document.querySelectorAll('[data-logout]').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.preventDefault();
+              fetch('/api/auth/logout', { method: 'POST' })
+                .finally(function () { window.location.href = '/'; });
+            });
+          });
+        })
+        .catch(function () { window.location.href = '/'; });
+    });
+  </script>
 </body>
 </html>

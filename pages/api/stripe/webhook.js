@@ -1,154 +1,153 @@
+// pages/api/stripe/webhook.js — Gestione webhook Stripe
+// IMPORTANTE: bodyParser disabilitato per leggere il raw body (necessario per verifica firma)
+
 const { prisma } = require('../../../lib/prisma');
 const { stripe } = require('../../../lib/stripe');
-const { sendSubscriptionEmail, sendCoursePurchaseEmail } = require('../../../lib/resend');
+const { sendSubscriptionEmail } = require('../../../lib/resend');
 
-// Mappa tutti e 6 i Price ID Stripe al nome del piano interno
-function getPlanFromPriceId(priceId) {
-  const map = {
-    [process.env.STRIPE_PRICE_CULTURA_MONTHLY]:    'cultura_monthly',
-    [process.env.STRIPE_PRICE_CULTURA_ANNUAL]:     'cultura_annual',
-    [process.env.STRIPE_PRICE_LINGUAE_MONTHLY]:    'linguae_monthly',
-    [process.env.STRIPE_PRICE_LINGUAE_ANNUAL]:     'linguae_annual',
-    [process.env.STRIPE_PRICE_ACCADEMIA_MONTHLY]:  'accademia_monthly',
-    [process.env.STRIPE_PRICE_ACCADEMIA_ANNUAL]:   'accademia_annual',
-  };
-  return map[priceId] || null;
-}
+// Disabilita il bodyParser di Next.js per ottenere il raw body
+module.exports.config = { api: { bodyParser: false } };
 
-async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ error: 'Metodo non consentito' });
   }
 
-  // Leggi body raw
+  // Leggi il raw body dall'evento Stripe
   const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const rawBody = Buffer.concat(chunks).toString('utf8');
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  const rawBody = Buffer.concat(chunks);
 
-  // Verifica firma Stripe
+  // Verifica la firma del webhook Stripe
   const sig = req.headers['stripe-signature'];
   let event;
   try {
     event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    return res.status(400).json({ error: `Webhook error: ${err.message}` });
+    console.error('[webhook] Firma non valida:', err.message);
+    return res.status(400).json({ error: `Firma webhook non valida: ${err.message}` });
   }
 
+  // Gestione degli eventi Stripe
   try {
     switch (event.type) {
+
+      // Checkout completato con successo
       case 'checkout.session.completed': {
         const session = event.data.object;
-        const { userId, type, courseId, courseSlug } = session.metadata;
+        const { userId, planId } = session.metadata || {};
 
-        if (type === 'subscription') {
-          const sub = await stripe.subscriptions.retrieve(session.subscription);
-          const priceId = sub.items.data[0].price.id;
-          const plan = getPlanFromPriceId(priceId) || 'linguae_monthly';
-
-          await prisma.subscription.upsert({
-            where: { stripeSubId: sub.id },
-            create: {
-              userId,
-              stripeSubId: sub.id,
-              stripePriceId: priceId,
-              plan,
-              status: sub.status,
-              currentPeriodEnd: new Date(sub.current_period_end * 1000),
-            },
-            update: {
-              userId,
-              stripePriceId: priceId,
-              plan,
-              status: sub.status,
-              currentPeriodEnd: new Date(sub.current_period_end * 1000),
-            },
-          });
-
-          const user = await prisma.user.findUnique({ where: { id: userId } });
-          if (user) {
-            await sendSubscriptionEmail(user, plan);
-          }
+        if (!userId || !planId) {
+          console.warn('[webhook] checkout.session.completed: metadata userId o planId mancante');
+          break;
         }
 
-        if (type === 'course') {
-          await prisma.purchase.upsert({
-            where: { userId_courseId: { userId, courseId } },
-            create: {
-              userId,
-              courseId,
-              stripePaymentId: session.payment_intent,
-              amountEur: session.amount_total,
-            },
-            update: {
-              stripePaymentId: session.payment_intent,
-              amountEur: session.amount_total,
-            },
-          });
+        // Recupera i dettagli della subscription da Stripe
+        const sub = await stripe.subscriptions.retrieve(session.subscription);
 
-          const user = await prisma.user.findUnique({ where: { id: userId } });
-          const course = await prisma.course.findUnique({ where: { id: courseId } });
-          if (user && course) {
-            await sendCoursePurchaseEmail(user, course);
+        // Crea o aggiorna la Subscription nel database
+        await prisma.subscription.upsert({
+          where: { stripeSubscriptionId: sub.id },
+          create: {
+            userId,
+            plan: planId,
+            stripeSubscriptionId: sub.id,
+            stripeCustomerId: sub.customer,
+            status: sub.status,
+            currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          },
+          update: {
+            userId,
+            plan: planId,
+            stripeCustomerId: sub.customer,
+            status: sub.status,
+            currentPeriodEnd: new Date(sub.current_period_end * 1000),
+          },
+        });
+
+        // Invia email di conferma abbonamento
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user) {
+          try {
+            await sendSubscriptionEmail(user, planId);
+          } catch (emailErr) {
+            console.error('[webhook] Errore invio email abbonamento:', emailErr);
           }
         }
 
         break;
       }
 
+      // Abbonamento aggiornato (rinnovo, cambio piano, ecc.)
       case 'customer.subscription.updated': {
         const sub = event.data.object;
 
         const existing = await prisma.subscription.findUnique({
-          where: { stripeSubId: sub.id },
+          where: { stripeSubscriptionId: sub.id },
         });
 
         if (existing) {
           await prisma.subscription.update({
-            where: { stripeSubId: sub.id },
+            where: { stripeSubscriptionId: sub.id },
             data: {
               status: sub.status,
               currentPeriodEnd: new Date(sub.current_period_end * 1000),
-              cancelAtPeriodEnd: sub.cancel_at_period_end,
             },
           });
+        } else {
+          console.warn('[webhook] customer.subscription.updated: subscription non trovata nel DB:', sub.id);
         }
 
         break;
       }
 
+      // Abbonamento cancellato
       case 'customer.subscription.deleted': {
         const sub = event.data.object;
 
-        await prisma.subscription.update({
-          where: { stripeSubId: sub.id },
-          data: { status: 'canceled' },
-        });
+        try {
+          await prisma.subscription.update({
+            where: { stripeSubscriptionId: sub.id },
+            data: { status: 'canceled' },
+          });
+        } catch (updateErr) {
+          console.warn('[webhook] customer.subscription.deleted: subscription non trovata nel DB:', sub.id);
+        }
 
         break;
       }
 
+      // Pagamento fattura fallito
       case 'invoice.payment_failed': {
         const invoice = event.data.object;
 
-        await prisma.subscription.update({
-          where: { stripeSubId: invoice.subscription },
-          data: { status: 'past_due' },
-        });
+        if (invoice.subscription) {
+          try {
+            await prisma.subscription.update({
+              where: { stripeSubscriptionId: invoice.subscription },
+              data: { status: 'past_due' },
+            });
+          } catch (updateErr) {
+            console.warn('[webhook] invoice.payment_failed: subscription non trovata nel DB:', invoice.subscription);
+          }
+        }
 
         break;
       }
 
+      // Tutti gli altri eventi Stripe non gestiti
       default:
-        // Evento non gestito — va bene, Stripe invia molti eventi
+        // Nessuna azione necessaria
         break;
     }
   } catch (err) {
-    // Log dell'errore ma si risponde comunque 200 per evitare che Stripe riprovi
-    console.error('[webhook] Errore nella gestione dell\'evento:', event.type, err);
+    // Logga l'errore ma risponde 200 per evitare che Stripe riprovi l'invio
+    console.error('[webhook] Errore nella gestione dell\'evento', event.type, ':', err);
   }
 
+  // Risponde sempre 200 per confermare la ricezione del webhook
   return res.status(200).json({ received: true });
-}
-
-export default handler;
-export const config = { api: { bodyParser: false } };
+};

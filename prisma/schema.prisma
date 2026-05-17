@@ -1,5 +1,5 @@
-// Portale GLV — Schema Prisma
-// Database: Neon PostgreSQL
+// prisma/schema.prisma — Schema del database GrecoLatinoVivo
+// Provider: Neon PostgreSQL
 // Aggiorna con: npx prisma db push
 
 generator client {
@@ -12,82 +12,114 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Utenti registrati al portale
 model User {
-  id               String        @id @default(cuid())
-  email            String        @unique
-  password         String        // bcrypt hash
-  fullName         String?
-  stripeCustomerId String?       @unique
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  subscription     Subscription?
-  purchases        Purchase[]
-  progress         Progress[]
+  id           String   @id @default(cuid())
+  email        String   @unique
+  fullName     String?
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscriptions   Subscription[]
+  purchases       Purchase[]
+  lessonProgress  LessonProgress[]
+  certificates    Certificate[]
 }
 
-model Subscription {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeSubId       String   @unique
-  stripePriceId     String
-  plan              String   // "monthly" | "annual"
-  status            String   // "active" | "canceled" | "past_due" | "trialing"
-  currentPeriodEnd  DateTime
-  cancelAtPeriodEnd Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-}
-
+// Corsi disponibili nel catalogo
 model Course {
-  id          String     @id @default(cuid())
-  slug        String     @unique
-  lang        String     // "Latino" | "Greco Antico" | "Egiziano Geroglifico" | "Ebraico Biblico" | "Didattica"
-  level       String     // "A1.1" | "A1.2" | ...
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  lang        String   // "Latino" | "Greco Antico" | ecc.
+  level       String   // "A1.1" | "A1.2" | "base" | "intermedio" | "avanzato"
   title       String
-  description String     @db.Text
-  priceEur    Int        // prezzo acquisto singolo in centesimi (es. 13000 = €130)
-  isNew       Boolean    @default(false)
-  isPublished Boolean    @default(true)
-  sortOrder   Int        @default(0)
-  createdAt   DateTime   @default(now())
-  lessons     Lesson[]
-  purchases   Purchase[]
-  progress    Progress[]
+  description String   @db.Text
+  priceEur    Int      // Prezzo in centesimi (es. 13000 = €130)
+  isNew         Boolean  @default(false)
+  isAvailable   Boolean  @default(true)   // false = "coming soon" nel catalogo
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+
+  lessons        Lesson[]
+  purchases      Purchase[]
+  lessonProgress LessonProgress[]
+  certificates   Certificate[]
 }
 
+// Lezioni appartenenti a un corso
 model Lesson {
   id          String  @id @default(cuid())
   courseId    String
-  course      Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title       String
-  vimeoUrl    String? // link privato Vimeo (visibile solo a chi ha accesso)
-  durationMin Int     @default(0)
-  isFree      Boolean @default(false) // lezioni di anteprima gratuite
-  sortOrder   Int     @default(0)
+  durationMin Int
+  isFree      Boolean @default(false)
+  sortOrder   Int
+  vimeoUrl    String?
+
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessonProgress LessonProgress[]
 }
 
+// Abbonamenti Stripe attivi o cessati
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String
+  plan                 String   // Uno dei 6 planId: cultura-mensile, cultura-annuale, ecc.
+  stripeSubscriptionId String   @unique
+  stripeCustomerId     String
+  status               String   // "active" | "canceled" | "past_due"
+  currentPeriodEnd     DateTime
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Acquisti singoli di corsi
 model Purchase {
   id              String   @id @default(cuid())
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   courseId        String
-  course          Course   @relation(fields: [courseId], references: [id])
-  stripePaymentId String
-  amountEur       Int      // importo pagato in centesimi
+  stripePaymentId String   @unique
   createdAt       DateTime @default(now())
 
-  @@unique([userId, courseId])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 }
 
-model Progress {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  courseId  String
-  course    Course   @relation(fields: [courseId], references: [id])
-  percent   Int      @default(0)
-  updatedAt DateTime @updatedAt
+// Tracking progressi: una riga per ogni lezione vista dall'utente
+model LessonProgress {
+  id             String    @id @default(cuid())
+  userId         String
+  lessonId       String
+  courseId       String
+  watchedSeconds Int       @default(0)  // secondi guardati cumulativi
+  totalSeconds   Int       @default(0)  // durata totale del video (in secondi)
+  completed      Boolean   @default(false) // true se watchedSeconds >= totalSeconds * 0.9
+  completedAt    DateTime?              // timestamp del primo completamento
+  resumeAt       Int       @default(0)  // secondi da cui riprendere la prossima volta
+  updatedAt      DateTime  @updatedAt
 
-  @@unique([userId, courseId])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+// Attestati emessi — uno per utente/corso, con codice univoco verificabile
+model Certificate {
+  id         String    @id @default(cuid())
+  certCode   String    @unique  // es. "GLV-2025-A3B7F2C1" — codice per verifica pubblica
+  userId     String
+  courseId   String
+  issuedAt   DateTime  @default(now())
+  revokedAt  DateTime?            // null = attivo | non-null = revocato dall'admin
+  revokedBy  String?              // email admin che ha revocato
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])   // un solo attestato per coppia utente+corso
 }

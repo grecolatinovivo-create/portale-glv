@@ -42,11 +42,20 @@ git push -u origin main
    - Copia `Secret key` (`sk_live_...`)
    - Copia `Publishable key` (`pk_live_...`)
 
-2. **Crea il prodotto abbonamento:**
-   - Dashboard → Products → **Add product**
-   - Nome: "Abbonamento Portale GLV"
-   - Aggiungi prezzo **Mensile**: €12,90 · Ricorrente · Mensile → copia `price_...`
-   - Aggiungi prezzo **Annuale**: €99,00 · Ricorrente · Annuale → copia `price_...`
+2. **Crea i 6 piani di abbonamento su Stripe:**
+
+   Dashboard → Products → **Add product**. Crea **6 prodotti distinti**, uno per riga:
+
+   | # | Nome prodotto Stripe        | Tipo       | Importo   | Frequenza | Variabile da copiare              |
+   |---|-----------------------------|------------|-----------|-----------|-----------------------------------|
+   | 1 | GLV — Cultura Mensile       | Ricorrente | €5,90     | Mensile   | `STRIPE_PRICE_CULTURA_MONTHLY`    |
+   | 2 | GLV — Cultura Annuale       | Ricorrente | €49,00    | Annuale   | `STRIPE_PRICE_CULTURA_ANNUAL`     |
+   | 3 | GLV — Linguae Mensile       | Ricorrente | €12,90    | Mensile   | `STRIPE_PRICE_LINGUAE_MONTHLY`    |
+   | 4 | GLV — Linguae Annuale       | Ricorrente | €99,00    | Annuale   | `STRIPE_PRICE_LINGUAE_ANNUAL`     |
+   | 5 | GLV — Accademia Mensile     | Ricorrente | €19,90    | Mensile   | `STRIPE_PRICE_ACCADEMIA_MONTHLY`  |
+   | 6 | GLV — Accademia Annuale     | Ricorrente | €179,00   | Annuale   | `STRIPE_PRICE_ACCADEMIA_ANNUAL`   |
+
+   Per ciascuno: copia il `price_...` che Stripe genera e incollalo nella variabile corrispondente su Vercel.
 
 3. **Registra il Webhook:**
    - Dashboard → Developers → Webhooks → **Add endpoint**
@@ -72,16 +81,23 @@ git push -u origin main
 In Vercel → Settings → **Environment Variables**, aggiungi queste (una alla volta):
 
 ```
-DATABASE_URL              = postgresql://...  (da Neon)
-JWT_SECRET                = <32+ caratteri casuali — vedi nota>
-STRIPE_SECRET_KEY         = sk_live_...
-STRIPE_PUBLISHABLE_KEY    = pk_live_...
-STRIPE_WEBHOOK_SECRET     = whsec_...
-STRIPE_PRICE_MONTHLY      = price_...  (mensile)
-STRIPE_PRICE_ANNUAL       = price_...  (annuale)
-RESEND_API_KEY            = re_...
-RESEND_FROM_EMAIL         = noreply@grecolatinovivo.it
-NEXT_PUBLIC_APP_URL       = https://portale.grecolatinovivo.it
+DATABASE_URL                       = postgresql://...  (da Neon)
+JWT_SECRET                         = <32+ caratteri casuali — vedi nota>
+STRIPE_SECRET_KEY                  = sk_live_...
+STRIPE_PUBLISHABLE_KEY             = pk_live_...
+STRIPE_WEBHOOK_SECRET              = whsec_...
+
+# 6 Price ID — 3 piani × 2 periodi
+STRIPE_PRICE_CULTURA_MONTHLY       = price_...  (Cultura  €5,90/mese)
+STRIPE_PRICE_CULTURA_ANNUAL        = price_...  (Cultura  €49/anno)
+STRIPE_PRICE_LINGUAE_MONTHLY       = price_...  (Linguae  €12,90/mese)
+STRIPE_PRICE_LINGUAE_ANNUAL        = price_...  (Linguae  €99/anno)
+STRIPE_PRICE_ACCADEMIA_MONTHLY     = price_...  (Accademia €19,90/mese)
+STRIPE_PRICE_ACCADEMIA_ANNUAL      = price_...  (Accademia €179/anno)
+
+RESEND_API_KEY                     = re_...
+RESEND_FROM_EMAIL                  = noreply@grecolatinovivo.it
+NEXT_PUBLIC_APP_URL                = https://portale.grecolatinovivo.it
 ```
 
 > **Come generare JWT_SECRET:** apri il Terminale sul tuo Mac e incolla:
