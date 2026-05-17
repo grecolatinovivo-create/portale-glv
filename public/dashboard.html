@@ -12,24 +12,10 @@
   <link rel="stylesheet" href="css/style.css">
   <style>
     /* ═══════════════════════════════════════════════════════════════
-       DASHBOARD REDESIGN — GrecoLatinoVivo
-       Stack: HTML + CSS custom · Font: Playfair Display + Inter
-       Palette: bordeaux #a01a36 · oro #d4a017 · scuro #1a1a1a
+       DASHBOARD — Layout strutturale
+       Tutti i colori/tema → style.css (Regola 0)
     ═══════════════════════════════════════════════════════════════ */
 
-    /* ── Override font per dashboard ────────────────────────────── */
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #f6f4f1;
-    }
-
-    /* ── Navbar override per dashboard ──────────────────────────── */
-    .glv-nav {
-      background: rgba(255,255,255,0.96);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(160,26,54,0.1);
-    }
     .nav-logo {
       font-family: 'Playfair Display', serif;
       font-weight: 700;
@@ -37,56 +23,23 @@
       letter-spacing: 0.5px;
       text-transform: none;
     }
-    .nav-links a {
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-    }
+    .nav-links a { font-size: 13px; font-weight: 500; }
     .nav-avatar {
-      background: linear-gradient(135deg, var(--accent) 0%, #7b0d1e 100%);
       font-family: 'Playfair Display', serif;
       font-size: 15px;
       font-weight: 600;
       width: 38px;
       height: 38px;
-      box-shadow: 0 2px 8px rgba(160,26,54,0.3);
     }
 
     /* ═══════════════════════════════════════════════════════════════
-       WELCOME HEADER — Sezione benvenuto personalizzata
+       WELCOME HEADER
     ═══════════════════════════════════════════════════════════════ */
     .dash-welcome {
       margin-top: var(--nav-height);
-      background: linear-gradient(135deg, #1a0a0f 0%, #2d1018 50%, #1a0a0f 100%);
       padding: 48px 64px 56px;
       position: relative;
       overflow: hidden;
-    }
-    /* Texture decorativa */
-    .dash-welcome::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(ellipse at 80% 50%, rgba(212,160,23,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 20% 80%, rgba(160,26,54,0.15) 0%, transparent 50%);
-      pointer-events: none;
-    }
-    /* Motivo greco decorativo */
-    .dash-welcome::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(212,160,23,0.3) 20%,
-        rgba(212,160,23,0.8) 50%,
-        rgba(212,160,23,0.3) 80%,
-        transparent 100%
-      );
     }
     .welcome-inner {
       position: relative;
@@ -99,30 +52,22 @@
     }
     .welcome-text { flex: 1; min-width: 240px; }
     .welcome-greeting {
-      font-family: 'Inter', sans-serif;
       font-size: 12px;
       font-weight: 600;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--gold);
       margin-bottom: 10px;
-      opacity: 0.9;
     }
     .welcome-name {
       font-family: 'Playfair Display', serif;
       font-size: clamp(28px, 3.5vw, 44px);
       font-weight: 700;
-      color: #fff;
       line-height: 1.15;
       margin-bottom: 12px;
     }
-    .welcome-name em {
-      font-style: italic;
-      color: rgba(255,255,255,0.85);
-    }
     .welcome-sub {
       font-size: 14px;
-      color: rgba(255,255,255,0.55);
       font-weight: 400;
       letter-spacing: 0.2px;
     }
@@ -144,7 +89,7 @@
       top: 20%;
       bottom: 20%;
       width: 1px;
-      background: rgba(255,255,255,0.1);
+      background: var(--border);
     }
     .wstat:last-child::after { display: none; }
     .wstat-value {
@@ -160,7 +105,7 @@
       font-weight: 600;
       letter-spacing: 1.5px;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
+      color: var(--text-muted);
       margin-top: 6px;
       display: block;
     }
@@ -188,23 +133,22 @@
       border: 1px solid rgba(255,140,0,0.3);
     }
     .sub-pill.inactive {
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.5);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: var(--border-light);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
     }
     .sub-pill i { font-size: 9px; }
 
     /* ═══════════════════════════════════════════════════════════════
-       HERO CONTINUA — "Riprendi da dove eri rimasto"
+       HERO CONTINUA
     ═══════════════════════════════════════════════════════════════ */
     .dash-hero-continue {
-      background: #fff;
       padding: 0 64px;
-      display: none; /* mostrata solo se ci sono corsi in corso */
+      display: none;
     }
     .dash-hero-continue.visible { display: block; }
     .hero-continue-inner {
-      border-radius: 16px;
+      border-radius: var(--r-lg);
       overflow: hidden;
       position: relative;
       display: flex;
@@ -212,7 +156,7 @@
       min-height: 200px;
       margin-bottom: 0;
       transform: translateY(-24px);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.14);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
     }
     /* Thumbnail lato sinistro */
     .hero-continue-thumb {
@@ -229,7 +173,7 @@
     .hero-continue-thumb-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.05) 100%);
+      background: linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.15) 100%);
     }
     .hero-continue-thumb-content {
       position: relative;
@@ -259,7 +203,6 @@
     /* Contenuto lato destro */
     .hero-continue-body {
       flex: 1;
-      background: #fff;
       padding: 28px 36px;
       display: flex;
       flex-direction: column;
@@ -315,7 +258,7 @@
     }
     .progress-premium-track {
       height: 8px;
-      background: #f0ece8;
+      background: var(--border);
       border-radius: 8px;
       overflow: hidden;
       position: relative;
@@ -323,7 +266,7 @@
     .progress-premium-bar {
       height: 100%;
       border-radius: 8px;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 100%);
       position: relative;
       transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -335,11 +278,7 @@
       left: -100%;
       width: 60%;
       height: 100%;
-      background: linear-gradient(90deg,
-        transparent 0%,
-        rgba(255,255,255,0.4) 50%,
-        transparent 100%
-      );
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
       animation: progress-shimmer 2.5s ease-in-out infinite;
     }
     @keyframes progress-shimmer {
@@ -348,7 +287,7 @@
     }
     .progress-premium-motivation {
       font-size: 12px;
-      color: var(--accent);
+      color: var(--gold);
       font-weight: 600;
       font-style: italic;
     }
@@ -358,32 +297,11 @@
       gap: 12px;
       margin-top: 4px;
     }
-    .btn-resume {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 28px;
-      background: var(--accent);
-      color: #fff;
-      border-radius: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      transition: all 0.2s;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(160,26,54,0.25);
-    }
-    .btn-resume:hover {
-      background: #8a1528;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(160,26,54,0.35);
-    }
     .btn-resume .play-icon {
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.2);
+      background: rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -391,12 +309,10 @@
     }
     .btn-course-link {
       font-size: 12px;
-      color: var(--text-muted);
       font-weight: 500;
       text-decoration: none;
       transition: color 0.2s;
     }
-    .btn-course-link:hover { color: var(--text-primary); }
 
     /* ═══════════════════════════════════════════════════════════════
        SEZIONE I MIEI CORSI — Card progressi premium
@@ -415,14 +331,11 @@
       font-family: 'Playfair Display', serif;
       font-size: 22px;
       font-weight: 700;
-      color: var(--text-primary);
       line-height: 1.2;
     }
     .dash-section-link {
-      font-family: 'Inter', sans-serif;
       font-size: 12px;
       font-weight: 600;
-      color: var(--accent);
       text-decoration: none;
       letter-spacing: 0.3px;
       transition: opacity 0.2s;
@@ -437,21 +350,10 @@
       gap: 20px;
     }
 
-    /* Card singolo corso in progress */
-    .pcards-card {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid rgba(0,0,0,0.06);
-      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
-      cursor: pointer;
-      transition: transform 0.25s, box-shadow 0.25s;
-      display: flex;
-      flex-direction: column;
-    }
+    /* Card singolo corso in progress — colori da style.css */
     .pcards-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.1);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--gold-border);
     }
     .pcards-thumb {
       height: 100px;
@@ -525,7 +427,7 @@
     }
     .pcards-progress-main-track {
       height: 6px;
-      background: #f0ece8;
+      background: var(--border);
       border-radius: 6px;
       overflow: hidden;
       margin-bottom: 5px;
@@ -533,7 +435,7 @@
     .pcards-progress-main-bar {
       height: 100%;
       border-radius: 6px;
-      background: linear-gradient(90deg, var(--accent) 0%, var(--gold) 100%);
+      background: linear-gradient(90deg, var(--gold) 0%, var(--gold-lt) 100%);
       transition: width 0.6s ease;
     }
     .pcards-progress-labels {
@@ -543,21 +445,20 @@
     }
     .pcards-lessons-info {
       font-size: 11px;
-      color: var(--text-muted);
       font-weight: 500;
     }
     .pcards-pct-badge {
       font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 700;
-      color: var(--accent);
+      color: var(--gold);
       flex-shrink: 0;
       line-height: 1;
     }
     .pcards-pct-badge.complete { color: #2ecc71; }
     .pcards-next-lesson {
       font-size: 12px;
-      color: var(--accent);
+      color: var(--gold);
       font-weight: 500;
       font-style: italic;
       line-height: 1.4;
@@ -574,13 +475,10 @@
       margin-top: 2px;
     }
 
-    /* Empty state corsi */
+    /* Empty state corsi — colori da style.css */
     .progress-empty {
       text-align: center;
       padding: 48px 24px;
-      background: #fff;
-      border-radius: 16px;
-      border: 2px dashed rgba(160,26,54,0.15);
     }
     .progress-empty-icon {
       font-size: 2.5rem;
@@ -591,141 +489,41 @@
       font-family: 'Playfair Display', serif;
       font-size: 18px;
       font-weight: 600;
-      color: var(--text-primary);
       margin-bottom: 8px;
     }
     .progress-empty p {
       font-size: 14px;
-      color: var(--text-muted);
       line-height: 1.65;
       max-width: 380px;
       margin: 0 auto 24px;
     }
 
     /* ═══════════════════════════════════════════════════════════════
-       SEZIONI ROW (scroll orizzontale) — style upgrade
+       SEZIONI ROW (scroll orizzontale)
     ═══════════════════════════════════════════════════════════════ */
-    .section-row {
-      padding: 40px 64px 0;
-    }
-    .row-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
-    .row-header {
-      margin-bottom: 20px;
-    }
-    .row-explore {
-      font-family: 'Inter', sans-serif;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    /* Course card upgrade */
-    .course-card {
-      width: 240px;
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.07);
-    }
-    .course-card:hover {
-      box-shadow: 0 12px 36px rgba(0,0,0,0.15);
-    }
-    .card-thumb {
-      height: 148px;
-      border-radius: 8px 8px 0 0;
-    }
-    .card-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 14px;
-      font-weight: 600;
-    }
+    .section-row { padding: 40px 64px 0; }
+    .row-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; }
+    .row-header { margin-bottom: 20px; }
+    .row-explore { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+    .course-card { width: 240px; border-radius: var(--r-md); }
+    .course-card:hover { box-shadow: 0 12px 36px rgba(0,0,0,0.5), 0 0 0 1px var(--gold-border); }
+    .card-thumb { height: 148px; border-radius: 8px 8px 0 0; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 14px; font-weight: 600; }
 
     /* ═══════════════════════════════════════════════════════════════
-       ATTESTATI — Design premium
+       ATTESTATI — colori da style.css
     ═══════════════════════════════════════════════════════════════ */
-    .dash-certificates {
-      padding: 48px 64px 0;
-      display: none;
-    }
+    .dash-certificates { padding: 48px 64px 0; display: none; }
     .dash-certificates.visible { display: block; }
-    .certificates-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .cert-card {
-      background: linear-gradient(145deg, #1a0a0f 0%, #2d1018 100%);
-      border-radius: 12px;
-      padding: 28px 24px;
-      border: 1px solid rgba(212,160,23,0.25);
-      position: relative;
-      overflow: hidden;
-      transition: transform 0.25s, box-shadow 0.25s;
-      cursor: default;
-    }
-    .cert-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.2), 0 0 0 1px rgba(212,160,23,0.4);
-    }
-    /* Bordo decorativo oro */
-    .cert-card::before {
-      content: '';
-      position: absolute;
-      inset: 6px;
-      border: 1px solid rgba(212,160,23,0.15);
-      border-radius: 8px;
-      pointer-events: none;
-    }
-    /* Sigillo decorativo */
-    .cert-card::after {
-      content: 'GLV';
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-family: 'Playfair Display', serif;
-      font-size: 10px;
-      font-weight: 700;
-      color: rgba(212,160,23,0.4);
-      letter-spacing: 2px;
-      border: 1px solid rgba(212,160,23,0.2);
-      padding: 3px 7px;
-      border-radius: 3px;
-    }
-    .cert-lang {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--gold);
-      opacity: 0.8;
-      margin-bottom: 10px;
-    }
-    .cert-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 17px;
-      font-weight: 700;
-      color: #fff;
-      line-height: 1.35;
-      margin-bottom: 16px;
-    }
-    .cert-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(212,160,23,0.4), transparent);
-      margin-bottom: 14px;
-    }
-    .cert-meta {
-      font-size: 11px;
-      color: rgba(255,255,255,0.45);
-      font-weight: 400;
-    }
-    .cert-meta strong {
-      color: rgba(212,160,23,0.8);
-      font-weight: 600;
-    }
+    .certificates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .cert-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.45), 0 0 0 1px rgba(201,150,42,0.4); }
+    .cert-card::before { content: ''; position: absolute; inset: 6px; border: 1px solid var(--gold-border); border-radius: 8px; pointer-events: none; }
+    .cert-card::after { content: 'GLV'; position: absolute; top: 20px; right: 20px; font-family: 'Playfair Display', serif; font-size: 10px; font-weight: 700; color: rgba(201,150,42,0.4); letter-spacing: 2px; border: 1px solid var(--gold-border); padding: 3px 7px; border-radius: 3px; }
+    .cert-lang { font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: 0.8; margin-bottom: 10px; }
+    .cert-title { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; line-height: 1.35; margin-bottom: 16px; }
+    .cert-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold-border), transparent); margin-bottom: 14px; }
+    .cert-meta { font-size: 11px; font-weight: 400; }
+    .cert-meta strong { color: var(--gold); font-weight: 600; }
 
     /* ═══════════════════════════════════════════════════════════════
        BANNER ABBONAMENTO — rimosso il vecchio, usato pill nel welcome
@@ -733,23 +531,10 @@
     #subscription-banner { display: none !important; } /* gestito dalla pill */
 
     /* ═══════════════════════════════════════════════════════════════
-       FOOTER
+       FOOTER — colori da style.css
     ═══════════════════════════════════════════════════════════════ */
-    .glv-footer {
-      margin-top: 80px;
-      background: #1a0a0f;
-      border-top: 1px solid rgba(212,160,23,0.15);
-    }
-    .footer-bottom {
-      text-align: center;
-      padding: 28px 48px !important;
-      border-top: none !important;
-    }
-    .footer-bottom p {
-      color: rgba(255,255,255,0.35);
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
-    }
+    .glv-footer { margin-top: 80px; }
+    .footer-bottom { text-align: center; padding: 28px 48px !important; border-top: none !important; }
 
     /* ═══════════════════════════════════════════════════════════════
        MOBILE RESPONSIVE
@@ -792,7 +577,7 @@
         position: fixed;
         top: var(--nav-height);
         left: 0; right: 0;
-        background: var(--bg-white);
+        background: rgba(10,10,10,.97);
         border-bottom: 1px solid var(--border);
         padding: 1rem;
         gap: .25rem;
@@ -809,132 +594,6 @@
       body { padding-bottom: 56px; }
     }
 
-    /* ═══════════════════════════════════════════════════════════════
-       DARK THEME OVERRIDE — Allineamento alla landing page
-       Palette: --dark #15080e · --dark-2 #1d0c13 · --gold #d4a017
-                --ivory #faf8f5 · --primary #a01a36
-    ═══════════════════════════════════════════════════════════════ */
-
-    /* ── Variabili dark ── */
-    :root {
-      --dark:        #15080e;
-      --dark-2:      #1d0c13;
-      --dark-3:      #2a0d18;
-      --dark-card:   #1a0c12;
-      --dark-card-2: #221018;
-      --ivory:       #faf8f5;
-      --text-dim:    rgba(250,248,245,.62);
-      --text-faint:  rgba(250,248,245,.38);
-      --border-dim:  rgba(255,255,255,.09);
-      --gold:        #d4a017;
-      --primary:     #a01a36;
-    }
-
-    /* ── Body dark ── */
-    body {
-      background: var(--dark) !important;
-      color: var(--ivory) !important;
-    }
-
-    /* ── Navbar dark (sempre nera, come la landing) ── */
-    .glv-nav {
-      background: rgba(21,8,14,.97) !important;
-      border-bottom: 1px solid var(--border-dim) !important;
-      backdrop-filter: blur(14px) !important;
-      -webkit-backdrop-filter: blur(14px) !important;
-    }
-    .nav-logo,
-    .glv-nav .nav-links a,
-    .glv-nav .nav-right a,
-    .glv-nav .nav-right .text-muted {
-      color: var(--ivory) !important;
-    }
-    .glv-nav .nav-links a:hover { color: var(--gold) !important; }
-    .glv-nav .btn-ghost {
-      border: 1px solid var(--border-dim) !important;
-      color: rgba(250,248,245,.8) !important;
-    }
-    .glv-nav .btn-ghost:hover { background: rgba(255,255,255,.06) !important; }
-
-    /* Hamburger dark ── */
-    .nav-hamburger span { background: var(--ivory) !important; }
-
-    /* ── Sezioni principali ── */
-    .dash-section-title,
-    .row-title { color: var(--ivory) !important; }
-
-    .dash-section-link { color: var(--gold) !important; }
-
-    /* ── Hero "continua" ── */
-    .dash-hero-continue { background: transparent !important; }
-    .hero-continue-body {
-      background: var(--dark-card) !important;
-      border-left: 1px solid var(--border-dim) !important;
-    }
-    .hero-continue-title { color: var(--ivory) !important; }
-    .hero-continue-eyebrow { color: var(--gold) !important; }
-    .hero-continue-eyebrow::before { background: var(--gold) !important; }
-    .btn-course-link { color: var(--text-dim) !important; }
-    .btn-course-link:hover { color: var(--ivory) !important; }
-    .progress-premium-info { color: var(--text-dim) !important; }
-    .progress-premium-track { background: rgba(255,255,255,.08) !important; }
-    .progress-premium-motivation { color: var(--gold) !important; }
-
-    /* ── Card progressi ── */
-    .pcards-card {
-      background: var(--dark-card) !important;
-      border: 1px solid var(--border-dim) !important;
-      box-shadow: 0 4px 24px rgba(0,0,0,.35) !important;
-    }
-    .pcards-card:hover {
-      box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(212,160,23,.2) !important;
-      transform: translateY(-4px);
-    }
-    .pcards-title { color: var(--ivory) !important; }
-    .pcards-progress-main-track { background: rgba(255,255,255,.08) !important; }
-    .pcards-lessons-info { color: var(--text-faint) !important; }
-    .pcards-next-lesson { color: var(--gold) !important; }
-    .pcards-next-lesson.done { color: #2ecc71 !important; }
-    .pcards-last { color: var(--text-faint) !important; }
-
-    /* ── Empty state corsi ── */
-    .progress-empty {
-      background: var(--dark-card) !important;
-      border: 2px dashed rgba(212,160,23,.18) !important;
-    }
-    .progress-empty h4 { color: var(--ivory) !important; }
-    .progress-empty p   { color: var(--text-dim) !important; }
-
-    /* ── Course card (scroll row) ── */
-    .course-card {
-      background: var(--dark-card) !important;
-      border: 1px solid var(--border-dim) !important;
-    }
-    .course-card:hover {
-      box-shadow: 0 12px 36px rgba(0,0,0,.5), 0 0 0 1px rgba(212,160,23,.18) !important;
-    }
-    .card-title { color: var(--ivory) !important; }
-    .card-level, .card-duration { color: var(--text-faint) !important; }
-
-    /* ── Nav del catalogo (overflow scroll) ── */
-    .section-row { background: transparent !important; }
-
-    /* ── Footer dark ── */
-    .glv-footer {
-      background: var(--dark-2) !important;
-      border-top: 1px solid var(--border-dim) !important;
-    }
-    .glv-footer a, .glv-footer p, .glv-footer li {
-      color: var(--text-dim) !important;
-    }
-    .footer-bottom p { color: var(--text-faint) !important; }
-
-    /* ── Mobile nav overlay (hamburger panel) ── */
-    .glv-nav .nav-links.open {
-      background: rgba(21,8,14,.98) !important;
-      border-bottom: 1px solid var(--border-dim) !important;
-    }
-    .glv-nav .nav-links.open a { color: var(--ivory) !important; }
   </style>
 </head>
 <body>
@@ -1099,7 +758,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Corsi Brevi</h3>
-      <span style="font-size:10px;font-weight:700;background:rgba(160,26,54,0.08);color:var(--accent);border:1px solid rgba(160,26,54,0.15);padding:2px 10px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;font-family:Inter,sans-serif;">Acquisto singolo</span>
+      <span style="font-size:10px;font-weight:700;background:var(--gold-light);color:var(--gold);border:1px solid var(--gold-border);padding:2px 10px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;font-family:Inter,sans-serif;">Acquisto singolo</span>
       <a href="catalogo.html?lang=Corsi%20Brevi" class="row-explore">Vedi tutto →</a>
     </div>
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:Inter,sans-serif;">Percorsi tematici autonomi · da 4 a 15 ore · accesso immediato</p>
@@ -1112,7 +771,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Formazione per Docenti</h3>
-      <span style="font-size:10px;font-weight:700;background:rgba(160,26,54,0.08);color:var(--accent);border:1px solid rgba(160,26,54,0.15);padding:2px 10px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;font-family:Inter,sans-serif;">Bonus Docenti</span>
+      <span style="font-size:10px;font-weight:700;background:var(--gold-light);color:var(--gold);border:1px solid var(--gold-border);padding:2px 10px;border-radius:20px;letter-spacing:.5px;text-transform:uppercase;font-family:Inter,sans-serif;">Bonus Docenti</span>
       <a href="catalogo.html?lang=Didattica" class="row-explore">Vedi tutto →</a>
     </div>
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;font-family:Inter,sans-serif;">Corsi di aggiornamento professionale accreditati MIUR · 20 ore ciascuno</p>
