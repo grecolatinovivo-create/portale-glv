@@ -43,15 +43,12 @@ async function handler(req, res) {
         ...customerParam,
         mode: 'subscription',
         line_items: [{ price: priceId, quantity: 1 }],
-        // FIX: URL corretti che puntano al portale, non al sito principale
         success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard.html?subscribed=1`,
         cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/index.html#prezzi`,
         locale: 'it',
         billing_address_collection: 'required',
         allow_promotion_codes: true,
-        // FIX: trial di 7 giorni — era pubblicizzato ma non implementato
         subscription_data: {
-          trial_period_days: 7,
           metadata: { userId: user?.id || '', type: 'subscription' },
         },
         custom_fields: [

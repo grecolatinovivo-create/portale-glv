@@ -21,21 +21,29 @@ Vai su: **Vercel Dashboard → portale-glv → Settings → Environment Variable
 
 Aggiungi/correggi **tutte** le seguenti variabili. Ogni nome deve corrispondere esattamente.
 
+### Che cos'è il flag "Sensitive" su Vercel?
+
+Quando aggiungi una variabile su Vercel, puoi spuntare **"Sensitive"**: il valore viene cifrato e non sarà più leggibile nell'interfaccia (puoi solo sostituirlo). Usalo per tutto ciò che è una chiave segreta, una password o un token. Le variabili non sensitive restano visibili in chiaro nel pannello Vercel.
+
 ---
 
 ### 1. DATABASE (Neon PostgreSQL)
 
-| Nome variabile | Valore | Dove si trova |
-|---|---|---|
-| `DATABASE_URL` | `postgresql://neondb_owner:...@...neon.tech/neondb?sslmode=require&channel_binding=require` | [console.neon.tech](https://console.neon.tech) → tuo progetto → Connection string → **Pooled connection** |
+| Nome variabile | Sensitive | Valore | Dove si trova |
+|---|---|---|---|
+| `DATABASE_URL` | 🔒 **SÌ** | `postgresql://neondb_owner:...@...neon.tech/neondb?sslmode=require&channel_binding=require` | [console.neon.tech](https://console.neon.tech) → tuo progetto → Connection string → **Pooled connection** |
+
+Contiene username e password del database — va cifrata.
 
 ---
 
 ### 2. JWT (Autenticazione)
 
-| Nome variabile | Valore | Come generarlo |
-|---|---|---|
-| `JWT_SECRET` | Stringa random di almeno 32 caratteri | Esegui nel terminale: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+| Nome variabile | Sensitive | Valore | Come generarlo |
+|---|---|---|---|
+| `JWT_SECRET` | 🔒 **SÌ** | Stringa random di almeno 32 caratteri | Nel terminale: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` |
+
+È la chiave con cui vengono firmati i token di sessione. Se trapela, chiunque può impersonare qualsiasi utente.
 
 ⚠️ Se non impostato, il sistema usa una chiave di default insicura. Impostarlo sempre.
 
@@ -43,10 +51,12 @@ Aggiungi/correggi **tutte** le seguenti variabili. Ogni nome deve corrispondere 
 
 ### 3. Stripe — Chiavi API
 
-| Nome variabile | Valore | Dove si trova |
-|---|---|---|
-| `STRIPE_SECRET_KEY` | `sk_live_...` (o `sk_test_...` per test) | [dashboard.stripe.com](https://dashboard.stripe.com) → Developers → API Keys → Secret key |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | Vedi sezione Webhook qui sotto |
+| Nome variabile | Sensitive | Valore | Dove si trova |
+|---|---|---|---|
+| `STRIPE_SECRET_KEY` | 🔒 **SÌ** | `sk_live_...` (o `sk_test_...` per test) | [dashboard.stripe.com](https://dashboard.stripe.com) → Developers → API Keys → Secret key |
+| `STRIPE_WEBHOOK_SECRET` | 🔒 **SÌ** | `whsec_...` | Vedi sezione Webhook qui sotto |
+
+Entrambe vanno cifrate: con la secret key si possono creare addebiti su Stripe, con il webhook secret si possono falsificare eventi.
 
 ⚠️ **IMPORTANTE**: usa chiavi live solo in produzione. Non mischiare test e live.
 
@@ -56,19 +66,21 @@ Aggiungi/correggi **tutte** le seguenti variabili. Ogni nome deve corrispondere 
 
 > ⚠️ Questi sono i nomi che il codice cerca. Se li metti con nomi diversi, le variabili non vengono lette e il checkout non funziona.
 
-| Nome variabile | Piano | Tipo | Prezzo |
-|---|---|---|---|
-| `STRIPE_PRICE_CULTURA_MONTHLY` | Cultura | Mensile | €5,90/mese |
-| `STRIPE_PRICE_CULTURA_ANNUAL` | Cultura | Annuale | €49/anno |
-| `STRIPE_PRICE_LINGUAE_MONTHLY` | Linguae | Mensile | €12,90/mese |
-| `STRIPE_PRICE_LINGUAE_ANNUAL` | Linguae | Annuale | €99/anno |
-| `STRIPE_PRICE_ACCADEMIA_MONTHLY` | Accademia | Mensile | €19,90/mese |
-| `STRIPE_PRICE_ACCADEMIA_ANNUAL` | Accademia | Annuale | €179/anno |
+| Nome variabile | Sensitive | Piano | Tipo | Prezzo |
+|---|---|---|---|---|
+| `STRIPE_PRICE_CULTURA_MONTHLY` | 🔓 No | Cultura | Mensile | €5,90/mese |
+| `STRIPE_PRICE_CULTURA_ANNUAL` | 🔓 No | Cultura | Annuale | €49/anno |
+| `STRIPE_PRICE_LINGUAE_MONTHLY` | 🔓 No | Linguae | Mensile | €12,90/mese |
+| `STRIPE_PRICE_LINGUAE_ANNUAL` | 🔓 No | Linguae | Annuale | €99/anno |
+| `STRIPE_PRICE_ACCADEMIA_MONTHLY` | 🔓 No | Accademia | Mensile | €19,90/mese |
+| `STRIPE_PRICE_ACCADEMIA_ANNUAL` | 🔓 No | Accademia | Annuale | €179/anno |
+
+I Price ID (`price_...`) sono identificatori pubblici: il codice li espone già al browser tramite `/api/config/prices`. Non contengono dati sensibili e non permettono operazioni non autorizzate da soli — non c'è motivo di cifrarli (e non cifrarli ti permette di controllarli visivamente nel pannello Vercel).
 
 **Come creare i price ID su Stripe:**
 1. Vai su [dashboard.stripe.com](https://dashboard.stripe.com) → Product Catalog → `+ Add product`
 2. Nome prodotto: es. "Abbonamento Cultura Mensile"
-3. Pricing: Recurring, €5,90, ogni mese, con trial di 7 giorni
+3. Pricing: Recurring, €5,90, ogni mese
 4. Copia il **Price ID** (inizia con `price_`) e incollalo nella variabile corrispondente su Vercel
 5. Ripeti per tutti e 6 i piani
 
@@ -76,20 +88,37 @@ Aggiungi/correggi **tutte** le seguenti variabili. Ogni nome deve corrispondere 
 
 ### 5. Email (Resend)
 
-| Nome variabile | Valore | Dove si trova |
-|---|---|---|
-| `RESEND_API_KEY` | `re_...` | [resend.com](https://resend.com) → API Keys |
-| `RESEND_FROM_EMAIL` | `noreply@grecolatinovivo.it` | Email verificata su Resend |
+| Nome variabile | Sensitive | Valore | Dove si trova |
+|---|---|---|---|
+| `RESEND_API_KEY` | 🔒 **SÌ** | `re_...` | [resend.com](https://resend.com) → API Keys |
+| `RESEND_FROM_EMAIL` | 🔓 No | `noreply@grecolatinovivo.it` | Email verificata su Resend |
+
+La API key va cifrata (permette di inviare email a nome tuo). L'indirizzo mittente è un dato non segreto.
 
 ---
 
 ### 6. URL del portale (CRITICO)
 
-| Nome variabile | Valore CORRETTO | ❌ NON usare |
-|---|---|---|
-| `NEXT_PUBLIC_APP_URL` | `https://portale.grecolatinovivo.it` | ~~`https://www.grecolatinovivo.it`~~ |
+| Nome variabile | Sensitive | Valore CORRETTO | ❌ NON usare |
+|---|---|---|---|
+| `NEXT_PUBLIC_APP_URL` | 🔓 No | `https://portale.grecolatinovivo.it` | ~~`https://www.grecolatinovivo.it`~~ |
 
-> Deve essere l'URL del portale — senza slash finale. Questo viene usato per le `success_url` e `cancel_url` di Stripe. Se punta al sito principale, Stripe reindirizza nel posto sbagliato.
+È un URL pubblico già visibile nel codice frontend — non serve cifrarlo. Deve essere l'URL del portale senza slash finale: viene usato per le `success_url` e `cancel_url` di Stripe.
+
+---
+
+### Riepilogo rapido sensitive / non sensitive
+
+| 🔒 Sensitive (cifrate) | 🔓 Non sensitive (in chiaro) |
+|---|---|
+| `DATABASE_URL` | `STRIPE_PRICE_CULTURA_MONTHLY` |
+| `JWT_SECRET` | `STRIPE_PRICE_CULTURA_ANNUAL` |
+| `STRIPE_SECRET_KEY` | `STRIPE_PRICE_LINGUAE_MONTHLY` |
+| `STRIPE_WEBHOOK_SECRET` | `STRIPE_PRICE_LINGUAE_ANNUAL` |
+| `RESEND_API_KEY` | `STRIPE_PRICE_ACCADEMIA_MONTHLY` |
+| | `STRIPE_PRICE_ACCADEMIA_ANNUAL` |
+| | `RESEND_FROM_EMAIL` |
+| | `NEXT_PUBLIC_APP_URL` |
 
 ---
 
@@ -116,7 +145,7 @@ Il webhook è necessario per attivare l'abbonamento nel DB dopo il pagamento.
 1. Su Stripe Dashboard, metti in **test mode** (toggle in alto a sinistra)
 2. Crea i 6 prodotti/prezzi in test mode (avranno `price_test_...`)
 3. Su Vercel, usa le chiavi test: `sk_test_...` e i price ID test
-4. Clicca "Inizia la prova gratuita" → dovresti essere reindirizzato su `checkout.stripe.com`
+4. Clicca "Abbonati Mensile" o "Abbonati Annuale" → dovresti essere reindirizzato su `checkout.stripe.com`
 5. Usa la carta di test Stripe: `4242 4242 4242 4242` — qualsiasi scadenza futura, qualsiasi CVC
 6. Dopo il pagamento devi arrivare su `https://portale.grecolatinovivo.it/dashboard.html?subscribed=1`
 
@@ -169,7 +198,7 @@ Ogni volta che aggiungi/modifichi una variabile d'ambiente su Vercel, devi fare 
 | File | Bug | Fix |
 |---|---|---|
 | `public/js/app.js` | Race condition: `window.__GLV_PRICES` undefined al click → TypeError silenzioso | Aggiunto fetch sincrono se `__GLV_PRICES` non è ancora caricato |
-| `pages/api/stripe/checkout.js` | Mancava `subscription_data: { trial_period_days: 7 }` nonostante la landing promettesse trial gratuito | Aggiunto trial 7 giorni + `allow_promotion_codes: true` |
+| `pages/api/stripe/checkout.js` | Nessuna prova gratuita: il checkout è diretto (mensile o annuale) | Rimosso trial, aggiunto `allow_promotion_codes: true` |
 | `next.config.js` | CORS headers duplicati rispetto a `vercel.json` → browser blocca risposte con header doppi incoerenti | Rimossi da `next.config.js`, gestiti solo in `vercel.json` |
 | `.env` | `NEXT_PUBLIC_APP_URL` puntava a `www.grecolatinovivo.it` invece di `portale.grecolatinovivo.it` | Corretto URL |
 | `.env.local.example` | Nomi variabili price ID sbagliati (`STRIPE_PRICE_MONTHLY/ANNUAL`) | Aggiornato con i 6 nomi corretti |

@@ -820,6 +820,22 @@ const Payments = {
     }
     return Payments._checkout({ type:'subscription', priceId });
   },
+  // Abbonamento diretto: prende piano + periodo esplicitamente (non dal toggle)
+  async subscribeDirectly(plan, period) {
+    if (!window.__GLV_PRICES) {
+      try {
+        const d = await fetch('/api/config/prices').then(r => r.json());
+        window.__GLV_PRICES = d;
+      } catch {
+        alert('Impossibile caricare i prezzi. Controlla la connessione e riprova.');
+        return;
+      }
+    }
+    const key = `${plan}_${period}`;
+    const priceId = window.__GLV_PRICES[key];
+    if (!priceId) { alert('Prezzo non ancora disponibile. Riprova tra qualche secondo.'); return; }
+    return Payments._checkout({ type:'subscription', priceId });
+  },
   // Legacy — usati da [data-subscribe-monthly/annual] nel dashboard
   async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_monthly'] || '' }); },
   async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_annual']  || '' }); },
@@ -1190,6 +1206,13 @@ function initAuthModals(){
   document.querySelectorAll('[data-logout]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Auth.logout();}));
   document.querySelectorAll('[data-subscribe-monthly]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Payments.subscribeMonthly();}));
   document.querySelectorAll('[data-subscribe-annual]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Payments.subscribeAnnual();}));
+  // Pulsanti abbonamento diretto: data-subscribe-direct data-plan="cultura" data-period="monthly|annual"
+  document.querySelectorAll('[data-subscribe-direct]').forEach(btn=>btn.addEventListener('click',async e=>{
+    e.preventDefault();
+    const plan   = btn.dataset.plan;
+    const period = btn.dataset.period;
+    if (plan && period) await Payments.subscribeDirectly(plan, period);
+  }));
 }
 
 function initUrlFeedback(){
