@@ -525,13 +525,15 @@
                 <tr>
                   <th>Corso</th>
                   <th>Stato</th>
+                  <th>Iscritti</th>
+                  <th>Views</th>
+                  <th>Attestati</th>
                   <th>Scadenza abbonati</th>
-                  <th>Acquisti / Attestati</th>
                   <th>Azioni</th>
                 </tr>
               </thead>
               <tbody id="courses-table">
-                <tr class="loading-row"><td colspan="5">Caricamento…</td></tr>
+                <tr class="loading-row"><td colspan="7">Caricamento…</td></tr>
               </tbody>
             </table>
           </div>
@@ -893,7 +895,7 @@ async function loadDashboard() {
 ───────────────────────────────────────────────────────────── */
 async function loadCourses() {
   const tbody = document.getElementById('courses-table');
-  tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Caricamento…</td></tr>';
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Caricamento…</td></tr>';
 
   try {
     const r = await fetch('/api/admin/courses');
@@ -904,7 +906,7 @@ async function loadCourses() {
     document.getElementById('courses-count').textContent = `${courses.length} corsi`;
 
     if (courses.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nessun corso trovato</td></tr>';
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nessun corso trovato</td></tr>';
       return;
     }
 
@@ -922,33 +924,50 @@ async function loadCourses() {
         if (daysLeft < 0) {
           expiryCell  = `<span style="font-size:13px;color:var(--red)">${formatDate(c.expiresAt)}</span>`;
           expiryBadge = '<span class="badge badge-red">Scaduto</span>';
+        } else if (daysLeft <= 7) {
+          expiryCell  = `<span style="font-size:13px;color:var(--orange)">${formatDate(c.expiresAt)}</span><br><small style="color:var(--orange);font-weight:600">${daysLeft} giorni</small>`;
+          expiryBadge = `<span class="urgency-dot orange"></span><span class="badge badge-orange">Urgente</span>`;
         } else if (daysLeft <= 14) {
           expiryCell  = `<span style="font-size:13px;color:var(--orange)">${formatDate(c.expiresAt)}</span><br><small style="color:var(--gray-400)">${daysLeft} giorni rimanenti</small>`;
-          expiryBadge = `<span class="urgency-dot orange"></span><span class="badge badge-orange">Urgente</span>`;
+          expiryBadge = `<span class="urgency-dot orange"></span><span class="badge badge-orange">In scadenza</span>`;
         } else {
           expiryCell  = `<span style="font-size:13px">${formatDate(c.expiresAt)}</span>`;
           expiryBadge = '<span class="badge badge-gray">Programmato</span>';
         }
       }
 
+      // Etichetta "Ancora per poco" — visibile nella tabella admin se expiresAt è impostato
+      const ancoraBadge = c.expiresAt
+        ? '<span style="display:inline-block;margin-top:3px;font-size:10px;font-weight:700;color:#9B1C1C;background:#FEE2E2;border:1px solid #FECACA;padding:1px 7px;border-radius:3px;letter-spacing:0.08em;text-transform:uppercase;">Ancora per poco</span>'
+        : '';
+
       return `
         <tr class="course-row">
           <td>
             <strong>${escHtml(c.title)}</strong>
             <div class="course-meta">${escHtml(c.lang)} · ${escHtml(c.level)} · ${c.stats.lessonCount} lezioni</div>
+            ${ancoraBadge}
           </td>
           <td>
             ${c.isAvailable ? '<span class="badge badge-green">Attivo</span>' : '<span class="badge badge-gray">Nascosto</span>'}
             ${c.isNew ? ' <span class="badge badge-blue">Nuovo</span>' : ''}
           </td>
-          <td>${expiryCell}<br>${expiryBadge}</td>
-          <td>
-            <span style="font-size:13px">${c.stats.purchaseCount} acquisti</span><br>
-            <span style="font-size:12px;color:var(--gray-400)">${c.stats.certificateCount} attestati</span>
+          <td style="text-align:center">
+            <strong style="font-size:15px">${c.stats.studentsStarted}</strong>
+            <div style="font-size:11px;color:var(--gray-400)">utenti</div>
           </td>
+          <td style="text-align:center">
+            <strong style="font-size:15px">${c.stats.viewCount}</strong>
+            <div style="font-size:11px;color:var(--gray-400)">visualizzazioni</div>
+          </td>
+          <td style="text-align:center">
+            <strong style="font-size:15px">${c.stats.certificateCount}</strong>
+            <div style="font-size:11px;color:var(--gray-400)">attestati</div>
+          </td>
+          <td>${expiryCell}${expiryBadge ? '<br>' + expiryBadge : ''}</td>
           <td>
             <button class="btn btn-outline btn-sm" onclick="openCourseModal('${c.id}')">
-              Modifica scadenza
+              Modifica
             </button>
           </td>
         </tr>
@@ -956,7 +975,7 @@ async function loadCourses() {
     }).join('');
 
   } catch (e) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Errore nel caricamento</td></tr>';
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Errore nel caricamento</td></tr>';
   }
 }
 

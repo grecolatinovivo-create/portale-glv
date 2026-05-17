@@ -32,29 +32,39 @@ export default withAuth(async function handler(req, res) {
         },
       });
 
-      // Per ogni corso calcola quanti utenti abbonati l'hanno iniziato
+      // Per ogni corso calcola views totali e studenti distinti
       const courseIds = courses.map(c => c.id);
-      const progressGroups = await prisma.lessonProgress.groupBy({
+
+      // viewCount = totale record LessonProgress (quante volte una lezione è stata aperta)
+      const viewGroups = await prisma.lessonProgress.groupBy({
         by: ['courseId'],
         where: { courseId: { in: courseIds } },
         _count: { _all: true },
-        _countDistinct: { userId: true },
       });
-
-      const progressMap = Object.fromEntries(
-        progressGroups.map(g => [g.courseId, g])
+      const viewsMap = Object.fromEntries(
+        viewGroups.map(g => [g.courseId, g._count._all])
       );
+
+      // studentsStarted = utenti DISTINTI che hanno almeno una riga in LessonProgress
+      // (Prisma non supporta _countDistinct — usiamo groupBy su [courseId, userId])
+      const studentPairs = await prisma.lessonProgress.groupBy({
+        by: ['courseId', 'userId'],
+        where: { courseId: { in: courseIds } },
+      });
+      const studentsMap = {};
+      studentPairs.forEach(p => {
+        studentsMap[p.courseId] = (studentsMap[p.courseId] || 0) + 1;
+      });
 
       const now = new Date();
       const enriched = courses.map(c => ({
         ...c,
         stats: {
-          lessonCount: c._count.lessons,
-          purchaseCount: c._count.purchases,
+          lessonCount:      c._count.lessons,
+          purchaseCount:    c._count.purchases,
           certificateCount: c._count.certificates,
-          studentsStarted: progressMap[c.id]?._count?._all
-            ? progressMap[c.id]._count._all
-            : 0,
+          studentsStarted:  studentsMap[c.id] || 0,
+          viewCount:        viewsMap[c.id]    || 0,
         },
         isExpiringSoon:
           c.expiresAt !== null &&

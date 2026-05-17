@@ -309,6 +309,24 @@ h4 { font-size: 16px; font-weight: 600; } /* era 15px — stesso del body, nessu
   animation: urgency-pulse 2s ease-in-out infinite;
 }
 .badge-expired { background: #FEE2E2; color: #991B1B; }
+/* Fascetta diagonale "Ancora per poco" — angolo in alto a destra del thumbnail */
+.card-ribbon {
+  position: absolute;
+  top: 18px;
+  right: -30px;
+  width: 120px;
+  background: #9B1C1C;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 4px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
+  z-index: 4;
+}
 @keyframes urgency-pulse {
   0%, 100% { opacity: 1; } 50% { opacity: 0.7; }
 }

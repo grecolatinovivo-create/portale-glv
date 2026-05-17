@@ -917,6 +917,12 @@ function buildCard(course, opts={}) {
   const grad  = LANG_GRADIENTS[course.lang] || LANG_GRADIENTS['Latino'];
   const pct   = course.progressPercent || 0;
   const price = course.priceEur ? `${Math.round(course.priceEur/100)} €` : '';
+
+  // Fascetta "Ancora per poco" — visibile sul thumbnail se il corso ha scadenza futura
+  const ribbon = (course.expiresAt && !course.isExpired)
+    ? '<span class="card-ribbon">Ancora per poco</span>'
+    : '';
+
   return `
   <div class="course-card" data-slug="${slug}" onclick="goToCourse('${slug}')">
     <div class="card-thumb">
@@ -924,6 +930,7 @@ function buildCard(course, opts={}) {
         <span class="card-thumb-lang">${course.lang}</span>
         <span class="card-thumb-level">${course.level}</span>
       </div>
+      ${ribbon}
       ${pct>0?`<div class="card-progress"><div class="card-progress-bar" style="width:${pct}%"></div></div>`:''}
       ${opts.locked?'<span class="card-locked"><i class="fas fa-lock"></i></span>':''}
     </div>
@@ -934,7 +941,6 @@ function buildCard(course, opts={}) {
         <span class="card-badge badge-level">${course.level}</span>
         ${course.isNew?'<span class="card-badge badge-new">NUOVO</span>':''}
         ${course.showUrgency && course.isExpired ? '<span class="card-badge badge-expired">SCADUTO</span>' : ''}
-        ${course.showUrgency && course.isExpiringSoon && !course.isExpired ? '<span class="card-badge badge-urgency">⏳ ' + (course.availableUntilLabel || 'In scadenza') + '</span>' : ''}
       </div>
       ${course.teacher?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;"><i class="fas fa-user-tie" style="margin-right:4px;opacity:.7;"></i>${course.teacher}</div>`:''}
       ${course.hours?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-clock" style="margin-right:4px;"></i>${course.hours} ore · Asincrono${course.lang==='Corsi Brevi'?'':' · MIUR accreditato'}</div>`:''}
