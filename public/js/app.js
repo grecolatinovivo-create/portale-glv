@@ -789,8 +789,21 @@ const Courses = {
 /* ── Payments ────────────────────────────────────────────────── */
 
 // Cache dei 6 price ID caricati da /api/config/prices
-window.__GLV_PRICES = {};
-fetch('/api/config/prices').then(r=>r.json()).then(d=>{ window.__GLV_PRICES = d; }).catch(()=>{});
+// NULL = non ancora caricato | {} = caricato ma vuoto (env vars mancanti) | {key: 'price_...'} = ok
+window.__GLV_PRICES = null;
+fetch('/api/config/prices')
+  .then(r => {
+    if (!r.ok) throw new Error(`/api/config/prices ha risposto con HTTP ${r.status}`);
+    return r.json();
+  })
+  .then(d => {
+    window.__GLV_PRICES = d;
+    console.log('[GLV] Price ID caricati:', d);
+  })
+  .catch(err => {
+    console.error('[GLV] Impossibile caricare i price ID:', err.message);
+    window.__GLV_PRICES = {}; // segna come "tentativo fatto, fallito"
+  });
 
 // Restituisce il period attivo in base al toggle (mensile/annuale)
 function getCurrentBillingPeriod() {
@@ -822,18 +835,32 @@ const Payments = {
   },
   // Abbonamento diretto: prende piano + periodo esplicitamente (non dal toggle)
   async subscribeDirectly(plan, period) {
-    if (!window.__GLV_PRICES) {
+    console.log(`[GLV] subscribeDirectly chiamato: piano="${plan}" periodo="${period}"`);
+
+    // Se i prezzi non sono ancora stati caricati, aspetta o riprova
+    if (window.__GLV_PRICES === null) {
+      console.log('[GLV] Prezzi non ancora caricati, aspetto...');
       try {
-        const d = await fetch('/api/config/prices').then(r => r.json());
-        window.__GLV_PRICES = d;
-      } catch {
-        alert('Impossibile caricare i prezzi. Controlla la connessione e riprova.');
+        const r = await fetch('/api/config/prices');
+        if (!r.ok) throw new Error(`HTTP ${r.status} da /api/config/prices`);
+        window.__GLV_PRICES = await r.json();
+        console.log('[GLV] Prezzi caricati al click:', window.__GLV_PRICES);
+      } catch (err) {
+        console.error('[GLV] Errore fetch prezzi:', err);
+        alert(`❌ Errore caricamento prezzi:\n${err.message}\n\nVerifica che le variabili d'ambiente su Vercel siano configurate correttamente.`);
         return;
       }
     }
+
     const key = `${plan}_${period}`;
     const priceId = window.__GLV_PRICES[key];
-    if (!priceId) { alert('Prezzo non ancora disponibile. Riprova tra qualche secondo.'); return; }
+    console.log(`[GLV] Price ID trovato per "${key}":`, priceId || '(vuoto — variabile mancante su Vercel)');
+
+    if (!priceId) {
+      alert(`❌ Price ID mancante per il piano "${plan}" (${period}).\n\nSu Vercel manca la variabile:\nSTRIPE_PRICE_${plan.toUpperCase()}_${period.toUpperCase()}\n\nVerifica in Settings → Environment Variables.`);
+      return;
+    }
+
     return Payments._checkout({ type:'subscription', priceId });
   },
   // Legacy — usati da [data-subscribe-monthly/annual] nel dashboard
@@ -845,8 +872,21 @@ const Payments = {
     catch { alert('Impossibile aprire il portale abbonamento.'); }
   },
   async _checkout(body) {
-    try { const d = await API.post('/api/stripe/checkout', body); if (d.url) window.location.href = d.url; else alert(d.error || 'Errore checkout.'); }
-    catch { alert('Impossibile contattare il server.'); }
+    console.log('[GLV] _checkout chiamato con:', body);
+    try {
+      const d = await API.post('/api/stripe/checkout', body);
+      console.log('[GLV] Risposta checkout API:', d);
+      if (d.url) {
+        console.log('[GLV] Redirect a Stripe:', d.url);
+        window.location.href = d.url;
+      } else {
+        // Mostra l'errore REALE (es. "No such price", "Invalid API key", ecc.)
+        alert(`❌ Errore checkout Stripe:\n\n${d.error || 'Risposta senza URL e senza errore.'}\n\nDettaglio tecnico in console (F12).`);
+      }
+    } catch (err) {
+      console.error('[GLV] Errore di rete nel checkout:', err);
+      alert(`❌ Impossibile contattare il server.\n\n${err.message}\n\nIl portale Vercel potrebbe essere offline o l'API route non risponde.`);
+    }
   },
 };
 

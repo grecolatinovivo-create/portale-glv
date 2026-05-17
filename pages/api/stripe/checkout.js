@@ -111,7 +111,10 @@ async function handler(req, res) {
     }
   } catch (err) {
     console.error('[checkout] Errore:', err);
-    return res.status(500).json({ error: 'Errore interno del server' });
+    // Restituisce il messaggio REALE dell'errore (Stripe, Prisma, ecc.)
+    // così il browser può mostrarlo all'utente invece del generico "Errore interno del server"
+    const message = err?.message || 'Errore interno del server';
+    return res.status(500).json({ error: message });
   }
 }
 
