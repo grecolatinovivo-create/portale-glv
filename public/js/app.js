@@ -1213,6 +1213,9 @@ function showAuthModal(mode){
         const priceId = window.__GLV_PRICES[key];
         if(priceId){ await Payments._checkout({ type:'subscription', priceId }); return; }
       }
+      // Controlla parametro redirect (es. ?redirect=admin per il pannello admin)
+      const redirectParam = new URLSearchParams(window.location.search).get('redirect');
+      if(redirectParam === 'admin'){ window.location.href = 'admin.html'; return; }
       window.location.href='dashboard.html';
     }
     else{ errEl.textContent=result.error||'Errore. Riprova.'; errEl.style.display='block'; btn.disabled=false; btn.textContent=mode==='login'?'Accedi →':'Registrati →'; }
