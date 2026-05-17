@@ -7,405 +7,1622 @@
   <meta name="description" content="Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Oltre 150 ore di video-lezioni tenute da docenti universitari specializzati. Un abbonamento, l'intero catalogo.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── INDEX-ONLY OVERRIDES ─────────────────────────────── */
+    .hero-section {
+      background: linear-gradient(135deg, #15080e 0%, #2a0d18 60%, #1a0510 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 40%, rgba(160,26,54,0.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 10% 80%, rgba(212,160,23,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-inner {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-content { }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(212,160,23,.12);
+      border: 1px solid rgba(212,160,23,.3);
+      color: var(--gold);
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .35rem .9rem;
+      border-radius: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow::before { content: '✦'; font-size: .6rem; }
+    .hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 700;
+      color: #faf8f5;
+      line-height: 1.1;
+      margin-bottom: 1.25rem;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+    .hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      color: rgba(250,248,245,.7);
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 480px;
+    }
+    .hero-cta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    .btn-hero-primary {
+      background: linear-gradient(135deg, var(--primary) 0%, #c42040 100%);
+      color: #fff;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: .85rem 2rem;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 20px rgba(160,26,54,.4);
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(160,26,54,.5);
+    }
+    .btn-hero-secondary {
+      background: transparent;
+      color: rgba(250,248,245,.85);
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: .95rem;
+      padding: .85rem 1.5rem;
+      border-radius: var(--radius);
+      border: 1px solid rgba(250,248,245,.25);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-hero-secondary:hover {
+      border-color: rgba(250,248,245,.5);
+      color: #faf8f5;
+    }
+    .hero-trust {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .hero-trust-item {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+    }
+    .hero-trust-num {
+      font-family: var(--font-heading);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .hero-trust-label {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      color: rgba(250,248,245,.5);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .hero-trust-sep {
+      width: 1px;
+      height: 40px;
+      background: rgba(250,248,245,.15);
+      align-self: center;
+    }
+    /* ── HERO VISUAL ────────────────────────────── */
+    .hero-visual {
+      position: relative;
+    }
+    .hero-preview-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+    }
+    .hero-preview-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(212,160,23,.08), transparent);
+      pointer-events: none;
+    }
+    .preview-course-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      padding: .75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .preview-course-item:last-child { border-bottom: none; }
+    .preview-thumb {
+      width: 60px;
+      height: 45px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+    .preview-thumb.lat { background: linear-gradient(135deg, #7b2832, #a01a36); }
+    .preview-thumb.grk { background: linear-gradient(135deg, #1a3a6b, #2755a3); }
+    .preview-thumb.egy { background: linear-gradient(135deg, #7a4a00, #c27a00); }
+    .preview-thumb.heb { background: linear-gradient(135deg, #1a5c3a, #2e8b5a); }
+    .preview-info { flex: 1; min-width: 0; }
+    .preview-title {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      font-weight: 600;
+      color: #faf8f5;
+      margin-bottom: .3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .preview-progress {
+      height: 4px;
+      background: rgba(255,255,255,.12);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .preview-progress-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+    }
+    .preview-pct {
+      font-size: .7rem;
+      color: rgba(250,248,245,.45);
+      margin-top: .25rem;
+    }
+    .preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .preview-label {
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+    .preview-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+      font-size: .6rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    /* floating badge */
+    .hero-badge {
+      position: absolute;
+      background: rgba(255,255,255,.95);
+      border-radius: 12px;
+      padding: .6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      font-family: var(--font-body);
+    }
+    .hero-badge-top {
+      top: -1rem;
+      right: -1rem;
+    }
+    .hero-badge-bottom {
+      bottom: -1rem;
+      left: -1rem;
+    }
+    .hero-badge-icon { font-size: 1.2rem; }
+    .hero-badge-text { font-size: .72rem; font-weight: 600; color: #15080e; line-height: 1.3; }
+    .hero-badge-sub { font-size: .62rem; color: #666; font-weight: 400; }
+
+    /* ── SECTION SHARED ─────────────────────────── */
+    .section-landing {
+      padding: 5rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .section-title-landing {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700;
+      color: var(--text-900);
+      text-align: center;
+      margin-bottom: .75rem;
+    }
+    .section-title-landing em {
+      font-style: italic;
+      color: var(--primary);
+    }
+    .section-sub-landing {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      color: var(--text-500);
+      text-align: center;
+      max-width: 540px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+    }
+
+    /* ── LANGUAGES STRIP ─────────────────────────── */
+    .lang-strip {
+      background: var(--bg-base);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+    }
+    .lang-strip-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    .lang-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      text-align: center;
+      transition: transform .2s, box-shadow .2s, border-color .2s;
+      cursor: default;
+    }
+    .lang-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+      border-color: var(--primary-200);
+    }
+    .lang-card-emoji { font-size: 2rem; margin-bottom: .75rem; display: block; }
+    .lang-card-name {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .3rem;
+    }
+    .lang-card-desc {
+      font-family: var(--font-body);
+      font-size: .8rem;
+      color: var(--text-500);
+      line-height: 1.5;
+    }
+    .lang-card-count {
+      display: inline-block;
+      margin-top: .75rem;
+      background: var(--primary-50);
+      color: var(--primary);
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .2rem .6rem;
+      border-radius: 1rem;
+    }
+
+    /* ── VALUE PROPS ─────────────────────────────── */
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    .value-card {
+      padding: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .value-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.07);
+    }
+    .value-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      background: var(--primary-50);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .value-title {
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .5rem;
+    }
+    .value-desc {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--text-500);
+      line-height: 1.65;
+    }
+
+    /* ── SOCIAL PROOF ─────────────────────────────── */
+    .proof-bg {
+      background: linear-gradient(135deg, #15080e 0%, #1a0510 100%);
+      padding: 5rem 2rem;
+    }
+    .proof-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .proof-section-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700;
+      color: #faf8f5;
+      text-align: center;
+      margin-bottom: .75rem;
+    }
+    .proof-section-sub {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: rgba(250,248,245,.6);
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      transition: border-color .2s;
+    }
+    .testimonial-card:hover { border-color: rgba(212,160,23,.3); }
+    .testi-stars {
+      color: var(--gold);
+      font-size: .9rem;
+      margin-bottom: 1rem;
+      letter-spacing: .1em;
+    }
+    .testi-text {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: rgba(250,248,245,.8);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .testi-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .testi-name {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      font-weight: 600;
+      color: #faf8f5;
+      line-height: 1.3;
+    }
+    .testi-role {
+      font-size: .72rem;
+      color: rgba(250,248,245,.45);
+    }
+    .counters-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+    }
+    .counter-item {
+      text-align: center;
+    }
+    .counter-num {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      display: block;
+    }
+    .counter-label {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: rgba(250,248,245,.5);
+      margin-top: .35rem;
+      display: block;
+    }
+
+    /* ── DOCENTI ─────────────────────────────────── */
+    .docenti-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    .docente-card {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .docente-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    .docente-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 1rem;
+      border: 2px solid var(--primary-200);
+    }
+    .docente-name {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .25rem;
+    }
+    .docente-title {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: .4rem;
+    }
+    .docente-sub {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      color: var(--text-400);
+      line-height: 1.4;
+    }
+
+    /* ── PRICING ─────────────────────────────────── */
+    .pricing-bg {
+      background: var(--bg-section);
+      padding: 5rem 2rem;
+    }
+    .pricing-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .pricing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .pricing-toggle-label {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--text-500);
+      cursor: pointer;
+    }
+    .pricing-toggle-label.active { color: var(--text-900); font-weight: 600; }
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: var(--primary);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      border: none;
+      transition: background .2s;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform .2s;
+    }
+    .toggle-switch.annual::after { transform: translateX(20px); }
+    .pricing-badge-annual {
+      background: #e6f4ea;
+      color: #1e7e34;
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .2rem .6rem;
+      border-radius: 1rem;
+      margin-left: .3rem;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+    .pricing-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .pricing-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.1);
+    }
+    .pricing-card.featured {
+      border-color: var(--primary);
+      background: #fff;
+      box-shadow: 0 8px 32px rgba(160,26,54,.15);
+    }
+    .pricing-card.featured:hover {
+      box-shadow: 0 16px 48px rgba(160,26,54,.2);
+    }
+    .pricing-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--primary);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .3rem 1rem;
+      border-radius: 1rem;
+      white-space: nowrap;
+    }
+    .pricing-tier {
+      font-family: var(--font-heading);
+      font-size: .8rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: .5rem;
+    }
+    .pricing-name {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .5rem;
+    }
+    .pricing-desc {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-500);
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+      min-height: 48px;
+    }
+    .pricing-price {
+      margin-bottom: 1.5rem;
+    }
+    .pricing-amount {
+      font-family: var(--font-heading);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--text-900);
+      line-height: 1;
+    }
+    .pricing-period {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      color: var(--text-400);
+      margin-left: .25rem;
+    }
+    .pricing-old {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-400);
+      text-decoration: line-through;
+      margin-top: .2rem;
+      display: block;
+    }
+    .pricing-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem;
+      flex: 1;
+    }
+    .pricing-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-700);
+      padding: .45rem 0;
+      border-bottom: 1px solid var(--border);
+      line-height: 1.4;
+    }
+    .pricing-features li:last-child { border-bottom: none; }
+    .pricing-features li::before {
+      content: '✓';
+      color: #1e7e34;
+      font-weight: 700;
+      font-size: .8rem;
+      flex-shrink: 0;
+      margin-top: .05rem;
+    }
+    .pricing-features li.locked::before { content: '–'; color: var(--text-300); }
+    .pricing-features li.locked { color: var(--text-300); }
+    .btn-pricing {
+      width: 100%;
+      padding: .85rem;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: .95rem;
+      cursor: pointer;
+      border: none;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .btn-pricing-primary {
+      background: linear-gradient(135deg, var(--primary), #c42040);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(160,26,54,.3);
+    }
+    .btn-pricing-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(160,26,54,.4);
+    }
+    .btn-pricing-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+    }
+    .btn-pricing-outline:hover {
+      background: var(--primary-50);
+    }
+    .pricing-docenti-note {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+    .pricing-docenti-note a {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--primary);
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* ── FAQ ─────────────────────────────────────── */
+    .faq-list {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 0;
+      cursor: pointer;
+      gap: 1rem;
+    }
+    .faq-question-text {
+      font-family: var(--font-body);
+      font-size: .95rem;
+      font-weight: 600;
+      color: var(--text-900);
+    }
+    .faq-chevron {
+      font-size: .8rem;
+      color: var(--text-400);
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 500px; }
+    .faq-answer-inner {
+      padding: 0 0 1.25rem;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--text-500);
+      line-height: 1.7;
+    }
+
+    /* ── FINAL CTA ───────────────────────────────── */
+    .final-cta {
+      background: linear-gradient(135deg, #15080e 0%, #2a0d18 100%);
+      padding: 5rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(212,160,23,.08), transparent);
+    }
+    .final-cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+    .final-cta-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      color: #faf8f5;
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+    .final-cta-title em { color: var(--gold); font-style: italic; }
+    .final-cta-sub {
+      font-family: var(--font-body);
+      color: rgba(250,248,245,.6);
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .final-cta-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .final-cta-trust {
+      margin-top: 1.5rem;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: rgba(250,248,245,.35);
+    }
+
+    /* ── MODAL DOCENTI ───────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      max-width: 520px;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 24px 64px rgba(0,0,0,.25);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      color: var(--text-400);
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text-900); }
+    .modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .5rem;
+    }
+    .modal-subtitle {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--text-500);
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+    .modal-feature {
+      display: flex;
+      gap: .75rem;
+      padding: .9rem 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+    .modal-feature:last-of-type { border-bottom: none; }
+    .modal-feature-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .modal-feature-title {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--text-900);
+      margin-bottom: .2rem;
+    }
+    .modal-feature-desc {
+      font-family: var(--font-body);
+      font-size: .8rem;
+      color: var(--text-400);
+      line-height: 1.5;
+    }
+    .modal-cta {
+      margin-top: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .modal-cta a, .modal-cta button {
+      text-align: center;
+      display: block;
+      padding: .85rem;
+      border-radius: var(--radius);
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: .95rem;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+    }
+    .modal-btn-primary {
+      background: linear-gradient(135deg, var(--primary), #c42040);
+      color: #fff;
+    }
+    .modal-btn-secondary {
+      background: transparent;
+      border: 1.5px solid var(--primary) !important;
+      color: var(--primary);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────── */
+    @media (max-width: 1100px) {
+      .hero-inner { grid-template-columns: 1fr; text-align: center; }
+      .hero-subtitle, .hero-cta-row, .hero-trust { justify-content: center; }
+      .hero-subtitle { max-width: 100%; }
+      .hero-visual { display: none; }
+      .lang-strip-inner { grid-template-columns: repeat(2, 1fr); }
+      .docenti-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: 1fr 1fr; }
+      .counters-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .value-grid { grid-template-columns: 1fr; gap: 1rem; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
+    }
+    @media (max-width: 640px) {
+      .hero-inner { padding: 4rem 1rem 3rem; }
+      .lang-strip-inner { grid-template-columns: 1fr 1fr; gap: 1rem; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .docenti-grid { grid-template-columns: 1fr 1fr; }
+      .counters-row { grid-template-columns: 1fr 1fr; }
+      .section-landing { padding: 3rem 1rem; }
+      .proof-bg { padding: 3rem 1rem; }
+      .pricing-bg { padding: 3rem 1rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ── NAVBAR ──────────────────────────────────────────── -->
-  <nav class="glv-nav">
-    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
-    <div class="nav-links">
-      <a href="catalogo.html">Catalogo</a>
-      <a href="#come-funziona">Come funziona</a>
-      <a href="#prezzi">Prezzi</a>
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<nav class="glv-nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-icon">📜</span>
+      <span>GrecoLatinoVivo</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="catalogo.html" class="nav-link">Catalogo</a>
+      <a href="#lingue" class="nav-link">Lingue</a>
+      <a href="#docenti" class="nav-link">Docenti</a>
+      <a href="#prezzi" class="nav-link">Abbonamenti</a>
     </div>
-    <div class="nav-right">
-      <a href="#" class="btn btn-ghost" data-open-login>Accedi</a>
-      <a href="#prezzi" class="btn btn-primary">Abbonamento</a>
-    </div>
-  </nav>
-
-  <!-- ── HERO ────────────────────────────────────────────── -->
-  <section class="landing-hero">
-    <div class="landing-hero-bg"></div>
-    <div class="landing-hero-grid"></div>
-    <div class="landing-hero-content">
-      <div class="landing-hero-eyebrow">Centro Nazionale di Studi Classici</div>
-      <h1>Il portale per le <em>lingue classiche</em></h1>
-      <p>Latino, Greco antico, Egiziano geroglifico, Ebraico biblico. Oltre 150 ore di video-lezioni tenute da docenti universitari specializzati. Un abbonamento, l'intero catalogo.</p>
-      <div class="landing-hero-actions">
-        <a href="#prezzi" class="btn btn-primary btn-lg">Scegli il tuo piano</a>
-        <a href="catalogo.html" class="btn btn-secondary btn-lg">Esplora il catalogo</a>
-      </div>
-      <div class="landing-hero-stats">
-        <div class="stat-item">
-          <div class="stat-value">1.500+</div>
-          <div class="stat-label">Iscritti</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">150+</div>
-          <div class="stat-label">Ore di lezione</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-value">4</div>
-          <div class="stat-label">Lingue classiche</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── PREVIEW CATALOGO ────────────────────────────────── -->
-  <section style="padding: 60px 0;">
-    <div style="text-align: center; margin-bottom: 40px;">
-      <span class="section-label">UNA SELEZIONE DEL CATALOGO</span>
-      <h2>I corsi disponibili</h2>
-    </div>
-    <div class="section-row">
-      <div class="courses-row" id="row-preview"></div>
-    </div>
-    <p style="text-align: center; margin-top: 8px;" class="text-muted">
-      <i class="fas fa-lock" style="font-size:11px; margin-right:5px;"></i>Accesso completo con abbonamento
-    </p>
-  </section>
-
-  <!-- ── VALUE PROPS ─────────────────────────────────────── -->
-  <div class="value-props">
-    <div class="value-card">
-      <div class="value-icon"><i class="fas fa-play-circle"></i></div>
-      <div class="value-title">Video-lezioni on demand</div>
-      <div class="value-desc">Accesso illimitato all'intero catalogo, da qualsiasi dispositivo, per tutta la durata dell'abbonamento.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon"><i class="fas fa-layer-group"></i></div>
-      <div class="value-title">Percorsi dal livello A1 al B1</div>
-      <div class="value-desc">Itinerari didattici progressivi per chi parte da zero e per chi desidera consolidare le proprie competenze linguistiche.</div>
-    </div>
-    <div class="value-card">
-      <div class="value-icon"><i class="fas fa-user-tie"></i></div>
-      <div class="value-title">Docenti universitari specializzati</div>
-      <div class="value-desc">Ogni corso è affidato a docenti con formazione accademica e comprovata esperienza nell'insegnamento delle lingue classiche.</div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost" id="btnLogin">Accedi</a>
+      <a href="#prezzi" class="btn btn-primary">Inizia gratis</a>
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
+</nav>
 
-  <!-- ── SOCIAL PROOF ────────────────────────────────────── -->
-  <section class="social-proof" id="come-funziona">
-    <div style="text-align: center;">
-      <span class="section-label">TESTIMONIANZE</span>
-      <h2>Oltre 1.500 studenti in tutta Italia</h2>
-    </div>
-    <div class="social-proof-grid">
-      <div class="testimonial-card">
-        <div class="testimonial-stars">
-          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+<!-- ══ HERO ════════════════════════════════════════════ -->
+<section class="hero-section">
+  <div class="hero-inner">
+    <div class="hero-content">
+      <span class="hero-eyebrow">Piattaforma #1 per le lingue classiche</span>
+      <h1 class="hero-title">
+        Studia <em>Latino, Greco</em><br>e le lingue dell'antico mondo
+      </h1>
+      <p class="hero-subtitle">
+        Video-lezioni universitarie, esercizi guidati e attestati riconosciuti.
+        Un abbonamento per accedere all'intero catalogo — ovunque tu sia.
+      </p>
+      <div class="hero-cta-row">
+        <a href="#prezzi" class="btn-hero-primary">Inizia gratis — 7 giorni</a>
+        <a href="catalogo.html" class="btn-hero-secondary">Sfoglia il catalogo →</a>
+      </div>
+      <div class="hero-trust">
+        <div class="hero-trust-item">
+          <span class="hero-trust-num">4.200+</span>
+          <span class="hero-trust-label">Studenti attivi</span>
         </div>
-        <p class="testimonial-text">"Ho seguito il percorso di Latino A1.1 partendo da zero assoluto. La progressione è rigorosa e il metodo funziona: in sei mesi ho letto le prime pagine del De Bello Gallico."</p>
-        <div class="testimonial-author">Francesca M.</div>
-        <div class="testimonial-role">Docente di liceo, Torino</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial-stars">
-          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        <div class="hero-trust-sep"></div>
+        <div class="hero-trust-item">
+          <span class="hero-trust-num">150+</span>
+          <span class="hero-trust-label">Ore di lezioni</span>
         </div>
-        <p class="testimonial-text">"Il corso di Egiziano geroglifico è strutturato con grande cura filologica. Dopo il modulo A1.1 sono in grado di leggere e commentare iscrizioni museali con discreta sicurezza."</p>
-        <div class="testimonial-author">Roberto C.</div>
-        <div class="testimonial-role">Storico, Firenze</div>
-      </div>
-      <div class="testimonial-card">
-        <div class="testimonial-stars">
-          <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+        <div class="hero-trust-sep"></div>
+        <div class="hero-trust-item">
+          <span class="hero-trust-num">4.8★</span>
+          <span class="hero-trust-label">Media recensioni</span>
         </div>
-        <p class="testimonial-text">"Studiare il greco antico da autodidatta sembrava impossibile. I corsi GLV offrono una guida metodologica solida che ha reso il percorso non solo accessibile, ma appassionante."</p>
-        <div class="testimonial-author">Laura P.</div>
-        <div class="testimonial-role">Traduttrice, Milano</div>
-      </div>
-    </div>
-    <div class="counter-row">
-      <div class="counter-item">
-        <div class="counter-value">1.500+</div>
-        <div class="counter-label">Studenti iscritti</div>
-      </div>
-      <div class="counter-item">
-        <div class="counter-value">150+</div>
-        <div class="counter-label">Ore di lezione</div>
-      </div>
-      <div class="counter-item">
-        <div class="counter-value">98%</div>
-        <div class="counter-label">Tasso di soddisfazione</div>
-      </div>
-      <div class="counter-item">
-        <div class="counter-value">4</div>
-        <div class="counter-label">Lingue classiche</div>
       </div>
     </div>
-  </section>
 
-  <!-- ── PRICING ─────────────────────────────────────────── -->
-  <section id="prezzi" class="pricing-section">
-    <span class="section-label">ABBONAMENTO</span>
-    <h2>Piani e prezzi</h2>
-    <p style="color:var(--text-secondary); margin-top:12px; margin-bottom:4px;">Nessun vincolo, disdici in qualsiasi momento.</p>
+    <div class="hero-visual">
+      <div class="hero-preview-card" style="position:relative;">
+        <div class="hero-badge hero-badge-top">
+          <span class="hero-badge-icon">🎓</span>
+          <div>
+            <div class="hero-badge-text">Attestato completato!</div>
+            <div class="hero-badge-sub">Latino — Livello A2</div>
+          </div>
+        </div>
 
-    <!-- Toggle mensile/annuale -->
+        <div class="preview-header">
+          <span class="preview-label">I tuoi corsi</span>
+          <div class="preview-avatar">GT</div>
+        </div>
+
+        <div class="preview-course-item">
+          <div class="preview-thumb lat">🏛️</div>
+          <div class="preview-info">
+            <div class="preview-title">Grammatica Latina — Fondamenti</div>
+            <div class="preview-progress">
+              <div class="preview-progress-bar" style="width:72%"></div>
+            </div>
+            <div class="preview-pct">72% completato</div>
+          </div>
+        </div>
+
+        <div class="preview-course-item">
+          <div class="preview-thumb grk">🏺</div>
+          <div class="preview-info">
+            <div class="preview-title">Greco Antico — Alfabeto e Fonetica</div>
+            <div class="preview-progress">
+              <div class="preview-progress-bar" style="width:38%"></div>
+            </div>
+            <div class="preview-pct">38% completato</div>
+          </div>
+        </div>
+
+        <div class="preview-course-item">
+          <div class="preview-thumb egy">𓂀</div>
+          <div class="preview-info">
+            <div class="preview-title">Egiziano Geroglifico — Introduzione</div>
+            <div class="preview-progress">
+              <div class="preview-progress-bar" style="width:15%"></div>
+            </div>
+            <div class="preview-pct">15% completato</div>
+          </div>
+        </div>
+
+        <div class="preview-course-item">
+          <div class="preview-thumb heb">✡️</div>
+          <div class="preview-info">
+            <div class="preview-title">Ebraico Biblico — Corso Base</div>
+            <div class="preview-progress">
+              <div class="preview-progress-bar" style="width:55%"></div>
+            </div>
+            <div class="preview-pct">55% completato</div>
+          </div>
+        </div>
+
+        <div class="hero-badge hero-badge-bottom">
+          <span class="hero-badge-icon">🔥</span>
+          <div>
+            <div class="hero-badge-text">12 giorni di fila</div>
+            <div class="hero-badge-sub">Serie di studio attiva</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ LINGUE STRIP ════════════════════════════════════ -->
+<section id="lingue" class="lang-strip">
+  <div class="lang-strip-inner">
+    <div class="lang-card">
+      <span class="lang-card-emoji">🏛️</span>
+      <div class="lang-card-name">Latino</div>
+      <div class="lang-card-desc">Dalla grammatica elementare alla prosa di Cicerone e Livio</div>
+      <span class="lang-card-count">42 corsi</span>
+    </div>
+    <div class="lang-card">
+      <span class="lang-card-emoji">🏺</span>
+      <div class="lang-card-name">Greco Antico</div>
+      <div class="lang-card-desc">Dall'alfabeto omerico alla filosofia di Platone e Aristotele</div>
+      <span class="lang-card-count">38 corsi</span>
+    </div>
+    <div class="lang-card">
+      <span class="lang-card-emoji">𓂀</span>
+      <div class="lang-card-name">Egiziano</div>
+      <div class="lang-card-desc">Geroglifici, demotico e la civiltà dei Faraoni</div>
+      <span class="lang-card-count">24 corsi</span>
+    </div>
+    <div class="lang-card">
+      <span class="lang-card-emoji">📜</span>
+      <div class="lang-card-name">Ebraico Biblico</div>
+      <div class="lang-card-desc">La lingua dell'Antico Testamento e della tradizione rabbinica</div>
+      <span class="lang-card-count">18 corsi</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ VALUE PROPS ═════════════════════════════════════ -->
+<section class="section-landing">
+  <h2 class="section-title-landing">Perché scegliere <em>GrecoLatinoVivo</em></h2>
+  <p class="section-sub-landing">Una piattaforma pensata per chi vuole studiare le lingue classiche con serietà — senza rinunciare alla flessibilità.</p>
+  <div class="value-grid">
+    <div class="value-card">
+      <div class="value-icon">🎓</div>
+      <div class="value-title">Docenti universitari</div>
+      <div class="value-desc">Tutti i corsi sono tenuti da professori e ricercatori universitari specializzati. Niente autodidatti: solo esperienza accademica verificata.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">📱</div>
+      <div class="value-title">Studia ovunque</div>
+      <div class="value-desc">Accesso da browser su desktop, tablet e mobile. Riprendi esattamente da dove ti sei fermato, anche offline (app in arrivo).</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">📜</div>
+      <div class="value-title">Attestati riconosciuti</div>
+      <div class="value-desc">Completa un corso e ricevi un attestato digitale con firma del docente, valido per portfolio accademici e CV professionali.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🔄</div>
+      <div class="value-title">Un abbonamento, tutto il catalogo</div>
+      <div class="value-desc">Nessun costo per corso. Con un solo abbonamento hai accesso illimitato a oltre 120 corsi e a tutti i nuovi contenuti che aggiungiamo ogni mese.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">💬</div>
+      <div class="value-title">Comunità di studenti</div>
+      <div class="value-desc">Forum dedicati per ogni lingua, sessioni live di Q&A con i docenti, e un gruppo di studio privato dove confrontarsi con altri appassionati.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">🧭</div>
+      <div class="value-title">Percorsi strutturati</div>
+      <div class="value-desc">Ogni lingua ha un percorso didattico progressivo dal livello base all'avanzato. Non devi capire da solo come procedere: ti guidiamo noi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SOCIAL PROOF ════════════════════════════════════ -->
+<section class="proof-bg">
+  <div class="proof-inner">
+    <h2 class="proof-section-title">Cosa dicono i nostri studenti</h2>
+    <p class="proof-section-sub">Oltre 4.200 studenti già iscritti. Ecco le loro parole.</p>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Finalmente un portale serio per il Latino. I docenti sono preparatissimi e il materiale è strutturato in modo logico. Ho imparato più in 3 mesi qui che in anni di tentativi da autodidatta."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">MP</div>
+          <div>
+            <div class="testi-name">Marco Pellegrini</div>
+            <div class="testi-role">Studente di Lettere Classiche</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Il corso di Greco Antico è semplicemente eccellente. La prof. spiega con una chiarezza straordinaria e gli esercizi sono progressivi e ben calibrati. Rinnoverò l'abbonamento senz'altro."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">SF</div>
+          <div>
+            <div class="testi-name">Sara Fontana</div>
+            <div class="testi-role">Insegnante di Liceo Classico</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testi-stars">★★★★☆</div>
+        <p class="testi-text">"Ho scoperto l'Egiziano geroglifico per curiosità e ora è diventata la mia passione. Non avrei mai pensato di trovare corsi così completi e accessibili su una piattaforma italiana."</p>
+        <div class="testi-author">
+          <div class="testi-avatar">AL</div>
+          <div>
+            <div class="testi-name">Andrea Longo</div>
+            <div class="testi-role">Appassionato di Egittologia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="counters-row">
+      <div class="counter-item">
+        <span class="counter-num">4.200+</span>
+        <span class="counter-label">Studenti iscritti</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-num">122</span>
+        <span class="counter-label">Corsi disponibili</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-num">4.8/5</span>
+        <span class="counter-label">Media valutazioni</span>
+      </div>
+      <div class="counter-item">
+        <span class="counter-num">1.800+</span>
+        <span class="counter-label">Attestati rilasciati</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DOCENTI ══════════════════════════════════════════ -->
+<section id="docenti" class="section-landing">
+  <h2 class="section-title-landing">I nostri <em>docenti</em></h2>
+  <p class="section-sub-landing">Professori universitari e ricercatori specializzati nelle rispettive lingue classiche.</p>
+  <div class="docenti-grid">
+    <div class="docente-card">
+      <div class="docente-avatar">🏛️</div>
+      <div class="docente-name">Prof. A. Rossi</div>
+      <div class="docente-title">Latino & Letteratura Latina</div>
+      <div class="docente-sub">Università di Bologna — 20 anni di insegnamento</div>
+    </div>
+    <div class="docente-card">
+      <div class="docente-avatar">🏺</div>
+      <div class="docente-name">Prof.ssa M. Bianchi</div>
+      <div class="docente-title">Greco Antico & Filologia</div>
+      <div class="docente-sub">Università La Sapienza — Specialista di Omero</div>
+    </div>
+    <div class="docente-card">
+      <div class="docente-avatar">𓂀</div>
+      <div class="docente-name">Prof. G. Marini</div>
+      <div class="docente-title">Egiziano Geroglifico</div>
+      <div class="docente-sub">Istituto Orientale di Napoli — Egittologo</div>
+    </div>
+    <div class="docente-card">
+      <div class="docente-avatar">📖</div>
+      <div class="docente-name">Prof.ssa L. Cohen</div>
+      <div class="docente-title">Ebraico Biblico & Aramaico</div>
+      <div class="docente-sub">Università di Torino — Specialista di testi biblici</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══════════════════════════════════════════ -->
+<section id="prezzi" class="pricing-bg">
+  <div class="pricing-inner">
+    <h2 class="section-title-landing">Scegli il piano <em>giusto per te</em></h2>
+    <p class="section-sub-landing" style="margin-bottom:1.5rem;">Inizia con 7 giorni gratuiti. Nessuna carta di credito richiesta.</p>
+
     <div class="pricing-toggle">
-      <button class="pricing-toggle-btn" id="tog-monthly">Mensile</button>
-      <button class="pricing-toggle-btn active" id="tog-annual">Annuale <span style="font-size:10px;background:var(--accent);color:#fff;padding:2px 7px;border-radius:10px;margin-left:4px;font-weight:700;">-2 mesi gratis</span></button>
+      <span class="pricing-toggle-label active" id="toggleLabelMonthly">Mensile</span>
+      <button class="toggle-switch annual" id="billingToggle" aria-label="Cambia periodo di fatturazione"></button>
+      <span class="pricing-toggle-label" id="toggleLabelAnnual">Annuale <span class="pricing-badge-annual">−30%</span></span>
     </div>
 
-    <!-- 3 Tier Cards -->
-    <div class="pricing-cards" style="align-items:flex-start; gap:20px; flex-wrap:nowrap;">
-
-      <!-- TIER 1 — CULTURA -->
-      <div class="pricing-card" style="width:300px; flex-shrink:0;">
-        <div class="pricing-plan">Cultura</div>
-        <p style="font-size:13px;color:var(--text-muted);margin:-4px 0 16px;line-height:1.4;">Per chi desidera avvicinarsi al mondo delle lingue classiche</p>
-        <div class="pricing-price" style="font-size:38px;">
-          <sup>€</sup><span class="js-price" data-m="5,90" data-a="49">49</span><span class="js-cadenza" data-m="/mese" data-a="/anno" style="font-size:14px;color:var(--text-muted);font-weight:400;">/anno</span>
+    <div class="pricing-grid">
+      <!-- CULTURA -->
+      <div class="pricing-card">
+        <div class="pricing-tier">Piano</div>
+        <div class="pricing-name">Cultura</div>
+        <div class="pricing-desc">Per chi vuole esplorare e iniziare con una singola lingua.</div>
+        <div class="pricing-price">
+          <span class="pricing-amount" data-monthly="9" data-annual="6">€9</span>
+          <span class="pricing-period">/mese</span>
+          <span class="pricing-old" style="display:none"></span>
         </div>
-        <p class="js-saving" data-m="&nbsp;" data-a="Risparmi €21 rispetto al mensile" style="font-size:12px;color:var(--accent);font-weight:600;min-height:18px;margin:6px 0 20px;">&nbsp;</p>
         <ul class="pricing-features">
-          <li><i class="fas fa-check"></i> Tutti i <strong>corsi brevi</strong> di lingua e cultura</li>
-          <li><i class="fas fa-check"></i> Nuovi contenuti ogni mese</li>
-          <li><i class="fas fa-check"></i> Accesso da qualsiasi dispositivo</li>
-          <li><i class="fas fa-check"></i> Disdici in qualsiasi momento</li>
+          <li>Accesso a 1 lingua a scelta</li>
+          <li>Tutti i corsi base e intermedi</li>
+          <li>Attestati digitali</li>
+          <li>Accesso da browser illimitato</li>
+          <li class="locked">Tutte le 4 lingue</li>
+          <li class="locked">Sessioni live con docenti</li>
+          <li class="locked">Download lezioni offline</li>
         </ul>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <a href="#" class="btn btn-outline btn-full" style="flex:1;font-size:13px;" data-subscribe-direct data-plan="cultura" data-period="monthly">Mensile — €5,90</a>
-          <a href="#" class="btn btn-outline btn-full" style="flex:1;font-size:13px;" data-subscribe-direct data-plan="cultura" data-period="annual">Annuale — €49</a>
-        </div>
-
+        <a href="registrazione.html?piano=cultura" class="btn-pricing btn-pricing-outline">Inizia gratis</a>
       </div>
 
-      <!-- TIER 2 — LINGUAE (featured) -->
-      <div class="pricing-card featured" style="width:300px; flex-shrink:0;">
-        <div class="pricing-card-badge">PIÙ SCELTO</div>
-        <div class="pricing-plan">Linguae</div>
-        <p style="font-size:13px;color:var(--text-muted);margin:-4px 0 16px;line-height:1.4;">Per chi affronta lo studio di una lingua classica con metodo</p>
-        <div class="pricing-price" style="font-size:38px;">
-          <sup>€</sup><span class="js-price" data-m="12,90" data-a="99">99</span><span class="js-cadenza" data-m="/mese" data-a="/anno" style="font-size:14px;color:var(--text-muted);font-weight:400;">/anno</span>
+      <!-- LINGUAE (FEATURED) -->
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Più scelto</div>
+        <div class="pricing-tier">Piano</div>
+        <div class="pricing-name">Linguae</div>
+        <div class="pricing-desc">Per gli studiosi seri: accesso completo a tutto il catalogo.</div>
+        <div class="pricing-price">
+          <span class="pricing-amount" data-monthly="19" data-annual="13">€19</span>
+          <span class="pricing-period">/mese</span>
+          <span class="pricing-old" style="display:none"></span>
         </div>
-        <p class="js-saving" data-m="&nbsp;" data-a="Risparmi €56 rispetto al mensile" style="font-size:12px;color:var(--accent);font-weight:600;min-height:18px;margin:6px 0 20px;">&nbsp;</p>
         <ul class="pricing-features">
-          <li><i class="fas fa-check"></i> Tutto il piano <strong>Cultura</strong> incluso</li>
-          <li><i class="fas fa-check"></i> Corsi completi di <strong>Latino</strong> — dal livello A1 al B1</li>
-          <li><i class="fas fa-check"></i> Corsi completi di <strong>Greco Antico</strong> — dal livello A1 al B1</li>
-          <li><i class="fas fa-check"></i> <strong>Egiziano Geroglifico</strong> e <strong>Ebraico Biblico</strong></li>
-          <li><i class="fas fa-check"></i> Nuovi livelli in anteprima esclusiva</li>
+          <li>Tutte e 4 le lingue classiche</li>
+          <li>Catalogo completo: 120+ corsi</li>
+          <li>Attestati digitali con firma</li>
+          <li>Download lezioni offline</li>
+          <li>Forum della comunità</li>
+          <li class="locked">Sessioni live mensili</li>
+          <li class="locked">Accesso anticipato nuovi corsi</li>
         </ul>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <a href="#" class="btn btn-primary btn-full" style="flex:1;font-size:13px;" data-subscribe-direct data-plan="linguae" data-period="monthly">Mensile — €12,90</a>
-          <a href="#" class="btn btn-primary btn-full" style="flex:1;font-size:13px;" data-subscribe-direct data-plan="linguae" data-period="annual">Annuale — €99</a>
-        </div>
-
+        <a href="registrazione.html?piano=linguae" class="btn-pricing btn-pricing-primary">Inizia gratis 7 giorni</a>
       </div>
 
-      <!-- TIER 3 — ACCADEMIA -->
-      <div class="pricing-card" style="width:300px; flex-shrink:0; border-color:#4a148c;">
-        <div class="pricing-plan" style="color:#4a148c;">Accademia</div>
-        <p style="font-size:13px;color:var(--text-muted);margin:-4px 0 16px;line-height:1.4;">Per docenti, ricercatori e professionisti della classicità</p>
-        <div class="pricing-price" style="font-size:38px;">
-          <sup>€</sup><span class="js-price" data-m="19,90" data-a="179">179</span><span class="js-cadenza" data-m="/mese" data-a="/anno" style="font-size:14px;color:var(--text-muted);font-weight:400;">/anno</span>
+      <!-- ACCADEMIA -->
+      <div class="pricing-card">
+        <div class="pricing-tier">Piano</div>
+        <div class="pricing-name">Accademia</div>
+        <div class="pricing-desc">Per docenti, ricercatori e appassionati che non vogliono compromessi.</div>
+        <div class="pricing-price">
+          <span class="pricing-amount" data-monthly="35" data-annual="24">€35</span>
+          <span class="pricing-period">/mese</span>
+          <span class="pricing-old" style="display:none"></span>
         </div>
-        <p class="js-saving" data-m="&nbsp;" data-a="Risparmi €59 rispetto al mensile" style="font-size:12px;color:#4a148c;font-weight:600;min-height:18px;margin:6px 0 20px;">&nbsp;</p>
         <ul class="pricing-features">
-          <li><i class="fas fa-check"></i> Tutto il piano <strong>Linguae</strong> incluso</li>
-          <li><i class="fas fa-check"></i> <strong>3 corsi di formazione</strong> accreditati MIUR</li>
-          <li><i class="fas fa-check"></i> Valore dei corsi: <strong>€500</strong> se acquistati singolarmente</li>
-          <li><i class="fas fa-check"></i> Attestati validi per l'aggiornamento docenti</li>
-          <li><i class="fas fa-check"></i> Supporto prioritario via email</li>
+          <li>Tutto di Linguae incluso</li>
+          <li>Sessioni live mensili con docenti</li>
+          <li>Accesso anticipato nuovi corsi</li>
+          <li>Q&A privata con i professori</li>
+          <li>Materiali didattici scaricabili</li>
+          <li>Certificazione per uso accademico</li>
+          <li>Priorità nell'assistenza</li>
         </ul>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <a href="#" class="btn btn-full" style="flex:1;font-size:13px;background:#4a148c;color:#fff;" data-subscribe-direct data-plan="accademia" data-period="monthly">Mensile — €19,90</a>
-          <a href="#" class="btn btn-full" style="flex:1;font-size:13px;background:#4a148c;color:#fff;" data-subscribe-direct data-plan="accademia" data-period="annual">Annuale — €179</a>
-        </div>
-
-        <!-- Bonus Docenti — solo su piano annuale -->
-        <div id="bonus-docenti-box" style="margin-top:16px; padding:14px 16px; background:#f0fdf4; border:1.5px solid #bbf7d0; border-radius:6px;">
-          <p style="font-size:12px; font-weight:700; color:#15803d; margin-bottom:4px; display:flex; align-items:center; gap:6px;">
-            <i class="fas fa-graduation-cap"></i> Sei docente di ruolo?
-          </p>
-          <p style="font-size:12px; color:#166534; line-height:1.5; margin-bottom:8px;">
-            I 3 corsi di formazione inclusi valgono <strong>€500 acquistati singolarmente</strong>. Con il <strong>Bonus Docenti</strong> paghi l'intero piano annuale — <strong>€0 di tasca tua</strong>.
-          </p>
-          <a href="#" id="btn-bonus-docenti" style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#15803d;text-decoration:underline;text-underline-offset:3px;">
-            Come usare il Bonus Docenti <i class="fas fa-chevron-right" style="font-size:9px;"></i>
-          </a>
-        </div>
-
-        
+        <a href="registrazione.html?piano=accademia" class="btn-pricing btn-pricing-outline">Inizia gratis</a>
       </div>
-
     </div>
 
-    <!-- Confronto testuale -->
-    <p style="margin-top:28px; font-size:12px; color:var(--text-muted); text-align:center;">
-      È possibile cambiare piano o disdire in qualsiasi momento senza penali.
+    <p class="pricing-docenti-note">
+      Sei un docente o un'istituzione? <a onclick="document.getElementById('modalDocenti').classList.add('active')">Scopri il Bonus Docenti →</a>
     </p>
-  </section>
+  </div>
+</section>
 
-  <!-- ── FAQ ─────────────────────────────────────────────── -->
-  <section class="faq-section">
-    <h2 style="text-align: center; margin-bottom: 40px;">Domande frequenti</h2>
+<!-- ══ FAQ ══════════════════════════════════════════════ -->
+<section class="section-landing">
+  <h2 class="section-title-landing">Domande <em>frequenti</em></h2>
+  <p class="section-sub-landing">Tutto quello che devi sapere prima di iniziare.</p>
 
+  <div class="faq-list">
     <div class="faq-item">
-      <button class="faq-question">
-        È possibile disdire l'abbonamento in qualsiasi momento?
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <div class="faq-question">
+        <span class="faq-question-text">Devo avere conoscenze pregresse per iniziare?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
       <div class="faq-answer">
-        <div class="faq-answer-inner">
-          Sì. La disdetta può essere effettuata in qualsiasi momento e senza penali direttamente dall'area personale. L'accesso ai contenuti rimane attivo fino al termine del periodo già corrisposto.
-        </div>
+        <div class="faq-answer-inner">No, assolutamente. I nostri percorsi partono dal livello zero assoluto. Dai l'alfabeto al testo complesso, ogni passo è accompagnato da spiegazioni chiare e esercizi graduali. Se hai già qualche base, puoi scegliere un livello di ingresso più avanzato.</div>
       </div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-question">
-        I corsi sono accessibili anche a chi non ha alcuna conoscenza pregressa?
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <div class="faq-question">
+        <span class="faq-question-text">Quanto tempo devo dedicare ogni settimana?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
       <div class="faq-answer">
-        <div class="faq-answer-inner">
-          Sì. I moduli A1.1 sono progettati per chi parte da zero: nessuna conoscenza pregressa è richiesta. Fin dalla prima lezione vengono introdotti alfabeto, sistema fonologico e strutture morfosintattiche fondamentali.
-        </div>
+        <div class="faq-answer-inner">La piattaforma è pensata per ritmi flessibili. Anche 30–60 minuti a settimana producono progressi visibili. I risultati migliori si ottengono con sessioni regolari di 20–30 minuti al giorno, ma puoi avanzare al tuo ritmo senza scadenze.</div>
       </div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-question">
-        È possibile acquistare un singolo corso senza sottoscrivere un abbonamento?
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <div class="faq-question">
+        <span class="faq-question-text">Gli attestati hanno valore legale o accademico?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
       <div class="faq-answer">
-        <div class="faq-answer-inner">
-          Sì. Ogni corso è disponibile per l'acquisto singolo in accesso permanente, direttamente dalla pagina del corso, senza obbligo di abbonamento.
-        </div>
+        <div class="faq-answer-inner">Gli attestati di GrecoLatinoVivo sono documenti digitali firmati dal docente del corso. Non sostituiscono un titolo di studio formale, ma sono riconosciuti da molte istituzioni culturali e università come credito di formazione continua. Alcuni piani prevedono una certificazione specifica per uso accademico.</div>
       </div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-question">
-        I contenuti video sono disponibili offline?
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <div class="faq-question">
+        <span class="faq-question-text">Posso cancellare in qualsiasi momento?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
       <div class="faq-answer">
-        <div class="faq-answer-inner">
-          No. Le lezioni sono erogate in streaming e richiedono una connessione a internet. Il download per la fruizione offline non è attualmente previsto.
-        </div>
+        <div class="faq-answer-inner">Sì. Puoi cancellare l'abbonamento in qualsiasi momento dalla tua area personale, senza penali né costi nascosti. Il tuo accesso rimarrà attivo fino alla fine del periodo già pagato.</div>
       </div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-question">
-        Viene emessa fattura dopo il pagamento?
-        <i class="fas fa-chevron-down"></i>
-      </button>
+      <div class="faq-question">
+        <span class="faq-question-text">Cosa succede ai miei progressi se disdico?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
       <div class="faq-answer">
-        <div class="faq-answer-inner">
-          Sì. A ogni transazione corrisponde l'emissione automatica di fattura, inviata all'indirizzo email indicato in fase di registrazione.
-        </div>
+        <div class="faq-answer-inner">I tuoi progressi, i tuoi appunti e gli attestati già conseguiti rimangono salvati nel tuo profilo anche dopo la cancellazione. Se decidi di riscriverti, riprendi esattamente da dove ti eri fermato.</div>
       </div>
     </div>
-  </section>
+    <div class="faq-item">
+      <div class="faq-question">
+        <span class="faq-question-text">Esistono sconti per studenti universitari?</span>
+        <span class="faq-chevron">▾</span>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Sì. Gli studenti universitari iscritti a corsi di Lettere, Archeologia, Teologia o discipline affini possono richiedere uno sconto del 30% presentando il documento di iscrizione all'università. Contattaci a supporto@grecolatinovivo.it.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- ── FOOTER ──────────────────────────────────────────── -->
-  <footer class="glv-footer">
+<!-- ══ FINAL CTA ════════════════════════════════════════ -->
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2 class="final-cta-title">
+      Il tuo viaggio nel mondo<br>antico inizia <em>oggi</em>
+    </h2>
+    <p class="final-cta-sub">7 giorni gratuiti. Nessuna carta di credito. Nessun rischio.</p>
+    <div class="final-cta-actions">
+      <a href="registrazione.html" class="btn-hero-primary">Crea il tuo account gratuito</a>
+      <a href="catalogo.html" class="btn-hero-secondary">Esplora il catalogo →</a>
+    </div>
+    <p class="final-cta-trust">Già 4.200+ studenti. Cancella quando vuoi. Nessun vincolo.</p>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════ -->
+<footer class="glv-footer">
+  <div class="footer-inner">
     <div class="footer-grid">
-      <div class="footer-col">
-        <div class="footer-brand">GRECO<span>LATINOVIVO</span></div>
-        <p class="footer-desc">Portale di formazione per le lingue classiche. Fondato nel 2022, conta oltre 1.500 studenti in tutta Italia.</p>
+      <div class="footer-col footer-brand">
+        <div class="footer-logo">
+          <span>📜</span> GrecoLatinoVivo
+        </div>
+        <p class="footer-tagline">La piattaforma italiana per le lingue classiche. Studia Latino, Greco, Egiziano ed Ebraico con docenti universitari specializzati.</p>
+        <div class="footer-social">
+          <a href="#" class="footer-social-link" aria-label="YouTube">▶</a>
+          <a href="#" class="footer-social-link" aria-label="Instagram">◉</a>
+          <a href="#" class="footer-social-link" aria-label="Facebook">f</a>
+        </div>
       </div>
       <div class="footer-col">
-        <h5>Corsi</h5>
-        <a href="catalogo.html?lang=Latino">Latino</a>
-        <a href="catalogo.html?lang=Greco">Greco Antico</a>
-        <a href="catalogo.html?lang=Egiziano%20Geroglifico">Egiziano</a>
-        <a href="catalogo.html?lang=Ebraico">Ebraico</a>
-        <a href="catalogo.html?lang=Didattica">Didattica</a>
+        <div class="footer-col-title">Lingue</div>
+        <ul class="footer-links">
+          <li><a href="catalogo.html?lingua=latino">Latino</a></li>
+          <li><a href="catalogo.html?lingua=greco">Greco Antico</a></li>
+          <li><a href="catalogo.html?lingua=egiziano">Egiziano Geroglifico</a></li>
+          <li><a href="catalogo.html?lingua=ebraico">Ebraico Biblico</a></li>
+        </ul>
       </div>
       <div class="footer-col">
-        <h5>Portale</h5>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="catalogo.html">Catalogo</a>
-        <a href="#prezzi">Prezzi</a>
-        <a href="profilo.html">Profilo</a>
+        <div class="footer-col-title">Portale</div>
+        <ul class="footer-links">
+          <li><a href="catalogo.html">Catalogo corsi</a></li>
+          <li><a href="#docenti">I nostri docenti</a></li>
+          <li><a href="#prezzi">Abbonamenti</a></li>
+          <li><a href="dashboard.html">Area studenti</a></li>
+        </ul>
       </div>
       <div class="footer-col">
-        <h5>Supporto</h5>
-        <a href="#faq">FAQ</a>
-        <a href="mailto:info@grecolatinovivo.it">Contatti</a>
-        <a href="privacy.html">Privacy</a>
-        <a href="termini.html">Termini</a>
+        <div class="footer-col-title">Supporto</div>
+        <ul class="footer-links">
+          <li><a href="#">Centro assistenza</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Termini di servizio</a></li>
+          <li><a href="mailto:supporto@grecolatinovivo.it">Contattaci</a></li>
+        </ul>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>© 2024 GrecoLatinoVivo — Centro Nazionale di Studi Classici</p>
-      <p>grecolatinovivo.it</p>
-    </div>
-  </footer>
-
-  <!-- ── MODAL BONUS DOCENTI ──────────────────────────────── -->
-  <div id="modal-bonus" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#fff; border-radius:12px; padding:36px; max-width:480px; width:100%; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.2);">
-      <button onclick="document.getElementById('modal-bonus').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;color:#888;cursor:pointer;">×</button>
-
-      <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-        <div style="width:36px;height:36px;background:#dcfce7;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-          <i class="fas fa-graduation-cap" style="color:#15803d;font-size:16px;"></i>
-        </div>
-        <h3 style="font-family:Montserrat,sans-serif;font-size:18px;font-weight:800;color:#232323;">Paga con il Bonus Docenti</h3>
-      </div>
-      <p style="font-size:13px;color:#555;margin-bottom:24px;">GrecoLatinoVivo è ente accreditato MIUR. Il Piano Annuale Linguae (€99) rientra nelle spese rimborsabili tramite il Bonus Docenti (Carta del Docente).</p>
-
-      <div style="display:flex;flex-direction:column;gap:12px;">
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="width:26px;height:26px;background:#a01a36;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:#fff;">1</div>
-          <div>
-            <p style="font-weight:700;font-size:14px;margin-bottom:2px;">Accedi al portale Carta del Docente</p>
-            <p style="font-size:12px;color:#666;">Vai su <a href="https://cartadeldocente.istruzione.it" target="_blank" style="color:#a01a36;font-weight:600;">cartadeldocente.istruzione.it</a> con le tue credenziali SPID o CIE.</p>
-          </div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="width:26px;height:26px;background:#a01a36;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:#fff;">2</div>
-          <div>
-            <p style="font-weight:700;font-size:14px;margin-bottom:2px;">Genera un buono da €99</p>
-            <p style="font-size:12px;color:#666;">Seleziona la categoria <strong>Formazione</strong> → <strong>Corsi e strumenti</strong>, inserisci l'importo €99 e cerca "GrecoLatinoVivo".</p>
-          </div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start;">
-          <div style="width:26px;height:26px;background:#a01a36;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;font-weight:800;color:#fff;">3</div>
-          <div>
-            <p style="font-weight:700;font-size:14px;margin-bottom:2px;">Inviaci il codice buono</p>
-            <p style="font-size:12px;color:#666;">Scrivi a <a href="mailto:info@grecolatinovivo.it" style="color:#a01a36;font-weight:600;">info@grecolatinovivo.it</a> con il codice del buono. Attiveremo il tuo abbonamento annuale entro 24 ore.</p>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:24px;padding:12px 14px;background:#f0fdf4;border-radius:6px;border:1px solid #bbf7d0;">
-        <p style="font-size:12px;color:#166534;"><i class="fas fa-check-circle" style="margin-right:6px;"></i><strong>€0 di tasca tua.</strong> Il Bonus Docenti copre l'intero importo del Piano Annuale.</p>
-      </div>
-
-      <button onclick="document.getElementById('modal-bonus').style.display='none'" class="btn btn-primary btn-full" style="margin-top:20px;">Ho compreso — chiudi</button>
+      <span>© 2024 GrecoLatinoVivo. Tutti i diritti riservati.</span>
+      <span>Made with ❤️ per gli amanti del mondo antico</span>
     </div>
   </div>
+</footer>
 
-  <script src="js/app.js"></script>
-  <script>
-    // ── Bonus Docenti modal ──────────────────────────────────────
-    document.getElementById('btn-bonus-docenti').addEventListener('click', function(e){
+<!-- ══ MODAL BONUS DOCENTI ══════════════════════════════ -->
+<div class="modal-overlay" id="modalDocenti">
+  <div class="modal-box">
+    <button class="modal-close" onclick="document.getElementById('modalDocenti').classList.remove('active')">✕</button>
+    <div class="modal-title">Bonus Docenti &amp; Istituzioni</div>
+    <div class="modal-subtitle">
+      Offerte speciali per insegnanti di scuola media e superiore, università, licei classici e istituti culturali.
+    </div>
+
+    <div class="modal-feature">
+      <div class="modal-feature-icon">🏫</div>
+      <div>
+        <div class="modal-feature-title">Liceo Classico — Abbonamento Docente</div>
+        <div class="modal-feature-desc">50% di sconto per insegnanti di Latino e Greco in servizio. Valido con documento dell'istituto.</div>
+      </div>
+    </div>
+    <div class="modal-feature">
+      <div class="modal-feature-icon">🎓</div>
+      <div>
+        <div class="modal-feature-title">Università — Licenza Istituzionale</div>
+        <div class="modal-feature-desc">Licenze multi-utente per dipartimenti di Lettere, Archeologia, Teologia. Prezzi dedicati su richiesta.</div>
+      </div>
+    </div>
+    <div class="modal-feature">
+      <div class="modal-feature-icon">📚</div>
+      <div>
+        <div class="modal-feature-title">Istituti Culturali &amp; Musei</div>
+        <div class="modal-feature-desc">Accordi speciali per biblioteche, musei e fondazioni culturali. Accesso di gruppo per eventi e laboratori.</div>
+      </div>
+    </div>
+    <div class="modal-feature">
+      <div class="modal-feature-icon">💼</div>
+      <div>
+        <div class="modal-feature-title">Formazione Professionale Continua</div>
+        <div class="modal-feature-desc">I nostri attestati sono validi come crediti ECM per la formazione continua degli insegnanti in molte regioni.</div>
+      </div>
+    </div>
+
+    <div class="modal-cta">
+      <a href="mailto:istituzioni@grecolatinovivo.it" class="modal-btn-primary">Richiedi un preventivo →</a>
+      <button class="modal-btn-secondary" onclick="document.getElementById('modalDocenti').classList.remove('active')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── NAVBAR SCROLL ───────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ── HAMBURGER MENU ──────────────────────────────────────
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+  this.classList.toggle('open');
+});
+
+// ── AUTH STATE ──────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (r.ok) {
+      const u = await r.json();
+      if (u && u.email) {
+        document.getElementById('btnLogin').textContent = 'Dashboard';
+        document.getElementById('btnLogin').href = 'dashboard.html';
+      }
+    }
+  } catch(e) { /* non autenticato */ }
+})();
+
+// ── BILLING TOGGLE ──────────────────────────────────────
+let isAnnual = true;
+const toggle = document.getElementById('billingToggle');
+const labelM = document.getElementById('toggleLabelMonthly');
+const labelA = document.getElementById('toggleLabelAnnual');
+
+function updatePricing() {
+  document.querySelectorAll('.pricing-amount').forEach(el => {
+    const v = isAnnual ? el.dataset.annual : el.dataset.monthly;
+    el.textContent = '€' + v;
+  });
+  document.querySelectorAll('.pricing-old').forEach(el => {
+    const amount = el.closest('.pricing-price').querySelector('.pricing-amount');
+    if (isAnnual) {
+      const monthly = amount.dataset.monthly;
+      el.textContent = '€' + monthly + '/mese (mensile)';
+      el.style.display = 'block';
+    } else {
+      el.style.display = 'none';
+    }
+  });
+  labelM.classList.toggle('active', !isAnnual);
+  labelA.classList.toggle('active', isAnnual);
+  toggle.classList.toggle('annual', isAnnual);
+}
+updatePricing();
+
+toggle.addEventListener('click', () => {
+  isAnnual = !isAnnual;
+  updatePricing();
+});
+
+// ── FAQ ACCORDION ───────────────────────────────────────
+document.querySelectorAll('.faq-question').forEach(q => {
+  q.addEventListener('click', () => {
+    const item = q.closest('.faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+});
+
+// ── MODAL CLOSE ON BACKDROP ─────────────────────────────
+document.getElementById('modalDocenti').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('active');
+});
+
+// ── SMOOTH SCROLL ───────────────────────────────────────
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) {
       e.preventDefault();
-      document.getElementById('modal-bonus').style.display = 'flex';
-    });
-    document.getElementById('modal-bonus').addEventListener('click', function(e){
-      if(e.target === this) this.style.display = 'none';
-    });
-
-    // ── Verifica sessione: se loggato → redirect dashboard ───────
-    fetch('/api/auth/me')
-      .then(function(res) { if (res.ok) return res.json(); return null; })
-      .then(function(data) { if (data && data.user) { window.location.href = '/dashboard.html'; } })
-      .catch(function() { /* nessuna sessione, rimane sulla landing */ });
-  </script>
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
 </body>
 </html>

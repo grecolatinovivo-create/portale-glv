@@ -1,646 +1,1050 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Latino A1.1 – Principianti | GrecoLatinoVivo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title class="js-corso-titolo">Corso | GrecoLatinoVivo</title>
+  <meta name="description" content="Dettaglio corso su GrecoLatinoVivo">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── CORSO PAGE STYLES ───────────────────────────────── */
+
+    /* Hero */
+    .corso-hero {
+      background: linear-gradient(135deg, #15080e 0%, #2a0d18 100%);
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .corso-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 40% 50%, rgba(160,26,54,.15), transparent);
+      pointer-events: none;
+    }
+    .corso-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .corso-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: rgba(250,248,245,.45);
+      margin-bottom: 1.5rem;
+    }
+    .corso-breadcrumb a {
+      color: rgba(250,248,245,.45);
+      text-decoration: none;
+    }
+    .corso-breadcrumb a:hover { color: var(--gold); }
+    .corso-breadcrumb-sep { font-size: .6rem; }
+    .corso-hero-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: start;
+    }
+    /* Language badge in hero */
+    .corso-lang-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .3rem .8rem;
+      border-radius: 2rem;
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .corso-lang-badge.latino { background: rgba(160,26,54,.3); color: #f5a0b0; }
+    .corso-lang-badge.greco { background: rgba(39,85,163,.3); color: #a0b8f5; }
+    .corso-lang-badge.egiziano { background: rgba(194,122,0,.3); color: #f5d0a0; }
+    .corso-lang-badge.ebraico { background: rgba(46,139,90,.3); color: #a0f5c0; }
+    /* Title */
+    .corso-hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 3.5vw, 2.6rem);
+      font-weight: 700;
+      color: #faf8f5;
+      line-height: 1.15;
+      margin-bottom: .75rem;
+    }
+    .corso-hero-subtitle {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: rgba(250,248,245,.7);
+      line-height: 1.65;
+      margin-bottom: 1.25rem;
+      max-width: 560px;
+    }
+    /* Meta row */
+    .corso-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem 1.5rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .corso-meta-item {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: var(--font-body);
+      font-size: .82rem;
+      color: rgba(250,248,245,.65);
+    }
+    .corso-meta-item strong { color: #faf8f5; }
+    /* Rating stars */
+    .corso-rating {
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+    .corso-stars { color: var(--gold); font-size: .85rem; letter-spacing: .05em; }
+    .corso-rating-num { font-family: var(--font-body); font-size: .88rem; color: var(--gold); font-weight: 600; }
+    .corso-rating-count { font-family: var(--font-body); font-size: .78rem; color: rgba(250,248,245,.4); }
+    /* Docente */
+    .corso-docente-row {
+      display: flex;
+      align-items: center;
+      gap: .6rem;
+    }
+    .corso-docente-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-body);
+      font-size: .65rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .corso-docente-name {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      color: rgba(250,248,245,.75);
+    }
+    /* Hero tags */
+    .corso-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+      margin-top: .75rem;
+    }
+    .corso-tag {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(250,248,245,.7);
+      font-family: var(--font-body);
+      font-size: .72rem;
+      padding: .2rem .6rem;
+      border-radius: 1rem;
+    }
+
+    /* ── STICKY SIDEBAR CARD ─────────────────────────────── */
+    .corso-hero-cta {
+      flex-shrink: 0;
+      width: 300px;
+    }
+    .cta-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      backdrop-filter: blur(12px);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .cta-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--js-corso-gradient, linear-gradient(135deg, #7b2832, #a01a36));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+    }
+    .cta-thumb-play {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,.3);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .cta-thumb-play:hover { background: rgba(0,0,0,.2); }
+    .cta-thumb-play-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .cta-body { padding: 1.25rem; }
+    .cta-price {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #faf8f5;
+      margin-bottom: .25rem;
+    }
+    .cta-price-sub {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: rgba(250,248,245,.5);
+      margin-bottom: 1.25rem;
+    }
+    .cta-btn-main {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), #c42040);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: .9rem;
+      font-family: var(--font-body);
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      margin-bottom: .75rem;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 16px rgba(160,26,54,.35);
+    }
+    .cta-btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(160,26,54,.45); }
+    .cta-btn-secondary {
+      width: 100%;
+      background: transparent;
+      color: rgba(250,248,245,.8);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--radius);
+      padding: .75rem;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+      transition: border-color .2s;
+    }
+    .cta-btn-secondary:hover { border-color: rgba(255,255,255,.4); }
+    .cta-include {
+      margin-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 1rem;
+    }
+    .cta-include-title {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(250,248,245,.4);
+      margin-bottom: .75rem;
+    }
+    .cta-include-item {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-family: var(--font-body);
+      font-size: .8rem;
+      color: rgba(250,248,245,.7);
+      padding: .25rem 0;
+    }
+    .cta-include-icon { font-size: .9rem; }
+
+    /* ── BODY (65/35) ────────────────────────────────────── */
+    .corso-body {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 2.5rem;
+      align-items: start;
+    }
+    .corso-content { min-width: 0; }
+
+    /* TABS */
+    .corso-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    .corso-tab {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--text-500);
+      padding: .75rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color .15s;
+    }
+    .corso-tab:hover { color: var(--text-900); }
+    .corso-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+    /* TAB PANELS */
+    .corso-tab-panel { display: none; }
+    .corso-tab-panel.active { display: block; }
+
+    /* OBIETTIVI */
+    .obiettivi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    .obiettivo-item {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--text-700);
+      line-height: 1.5;
+    }
+    .obiettivo-item::before { content: '✓'; color: #1e7e34; font-weight: 700; flex-shrink: 0; margin-top: .05rem; }
+
+    /* REQUISITI */
+    .requisiti-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 2rem;
+    }
+    .requisiti-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .6rem;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--text-600);
+      padding: .35rem 0;
+      line-height: 1.5;
+    }
+    .requisiti-list li::before { content: '→'; color: var(--text-300); flex-shrink: 0; }
+
+    /* DESCRIZIONE */
+    .corso-desc {
+      font-family: var(--font-body);
+      font-size: .92rem;
+      color: var(--text-700);
+      line-height: 1.75;
+    }
+    .corso-desc h3 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin: 1.5rem 0 .5rem;
+    }
+    .corso-desc p { margin-bottom: 1rem; }
+
+    /* PROGRAMMA (lezioni) */
+    .lezioni-section-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 1rem;
+    }
+    .lezioni-meta {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      color: var(--text-400);
+      margin-bottom: 1.25rem;
+    }
+    .lezioni-accordion { }
+    .lezione-group {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: .75rem;
+    }
+    .lezione-group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      background: var(--bg-section);
+      cursor: pointer;
+      gap: 1rem;
+    }
+    .lezione-group-title {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--text-900);
+    }
+    .lezione-group-meta {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      color: var(--text-400);
+      white-space: nowrap;
+    }
+    .lezione-group-chevron {
+      font-size: .75rem;
+      color: var(--text-400);
+      transition: transform .25s;
+      flex-shrink: 0;
+    }
+    .lezione-group.open .lezione-group-chevron { transform: rotate(180deg); }
+    .lezione-group-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .lezione-group.open .lezione-group-body { max-height: 2000px; }
+    .lezione-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem 1.25rem;
+      border-top: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .lezione-item:hover { background: var(--primary-50); }
+    .lezione-item.locked { opacity: .6; cursor: default; }
+    .lezione-item.locked:hover { background: none; }
+    .lezione-item-icon { font-size: .95rem; flex-shrink: 0; color: var(--text-400); }
+    .lezione-item.playing .lezione-item-icon { color: var(--primary); }
+    .lezione-item-title {
+      flex: 1;
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-800);
+    }
+    .lezione-item.playing .lezione-item-title { color: var(--primary); font-weight: 600; }
+    .lezione-item-dur {
+      font-family: var(--font-body);
+      font-size: .75rem;
+      color: var(--text-300);
+    }
+    .lezione-item-free {
+      font-family: var(--font-body);
+      font-size: .65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      background: #e6f4ea;
+      color: #1e7e34;
+      padding: .1rem .4rem;
+      border-radius: .5rem;
+    }
+
+    /* DOCENTE PANEL */
+    .docente-profile {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .docente-profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-100), var(--primary-200));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      border: 2px solid var(--primary-200);
+    }
+    .docente-profile-info { flex: 1; }
+    .docente-profile-name {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .25rem;
+    }
+    .docente-profile-title {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--primary);
+      font-weight: 500;
+      margin-bottom: .75rem;
+    }
+    .docente-profile-bio {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-600);
+      line-height: 1.65;
+    }
+
+    /* SIDEBAR STICKY */
+    .corso-sidebar {
+      position: sticky;
+      top: calc(var(--nav-h, 64px) + 1rem);
+    }
+    .sidebar-progress-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .sidebar-progress-title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .35rem;
+    }
+    .sidebar-progress-sub {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: var(--text-400);
+      margin-bottom: 1rem;
+    }
+    .sidebar-progress-bar-wrap {
+      height: 8px;
+      background: var(--bg-section);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: .4rem;
+    }
+    .sidebar-progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+      transition: width .5s ease;
+    }
+    .sidebar-progress-pct {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: var(--text-400);
+    }
+    .sidebar-continue-btn {
+      width: 100%;
+      display: block;
+      text-align: center;
+      background: linear-gradient(135deg, var(--primary), #c42040);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: .75rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: .88rem;
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 1rem;
+      transition: transform .15s;
+    }
+    .sidebar-continue-btn:hover { transform: translateY(-2px); }
+    /* Corsi correlati */
+    .sidebar-related-title {
+      font-family: var(--font-heading);
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 1rem;
+    }
+    .sidebar-related-item {
+      display: flex;
+      gap: .75rem;
+      align-items: center;
+      padding: .6rem 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .sidebar-related-item:last-child { border-bottom: none; }
+    .sidebar-related-thumb {
+      width: 52px;
+      height: 40px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .sidebar-related-info { flex: 1; min-width: 0; }
+    .sidebar-related-name {
+      font-family: var(--font-body);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--text-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sidebar-related-meta {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      color: var(--text-400);
+    }
+
+    /* ── VIDEO PLAYER ────────────────────────────────────── */
+    .video-player-wrap {
+      background: #000;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      position: relative;
+      aspect-ratio: 16/9;
+    }
+    .video-player-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .video-player-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #15080e, #2a0d18);
+      color: rgba(250,248,245,.7);
+      gap: 1rem;
+    }
+    .video-player-placeholder .play-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      border: 2px solid rgba(255,255,255,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .video-player-placeholder .play-icon:hover { background: rgba(255,255,255,.25); }
+    .video-player-placeholder p {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: rgba(250,248,245,.5);
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 1100px) {
+      .corso-hero-grid { grid-template-columns: 1fr; }
+      .corso-hero-cta { display: none; }
+      .corso-body { grid-template-columns: 1fr; }
+      .corso-sidebar { position: static; }
+    }
+    @media (max-width: 900px) {
+      .obiettivi-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 640px) {
+      .corso-hero { padding: 3rem 1rem 2rem; }
+      .corso-body { padding: 1.5rem 1rem; }
+      .corso-meta-row { gap: .75rem 1rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ── NAV ──────────────────────────────────────────────────── -->
-  <nav class="glv-nav">
-    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
-    <div class="nav-links">
-      <a href="catalogo.html"><i class="fas fa-arrow-left" style="font-size:11px; margin-right:4px;"></i> Catalogo</a>
-      <a href="dashboard.html">Dashboard</a>
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<nav class="glv-nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-icon">📜</span>
+      <span>GrecoLatinoVivo</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="catalogo.html" class="nav-link">← Catalogo</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
     </div>
-    <div class="nav-right">
-      <div class="nav-avatar">M</div>
-      <button class="btn btn-ghost btn-sm" data-logout>Esci</button>
-    </div>
-  </nav>
-
-  <!-- ── HERO CORSO ────────────────────────────────────────────── -->
-  <section style="position:relative; padding-top:var(--nav-height); overflow:hidden;">
-    <!-- Gradient di sfondo categoria -->
-    <div id="corso-hero-color" style="position:absolute; inset:0; opacity:.15; background:linear-gradient(135deg,#7b0d1e 0%,#a01a36 100%);"></div>
-    <!-- Overlay chiaro (sfuma verso bg-base) -->
-    <div style="position:absolute; inset:0; background:linear-gradient(0deg, #f4f4f4 0%, transparent 70%);"></div>
-
-    <div class="corso-hero">
-      <!-- Colonna sinistra -->
-      <div>
-        <div class="corso-lang-badge">
-          <div class="corso-lang-dot"></div>
-          <span class="js-corso-lang">Latino</span>
-        </div>
-        <h1 class="js-corso-title">Latino A1.1 – Principianti</h1>
-        <div class="corso-meta-row">
-          <div class="corso-meta-item">
-            <i class="fas fa-layer-group"></i>
-            <span class="js-corso-level">A1.1 · Principianti</span>
-          </div>
-          <div class="corso-meta-item">
-            <i class="fas fa-play-circle"></i>
-            <span class="js-corso-lessons">24</span> lezioni
-          </div>
-          <div class="corso-meta-item">
-            <i class="fas fa-clock"></i>
-            <span class="js-corso-hours">18</span> ore
-          </div>
-          <div class="corso-meta-item">
-            <i class="fas fa-star" style="color:var(--gold);"></i>
-            4.9/5 (127 recensioni)
-          </div>
-          <div class="corso-meta-item">
-            <i class="fas fa-user-tie"></i>
-            <span class="js-corso-teacher">—</span>
-          </div>
-        </div>
-        <p class="js-corso-desc" style="color:var(--text-secondary); font-size:16px; line-height:1.7; max-width:560px; margin-bottom:24px;">
-          Parti da zero e scopri le basi della lingua latina. Morfologia nominale, i casi, il verbo esse.
-        </p>
-        <div class="corso-tags">
-          <span class="corso-tag">Principianti</span>
-          <span class="corso-tag">Morfologia</span>
-          <span class="corso-tag">Sintassi di base</span>
-          <span class="corso-tag">Traduzione</span>
-        </div>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost" id="btnLogin">Accedi</a>
+      <div class="nav-avatar" id="navAvatar" style="display:none">
+        <div class="nav-avatar-initials" id="navInitials">?</div>
       </div>
-
-      <!-- Colonna destra: CTA card -->
-      <div class="corso-cta-card">
-        <div class="corso-cta-thumb" id="corso-thumb" style="background:linear-gradient(135deg,#7b0d1e 0%,#a01a36 100%);">
-          <div class="corso-cta-play">
-            <i class="fas fa-play"></i>
-          </div>
-        </div>
-        <p class="corso-price"><span class="js-corso-price">130 €</span></p>
-        <p class="corso-price-sub">oppure incluso nell'abbonamento da €5,90/mese (piano Cultura)</p>
-        <button class="btn btn-primary btn-full" onclick="goToCourse('lat-a11')">&#9654; Accedi al corso</button>
-        <button class="btn btn-outline btn-full" style="margin-top:10px;">Abbonamento — accesso a tutto il catalogo</button>
-        <div class="corso-cta-divider"></div>
-        <ul class="corso-includes">
-          <li><i class="fas fa-check-circle"></i> Accesso a vita al corso acquistato</li>
-          <li><i class="fas fa-check-circle"></i> 24 video-lezioni HD</li>
-          <li><i class="fas fa-check-circle"></i> Materiali scaricabili inclusi</li>
-          <li><i class="fas fa-check-circle"></i> Fattura elettronica</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── COSA IMPARERAI ────────────────────────────────────────── -->
-  <section style="padding:0 48px 40px;">
-    <h3 style="margin-bottom:16px;">Contenuti del corso</h3>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        Le declinazioni latine (1ª–3ª)
-      </div>
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        Il sistema verbale: presente e imperfetto
-      </div>
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        I casi e le loro funzioni sintattiche
-      </div>
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        Vocabolario di base (500 lemmi)
-      </div>
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        Lettura di testi latini autentici adattati
-      </div>
-      <div style="display:flex; align-items:flex-start; gap:10px; font-size:14px; color:var(--text-secondary);">
-        <i class="fas fa-check" style="color:var(--accent); margin-top:3px; flex-shrink:0;"></i>
-        Traduzione guidata frase per frase
-      </div>
-    </div>
-
-    <h3 style="margin-top:32px; margin-bottom:12px;">A chi è rivolto</h3>
-    <p style="color:var(--text-secondary); max-width:640px; line-height:1.7;">
-      Il corso è destinato a chi si avvicina al latino per la prima volta, o a chi desidera riprendere lo studio dalle fondamenta con un metodo strutturato e aggiornato. Non sono richieste conoscenze pregresse.
-    </p>
-  </section>
-
-  <!-- ── VIDEO PLAYER ─────────────────────────────────────────── -->
-  <section id="video-player-section" style="display:none; padding:0 48px 32px;">
-    <!-- Barra di avanzamento del corso sopra il player -->
-    <div id="course-progress-bar-wrap" style="display:none; margin-bottom:12px;">
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-        <span style="font-size:12px; color:var(--text-muted);" id="progress-bar-label">0 / 0 lezioni completate</span>
-        <span style="font-size:12px; font-weight:700; color:var(--accent);" id="progress-bar-pct">0%</span>
-      </div>
-      <div style="height:4px; background:#e0e0e0; border-radius:2px;">
-        <div id="progress-bar-fill" style="width:0%; height:100%; background:var(--accent); border-radius:2px; transition:width .5s;"></div>
-      </div>
-    </div>
-
-    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; background:#000; box-shadow:0 8px 32px rgba(0,0,0,.25);">
-      <iframe id="vimeo-iframe"
-        src=""
-        style="position:absolute; top:0; left:0; width:100%; height:100%; border:none;"
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowfullscreen>
-      </iframe>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-top:12px; flex-wrap:wrap; gap:8px;">
-      <div>
-        <div id="video-player-title" style="font-size:14px; font-weight:600; color:var(--text-primary);"></div>
-        <div id="video-player-status" style="font-size:12px; color:var(--text-muted); margin-top:2px;"></div>
-      </div>
-      <button onclick="closePlayer()"
-        style="font-size:12px; color:var(--text-muted); background:none; border:none; cursor:pointer; padding:0;">
-        <i class="fas fa-times"></i> Chiudi player
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
       </button>
     </div>
-  </section>
+  </div>
+</nav>
 
-  <!-- ── LEZIONI ───────────────────────────────────────────────── -->
-  <section class="lessons-section">
-    <div style="display:flex; align-items:baseline; gap:12px; margin-bottom:8px;">
-      <h3>Programma del corso</h3>
-      <span class="text-muted" style="font-size:13px;" id="lessons-count-label">(24 lezioni · 18 ore)</span>
+<!-- ══ HERO ════════════════════════════════════════════ -->
+<header class="corso-hero">
+  <div class="corso-hero-inner">
+    <div class="corso-breadcrumb">
+      <a href="catalogo.html">Catalogo</a>
+      <span class="corso-breadcrumb-sep">›</span>
+      <span class="js-corso-lingua">Latino</span>
+      <span class="corso-breadcrumb-sep">›</span>
+      <span class="js-corso-titolo">Caricamento…</span>
     </div>
-    <p style="font-size:13px; color:var(--accent); margin-bottom:20px;">
-      La prima lezione è accessibile gratuitamente in anteprima.
-    </p>
-    <div id="lessons-list">
-      <!-- Popolato da JS initCorsoPage -->
-    </div>
-  </section>
+    <div class="corso-hero-grid">
+      <div class="corso-hero-content">
+        <div class="corso-lang-badge js-corso-lang-badge latino">🏛️ Latino</div>
+        <h1 class="corso-hero-title js-corso-titolo">Caricamento corso…</h1>
+        <p class="corso-hero-subtitle js-corso-descrizione">Breve descrizione del corso in caricamento.</p>
 
-  <!-- ── DOCENTE ────────────────────────────────────────────────── -->
-  <section id="docente-section" style="padding:0 48px 60px;">
-    <h3 style="margin-bottom:20px;">Il docente</h3>
-    <div style="display:flex; gap:20px; align-items:flex-start;">
-      <div id="teacher-avatar" style="width:60px; height:60px; border-radius:50%; background:var(--accent); display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:800; flex-shrink:0; color:#000;">
-        <span class="js-corso-teacher-initials">?</span>
-      </div>
-      <div>
-        <h4 class="js-corso-teacher" style="margin-bottom:4px;">—</h4>
-        <p class="text-muted" style="font-size:12px;">Docente GrecoLatinoVivo</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── CORSI CORRELATI ───────────────────────────────────────── -->
-  <div class="section-row" style="padding-top:0;">
-    <h3 class="row-title" style="margin-bottom:14px;">Corsi correlati</h3>
-    <div class="courses-row">
-
-      <!-- Latino A1.2 -->
-      <div class="course-card" onclick="goToCourse('lat-a12')">
-        <div class="card-thumb">
-          <div class="card-thumb-gradient" style="background:linear-gradient(135deg,#7b0d1e 0%,#a01a36 100%);">
-            <span class="card-thumb-lang">Latino</span>
-            <span class="card-thumb-level">A1.2</span>
+        <div class="corso-meta-row">
+          <div class="corso-rating">
+            <span class="corso-stars">★★★★★</span>
+            <span class="corso-rating-num js-corso-voto">4.9</span>
+            <span class="corso-rating-count js-corso-recensioni">(128 recensioni)</span>
+          </div>
+          <div class="corso-meta-item">
+            🎓 <span class="js-corso-livello">Livello base</span>
+          </div>
+          <div class="corso-meta-item">
+            🕐 <strong class="js-corso-durata">—</strong>
+          </div>
+          <div class="corso-meta-item">
+            📹 <strong class="js-corso-nlezioni">—</strong> lezioni
           </div>
         </div>
-        <div class="card-info">
-          <div class="card-info-inner">
-            <div class="card-title">Latino A1.2 – Principianti II</div>
-            <div class="card-meta">
-              <span class="card-badge badge-lang">Latino</span>
-              <span class="card-badge badge-level">A1.2</span>
-            </div>
-            <div class="card-desc">Consolida le basi e affronta le prime strutture sintattiche del periodo.</div>
-            <div class="card-actions">
-              <button class="card-btn-play" title="Inizia"><i class="fas fa-play"></i></button>
-              <button class="card-btn-add" title="Aggiungi alla lista"><i class="fas fa-plus"></i></button>
-            </div>
-          </div>
+
+        <div class="corso-docente-row">
+          <div class="corso-docente-avatar js-corso-avatar-initials">P</div>
+          <span class="corso-docente-name">Docente: <strong class="js-corso-docente">—</strong></span>
+        </div>
+
+        <div class="corso-tags js-corso-tags">
+          <!-- tags dinamici -->
         </div>
       </div>
 
-      <!-- Greco Antico A1.1 -->
-      <div class="course-card" onclick="goToCourse('gr-a11')">
-        <div class="card-thumb">
-          <div class="card-thumb-gradient" style="background:linear-gradient(135deg,#1a237e 0%,#3f51b5 100%);">
-            <span class="card-thumb-lang">Greco Antico</span>
-            <span class="card-thumb-level">A1.1</span>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-info-inner">
-            <div class="card-title">Greco Antico A1.1 – Principianti</div>
-            <div class="card-meta">
-              <span class="card-badge badge-lang">Greco Antico</span>
-              <span class="card-badge badge-level">A1.1</span>
+      <!-- Hero CTA Card (visibile solo desktop) -->
+      <div class="corso-hero-cta">
+        <div class="cta-card">
+          <div class="cta-thumb js-corso-thumb-gradient">
+            <span class="js-corso-emoji" style="font-size:3rem">🏛️</span>
+            <div class="cta-thumb-play" id="heroPlayBtn">
+              <div class="cta-thumb-play-btn">▶</div>
             </div>
-            <div class="card-desc">L'alfabeto greco, la pronuncia restituita, le prime declinazioni e coniugazioni.</div>
-            <div class="card-actions">
-              <button class="card-btn-play" title="Inizia"><i class="fas fa-play"></i></button>
-              <button class="card-btn-add" title="Aggiungi alla lista"><i class="fas fa-plus"></i></button>
+          </div>
+          <div class="cta-body">
+            <div class="cta-price js-cta-price">Incluso</div>
+            <div class="cta-price-sub">nel tuo abbonamento Linguae</div>
+            <a href="#" class="cta-btn-main js-cta-main-btn" id="ctaMainBtn">▶ Inizia il corso</a>
+            <a href="index.html#prezzi" class="cta-btn-secondary js-cta-secondary-btn" id="ctaSecondaryBtn" style="display:none">Abbonati per accedere</a>
+            <div class="cta-include">
+              <div class="cta-include-title">Incluso nel corso</div>
+              <div class="cta-include-item"><span class="cta-include-icon">📹</span> <span class="js-corso-nlezioni">—</span> video-lezioni</div>
+              <div class="cta-include-item"><span class="cta-include-icon">📄</span> Materiali scaricabili</div>
+              <div class="cta-include-item"><span class="cta-include-icon">🏅</span> Attestato di completamento</div>
+              <div class="cta-include-item"><span class="cta-include-icon">♾️</span> Accesso illimitato</div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Egiziano A1.1 -->
-      <div class="course-card" onclick="goToCourse('eg-a11')">
-        <div class="card-thumb">
-          <div class="card-thumb-gradient" style="background:linear-gradient(135deg,#bf360c 0%,#ff6d00 100%);">
-            <span class="card-thumb-lang">Egiziano Geroglifico</span>
-            <span class="card-thumb-level">A1.1</span>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-info-inner">
-            <div class="card-title">Egiziano A1.1 – Principianti</div>
-            <div class="card-meta">
-              <span class="card-badge badge-lang">Egiziano Geroglifico</span>
-              <span class="card-badge badge-level">A1.1</span>
-            </div>
-            <div class="card-desc">I geroglifici: sistema di scrittura, logogrammi e fonogrammi.</div>
-            <div class="card-actions">
-              <button class="card-btn-play" title="Inizia"><i class="fas fa-play"></i></button>
-              <button class="card-btn-add" title="Aggiungi alla lista"><i class="fas fa-plus"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Ebraico Biblico A1.1 -->
-      <div class="course-card" onclick="goToCourse('eb-a11')">
-        <div class="card-thumb">
-          <div class="card-thumb-gradient" style="background:linear-gradient(135deg,#1b5e20 0%,#388e3c 100%);">
-            <span class="card-thumb-lang">Ebraico Biblico</span>
-            <span class="card-thumb-level">A1.1</span>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-info-inner">
-            <div class="card-title">Ebraico A1.1 – Principianti</div>
-            <div class="card-meta">
-              <span class="card-badge badge-lang">Ebraico Biblico</span>
-              <span class="card-badge badge-level">A1.1</span>
-            </div>
-            <div class="card-desc">L'alfabeto ebraico, la scrittura da destra a sinistra, le vocali masoretiche.</div>
-            <div class="card-actions">
-              <button class="card-btn-play" title="Inizia"><i class="fas fa-play"></i></button>
-              <button class="card-btn-add" title="Aggiungi alla lista"><i class="fas fa-plus"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Didattica 01 -->
-      <div class="course-card" onclick="goToCourse('did-01')">
-        <div class="card-thumb">
-          <div class="card-thumb-gradient" style="background:linear-gradient(135deg,#4a148c 0%,#7b1fa2 100%);">
-            <span class="card-thumb-lang">Didattica</span>
-            <span class="card-thumb-level">Modulo 1</span>
-          </div>
-        </div>
-        <div class="card-info">
-          <div class="card-info-inner">
-            <div class="card-title">Metodologia del Latino vivo</div>
-            <div class="card-meta">
-              <span class="card-badge badge-lang">Didattica</span>
-              <span class="card-badge badge-level">Modulo 1</span>
-            </div>
-            <div class="card-desc">Il metodo diretto applicato al latino: storia, presupposti teorici, strumenti pratici.</div>
-            <div class="card-actions">
-              <button class="card-btn-play" title="Inizia"><i class="fas fa-play"></i></button>
-              <button class="card-btn-add" title="Aggiungi alla lista"><i class="fas fa-plus"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
+</header>
 
-  <!-- ── FOOTER ────────────────────────────────────────────────── -->
-  <footer class="glv-footer">
-    <div class="footer-bottom">
-      <p>&copy; 2025 GrecoLatinoVivo. Tutti i diritti riservati.</p>
-      <p>portale.grecolatinovivo.it</p>
+<!-- ══ CORSO BODY ═══════════════════════════════════════ -->
+<div class="corso-body">
+
+  <!-- ── CONTENT ─────────────────────────────────────── -->
+  <div class="corso-content">
+
+    <!-- TABS -->
+    <div class="corso-tabs">
+      <div class="corso-tab active" data-tab="overview">Panoramica</div>
+      <div class="corso-tab" data-tab="programma">Programma</div>
+      <div class="corso-tab" data-tab="docente">Docente</div>
+      <div class="corso-tab" data-tab="player" id="tabPlayer" style="display:none">▶ Guarda ora</div>
     </div>
-  </footer>
 
-  <!-- Vimeo Player SDK per il tracking -->
-  <script src="https://player.vimeo.com/api/player.js"></script>
-  <script src="js/app.js"></script>
-  <script>
-    // Sovrascrive playLesson di app.js per iniettare il tracking Vimeo
-    // Viene eseguito dopo il caricamento di app.js
-    (function() {
-      var _origPlayLesson = window.playLesson;
-      window.playLesson = function(vimeoUrl, title, isPreview, lessonId, resumeAt) {
-        // Chiama prima la funzione originale (gestisce preview overlay, ecc.)
-        _origPlayLesson(vimeoUrl, title, isPreview, lessonId, resumeAt || 0);
-        // Poi aggancia il tracking se abbiamo un lessonId
-        if (lessonId) {
-          // Cerca il resume point dal progresso già caricato
-          var lp = window.GLV_LESSON_PROGRESS && window.GLV_LESSON_PROGRESS[lessonId];
-          var resume = resumeAt || (lp && lp.resumeAt) || 0;
-          openLessonWithTracking(lessonId, vimeoUrl, title, resume);
-        }
-      };
-    })();
-  </script>
-  <script>
-    document.documentElement.style.visibility = 'hidden';
+    <!-- OVERVIEW TAB -->
+    <div class="corso-tab-panel active" id="panel-overview">
+      <div class="lezioni-section-title">Cosa imparerai</div>
+      <div class="obiettivi-grid js-corso-obiettivi">
+        <div class="obiettivo-item">Basi grammaticali della lingua</div>
+        <div class="obiettivo-item">Vocabolario fondamentale</div>
+        <div class="obiettivo-item">Lettura di testi semplici</div>
+        <div class="obiettivo-item">Comprensione della fonetica</div>
+        <div class="obiettivo-item">Struttura delle frasi principali</div>
+        <div class="obiettivo-item">Contesto storico e culturale</div>
+      </div>
 
-    // ── STATO GLOBALE TRACKING ─────────────────────────────────
-    var GLV_TRACKING = {
-      player:         null,   // istanza Vimeo.Player
-      lessonId:       null,   // ID DB della lezione corrente
-      courseId:       null,   // ID DB del corso corrente (slug usato per API)
-      courseSlug:     null,
-      saveInterval:   null,   // timer per salvataggio ogni 10s
-      totalSeconds:   0,
-      isSaving:       false,
-    };
+      <div class="lezioni-section-title" style="margin-top:2rem">Requisiti</div>
+      <ul class="requisiti-list js-corso-requisiti">
+        <li>Nessuna conoscenza pregressa richiesta</li>
+        <li>Accesso a un computer o tablet</li>
+        <li>Voglia di imparare e curiosità culturale</li>
+      </ul>
 
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('/api/auth/me')
-        .then(function (res) {
-          if (res.status === 401) { window.location.href = '/'; return null; }
-          if (!res.ok) { window.location.href = '/'; return null; }
-          return res.json();
-        })
-        .then(function (data) {
-          if (!data) return;
-          document.documentElement.style.visibility = '';
-          window.GLV_USER = data.user;
+      <div class="lezioni-section-title" style="margin-top:2rem">Descrizione</div>
+      <div class="corso-desc js-corso-descrizione-long">
+        <p>Questo corso è progettato per guidarti passo dopo passo attraverso i fondamenti della lingua, con un approccio metodico e accademicamente rigoroso. Ogni lezione combina teoria, esempi testuali e esercizi pratici.</p>
+        <h3>Per chi è questo corso?</h3>
+        <p>Il corso è adatto a studenti universitari, appassionati di cultura classica, insegnanti di scuola secondaria e chiunque voglia avvicinarsi alla lingua in modo serio e strutturato.</p>
+      </div>
+    </div>
 
-          var avatar = document.querySelector('.nav-avatar');
-          if (avatar && data.user) {
-            var name = data.user.fullName || data.user.email || '';
-            avatar.textContent = name.charAt(0).toUpperCase();
-          }
+    <!-- PROGRAMMA TAB -->
+    <div class="corso-tab-panel" id="panel-programma">
+      <div class="lezioni-section-title">Programma del corso</div>
+      <div class="lezioni-meta js-corso-lezioni-meta">Caricamento programma…</div>
+      <div class="lezioni-accordion js-lezioni-accordion" id="lessonList">
+        <!-- app.js popola qui le lezioni -->
+        <div class="lezione-group open">
+          <div class="lezione-group-header">
+            <span class="lezione-group-title">Modulo 1 — Introduzione</span>
+            <span class="lezione-group-meta">3 lezioni · 45 min</span>
+            <span class="lezione-group-chevron">▾</span>
+          </div>
+          <div class="lezione-group-body">
+            <div class="lezione-item" data-url="#">
+              <span class="lezione-item-icon">▶</span>
+              <span class="lezione-item-title">Presentazione del corso</span>
+              <span class="lezione-item-free">Gratis</span>
+              <span class="lezione-item-dur">5:30</span>
+            </div>
+            <div class="lezione-item" data-url="#">
+              <span class="lezione-item-icon">▶</span>
+              <span class="lezione-item-title">Storia e contesto culturale</span>
+              <span class="lezione-item-dur">18:20</span>
+            </div>
+            <div class="lezione-item locked" data-url="#">
+              <span class="lezione-item-icon">🔒</span>
+              <span class="lezione-item-title">L'alfabeto e la fonetica</span>
+              <span class="lezione-item-dur">22:10</span>
+            </div>
+          </div>
+        </div>
+        <div class="lezione-group">
+          <div class="lezione-group-header">
+            <span class="lezione-group-title">Modulo 2 — Grammatica base</span>
+            <span class="lezione-group-meta">5 lezioni · 1h 30 min</span>
+            <span class="lezione-group-chevron">▾</span>
+          </div>
+          <div class="lezione-group-body">
+            <div class="lezione-item locked" data-url="#">
+              <span class="lezione-item-icon">🔒</span>
+              <span class="lezione-item-title">Le declinazioni nominali</span>
+              <span class="lezione-item-dur">25:00</span>
+            </div>
+            <div class="lezione-item locked" data-url="#">
+              <span class="lezione-item-icon">🔒</span>
+              <span class="lezione-item-title">I casi e le loro funzioni</span>
+              <span class="lezione-item-dur">28:15</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          if (data.user && !data.user.subscription) {
-            var banner = document.createElement('div');
-            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
-            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
-            document.body.insertBefore(banner, document.body.firstChild);
-          }
+    <!-- DOCENTE TAB -->
+    <div class="corso-tab-panel" id="panel-docente">
+      <div class="docente-profile">
+        <div class="docente-profile-avatar js-corso-docente-emoji">🏛️</div>
+        <div class="docente-profile-info">
+          <div class="docente-profile-name js-corso-docente">—</div>
+          <div class="docente-profile-title js-corso-docente-titolo">Professore Universitario</div>
+          <div class="docente-profile-bio js-corso-docente-bio">
+            Docente specializzato con anni di esperienza nell'insegnamento universitario. Ha partecipato a numerosi progetti di ricerca e pubblicazioni internazionali nel suo campo.
+          </div>
+        </div>
+      </div>
+    </div>
 
-          document.querySelectorAll('[data-logout]').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-              e.preventDefault();
-              fetch('/api/auth/logout', { method: 'POST' })
-                .finally(function () { window.location.href = '/'; });
-            });
-          });
+    <!-- PLAYER TAB -->
+    <div class="corso-tab-panel" id="panel-player">
+      <div class="video-player-wrap">
+        <video id="videoPlayer" controls style="display:none"></video>
+        <div class="video-player-placeholder" id="videoPlaceholder">
+          <div class="play-icon" id="videoPlayBtn">▶</div>
+          <p>Seleziona una lezione dal programma per iniziare</p>
+        </div>
+      </div>
+      <div id="currentLessonTitle" style="font-family:var(--font-body);font-size:.9rem;font-weight:600;color:var(--text-900);margin-bottom:.5rem;"></div>
+    </div>
 
-          // Carica progresso del corso corrente
-          var urlParams = new URLSearchParams(window.location.search);
-          var courseSlug = urlParams.get('id');
-          if (courseSlug) {
-            GLV_TRACKING.courseSlug = courseSlug;
-            loadCourseProgress(courseSlug);
-          }
-        })
-        .catch(function () { window.location.href = '/'; });
-    });
+  </div>
 
-    // ── CARICA PROGRESSO CORSO ─────────────────────────────────
-    function loadCourseProgress(slug) {
-      fetch('/api/progress/course/' + slug)
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .then(function(data) {
-          if (!data) return;
-          GLV_TRACKING.courseId = data.courseId;
+  <!-- ── SIDEBAR ─────────────────────────────────────── -->
+  <aside class="corso-sidebar" id="corsoSidebar">
 
-          // Aggiorna barra progresso
-          updateProgressBar(data.completedLessons, data.totalLessons, data.percent);
+    <!-- Progress (visibile se iscritto) -->
+    <div class="sidebar-progress-card js-progress-card" id="sidebarProgress" style="display:none">
+      <div class="sidebar-progress-title">Il tuo progresso</div>
+      <div class="sidebar-progress-sub js-progress-label">0 di 0 lezioni completate</div>
+      <div class="sidebar-progress-bar-wrap">
+        <div class="sidebar-progress-fill js-progress-fill" style="width:0%"></div>
+      </div>
+      <div class="sidebar-progress-pct js-progress-pct">0% completato</div>
+      <a href="#" class="sidebar-continue-btn js-continue-btn">▶ Continua il corso</a>
+    </div>
 
-          // Memorizza i dati di progresso per ogni lezione nel DOM
-          // (usati per mostrare il checkmark e il punto di ripresa)
-          window.GLV_LESSON_PROGRESS = {};
-          (data.lessons || []).forEach(function(lp) {
-            window.GLV_LESSON_PROGRESS[lp.id] = lp;
-          });
+    <!-- Corsi correlati -->
+    <div class="sidebar-progress-card">
+      <div class="sidebar-related-title">Corsi correlati</div>
+      <div id="relatedCourses">
+        <!-- app.js / JS popola qui -->
+        <div class="sidebar-related-item">
+          <div class="sidebar-related-thumb" style="background:linear-gradient(135deg,#7b2832,#a01a36)">🏛️</div>
+          <div class="sidebar-related-info">
+            <div class="sidebar-related-name">Latino A2 — Livello Elementare</div>
+            <div class="sidebar-related-meta">Latino · Intermedio</div>
+          </div>
+        </div>
+        <div class="sidebar-related-item">
+          <div class="sidebar-related-thumb" style="background:linear-gradient(135deg,#1a3a6b,#2755a3)">🏺</div>
+          <div class="sidebar-related-info">
+            <div class="sidebar-related-name">Greco Antico — Fondamenti</div>
+            <div class="sidebar-related-meta">Greco · Base</div>
+          </div>
+        </div>
+        <div class="sidebar-related-item">
+          <div class="sidebar-related-thumb" style="background:linear-gradient(135deg,#7a4a00,#c27a00)">𓂀</div>
+          <div class="sidebar-related-info">
+            <div class="sidebar-related-name">Egiziano — Introduzione</div>
+            <div class="sidebar-related-meta">Egiziano · Base</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          // Aggiorna visivamente l'elenco lezioni (check/progresso)
-          refreshLessonListUI();
-        })
-        .catch(function() { /* silently ignore */ });
-    }
+  </aside>
+</div>
 
-    function updateProgressBar(completed, total, pct) {
-      var wrap  = document.getElementById('course-progress-bar-wrap');
-      var fill  = document.getElementById('progress-bar-fill');
-      var label = document.getElementById('progress-bar-label');
-      var pctEl = document.getElementById('progress-bar-pct');
-      if (!wrap) return;
-      wrap.style.display = 'block';
-      if (fill)  fill.style.width = (pct || 0) + '%';
-      if (label) label.textContent = (completed || 0) + ' / ' + (total || 0) + ' lezioni completate';
-      if (pctEl) pctEl.textContent = (pct || 0) + '%';
-      // Cambia colore a verde quando completato
-      if (pct === 100 && fill) fill.style.background = '#34c759';
-    }
+<!-- ══ BOTTOM NAV MOBILE ═══════════════════════════════ -->
+<nav class="glv-bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">🏠</span>
+    <span>Home</span>
+  </a>
+  <a href="catalogo.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">📚</span>
+    <span>Catalogo</span>
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">📊</span>
+    <span>Dashboard</span>
+  </a>
+  <a href="profilo.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">👤</span>
+    <span>Profilo</span>
+  </a>
+</nav>
 
-    function refreshLessonListUI() {
-      if (!window.GLV_LESSON_PROGRESS) return;
-      document.querySelectorAll('[data-lesson-id]').forEach(function(el) {
-        var lid = el.getAttribute('data-lesson-id');
-        var lp  = window.GLV_LESSON_PROGRESS[lid];
-        if (!lp) return;
+<!-- ══ MOBILE STICKY CTA ════════════════════════════════ -->
+<div class="mobile-sticky-cta" id="mobileCta">
+  <a href="#" class="btn btn-primary" id="mobileCtaBtn" style="width:100%">▶ Inizia il corso</a>
+</div>
 
-        // Aggiunge badge "Completata" se lp.completed
-        var statusEl = el.querySelector('.lesson-status');
-        if (statusEl) {
-          if (lp.completed) {
-            statusEl.innerHTML = '<i class="fas fa-check-circle" style="color:#34c759;"></i>';
-          } else if (lp.watchedSeconds > 0) {
-            var pct = lp.percentWatched || 0;
-            statusEl.innerHTML = '<span style="font-size:11px;color:var(--accent);">' + pct + '%</span>';
-          }
-        }
-      });
-    }
+<script src="js/app.js"></script>
+<script>
+// ── NAVBAR ──────────────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+  // Show mobile CTA after scrolling past hero
+  const heroBtm = document.querySelector('.corso-hero').offsetHeight;
+  document.getElementById('mobileCta').classList.toggle('visible', window.scrollY > heroBtm - 80);
+});
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+  this.classList.toggle('open');
+});
 
-    // ── AVVIA PLAYER CON TRACKING ──────────────────────────────
-    function openLessonWithTracking(lessonId, vimeoUrl, lessonTitle, resumeAt) {
-      // Ferma il tracking precedente
-      stopTracking();
-
-      var section = document.getElementById('video-player-section');
-      var iframe  = document.getElementById('vimeo-iframe');
-      var titleEl = document.getElementById('video-player-title');
-      var statusEl = document.getElementById('video-player-status');
-
-      section.style.display = 'block';
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-      if (titleEl) titleEl.textContent = lessonTitle || 'Lezione';
-      if (statusEl) statusEl.textContent = '';
-
-      // Costruisce URL Vimeo con autoplay e resume
-      var vimeoId = extractVimeoId(vimeoUrl);
-      var src = vimeoId
-        ? 'https://player.vimeo.com/video/' + vimeoId + '?autoplay=1&api=1'
-        : vimeoUrl;
-
-      iframe.src = src;
-
-      GLV_TRACKING.lessonId = lessonId;
-
-      // Inizializza il Vimeo Player SDK
-      try {
-        GLV_TRACKING.player = new Vimeo.Player(iframe);
-        var player = GLV_TRACKING.player;
-
-        // Seek al punto di ripresa (dopo che il video è pronto)
-        player.ready().then(function() {
-          if (resumeAt && resumeAt > 5) {
-            player.setCurrentTime(resumeAt).catch(function() {});
-            if (statusEl) statusEl.textContent = 'Ripreso da ' + formatTime(resumeAt);
-          }
-          // Ottieni durata totale
-          player.getDuration().then(function(dur) {
-            GLV_TRACKING.totalSeconds = Math.round(dur || 0);
-          }).catch(function() {});
-        });
-
-        // Evento: video terminato → salva come completato
-        player.on('ended', function() {
-          if (statusEl) statusEl.textContent = '✓ Lezione completata!';
-          saveProgress(true);
-        });
-
-        // Evento: video in pausa → salva posizione
-        player.on('pause', function() {
-          saveProgress(false);
-        });
-
-        // Salvataggio periodico ogni 10 secondi durante la riproduzione
-        GLV_TRACKING.saveInterval = setInterval(function() {
-          if (!GLV_TRACKING.isSaving) {
-            saveProgress(false);
-          }
-        }, 10000);
-
-      } catch(e) {
-        console.warn('[GLV] Vimeo Player SDK non disponibile:', e);
+// ── AUTH ─────────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (r.ok) {
+      const u = await r.json();
+      if (u && u.email) {
+        document.getElementById('btnLogin').style.display = 'none';
+        const av = document.getElementById('navAvatar');
+        av.style.display = 'flex';
+        const initials = ((u.nome || '')[0] || '') + ((u.cognome || '')[0] || '') || u.email[0].toUpperCase();
+        document.getElementById('navInitials').textContent = initials;
+        // Show progress if subscribed
+        document.getElementById('sidebarProgress').style.display = 'block';
       }
     }
+  } catch(e) {}
+})();
 
-    // ── SALVA PROGRESSO AL SERVER ──────────────────────────────
-    function saveProgress(forceComplete) {
-      if (!GLV_TRACKING.lessonId || !GLV_TRACKING.courseSlug) return;
-      if (GLV_TRACKING.isSaving) return;
+// ── TABS ─────────────────────────────────────────────────
+document.querySelectorAll('.corso-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.corso-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.corso-tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab)?.classList.add('active');
+  });
+});
 
-      var player = GLV_TRACKING.player;
-      if (!player) return;
+// ── ACCORDION LEZIONI ────────────────────────────────────
+document.querySelectorAll('.lezione-group-header').forEach(header => {
+  header.addEventListener('click', () => {
+    header.closest('.lezione-group').classList.toggle('open');
+  });
+});
 
-      GLV_TRACKING.isSaving = true;
-
-      Promise.all([
-        player.getCurrentTime().catch(function() { return 0; }),
-        player.getDuration().catch(function() { return GLV_TRACKING.totalSeconds || 0; }),
-      ]).then(function(results) {
-        var currentTime = Math.round(results[0] || 0);
-        var duration    = Math.round(results[1] || GLV_TRACKING.totalSeconds || 0);
-        var watched     = forceComplete ? duration : currentTime;
-
-        return fetch('/api/progress/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            lessonId:       GLV_TRACKING.lessonId,
-            watchedSeconds: watched,
-            totalSeconds:   duration,
-            resumeAt:       currentTime,
-          }),
-        });
-      }).then(function(r) {
-        return r.ok ? r.json() : null;
-      }).then(function(data) {
-        GLV_TRACKING.isSaving = false;
-        if (!data) return;
-
-        // Aggiorna barra di avanzamento del corso
-        if (data.coursePercent !== undefined) {
-          loadCourseProgress(GLV_TRACKING.courseSlug);
-        }
-
-        // Se il corso è stato completato al 100% → mostra banner
-        if (data.courseCompleted && data.certificateIssued) {
-          showCertificateBanner(data.certCode);
-        }
-      }).catch(function() {
-        GLV_TRACKING.isSaving = false;
-      });
+// ── LESSON CLICK → PLAYER ────────────────────────────────
+document.querySelectorAll('.lezione-item:not(.locked)').forEach(item => {
+  item.addEventListener('click', () => {
+    const url = item.dataset.url;
+    const title = item.querySelector('.lezione-item-title').textContent;
+    // Show player tab
+    document.getElementById('tabPlayer').style.display = '';
+    document.querySelector('[data-tab="player"]').click();
+    document.getElementById('currentLessonTitle').textContent = title;
+    // Mark playing
+    document.querySelectorAll('.lezione-item').forEach(i => i.classList.remove('playing'));
+    item.classList.add('playing');
+    // Update video
+    const video = document.getElementById('videoPlayer');
+    if (url && url !== '#') {
+      video.src = url;
+      video.style.display = 'block';
+      document.getElementById('videoPlaceholder').style.display = 'none';
+      video.play().catch(() => {});
     }
+  });
+});
 
-    // ── BANNER ATTESTATO SBLOCCATO ─────────────────────────────
-    function showCertificateBanner(certCode) {
-      if (document.getElementById('cert-banner')) return;
-      var banner = document.createElement('div');
-      banner.id = 'cert-banner';
-      banner.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0d0d0d;color:#fff;border:2px solid #c9a84c;border-radius:12px;padding:20px 24px;z-index:10000;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,.3);font-family:Roboto,sans-serif;';
-      banner.innerHTML =
-        '<div style="display:flex;align-items:flex-start;gap:12px;">' +
-          '<span style="font-size:28px;">🏛</span>' +
-          '<div>' +
-            '<p style="font-weight:700;font-size:15px;margin-bottom:4px;color:#c9a84c;">Corso completato!</p>' +
-            '<p style="font-size:13px;color:#b3b3b3;margin-bottom:12px;">Il tuo attestato è pronto. Riceverai una email a breve.</p>' +
-            '<a href="/api/progress/certificate/' + GLV_TRACKING.courseSlug + '" ' +
-               'style="display:inline-block;background:#a01a36;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;">' +
-              '⬇ Scarica attestato' +
-            '</a>' +
-            '<button onclick="document.getElementById(\'cert-banner\').remove()" ' +
-              'style="display:block;margin-top:8px;color:#666;background:none;border:none;font-size:12px;cursor:pointer;padding:0;">Chiudi</button>' +
-          '</div>' +
-        '</div>';
-      document.body.appendChild(banner);
-    }
+// ── HERO PLAY BTN ────────────────────────────────────────
+document.getElementById('heroPlayBtn')?.addEventListener('click', () => {
+  document.getElementById('tabPlayer').style.display = '';
+  document.querySelector('[data-tab="player"]').click();
+});
 
-    // ── CHIUDI PLAYER ──────────────────────────────────────────
-    function closePlayer() {
-      saveProgress(false);
-      stopTracking();
-      var section = document.getElementById('video-player-section');
-      if (section) section.style.display = 'none';
-      var iframe = document.getElementById('vimeo-iframe');
-      if (iframe) iframe.src = '';
-    }
-
-    function stopTracking() {
-      if (GLV_TRACKING.saveInterval) {
-        clearInterval(GLV_TRACKING.saveInterval);
-        GLV_TRACKING.saveInterval = null;
-      }
-      if (GLV_TRACKING.player) {
-        try { GLV_TRACKING.player.off('ended'); GLV_TRACKING.player.off('pause'); } catch(e) {}
-        GLV_TRACKING.player = null;
-      }
-      GLV_TRACKING.lessonId = null;
-    }
-
-    // ── UTILITIES ──────────────────────────────────────────────
-    function extractVimeoId(url) {
-      if (!url) return null;
-      var m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-      return m ? m[1] : null;
-    }
-
-    function formatTime(secs) {
-      var m = Math.floor(secs / 60);
-      var s = Math.round(secs % 60);
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-
-    // Salva prima di uscire dalla pagina
-    window.addEventListener('beforeunload', function() {
-      saveProgress(false);
-    });
-  </script>
+// ── INIT CORSO PAGE (app.js) ─────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof initCorsoPage === 'function') {
+    initCorsoPage();
+  }
+});
+</script>
 </body>
 </html>

@@ -1,276 +1,1046 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Profilo | GrecoLatinoVivo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="description" content="Il tuo profilo su GrecoLatinoVivo — corsi, attestati e abbonamento.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── PROFILO PAGE STYLES ─────────────────────────────── */
+
+    /* Hero */
+    .profile-hero {
+      background: linear-gradient(135deg, #15080e 0%, #2a0d18 100%);
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .profile-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 50% 80% at 20% 50%, rgba(160,26,54,.12), transparent);
+      pointer-events: none;
+    }
+    .profile-hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+    .profile-avatar-big {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      border: 3px solid rgba(212,160,23,.4);
+      box-shadow: 0 0 0 6px rgba(212,160,23,.08);
+    }
+    .profile-hero-info { flex: 1; }
+    .profile-hero-name {
+      font-family: var(--font-heading);
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: #faf8f5;
+      margin-bottom: .25rem;
+      line-height: 1.2;
+    }
+    .profile-hero-email {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: rgba(250,248,245,.45);
+      margin-bottom: 1rem;
+    }
+    .profile-sub-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(212,160,23,.15);
+      border: 1px solid rgba(212,160,23,.3);
+      color: var(--gold);
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: .3rem .8rem;
+      border-radius: 2rem;
+      margin-bottom: 1.25rem;
+    }
+    .profile-sub-pill.free {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.15);
+      color: rgba(250,248,245,.6);
+    }
+    .profile-hero-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .profile-stat {
+      display: flex;
+      flex-direction: column;
+      gap: .15rem;
+    }
+    .profile-stat-num {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .profile-stat-label {
+      font-family: var(--font-body);
+      font-size: .7rem;
+      color: rgba(250,248,245,.45);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .profile-stat-sep {
+      width: 1px;
+      height: 36px;
+      background: rgba(255,255,255,.12);
+      align-self: center;
+    }
+    .profile-hero-actions {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+      flex-shrink: 0;
+    }
+
+    /* ── TAB NAV ─────────────────────────────────────────── */
+    .profile-tabs-bar {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: var(--nav-h, 64px);
+      z-index: 90;
+    }
+    .profile-tabs-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .profile-tab {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--text-500);
+      padding: 1rem 1.25rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      white-space: nowrap;
+      transition: color .15s;
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .profile-tab:hover { color: var(--text-900); }
+    .profile-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+    .profile-tab-badge {
+      background: var(--primary-50);
+      color: var(--primary);
+      font-size: .65rem;
+      font-weight: 700;
+      padding: .1rem .45rem;
+      border-radius: 1rem;
+    }
+
+    /* ── CONTENT ─────────────────────────────────────────── */
+    .profile-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem;
+    }
+    .profile-tab-panel { display: none; }
+    .profile-tab-panel.active { display: block; }
+
+    /* ── CORSI SECTION ───────────────────────────────────── */
+    .section-heading {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 1.25rem;
+    }
+    .profile-courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+    .profile-course-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .profile-course-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    .profile-course-thumb {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+    }
+    .profile-course-body { padding: 1rem; }
+    .profile-course-lang {
+      font-family: var(--font-body);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: .3rem;
+    }
+    .profile-course-title {
+      font-family: var(--font-heading);
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .6rem;
+      line-height: 1.3;
+    }
+    .profile-course-progress-bar {
+      height: 5px;
+      background: var(--bg-section);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: .35rem;
+    }
+    .profile-course-progress-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+    }
+    .profile-course-pct {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      color: var(--text-400);
+      display: flex;
+      justify-content: space-between;
+    }
+    .profile-course-actions {
+      display: flex;
+      gap: .5rem;
+      margin-top: .75rem;
+    }
+    .btn-course-continue {
+      flex: 1;
+      text-align: center;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: .5rem;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-course-continue:hover { background: #c42040; }
+    .btn-course-detail {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .5rem .75rem;
+      font-family: var(--font-body);
+      font-size: .75rem;
+      color: var(--text-600);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .15s;
+    }
+    .btn-course-detail:hover { border-color: var(--primary-300); color: var(--primary); }
+
+    /* ── ATTESTATI ───────────────────────────────────────── */
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .cert-card {
+      background: linear-gradient(135deg, #15080e, #2a0d18);
+      border: 1px solid rgba(212,160,23,.3);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .cert-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,.2);
+      border-color: rgba(212,160,23,.5);
+    }
+    .cert-card::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 120px; height: 120px;
+      background: radial-gradient(circle, rgba(212,160,23,.08), transparent);
+      pointer-events: none;
+    }
+    .cert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+    .cert-emoji { font-size: 2rem; }
+    .cert-badge {
+      background: rgba(212,160,23,.15);
+      border: 1px solid rgba(212,160,23,.3);
+      color: var(--gold);
+      font-family: var(--font-body);
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .2rem .55rem;
+      border-radius: 1rem;
+    }
+    .cert-title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #faf8f5;
+      margin-bottom: .35rem;
+      line-height: 1.3;
+    }
+    .cert-docente {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: rgba(250,248,245,.5);
+      margin-bottom: 1rem;
+    }
+    .cert-date {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      color: rgba(250,248,245,.35);
+      margin-bottom: 1.25rem;
+      display: block;
+    }
+    .cert-actions {
+      display: flex;
+      gap: .6rem;
+    }
+    .btn-cert-download {
+      flex: 1;
+      text-align: center;
+      background: rgba(212,160,23,.15);
+      border: 1px solid rgba(212,160,23,.3);
+      color: var(--gold);
+      border-radius: var(--radius-sm);
+      padding: .55rem;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-cert-download:hover { background: rgba(212,160,23,.25); }
+    .btn-cert-share {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(250,248,245,.7);
+      border-radius: var(--radius-sm);
+      padding: .55rem .8rem;
+      font-family: var(--font-body);
+      font-size: .75rem;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-cert-share:hover { background: rgba(255,255,255,.1); }
+    /* Empty certs */
+    .certs-empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+    }
+    .certs-empty-icon { font-size: 3rem; display: block; margin-bottom: 1rem; }
+    .certs-empty-title { font-family: var(--font-heading); font-size: 1.2rem; color: var(--text-700); margin-bottom: .5rem; }
+    .certs-empty-sub { font-family: var(--font-body); font-size: .85rem; color: var(--text-400); margin-bottom: 1.5rem; }
+
+    /* ── ABBONAMENTO ─────────────────────────────────────── */
+    .sub-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .sub-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .sub-plan-name {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: .25rem;
+    }
+    .sub-plan-status {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-family: var(--font-body);
+      font-size: .75rem;
+      font-weight: 600;
+      padding: .25rem .7rem;
+      border-radius: 1rem;
+    }
+    .sub-plan-status.active { background: #e6f4ea; color: #1e7e34; }
+    .sub-plan-status.inactive { background: #fdecea; color: #c62828; }
+    .sub-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: .3rem;
+      margin-bottom: 1.5rem;
+    }
+    .sub-price-amount {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text-900);
+    }
+    .sub-price-period {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-400);
+    }
+    .sub-details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .sub-detail-item { }
+    .sub-detail-label {
+      font-family: var(--font-body);
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--text-400);
+      margin-bottom: .35rem;
+    }
+    .sub-detail-value {
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--text-800);
+      font-weight: 500;
+    }
+    .sub-actions {
+      display: flex;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .btn-sub-upgrade {
+      background: linear-gradient(135deg, var(--primary), #c42040);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: .7rem 1.5rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: .88rem;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform .15s;
+    }
+    .btn-sub-upgrade:hover { transform: translateY(-2px); }
+    .btn-sub-manage {
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .7rem 1.5rem;
+      font-family: var(--font-body);
+      font-weight: 500;
+      font-size: .88rem;
+      color: var(--text-600);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .15s;
+    }
+    .btn-sub-manage:hover { border-color: var(--primary-300); color: var(--primary); }
+    /* Fatturazione */
+    .billing-card {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+    }
+    .billing-title {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-900);
+      margin-bottom: 1rem;
+    }
+    .billing-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: .75rem 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-body);
+      font-size: .85rem;
+    }
+    .billing-row:last-child { border-bottom: none; }
+    .billing-row-label { color: var(--text-600); }
+    .billing-row-value { color: var(--text-900); font-weight: 500; }
+
+    /* ── IMPOSTAZIONI ────────────────────────────────────── */
+    .settings-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .settings-section-title {
+      font-family: var(--font-heading);
+      font-size: .9rem;
+      font-weight: 700;
+      color: var(--text-900);
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-section);
+    }
+    .settings-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      gap: 1rem;
+    }
+    .settings-row:last-child { border-bottom: none; }
+    .settings-row-left { flex: 1; }
+    .settings-row-label {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      font-weight: 500;
+      color: var(--text-900);
+      margin-bottom: .15rem;
+    }
+    .settings-row-sub {
+      font-family: var(--font-body);
+      font-size: .78rem;
+      color: var(--text-400);
+    }
+    .btn-settings-edit {
+      background: var(--bg-section);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .4rem .85rem;
+      font-family: var(--font-body);
+      font-size: .78rem;
+      font-weight: 500;
+      color: var(--text-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color .15s;
+    }
+    .btn-settings-edit:hover { border-color: var(--primary-300); color: var(--primary); }
+    .btn-settings-danger {
+      border-color: #fecaca;
+      color: #c62828;
+    }
+    .btn-settings-danger:hover { border-color: #c62828; background: #fef2f2; }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .profile-hero-inner { flex-direction: column; text-align: center; align-items: center; }
+      .profile-hero-stats { justify-content: center; }
+      .profile-hero-actions { flex-direction: row; }
+      .profile-courses-grid { grid-template-columns: 1fr; }
+      .cert-grid { grid-template-columns: 1fr; }
+      .sub-details-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .profile-hero { padding: 3rem 1rem 2.5rem; }
+      .profile-content { padding: 1.5rem 1rem; }
+      .profile-tabs-inner { padding: 0 1rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ── NAV ──────────────────────────────────────────────────── -->
-  <nav class="glv-nav">
-    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
-    <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="catalogo.html">Catalogo</a>
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<nav class="glv-nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-icon">📜</span>
+      <span>GrecoLatinoVivo</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="catalogo.html" class="nav-link">Catalogo</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profilo.html" class="nav-link active">Profilo</a>
     </div>
-    <div class="nav-right">
-      <div class="nav-avatar">M</div>
-      <button class="btn btn-ghost btn-sm" data-logout>Esci</button>
+    <div class="nav-actions">
+      <div class="nav-avatar" id="navAvatar">
+        <div class="nav-avatar-initials" id="navInitials">?</div>
+      </div>
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-  </nav>
+  </div>
+</nav>
 
-  <!-- ── PROFILE HERO ──────────────────────────────────────────── -->
-  <div class="profile-hero">
-    <div class="profile-avatar-large">M</div>
-    <div>
-      <h2>Mario Rossi</h2>
-      <p class="text-secondary" style="margin-top:4px;">mario@esempio.it</p>
-      <div class="profile-plan-badge">
-        <i class="fas fa-star"></i>
-        Abbonato Annuale
+<!-- ══ HERO ════════════════════════════════════════════ -->
+<section class="profile-hero">
+  <div class="profile-hero-inner">
+    <div class="profile-avatar-big" id="profileAvatarBig">?</div>
+    <div class="profile-hero-info">
+      <div class="profile-hero-name" id="profileName">Caricamento…</div>
+      <div class="profile-hero-email" id="profileEmail"></div>
+      <div class="profile-sub-pill" id="profileSubPill">
+        ★ Piano Linguae
+      </div>
+      <div class="profile-hero-stats">
+        <div class="profile-stat">
+          <span class="profile-stat-num" id="statCorsi">—</span>
+          <span class="profile-stat-label">Corsi seguiti</span>
+        </div>
+        <div class="profile-stat-sep"></div>
+        <div class="profile-stat">
+          <span class="profile-stat-num" id="statAttest">—</span>
+          <span class="profile-stat-label">Attestati</span>
+        </div>
+        <div class="profile-stat-sep"></div>
+        <div class="profile-stat">
+          <span class="profile-stat-num" id="statOre">—</span>
+          <span class="profile-stat-label">Ore studiate</span>
+        </div>
+        <div class="profile-stat-sep"></div>
+        <div class="profile-stat">
+          <span class="profile-stat-num" id="statStreak">—</span>
+          <span class="profile-stat-label">Giorni di fila</span>
+        </div>
+      </div>
+    </div>
+    <div class="profile-hero-actions">
+      <a href="index.html#prezzi" class="btn btn-primary" id="btnUpgrade">⬆ Upgrade piano</a>
+      <button class="btn btn-ghost" onclick="showTab('impostazioni')" style="color:rgba(250,248,245,.7);border-color:rgba(255,255,255,.2)">⚙ Impostazioni</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TABS ════════════════════════════════════════════ -->
+<div class="profile-tabs-bar">
+  <div class="profile-tabs-inner">
+    <div class="profile-tab active" data-tab="corsi" onclick="showTab('corsi')">
+      📚 I miei corsi
+      <span class="profile-tab-badge" id="badgeCorsi">—</span>
+    </div>
+    <div class="profile-tab" data-tab="attestati" onclick="showTab('attestati')">
+      🏅 Attestati
+      <span class="profile-tab-badge" id="badgeAttest">—</span>
+    </div>
+    <div class="profile-tab" data-tab="abbonamento" onclick="showTab('abbonamento')">
+      💳 Abbonamento
+    </div>
+    <div class="profile-tab" data-tab="impostazioni" onclick="showTab('impostazioni')">
+      ⚙ Impostazioni
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTENT ══════════════════════════════════════════ -->
+<div class="profile-content">
+
+  <!-- ── I MIEI CORSI ─────────────────────────────────── -->
+  <div class="profile-tab-panel active" id="panel-corsi">
+    <div class="section-heading">Corsi in corso</div>
+    <div class="profile-courses-grid" id="activeCoursesGrid">
+      <!-- app.js / JS popola dinamicamente -->
+      <!-- Placeholder -->
+      <div class="profile-course-card">
+        <div class="profile-course-thumb" style="background:linear-gradient(135deg,#7b2832,#a01a36)">🏛️</div>
+        <div class="profile-course-body">
+          <div class="profile-course-lang">Latino</div>
+          <div class="profile-course-title">Grammatica Latina — Fondamenti</div>
+          <div class="profile-course-progress-bar">
+            <div class="profile-course-progress-fill" style="width:72%"></div>
+          </div>
+          <div class="profile-course-pct"><span>72% completato</span><span>18/25 lezioni</span></div>
+          <div class="profile-course-actions">
+            <a href="corso.html?id=lat-a1" class="btn-course-continue">▶ Continua</a>
+            <a href="corso.html?id=lat-a1" class="btn-course-detail">Dettagli</a>
+          </div>
+        </div>
+      </div>
+      <div class="profile-course-card">
+        <div class="profile-course-thumb" style="background:linear-gradient(135deg,#1a3a6b,#2755a3)">🏺</div>
+        <div class="profile-course-body">
+          <div class="profile-course-lang">Greco Antico</div>
+          <div class="profile-course-title">Greco Antico — Alfabeto e Fonetica</div>
+          <div class="profile-course-progress-bar">
+            <div class="profile-course-progress-fill" style="width:38%"></div>
+          </div>
+          <div class="profile-course-pct"><span>38% completato</span><span>8/21 lezioni</span></div>
+          <div class="profile-course-actions">
+            <a href="corso.html?id=grk-a1" class="btn-course-continue">▶ Continua</a>
+            <a href="corso.html?id=grk-a1" class="btn-course-detail">Dettagli</a>
+          </div>
+        </div>
+      </div>
+      <div class="profile-course-card">
+        <div class="profile-course-thumb" style="background:linear-gradient(135deg,#1a5c3a,#2e8b5a)">📜</div>
+        <div class="profile-course-body">
+          <div class="profile-course-lang">Ebraico Biblico</div>
+          <div class="profile-course-title">Ebraico Biblico — Corso Base</div>
+          <div class="profile-course-progress-bar">
+            <div class="profile-course-progress-fill" style="width:55%"></div>
+          </div>
+          <div class="profile-course-pct"><span>55% completato</span><span>11/20 lezioni</span></div>
+          <div class="profile-course-actions">
+            <a href="corso.html?id=heb-a1" class="btn-course-continue">▶ Continua</a>
+            <a href="corso.html?id=heb-a1" class="btn-course-detail">Dettagli</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-heading">Corsi completati</div>
+    <div class="profile-courses-grid" id="completedCoursesGrid">
+      <div class="profile-course-card" style="opacity:.75">
+        <div class="profile-course-thumb" style="background:linear-gradient(135deg,#2d5016,#4a7c24)">🌿</div>
+        <div class="profile-course-body">
+          <div class="profile-course-lang">Latino</div>
+          <div class="profile-course-title">Latino — Introduzione all'Alfabeto</div>
+          <div class="profile-course-progress-bar">
+            <div class="profile-course-progress-fill" style="width:100%"></div>
+          </div>
+          <div class="profile-course-pct"><span>✅ Completato</span><span>12/12 lezioni</span></div>
+          <div class="profile-course-actions">
+            <a href="corso.html?id=lat-intro" class="btn-course-detail" style="flex:1;text-align:center">Rivedi</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ── SEZIONI PROFILO ────────────────────────────────────────── -->
-  <div class="profile-section">
+  <!-- ── ATTESTATI ─────────────────────────────────────── -->
+  <div class="profile-tab-panel" id="panel-attestati">
+    <div class="section-heading">I tuoi attestati</div>
+    <div class="cert-grid" id="certGrid">
+      <div class="cert-card">
+        <div class="cert-header">
+          <span class="cert-emoji">🏛️</span>
+          <span class="cert-badge">Attestato</span>
+        </div>
+        <div class="cert-title">Latino — Introduzione all'Alfabeto</div>
+        <div class="cert-docente">Prof. A. Rossi · Università di Bologna</div>
+        <span class="cert-date">Conseguito il 14 gennaio 2025</span>
+        <div class="cert-actions">
+          <a href="#" class="btn-cert-download">⬇ Scarica PDF</a>
+          <button class="btn-cert-share" title="Condividi">↗</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <!-- CARD ABBONAMENTO -->
-    <div class="profile-card">
-      <div class="profile-card-header">
-        <h4>Il mio abbonamento</h4>
-        <button class="btn btn-sm btn-outline">Gestisci</button>
-      </div>
-      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;">
+  <!-- ── ABBONAMENTO ───────────────────────────────────── -->
+  <div class="profile-tab-panel" id="panel-abbonamento">
+
+    <div class="sub-card">
+      <div class="sub-card-header">
         <div>
-          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Piano</p>
-          <p style="font-weight:700;">Annuale</p>
+          <div class="sub-plan-name" id="subPlanName">Piano Linguae</div>
+          <div class="sub-plan-status active" id="subPlanStatus">● Attivo</div>
         </div>
-        <div>
-          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Rinnovo</p>
-          <p style="font-weight:700;">15 maggio 2026</p>
-        </div>
-        <div>
-          <p style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Stato</p>
-          <p style="color:var(--success); font-weight:700;">
-            <i class="fas fa-check-circle"></i> Attivo
-          </p>
+        <div class="sub-actions">
+          <a href="index.html#prezzi" class="btn-sub-upgrade">⬆ Upgrade ad Accademia</a>
+          <a href="#" class="btn-sub-manage">Gestisci</a>
         </div>
       </div>
-      <div style="margin-top:20px; padding:16px; background:var(--bg-card); border-radius:6px; border:1px solid var(--accent-light);">
-        <p style="font-size:13px; color:var(--text-secondary);">
-          Il tuo abbonamento include accesso illimitato a tutto il catalogo GLV. Puoi disdire in qualsiasi momento dalla pagina di gestione.
-        </p>
+      <div class="sub-price-row">
+        <span class="sub-price-amount" id="subAmount">€19</span>
+        <span class="sub-price-period" id="subPeriod">/mese</span>
+      </div>
+      <div class="sub-details-grid">
+        <div class="sub-detail-item">
+          <div class="sub-detail-label">Prossimo rinnovo</div>
+          <div class="sub-detail-value" id="subRenewal">—</div>
+        </div>
+        <div class="sub-detail-item">
+          <div class="sub-detail-label">Metodo di pagamento</div>
+          <div class="sub-detail-value" id="subPayment">•••• 4242</div>
+        </div>
+        <div class="sub-detail-item">
+          <div class="sub-detail-label">Periodo di fatturazione</div>
+          <div class="sub-detail-value" id="subBilling">Mensile</div>
+        </div>
+        <div class="sub-detail-item">
+          <div class="sub-detail-label">Iscritto dal</div>
+          <div class="sub-detail-value" id="subSince">—</div>
+        </div>
       </div>
     </div>
 
-    <!-- CARD CORSI IN CORSO (dati reali) -->
-    <div class="profile-card">
-      <div class="profile-card-header">
-        <h4>Corsi in corso</h4>
+    <div class="billing-card">
+      <div class="billing-title">Storico pagamenti</div>
+      <div class="billing-row">
+        <span class="billing-row-label">15 aprile 2025</span>
+        <span class="billing-row-value">€19,00 — Linguae mensile</span>
       </div>
-      <div id="profile-courses-list">
-        <p style="color:var(--text-muted); font-size:13px;">Caricamento...</p>
+      <div class="billing-row">
+        <span class="billing-row-label">15 marzo 2025</span>
+        <span class="billing-row-value">€19,00 — Linguae mensile</span>
       </div>
-    </div>
-
-    <!-- CARD ATTESTATI -->
-    <div class="profile-card" id="card-attestati" style="display:none;">
-      <div class="profile-card-header">
-        <h4>I miei attestati</h4>
-        <span style="font-size:11px; background:var(--accent-light); color:var(--accent); padding:2px 10px; border-radius:3px; font-weight:700;">
-          <span id="certs-count">0</span> disponibili
-        </span>
+      <div class="billing-row">
+        <span class="billing-row-label">15 febbraio 2025</span>
+        <span class="billing-row-value">€19,00 — Linguae mensile</span>
       </div>
-      <div id="profile-certs-list"></div>
-    </div>
-
-    <!-- CARD IMPOSTAZIONI -->
-    <div class="profile-card">
-      <div class="profile-card-header">
-        <h4>Impostazioni account</h4>
+      <div class="billing-row">
+        <span class="billing-row-label">15 gennaio 2025</span>
+        <span class="billing-row-value">€19,00 — Linguae mensile</span>
       </div>
-      <form onsubmit="return false;">
-        <div>
-          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Nome</label>
-          <input
-            type="text"
-            value="Mario Rossi"
-            style="width:100%; background:#fff; border:1.5px solid var(--border); color:var(--text-primary); padding:10px 14px; border-radius:4px; margin-bottom:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color .2s;"
-            onfocus="this.style.borderColor='var(--accent)'"
-            onblur="this.style.borderColor='var(--border)'"
-          />
-        </div>
-        <div>
-          <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px; font-weight:600; text-transform:uppercase; letter-spacing:.5px;">Email</label>
-          <input
-            type="email"
-            value="mario@esempio.it"
-            style="width:100%; background:#fff; border:1.5px solid var(--border); color:var(--text-primary); padding:10px 14px; border-radius:4px; margin-bottom:12px; font-family:inherit; font-size:14px; outline:none; transition:border-color .2s;"
-            onfocus="this.style.borderColor='var(--accent)'"
-            onblur="this.style.borderColor='var(--border)'"
-          />
-        </div>
-        <button type="submit" class="btn btn-primary">Salva modifiche</button>
-      </form>
     </div>
 
   </div>
 
-  <!-- ── FOOTER ────────────────────────────────────────────────── -->
-  <footer class="glv-footer">
-    <div class="footer-bottom">
-      <p>&copy; 2025 GrecoLatinoVivo. Tutti i diritti riservati.</p>
-      <p>portale.grecolatinovivo.it</p>
+  <!-- ── IMPOSTAZIONI ──────────────────────────────────── -->
+  <div class="profile-tab-panel" id="panel-impostazioni">
+
+    <div class="settings-section">
+      <div class="settings-section-title">Dati personali</div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Nome completo</div>
+          <div class="settings-row-sub" id="settingsName">—</div>
+        </div>
+        <button class="btn-settings-edit">Modifica</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Email</div>
+          <div class="settings-row-sub" id="settingsEmail">—</div>
+        </div>
+        <button class="btn-settings-edit">Modifica</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Password</div>
+          <div class="settings-row-sub">Ultima modifica: mai</div>
+        </div>
+        <button class="btn-settings-edit">Cambia</button>
+      </div>
     </div>
-  </footer>
 
-  <script src="js/app.js"></script>
-  <script>
-    /* ── PROGRESSI E ATTESTATI ─────────────────────────────────── */
-    function loadProfileData() {
-      // Progressi corsi
-      fetch('/api/progress')
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .then(function(data) {
-          var el = document.getElementById('profile-courses-list');
-          if (!el) return;
-          if (!data || !data.courses || data.courses.length === 0) {
-            el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Nessun corso avviato ancora. <a href="catalogo.html" style="color:var(--accent);">Sfoglia il catalogo →</a></p>';
-            return;
-          }
-          el.innerHTML = '';
-          data.courses.forEach(function(c, i) {
-            var pct = c.percent;
-            var barColor = pct === 100 ? '#34c759' : 'var(--accent)';
-            var isLast = i === data.courses.length - 1;
-            var row = document.createElement('div');
-            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:14px 0;' +
-              (isLast ? '' : 'border-bottom:1px solid var(--border);') +
-              'flex-wrap:wrap;gap:12px;cursor:pointer;';
-            row.onclick = function() { window.location.href = 'corso.html?id=' + c.slug; };
-            row.innerHTML =
-              '<div style="flex:1;min-width:200px;">' +
-                '<p style="font-weight:600;margin-bottom:4px;font-size:14px;">' + c.title + '</p>' +
-                '<div style="height:4px;background:#e0e0e0;border-radius:2px;">' +
-                  '<div style="width:' + pct + '%;height:100%;background:' + barColor + ';border-radius:2px;transition:width .4s;"></div>' +
-                '</div>' +
-                (c.nextLesson && pct < 100
-                  ? '<p style="font-size:11px;color:var(--accent);margin-top:4px;">Prossima: ' + c.nextLesson.title + '</p>'
-                  : (pct === 100 ? '<p style="font-size:11px;color:#34c759;margin-top:4px;">✓ Completato</p>' : '')) +
-              '</div>' +
-              '<span style="font-size:13px;color:' + barColor + ';font-weight:700;flex-shrink:0;">' + pct + '%</span>';
-            el.appendChild(row);
-          });
-        })
-        .catch(function() {
-          var el = document.getElementById('profile-courses-list');
-          if (el) el.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">Impossibile caricare i progressi.</p>';
-        });
+    <div class="settings-section">
+      <div class="settings-section-title">Notifiche</div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Email di promemoria studio</div>
+          <div class="settings-row-sub">Ricevi un promemoria se salti più di 3 giorni</div>
+        </div>
+        <button class="btn-settings-edit">Attivo</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Newsletter mensile</div>
+          <div class="settings-row-sub">Nuovi corsi, aggiornamenti e consigli di studio</div>
+        </div>
+        <button class="btn-settings-edit">Attivo</button>
+      </div>
+    </div>
 
-      // Attestati
-      fetch('/api/progress/certificates')
-        .then(function(r) { return r.ok ? r.json() : null; })
-        .then(function(data) {
-          if (!data || !data.certificates || data.certificates.length === 0) return;
-          var card  = document.getElementById('card-attestati');
-          var list  = document.getElementById('profile-certs-list');
-          var count = document.getElementById('certs-count');
-          if (!card || !list) return;
-          card.style.display = 'block';
-          if (count) count.textContent = data.certificates.length;
-          data.certificates.forEach(function(cert, i) {
-            var isLast = i === data.certificates.length - 1;
-            var dateStr = cert.completedAt
-              ? new Date(cert.completedAt).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' })
-              : '—';
-            var row = document.createElement('div');
-            row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:14px 0;' +
-              (isLast ? '' : 'border-bottom:1px solid var(--border);') +
-              'flex-wrap:wrap;gap:12px;';
-            row.innerHTML =
-              '<div style="flex:1;min-width:200px;">' +
-                '<p style="font-weight:600;font-size:14px;margin-bottom:2px;">' + cert.title + '</p>' +
-                '<p style="font-size:12px;color:var(--text-muted);">Completato il ' + dateStr + '</p>' +
-              '</div>' +
-              '<div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">' +
-                '<a href="/api/progress/certificate/' + cert.slug + '" ' +
-                   'style="display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;padding:8px 16px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;" ' +
-                   'title="Scarica attestato PDF">' +
-                  '<i class="fas fa-download"></i> Scarica' +
-                '</a>' +
-                '<a href="/verifica.html?code=' + (cert.certCode || '') + '" ' +
-                   'target="_blank" ' +
-                   'style="display:inline-flex;align-items:center;gap:6px;color:var(--text-muted);font-size:12px;text-decoration:none;" ' +
-                   'title="Verifica autenticità">' +
-                  '<i class="fas fa-shield-alt"></i> Verifica' +
-                '</a>' +
-              '</div>';
-            list.appendChild(row);
-          });
-        })
-        .catch(function() { /* silently ignore */ });
+    <div class="settings-section">
+      <div class="settings-section-title">Account</div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Esporta i miei dati</div>
+          <div class="settings-row-sub">Scarica una copia di tutti i tuoi dati e progressi</div>
+        </div>
+        <button class="btn-settings-edit">Scarica</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label">Disconnetti</div>
+          <div class="settings-row-sub">Esci da tutti i dispositivi</div>
+        </div>
+        <button class="btn-settings-edit" id="btnLogout">Disconnetti</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-row-label" style="color:#c62828">Elimina account</div>
+          <div class="settings-row-sub">Questa azione è irreversibile</div>
+        </div>
+        <button class="btn-settings-edit btn-settings-danger">Elimina</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ BOTTOM NAV ══════════════════════════════════════ -->
+<nav class="glv-bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">🏠</span>
+    <span>Home</span>
+  </a>
+  <a href="catalogo.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">📚</span>
+    <span>Catalogo</span>
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">📊</span>
+    <span>Dashboard</span>
+  </a>
+  <a href="profilo.html" class="bottom-nav-item active">
+    <span class="bottom-nav-icon">👤</span>
+    <span>Profilo</span>
+  </a>
+</nav>
+
+<script src="js/app.js"></script>
+<script>
+// ── NAVBAR ──────────────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+  this.classList.toggle('open');
+});
+
+// ── AUTH + POPULATE ──────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (!r.ok) { window.location.href = 'login.html'; return; }
+    const u = await r.json();
+    if (!u || !u.email) { window.location.href = 'login.html'; return; }
+
+    const nome = u.nome || '';
+    const cognome = u.cognome || '';
+    const fullName = [nome, cognome].filter(Boolean).join(' ') || u.email;
+    const initials = (nome[0] || '') + (cognome[0] || '') || u.email[0].toUpperCase();
+
+    // Hero
+    document.getElementById('profileName').textContent = fullName;
+    document.getElementById('profileEmail').textContent = u.email;
+    document.getElementById('profileAvatarBig').textContent = initials;
+    document.getElementById('navInitials').textContent = initials;
+
+    // Sub pill
+    const piano = u.piano || 'free';
+    const pill = document.getElementById('profileSubPill');
+    if (piano === 'free') {
+      pill.className = 'profile-sub-pill free';
+      pill.textContent = '○ Piano gratuito';
+      document.getElementById('btnUpgrade').style.display = '';
+    } else {
+      pill.textContent = '★ Piano ' + piano.charAt(0).toUpperCase() + piano.slice(1);
     }
 
-    document.documentElement.style.visibility = 'hidden';
+    // Stats (da API se disponibile)
+    try {
+      const prog = await fetch('/api/progress', { credentials: 'include' });
+      if (prog.ok) {
+        const d = await prog.json();
+        document.getElementById('statCorsi').textContent = d.corsiAttivi ?? '—';
+        document.getElementById('statAttest').textContent = d.attestati ?? '—';
+        document.getElementById('statOre').textContent = d.ore ?? '—';
+        document.getElementById('statStreak').textContent = d.streak ?? '—';
+        document.getElementById('badgeCorsi').textContent = d.corsiAttivi ?? '—';
+        document.getElementById('badgeAttest').textContent = d.attestati ?? '—';
+      }
+    } catch(e) {
+      ['statCorsi','statAttest','statOre','statStreak'].forEach(id => {
+        document.getElementById(id).textContent = '—';
+      });
+    }
 
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('/api/auth/me')
-        .then(function (res) {
-          if (res.status === 401) { window.location.href = '/'; return null; }
-          if (!res.ok) { window.location.href = '/'; return null; }
-          return res.json();
-        })
-        .then(function (data) {
-          if (!data) return;
-          document.documentElement.style.visibility = '';
-          window.GLV_USER = data.user;
+    // Settings
+    document.getElementById('settingsName').textContent = fullName;
+    document.getElementById('settingsEmail').textContent = u.email;
 
-          var avatar = document.querySelector('.nav-avatar');
-          if (avatar && data.user) {
-            var name = data.user.fullName || data.user.email || '';
-            avatar.textContent = name.charAt(0).toUpperCase();
-          }
+    // Sub details
+    if (u.abbonamento) {
+      const a = u.abbonamento;
+      document.getElementById('subPlanName').textContent = 'Piano ' + (a.nome || 'Linguae');
+      if (a.scadenza) {
+        document.getElementById('subRenewal').textContent = new Date(a.scadenza).toLocaleDateString('it-IT');
+      }
+      if (a.inizio) {
+        document.getElementById('subSince').textContent = new Date(a.inizio).toLocaleDateString('it-IT');
+      }
+    }
 
-          // Carica progressi e attestati
-          loadProfileData();
+  } catch(e) {
+    window.location.href = 'login.html';
+  }
+})();
 
-          // Popola dati profilo con dati reali
-          if (data.user) {
-            var profileAvatarLarge = document.querySelector('.profile-avatar-large');
-            if (profileAvatarLarge) {
-              var n = data.user.fullName || data.user.email || '';
-              profileAvatarLarge.textContent = n.charAt(0).toUpperCase();
-            }
-            var profileH2 = document.querySelector('.profile-hero h2');
-            if (profileH2 && data.user.fullName) profileH2.textContent = data.user.fullName;
-            var profileEmail = document.querySelector('.profile-hero .text-secondary');
-            if (profileEmail && data.user.email) profileEmail.textContent = data.user.email;
-          }
+// ── TABS ─────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.profile-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
+  });
+  document.querySelectorAll('.profile-tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+  // Hash update for direct linking
+  history.replaceState(null, '', '#' + name);
+}
 
-          if (data.user && !data.user.subscription) {
-            var banner = document.createElement('div');
-            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
-            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
-            document.body.insertBefore(banner, document.body.firstChild);
-          }
+// Deep link via hash
+const hash = location.hash.replace('#', '');
+if (['corsi','attestati','abbonamento','impostazioni'].includes(hash)) {
+  showTab(hash);
+}
 
-          document.querySelectorAll('[data-logout]').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-              e.preventDefault();
-              fetch('/api/auth/logout', { method: 'POST' })
-                .finally(function () { window.location.href = '/'; });
-            });
-          });
-        })
-        .catch(function () { window.location.href = '/'; });
-    });
-  </script>
+// ── LOGOUT ───────────────────────────────────────────────
+document.getElementById('btnLogout')?.addEventListener('click', async () => {
+  try {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+  } catch(e) {}
+  window.location.href = 'index.html';
+});
+</script>
 </body>
 </html>

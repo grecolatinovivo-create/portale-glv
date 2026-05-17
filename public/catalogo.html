@@ -1,106 +1,598 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Catalogo Corsi | GrecoLatinoVivo</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <link rel="stylesheet" href="css/style.css" />
+  <meta name="description" content="Sfoglia il catalogo completo di corsi di Latino, Greco antico, Egiziano geroglifico ed Ebraico biblico.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── CATALOG PAGE STYLES ─────────────────────────────── */
+    .catalog-page-header {
+      background: linear-gradient(135deg, #15080e 0%, #2a0d18 100%);
+      padding: 4rem 2rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .catalog-page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 60% 50%, rgba(160,26,54,.15), transparent);
+      pointer-events: none;
+    }
+    .catalog-header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .catalog-header-inner h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700;
+      color: #faf8f5;
+      margin-bottom: .5rem;
+    }
+    .catalog-header-inner h1 em {
+      color: var(--gold);
+      font-style: italic;
+    }
+    .catalog-header-sub {
+      font-family: var(--font-body);
+      font-size: 1rem;
+      color: rgba(250,248,245,.65);
+      margin-bottom: 1.5rem;
+    }
+    /* search bar */
+    .catalog-search {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: var(--radius);
+      padding: 0 1rem;
+      max-width: 480px;
+    }
+    .catalog-search-icon {
+      color: rgba(250,248,245,.5);
+      font-size: .9rem;
+      margin-right: .5rem;
+    }
+    .catalog-search input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: #faf8f5;
+      font-family: var(--font-body);
+      font-size: .9rem;
+      padding: .75rem 0;
+    }
+    .catalog-search input::placeholder { color: rgba(250,248,245,.4); }
+
+    /* ── LAYOUT 2 COLONNE ────────────────────────────────── */
+    .catalog-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      align-items: start;
+    }
+    .catalog-sidebar {
+      position: sticky;
+      top: calc(var(--nav-h, 64px) + 1rem);
+      padding-right: 1.5rem;
+    }
+    .sidebar-section {
+      margin-bottom: 2rem;
+    }
+    .sidebar-section-title {
+      font-family: var(--font-body);
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-400);
+      margin-bottom: .75rem;
+    }
+    .sidebar-filter-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar-filter-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .45rem .6rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: background .15s;
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--text-600);
+    }
+    .sidebar-filter-item:hover { background: var(--primary-50); color: var(--primary); }
+    .sidebar-filter-item.active {
+      background: var(--primary-50);
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .sidebar-filter-count {
+      font-size: .75rem;
+      color: var(--text-300);
+      background: var(--bg-section);
+      padding: .1rem .45rem;
+      border-radius: 1rem;
+    }
+    .sidebar-filter-item.active .sidebar-filter-count {
+      background: var(--primary-100);
+      color: var(--primary);
+    }
+    .sidebar-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 1.5rem 0;
+    }
+
+    /* ── MAIN CONTENT ────────────────────────────────────── */
+    .catalog-main { min-width: 0; }
+    .catalog-main-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .catalog-results-info {
+      font-family: var(--font-body);
+      font-size: .88rem;
+      color: var(--text-500);
+    }
+    .catalog-results-info strong { color: var(--text-900); }
+    .catalog-sort {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .catalog-sort-label {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      color: var(--text-400);
+    }
+    .catalog-sort select {
+      font-family: var(--font-body);
+      font-size: .85rem;
+      color: var(--text-700);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: .35rem .75rem;
+      background: var(--bg-card);
+      cursor: pointer;
+      outline: none;
+    }
+    /* filter tabs (lingua) — preserved for app.js */
+    .catalog-filters {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .filter-tab {
+      font-family: var(--font-body);
+      font-size: .82rem;
+      font-weight: 500;
+      color: var(--text-600);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: .4rem .9rem;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .filter-tab:hover { border-color: var(--primary-300); color: var(--primary); }
+    .filter-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+    /* catalog grid — app.js popola #catalog-grid */
+    #catalog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.25rem;
+    }
+    /* empty state */
+    .catalog-empty {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-400);
+    }
+    .catalog-empty-icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+    .catalog-empty-title {
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      color: var(--text-700);
+      margin-bottom: .5rem;
+    }
+    .catalog-empty-sub { font-family: var(--font-body); font-size: .88rem; }
+    /* loading skeleton */
+    .skeleton-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+    }
+    .skeleton-thumb {
+      height: 157px;
+      background: linear-gradient(90deg, #f0ede9 25%, #e8e4df 50%, #f0ede9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-body { padding: 1rem; }
+    .skeleton-line {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, #f0ede9 25%, #e8e4df 50%, #f0ede9 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      margin-bottom: .75rem;
+    }
+    .skeleton-line.short { width: 60%; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* ── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .catalog-layout {
+        grid-template-columns: 1fr;
+        padding: 1rem;
+      }
+      .catalog-sidebar {
+        position: static;
+        padding-right: 0;
+      }
+      .sidebar-filter-list { display: flex; flex-wrap: wrap; gap: .5rem; }
+      .sidebar-section-title { width: 100%; }
+      .sidebar-filter-item {
+        border: 1px solid var(--border);
+        border-radius: 2rem;
+        padding: .35rem .8rem;
+      }
+      .sidebar-filter-item.active { border-color: var(--primary); }
+    }
+    @media (max-width: 640px) {
+      .catalog-page-header { padding: 3rem 1rem 2rem; }
+      #catalog-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- ── NAV ──────────────────────────────────────────────────── -->
-  <nav class="glv-nav">
-    <a href="index.html" class="nav-logo">GRECO<span>LATINOVIVO</span></a>
-    <div class="nav-links">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="profilo.html">Profilo</a>
+<!-- ══ NAVBAR ══════════════════════════════════════════ -->
+<nav class="glv-nav" id="mainNav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <span class="nav-logo-icon">📜</span>
+      <span>GrecoLatinoVivo</span>
+    </a>
+    <div class="nav-links" id="navLinks">
+      <a href="catalogo.html" class="nav-link active">Catalogo</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="profilo.html" class="nav-link">Profilo</a>
     </div>
-    <div class="nav-right">
-      <div class="nav-avatar">M</div>
-      <button class="btn btn-ghost btn-sm" data-logout>Esci</button>
+    <div class="nav-actions">
+      <a href="login.html" class="btn btn-ghost" id="btnLogin">Accedi</a>
+      <a href="index.html#prezzi" class="btn btn-primary">Abbonati</a>
+      <div class="nav-avatar" id="navAvatar" style="display:none">
+        <div class="nav-avatar-initials" id="navInitials">?</div>
+      </div>
+      <button class="nav-hamburger" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-  </nav>
-
-  <!-- ── HEADER PAGINA ─────────────────────────────────────────── -->
-  <div style="padding: calc(var(--nav-height) + 40px) 48px 32px;">
-    <h2>Catalogo corsi</h2>
-    <p class="text-secondary" style="margin-top:8px;">
-      L'intero catalogo dei corsi disponibili sul portale. L'abbonamento dà accesso a tutti i contenuti.
-    </p>
   </div>
+</nav>
 
-  <!-- ── FILTRI ────────────────────────────────────────────────── -->
-  <div class="catalog-filters">
-    <button class="filter-tab active" data-lang="Tutti">Tutti</button>
-    <button class="filter-tab" data-lang="Latino">Latino</button>
-    <button class="filter-tab" data-lang="Greco Antico">Greco Antico</button>
-    <button class="filter-tab" data-lang="Egiziano Geroglifico">Egiziano Geroglifico</button>
-    <button class="filter-tab" data-lang="Ebraico Biblico">Ebraico Biblico</button>
-    <button class="filter-tab" data-lang="Corsi Brevi">Corsi Brevi</button>
-    <button class="filter-tab" data-lang="Didattica">Didattica</button>
-  </div>
-
-  <!-- ── CONTENT ───────────────────────────────────────────────── -->
-  <div class="catalog-content">
-    <div class="course-grid" id="catalog-grid">
-      <!-- Popolato da JS initCatalogFilters -->
+<!-- ══ PAGE HEADER ═════════════════════════════════════ -->
+<header class="catalog-page-header">
+  <div class="catalog-header-inner">
+    <h1>Esplora il <em>catalogo</em></h1>
+    <p class="catalog-header-sub">122 corsi di Latino, Greco antico, Egiziano geroglifico ed Ebraico biblico</p>
+    <div class="catalog-search">
+      <span class="catalog-search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Cerca un corso, un docente, un argomento…" autocomplete="off">
     </div>
-    <p class="text-muted" style="text-align:center; margin-top:32px;">
-      Il catalogo viene aggiornato periodicamente con nuovi corsi e moduli.
-    </p>
   </div>
+</header>
 
-  <!-- ── FOOTER ────────────────────────────────────────────────── -->
-  <footer class="glv-footer">
-    <div class="footer-bottom">
-      <p>&copy; 2025 GrecoLatinoVivo. Tutti i diritti riservati.</p>
-      <p>portale.grecolatinovivo.it</p>
+<!-- ══ CATALOG BODY ════════════════════════════════════ -->
+<div class="catalog-layout">
+
+  <!-- ── SIDEBAR ──────────────────────────────────────── -->
+  <aside class="catalog-sidebar" id="catalogSidebar">
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Lingua</div>
+      <ul class="sidebar-filter-list" id="sidebarLingue">
+        <li class="sidebar-filter-item active" data-lang="tutti">
+          Tutte le lingue
+          <span class="sidebar-filter-count">122</span>
+        </li>
+        <li class="sidebar-filter-item" data-lang="latino">
+          🏛️ Latino
+          <span class="sidebar-filter-count">42</span>
+        </li>
+        <li class="sidebar-filter-item" data-lang="greco">
+          🏺 Greco Antico
+          <span class="sidebar-filter-count">38</span>
+        </li>
+        <li class="sidebar-filter-item" data-lang="egiziano">
+          𓂀 Egiziano
+          <span class="sidebar-filter-count">24</span>
+        </li>
+        <li class="sidebar-filter-item" data-lang="ebraico">
+          📜 Ebraico Biblico
+          <span class="sidebar-filter-count">18</span>
+        </li>
+      </ul>
     </div>
-  </footer>
 
-  <script src="js/app.js"></script>
-  <script>
-    document.documentElement.style.visibility = 'hidden';
+    <div class="sidebar-divider"></div>
 
-    document.addEventListener('DOMContentLoaded', function () {
-      fetch('/api/auth/me')
-        .then(function (res) {
-          if (res.status === 401) { window.location.href = '/'; return null; }
-          if (!res.ok) { window.location.href = '/'; return null; }
-          return res.json();
-        })
-        .then(function (data) {
-          if (!data) return;
-          document.documentElement.style.visibility = '';
-          window.GLV_USER = data.user;
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Livello</div>
+      <ul class="sidebar-filter-list" id="sidebarLivelli">
+        <li class="sidebar-filter-item active" data-level="tutti">
+          Tutti i livelli
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-level="base">
+          Principiante
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-level="intermedio">
+          Intermedio
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-level="avanzato">
+          Avanzato
+          <span class="sidebar-filter-count"></span>
+        </li>
+      </ul>
+    </div>
 
-          var avatar = document.querySelector('.nav-avatar');
-          if (avatar && data.user) {
-            var name = data.user.fullName || data.user.email || '';
-            avatar.textContent = name.charAt(0).toUpperCase();
-          }
+    <div class="sidebar-divider"></div>
 
-          if (data.user && !data.user.subscription) {
-            var banner = document.createElement('div');
-            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
-            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
-            document.body.insertBefore(banner, document.body.firstChild);
-          }
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Accesso</div>
+      <ul class="sidebar-filter-list" id="sidebarAccesso">
+        <li class="sidebar-filter-item active" data-access="tutti">
+          Tutti i corsi
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-access="disponibile">
+          ✅ Disponibili
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-access="bloccato">
+          🔒 Bloccati
+          <span class="sidebar-filter-count"></span>
+        </li>
+      </ul>
+    </div>
 
-          document.querySelectorAll('[data-logout]').forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-              e.preventDefault();
-              fetch('/api/auth/logout', { method: 'POST' })
-                .finally(function () { window.location.href = '/'; });
-            });
-          });
-        })
-        .catch(function () { window.location.href = '/'; });
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Caratteristiche</div>
+      <ul class="sidebar-filter-list" id="sidebarFeature">
+        <li class="sidebar-filter-item" data-feature="nuovi">
+          🆕 Nuovi arrivi
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-feature="brevi">
+          ⚡ Corsi brevi
+          <span class="sidebar-filter-count"></span>
+        </li>
+        <li class="sidebar-filter-item" data-feature="certificati">
+          🏅 Con attestato
+          <span class="sidebar-filter-count"></span>
+        </li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- ── MAIN ──────────────────────────────────────────── -->
+  <main class="catalog-main">
+
+    <!-- Lingua filter tabs (app.js li popola) -->
+    <div class="catalog-filters" id="catalogFilters">
+      <!-- app.js inietta .filter-tab qui -->
+    </div>
+
+    <div class="catalog-main-header">
+      <div class="catalog-results-info">
+        Mostrando <strong id="resultCount">…</strong> corsi
+      </div>
+      <div class="catalog-sort">
+        <span class="catalog-sort-label">Ordina:</span>
+        <select id="catalogSort">
+          <option value="default">Consigliati</option>
+          <option value="nuovo">Più recenti</option>
+          <option value="popolare">Più popolari</option>
+          <option value="az">A → Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- app.js popola #catalog-grid con .course-card -->
+    <div id="catalog-grid">
+      <!-- Skeleton loading -->
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-thumb"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+    </div>
+
+    <div class="catalog-empty" id="catalogEmpty" style="display:none;">
+      <span class="catalog-empty-icon">🔍</span>
+      <div class="catalog-empty-title">Nessun corso trovato</div>
+      <div class="catalog-empty-sub">Prova a cambiare i filtri o la ricerca.</div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ BOTTOM NAV MOBILE ═══════════════════════════════ -->
+<nav class="glv-bottom-nav">
+  <a href="index.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">🏠</span>
+    <span>Home</span>
+  </a>
+  <a href="catalogo.html" class="bottom-nav-item active">
+    <span class="bottom-nav-icon">📚</span>
+    <span>Catalogo</span>
+  </a>
+  <a href="dashboard.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">📊</span>
+    <span>Dashboard</span>
+  </a>
+  <a href="profilo.html" class="bottom-nav-item">
+    <span class="bottom-nav-icon">👤</span>
+    <span>Profilo</span>
+  </a>
+</nav>
+
+<script src="js/app.js"></script>
+<script>
+// ── NAVBAR ──────────────────────────────────────────────
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+document.getElementById('navToggle').addEventListener('click', function() {
+  document.getElementById('navLinks').classList.toggle('open');
+  this.classList.toggle('open');
+});
+
+// ── AUTH ─────────────────────────────────────────────────
+(async () => {
+  try {
+    const r = await fetch('/api/auth/me', { credentials: 'include' });
+    if (r.ok) {
+      const u = await r.json();
+      if (u && u.email) {
+        document.getElementById('btnLogin').style.display = 'none';
+        const av = document.getElementById('navAvatar');
+        av.style.display = 'flex';
+        const initials = ((u.nome || '')[0] || '') + ((u.cognome || '')[0] || '') || u.email[0].toUpperCase();
+        document.getElementById('navInitials').textContent = initials;
+      }
+    }
+  } catch(e) {}
+})();
+
+// ── SIDEBAR FILTERS ─────────────────────────────────────
+function activateSidebarFilter(listId, item) {
+  document.querySelectorAll(`#${listId} .sidebar-filter-item`).forEach(i => i.classList.remove('active'));
+  item.classList.add('active');
+}
+
+document.querySelectorAll('#sidebarLingue .sidebar-filter-item').forEach(item => {
+  item.addEventListener('click', () => {
+    activateSidebarFilter('sidebarLingue', item);
+    const lang = item.dataset.lang;
+    // Sync with app.js filter tabs
+    document.querySelectorAll('#catalogFilters .filter-tab').forEach(tab => {
+      tab.classList.toggle('active', tab.dataset.lingua === lang || (lang === 'tutti' && tab.dataset.lingua === undefined));
     });
-  </script>
+    // Trigger filter
+    filterCatalog();
+  });
+});
+
+document.querySelectorAll('#sidebarLivelli .sidebar-filter-item').forEach(item => {
+  item.addEventListener('click', () => {
+    activateSidebarFilter('sidebarLivelli', item);
+    filterCatalog();
+  });
+});
+
+document.querySelectorAll('#sidebarAccesso .sidebar-filter-item').forEach(item => {
+  item.addEventListener('click', () => {
+    activateSidebarFilter('sidebarAccesso', item);
+    filterCatalog();
+  });
+});
+
+document.querySelectorAll('#sidebarFeature .sidebar-filter-item').forEach(item => {
+  item.addEventListener('click', () => {
+    item.classList.toggle('active');
+    filterCatalog();
+  });
+});
+
+// ── SEARCH ───────────────────────────────────────────────
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', function() {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(filterCatalog, 300);
+});
+
+// ── FILTER LOGIC ─────────────────────────────────────────
+function filterCatalog() {
+  const grid = document.getElementById('catalog-grid');
+  const cards = grid.querySelectorAll('.course-card');
+  const searchQ = document.getElementById('searchInput').value.toLowerCase().trim();
+  const activeLang = document.querySelector('#sidebarLingue .sidebar-filter-item.active')?.dataset.lang || 'tutti';
+  const activeLevel = document.querySelector('#sidebarLivelli .sidebar-filter-item.active')?.dataset.level || 'tutti';
+
+  let visible = 0;
+  cards.forEach(card => {
+    const title = (card.querySelector('.card-title')?.textContent || '').toLowerCase();
+    const lang = (card.dataset.lingua || '').toLowerCase();
+    const level = (card.dataset.livello || '').toLowerCase();
+
+    const matchSearch = !searchQ || title.includes(searchQ);
+    const matchLang = activeLang === 'tutti' || lang === activeLang;
+    const matchLevel = activeLevel === 'tutti' || level.includes(activeLevel);
+
+    const show = matchSearch && matchLang && matchLevel;
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  document.getElementById('resultCount').textContent = visible;
+  document.getElementById('catalogEmpty').style.display = (visible === 0 && cards.length > 0) ? 'block' : 'none';
+}
+
+// ── INIT (app.js chiama initCatalogFilters) ──────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof initCatalogFilters === 'function') {
+    initCatalogFilters();
+  }
+  // Update result count after app.js populates grid
+  setTimeout(() => {
+    const count = document.querySelectorAll('#catalog-grid .course-card').length;
+    document.getElementById('resultCount').textContent = count;
+    // Remove skeleton
+    document.querySelectorAll('.skeleton-card').forEach(s => s.remove());
+  }, 800);
+});
+</script>
 </body>
 </html>
