@@ -5,7 +5,7 @@ const { prisma } = require('../../../lib/prisma');
 const { signToken, setAuthCookie } = require('../../../lib/auth');
 const { sendWelcomeEmail } = require('../../../lib/resend');
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Accetta solo richieste POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);

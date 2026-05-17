@@ -4,7 +4,7 @@
 
 const { prisma } = require('../../../lib/prisma');
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
     return res.status(405).json({ error: 'Metodo non consentito' });

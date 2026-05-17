@@ -6,9 +6,9 @@ const { stripe } = require('../../../lib/stripe');
 const { sendSubscriptionEmail } = require('../../../lib/resend');
 
 // Disabilita il bodyParser di Next.js per ottenere il raw body
-module.exports.config = { api: { bodyParser: false } };
+export const config = { api: { bodyParser: false } };
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Metodo non consentito' });

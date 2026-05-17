@@ -2,7 +2,7 @@
 
 const { clearAuthCookie } = require('../../../lib/auth');
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // Accetta solo richieste POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);

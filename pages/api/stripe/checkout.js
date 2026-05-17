@@ -57,4 +57,4 @@ async function handler(req, res) {
 }
 
 // Protegge la route con requireAuth: richiede JWT valido nel cookie
-module.exports = requireAuth(handler);
+export default requireAuth(handler);

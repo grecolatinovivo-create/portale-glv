@@ -12,7 +12,7 @@ const { withAuth } = require('../../../lib/auth');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 
-module.exports = withAuth(async function handler(req, res) {
+export default withAuth(async function handler(req, res) {
   if (!req.user || req.user.email !== ADMIN_EMAIL) {
     return res.status(403).json({ error: 'Accesso non autorizzato' });
   }

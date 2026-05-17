@@ -3,7 +3,7 @@
 const { prisma } = require('../../../lib/prisma');
 const { withAuth } = require('../../../lib/auth');
 
-module.exports = withAuth(async function handler(req, res) {
+export default withAuth(async function handler(req, res) {
   // Accetta solo richieste GET
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);

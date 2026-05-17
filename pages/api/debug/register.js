@@ -1,6 +1,6 @@
 // pages/api/debug/register.js — Diagnostica completa, nessun require top-level
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   const checks = {};
 
   // 1. Variabili d'ambiente (non richiede nulla)
