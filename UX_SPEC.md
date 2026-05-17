@@ -1,6 +1,9 @@
-# UX SPEC — Portale GLV
+# UX SPEC — Portale GLV v2
+*Senior UX/UI Designer — Revisione maggio 2026*
 
-## Design System
+---
+
+## Design System (invariato, confermato)
 
 ### Palette colori
 | Token | Valore | Uso |
@@ -15,7 +18,7 @@
 | --text-secondary | #b3b3b3 | Sottotitoli |
 | --text-muted | #666666 | Note, label |
 | --border | #2a2a2a | Bordi card |
-| --gold | #f0c040 | Stelle rating |
+| --gold | #f0c040 | Stelle rating, attestati |
 
 ### Colori categoria (thumbnail gradient)
 - Latino: #7b0d1e → #a01a36
@@ -23,86 +26,225 @@
 - Egiziano: #e65100 → #ff8f00
 - Ebraico: #1b5e20 → #2e7d32
 - Didattica: #4a148c → #7b1fa2
+- Corsi Brevi: #004d40 → #00796b
 
 ### Tipografia
 - Heading: Montserrat 700/600 (Google Fonts)
-- Body: Inter 400/500 (Google Fonts)
+- Body: Roboto 400/500 (Google Fonts) — *nota: l'esistente usa Roboto, non Inter*
 - Monospace: nessuno
-- Scale: 11px / 13px / 15px / 18px / 24px / 32px / 48px / 64px
 
-### Spaziature
-- Base: 8px grid
-- Card gap: 10px
-- Section padding: 60px verticale, 48px orizzontale
-- Nav height: 64px
+### Spaziatura (sistema 8px)
+xs:4px · sm:8px · md:16px · lg:24px · xl:32px · 2xl:48px · 3xl:64px
+
+---
 
 ## Architettura dell'informazione
 
-### index.html — Landing (non abbonati)
-1. NAV: logo + "Accedi" + "Abbonati ora" (CTA rosso)
-2. HERO: headline grande, sottotitolo, 2 CTA, immagine/video di sfondo
-3. PREVIEW CATALOGO: riga orizzontale di card (blurrate/locked per chi non è abbonato)
-4. PROPOSTA VALORE: 3 colonne — "Tutti i livelli", "A tuo ritmo", "Una community"
-5. PRICING: toggle mensile/annuale, 2 card piano, garanzia 30gg
-6. SOCIAL PROOF: "1.500+ studenti", recensioni
-7. FAQ: accordion
-8. FOOTER: link, social, legal
+### Schermate principali
+1. **index.html** — Landing page pubblica (acquisizione)
+2. **dashboard.html** — Home utente loggato (retention)
+3. **catalogo.html** — Catalogo filtrabile (discovery)
+4. **corso.html** — Pagina corso + player (fruizione)
+5. **profilo.html** — Abbonamento + attestati (gestione account)
+6. **admin.html** — Pannello amministratore (operazioni)
 
-### dashboard.html — Home abbonato
-1. NAV: logo + cerca + avatar + "Il mio abbonamento"
-2. HERO BILLBOARD: corso in evidenza a schermo quasi-pieno, titolo sovrapposto, CTA "Inizia" + "Aggiungi alla lista"
-3. ROW "Continua a studiare": corsi con progress bar
-4. ROW "Nuovi questo mese": ultimi aggiunti
-5. ROW "Latino": tutti i corsi latino
-6. ROW "Greco Antico": tutti i corsi greco
-7. ROW "Egiziano Geroglifico"
-8. ROW "Ebraico Biblico"
-9. ROW "Didattica delle Lingue Classiche"
+---
 
-### corso.html — Singolo corso
-1. HERO: gradient sfondo lingua, titolo, badge livello, metadati (durata, lezioni, docente)
-2. CTA STICKY: "Accedi al corso" o "Abbonati per accedere"
-3. DESCRIZIONE: testo completo
-4. LISTA LEZIONI: accordion con titolo, durata, lock icon se non abbonato
-5. DOCENTE: avatar, bio, altri corsi
-6. CORSI CORRELATI: riga orizzontale
+## Analisi critica: HOME (index.html)
 
-### catalogo.html — Catalogo
-1. NAV standard
-2. FILTRI: lingua (tab), livello (dropdown), durata
-3. GRID corsi: 4 colonne desktop, 2 tablet, 1 mobile
+### Problemi identificati
 
-### profilo.html — Area utente
-1. Header profilo: avatar, nome, tipo abbonamento
-2. Il mio abbonamento: piano, data rinnovo, gestisci
-3. Cronologia: corsi seguiti
-4. Impostazioni: email, password, notifiche
+**BUG CRITICO — Doppio sistema auth:**
+La home ha un proprio modal auth (`#glv-auth-overlay`) con form di login/registrazione
+**separato** da quello in `app.js` (`showAuthModal`). Risultato: la conferma email e
+l'occhiolino 👁 aggiunti in app.js NON esistono nel form della home. L'utente che
+si registra dalla home usa un form vecchio senza validazione doppia email.
 
-## Componenti chiave
+**Fix**: eliminare il modal duplicato in index.html e usare esclusivamente `showAuthModal()`
+da app.js, già aggiornato con tutte le feature.
 
-### CourseCard
-- Thumbnail (gradiente CSS con titolo lingua sovrapposto)
-- Hover: scale(1.08) + tooltip espanso con descrizione + CTA
-- Badge: livello (A1, A2, B1), lingua, "NUOVO"
-- Progress bar (solo in dashboard, se iniziato)
+**Problemi UX minori:**
+- Stats hero hardcodate (1.500+, 150+, 98%): ok per ora, ma da aggiornare periodicamente
+- Pricing: pulsanti mensile/annuale inline con stili inline misti — fragile
+- La sezione "preview catalogo" carica i corsi via API ma non ha skeleton loader
+- FAQ senza schema JSON-LD per SEO (consigliato)
+- CTA "Abbonamento" in navbar porta a #prezzi: corretto, ma non distingue utente loggato
+- Footer: link `catalogo.html?lang=Egiziano` dovrebbe essere `?lang=Egiziano%20Geroglifico`
 
-### PricingCard
-- Piano Mensile: €12,90/mese
-- Piano Annuale: €99/anno (€8,25/mese) — "PIÙ POPOLARE"
-- Toggle switch mensile/annuale con aggiornamento prezzi live
+### Flusso utente — Home
+```
+Utente arriva sulla home
+  → Vede Hero con CTA "Scegli il tuo piano" e "Esplora il catalogo"
+  → Scorre → Value Props → Testimonianze → Pricing
+  → Clicca "Scegli il tuo piano"
+    → [non loggato] → showAuthModal('register') → registrazione → redirect dashboard
+    → [loggato]     → redirect diretto a profilo.html#abbonamento
+  → Clicca "Accedi" in navbar
+    → showAuthModal('login') → login → redirect dashboard
+```
 
-### HeroRow (dashboard)
-- Background: thumbnail corso a piena larghezza, overlay gradiente
-- Titolo 48px, sottotitolo, 2 pulsanti
-- Auto-rotate ogni 8 secondi
+### Wireframe HOME (above the fold)
+```
+┌─────────────────────────────────────────────────────┐
+│ GRECOLATINO VIVO    Catalogo  Come funziona  Prezzi  │ ← navbar fixed dark
+│                                          [Accedi] [Abbonamento ▶] │
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  Centro Nazionale di Studi Classici                 │ ← eyebrow label bordeaux
+│                                                     │
+│  Il portale per le *lingue classiche*               │ ← h1, em = bordeaux
+│                                                     │
+│  Latino, Greco, Egiziano, Ebraico.                  │
+│  150+ ore di video-lezioni con docenti universitari │
+│                                                     │
+│  [ Scegli il tuo piano ] [ Esplora il catalogo ]    │
+│                                                     │
+│  ▏ 1.500+    ▏ 150+     ▏ 98%       ▏ 4            │
+│  ▏ Iscritti  ▏ Ore lez  ▏ Soddisf.  ▏ Lingue       │
+│                                                     │
+└─────────────────────────────────────────────────────┘
+```
 
-## Flussi utente
+---
 
-### Conversione (non abbonato → abbonato)
-Landing → scroll pricing → click "Inizia ora" → checkout Stripe → email Resend → dashboard
+## Analisi critica: DASHBOARD (dashboard.html)
 
-### Accesso corso (abbonato)
-Dashboard → click card → pagina corso → click lezione → player Vimeo
+### Problemi identificati
 
-### Acquisto singolo
-Catalogo → corso → "Acquista singolo €XX" → checkout Stripe → accesso immediato
+**1. Hero Billboard hardcodato**
+L'hero mostra sempre "Latino B1.1" con testo fisso. Non si aggiorna mai.
+Dovrebbe mostrare il corso più recente con progressi, oppure un featured course
+scelto dall'API. Un utente che sta studiando Greco vede sempre Latino come featured.
+
+**Fix**: Il JS che popola la dashboard (`loadDashboard` in app.js) dovrebbe alimentare
+l'hero con il corso che l'utente ha aperto per ultimo, o con il featured
+del mese da un campo nel DB.
+
+**2. Nessun saluto personale**
+L'utente entra e non sa di essere loggato — non c'è "Ciao Mario" da nessuna parte.
+L'avatar in navbar mostra "M" hardcodato. Non usa `currentUser.fullName`.
+
+**Fix**: Navbar avatar + nome dal JWT, e banner di benvenuto personalizzato.
+
+**3. Nessun banner abbonamento**
+Un utente senza abbonamento attivo vede lo stesso layout di uno con abbonamento.
+Non c'è nessun prompt a sottoscrivere, nessun avviso di scadenza.
+
+**Fix**: Banner sticky sotto navbar con stato abbonamento:
+- Verde: "Piano Linguae attivo — rinnovo il 12/06/2026"
+- Arancione: "Il tuo abbonamento scade tra 7 giorni — [Rinnova]"
+- Rosso: "Abbonamento scaduto — [Riattiva] per accedere ai corsi"
+- Grigio: "Nessun abbonamento — [Scegli un piano] per sbloccare i corsi"
+
+**4. "Vedi tutto →" senza href**
+Tutti i link "Vedi tutto →" non puntano da nessuna parte. Friction inutile.
+
+**Fix**: `href="catalogo.html?lang=Latino"` ecc.
+
+**5. Sezione "I miei corsi" nascosta di default**
+`#section-progress` ha `display:none` e appare solo se c'è progresso.
+Un nuovo utente non capisce che quella sezione esiste.
+
+**Fix**: Mostrare sempre la sezione, con un empty state onboarding:
+"Non hai ancora iniziato nessun corso. [Inizia ora →]"
+
+**6. Il footer dashboard è spoglio**
+Solo due righe. Non coerente col footer della home.
+
+### Flusso utente — Dashboard
+```
+Utente loggato arriva su dashboard.html
+  → Vede Navbar con nome/avatar personale
+  → Banner abbonamento (stato colorato)
+  → Hero Billboard: ultimo corso aperto / featured
+  → "I miei corsi" (con progresso) — sempre visibile, con empty state se vuota
+  → Righe catalogo: Continua, Nuovi, per lingua
+  → Corsi Brevi + Didattica in fondo
+  → Click su corso → corso.html?id=slug
+  → "Il mio abbonamento" in navbar → profilo.html
+```
+
+### Wireframe DASHBOARD
+```
+┌─────────────────────────────────────────────────────┐
+│ GRECOLATINO VIVO  Catalogo Latino Greco Egiziano…   │
+│                   [🔍] [Il mio piano] [M▼ Mario] [Esci]│
+├─────────────────────────────────────────────────────┤
+│ 🟢 Piano Linguae attivo — rinnovo il 12/06/2026     │ ← banner abbonamento
+├─────────────────────────────────────────────────────┤
+│                                                     │
+│  [────────── HERO BILLBOARD ──────────────────────] │
+│  IN EVIDENZA   Greco Antico A1.1                    │
+│  24 lezioni · 24 ore · Livello A1                   │
+│  [▶ Accedi al corso]  [+ Lista]                     │
+│                                                     │
+├─────────────────────────────────────────────────────┤
+│ I miei corsi                              Attestati→│
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐            │
+│ │ Greco A1 │ │ Latino A1│ │ + Inizia │            │
+│ │ ████░░ 65%│ │ ██░░░ 30%│ │  un corso│            │
+│ └──────────┘ └──────────┘ └──────────┘            │
+├─────────────────────────────────────────────────────┤
+│ Continua a studiare                      Vedi tutto→│
+│ [card] [card] [card] [card] [card] →               │
+│                                                     │
+│ Latino                                   Vedi tutto→│
+│ [card] [card] [card] [card] [card] →               │
+│ ...                                                 │
+└─────────────────────────────────────────────────────┘
+```
+
+---
+
+## Componenti da correggere
+
+### 1. SubscriptionBanner (NUOVO)
+Elemento: `<div id="subscription-banner">` sotto la navbar in dashboard.html
+Stati:
+- `.active` — verde, testo "Piano X attivo — rinnovo il [data]"
+- `.expiring` — arancione, testo "Scade tra N giorni — [Rinnova]"
+- `.expired` — rosso, testo "Abbonamento scaduto — [Riattiva]"
+- `.none` — bordeaux scuro, testo "Nessun piano — [Scegli un piano]"
+
+### 2. Navbar avatar (FIX)
+`#nav-avatar` e `#nav-name` devono essere popolati da JS al caricamento pagina
+con `currentUser.fullName[0]` e `currentUser.fullName`.
+
+### 3. Auth modal (FIX — CRITICO)
+Eliminare `#glv-auth-overlay` da index.html.
+Usare esclusivamente `showAuthModal()` da app.js, già aggiornato.
+I pulsanti `data-open-auth` devono chiamare `showAuthModal('login')`.
+Il link "Registrati" deve chiamare `showAuthModal('register')`.
+
+### 4. Empty state "I miei corsi"
+Quando l'utente non ha progressi mostrare:
+```
+🏛  Non hai ancora iniziato nessun corso.
+    Sfoglia il catalogo e inizia il tuo percorso nelle lingue classiche.
+    [ Esplora il catalogo ]
+```
+Stile: testo centrato, icon emoji 2rem, CTA btn-primary.
+
+### 5. Vedi tutto → href
+- "Continua a studiare" → `catalogo.html`
+- "Latino" → `catalogo.html?lang=Latino`
+- "Greco Antico" → `catalogo.html?lang=Greco%20Antico`
+- "Egiziano Geroglifico" → `catalogo.html?lang=Egiziano%20Geroglifico`
+- "Ebraico Biblico" → `catalogo.html?lang=Ebraico%20Biblico`
+- "Corsi Brevi" → `catalogo.html?lang=Corsi%20Brevi`
+- "Formazione per Docenti" → `catalogo.html?lang=Didattica`
+
+---
+
+## Priorità interventi
+
+| Priorità | Intervento | File |
+|---|---|---|
+| 🔴 CRITICO | Fix auth modal duplicato in index.html | index.html |
+| 🔴 CRITICO | Navbar avatar/nome dinamici | dashboard.html + app.js |
+| 🟠 ALTA | Banner abbonamento in dashboard | dashboard.html + app.js |
+| 🟠 ALTA | Empty state "I miei corsi" | dashboard.html |
+| 🟡 MEDIA | "Vedi tutto →" con href corretti | dashboard.html |
+| 🟡 MEDIA | Hero billboard dinamico | app.js |
+| 🟢 BASSA | FAQ schema JSON-LD | index.html |
+| 🟢 BASSA | Footer link lang corretto (Egiziano) | index.html |

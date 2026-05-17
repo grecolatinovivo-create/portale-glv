@@ -10,197 +10,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    /* ── Modal Auth ── */
-    #glv-auth-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.65);
-      z-index: 9998;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-    #glv-auth-overlay.open { display: flex; }
-    #glv-auth-card {
-      background: #fff;
-      border-radius: 12px;
-      max-width: 440px;
-      width: 100%;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,.25);
-      overflow: hidden;
-    }
-    #glv-auth-close {
-      position: absolute;
-      top: 12px;
-      right: 16px;
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: #888;
-      cursor: pointer;
-      line-height: 1;
-      z-index: 1;
-    }
-    .glv-auth-tabs {
-      display: flex;
-      border-bottom: 2px solid #eee;
-    }
-    .glv-auth-tab {
-      flex: 1;
-      padding: 16px;
-      text-align: center;
-      font-family: Montserrat, sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: #888;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -2px;
-      transition: color .2s, border-color .2s;
-    }
-    .glv-auth-tab.active {
-      color: #a01a36;
-      border-bottom-color: #a01a36;
-    }
-    .glv-auth-body { padding: 28px 32px 32px; }
-    .glv-auth-form { display: none; }
-    .glv-auth-form.active { display: block; }
-    .glv-auth-field {
-      margin-bottom: 16px;
-    }
-    .glv-auth-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-      color: #555;
-      margin-bottom: 6px;
-      font-family: Roboto, sans-serif;
-    }
-    .glv-auth-field input[type="text"],
-    .glv-auth-field input[type="email"],
-    .glv-auth-field input[type="password"] {
-      width: 100%;
-      border: 1.5px solid #ddd;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 14px;
-      font-family: Roboto, sans-serif;
-      color: #232323;
-      outline: none;
-      transition: border-color .2s;
-      box-sizing: border-box;
-    }
-    .glv-auth-field input:focus { border-color: #a01a36; }
-    .glv-auth-field.checkbox-field {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-    }
-    .glv-auth-field.checkbox-field input[type="checkbox"] {
-      margin-top: 3px;
-      flex-shrink: 0;
-      width: 16px;
-      height: 16px;
-      accent-color: #a01a36;
-    }
-    .glv-auth-field.checkbox-field label {
-      text-transform: none;
-      letter-spacing: 0;
-      font-size: 13px;
-      font-weight: 400;
-      color: #444;
-    }
-    .glv-auth-field.checkbox-field label a { color: #a01a36; }
-    .glv-auth-error {
-      display: none;
-      background: #fff0f0;
-      border: 1px solid #f5c6cb;
-      color: #a01a36;
-      border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 13px;
-      margin-bottom: 16px;
-      font-family: Roboto, sans-serif;
-    }
-    .glv-auth-btn {
-      width: 100%;
-      padding: 13px;
-      background: #a01a36;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      font-family: Montserrat, sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background .2s;
-    }
-    .glv-auth-btn:hover { background: #7b0d1e; }
-    .glv-auth-btn:disabled { opacity: .6; cursor: not-allowed; }
-  </style>
 </head>
 <body>
-
-  <!-- ── MODAL AUTH ─────────────────────────────────────── -->
-  <div id="glv-auth-overlay" role="dialog" aria-modal="true" aria-label="Accedi o registrati">
-    <div id="glv-auth-card">
-      <button id="glv-auth-close" aria-label="Chiudi">&times;</button>
-
-      <div class="glv-auth-tabs">
-        <button class="glv-auth-tab active" data-tab="login">Accedi</button>
-        <button class="glv-auth-tab" data-tab="register">Registrati</button>
-      </div>
-
-      <div class="glv-auth-body">
-
-        <!-- FORM LOGIN -->
-        <form id="glv-form-login" class="glv-auth-form active" novalidate>
-          <div class="glv-auth-error" id="glv-login-error"></div>
-          <div class="glv-auth-field">
-            <label for="glv-login-email">Email</label>
-            <input type="email" id="glv-login-email" autocomplete="email" required placeholder="tua@email.it" />
-          </div>
-          <div class="glv-auth-field">
-            <label for="glv-login-password">Password</label>
-            <input type="password" id="glv-login-password" autocomplete="current-password" required placeholder="••••••••" />
-          </div>
-          <button type="submit" class="glv-auth-btn" id="glv-login-btn">Accedi</button>
-        </form>
-
-        <!-- FORM REGISTRAZIONE -->
-        <form id="glv-form-register" class="glv-auth-form" novalidate>
-          <div class="glv-auth-error" id="glv-register-error"></div>
-          <div class="glv-auth-field">
-            <label for="glv-reg-name">Nome completo</label>
-            <input type="text" id="glv-reg-name" autocomplete="name" required placeholder="Mario Rossi" />
-          </div>
-          <div class="glv-auth-field">
-            <label for="glv-reg-email">Email</label>
-            <input type="email" id="glv-reg-email" autocomplete="email" required placeholder="tua@email.it" />
-          </div>
-          <div class="glv-auth-field">
-            <label for="glv-reg-password">Password</label>
-            <input type="password" id="glv-reg-password" autocomplete="new-password" required placeholder="Minimo 8 caratteri" />
-          </div>
-          <div class="glv-auth-field checkbox-field">
-            <input type="checkbox" id="glv-reg-privacy" required />
-            <label for="glv-reg-privacy">
-              Accetto la <a href="/privacy.html" target="_blank">Privacy Policy</a> e i <a href="/termini.html" target="_blank">Termini di Servizio</a>
-            </label>
-          </div>
-          <button type="submit" class="glv-auth-btn" id="glv-register-btn">Crea account</button>
-        </form>
-
-      </div>
-    </div>
-  </div>
 
   <!-- ── NAVBAR ──────────────────────────────────────────── -->
   <nav class="glv-nav">
@@ -211,7 +22,7 @@
       <a href="#prezzi">Prezzi</a>
     </div>
     <div class="nav-right">
-      <a href="#" class="btn btn-ghost" data-open-auth>Accedi</a>
+      <a href="#" class="btn btn-ghost" data-open-login>Accedi</a>
       <a href="#prezzi" class="btn btn-primary">Abbonamento</a>
     </div>
   </nav>
@@ -509,7 +320,7 @@
         <h5>Corsi</h5>
         <a href="catalogo.html?lang=Latino">Latino</a>
         <a href="catalogo.html?lang=Greco">Greco Antico</a>
-        <a href="catalogo.html?lang=Egiziano">Egiziano</a>
+        <a href="catalogo.html?lang=Egiziano%20Geroglifico">Egiziano</a>
         <a href="catalogo.html?lang=Ebraico">Ebraico</a>
         <a href="catalogo.html?lang=Didattica">Didattica</a>
       </div>
@@ -581,207 +392,20 @@
 
   <script src="js/app.js"></script>
   <script>
-    // ── Bonus Docenti modal (logica originale) ──────────────────
+    // ── Bonus Docenti modal ──────────────────────────────────────
     document.getElementById('btn-bonus-docenti').addEventListener('click', function(e){
       e.preventDefault();
-      var m = document.getElementById('modal-bonus');
-      m.style.display = 'flex';
+      document.getElementById('modal-bonus').style.display = 'flex';
     });
     document.getElementById('modal-bonus').addEventListener('click', function(e){
       if(e.target === this) this.style.display = 'none';
     });
 
-    // ── Auth globale ────────────────────────────────────────────
-    window.GLV_USER = null;
-    window.PENDING_PLAN = null;
-
-    // Verifica sessione all'avvio: se già loggato → redirect dashboard
+    // ── Verifica sessione: se loggato → redirect dashboard ───────
     fetch('/api/auth/me')
-      .then(function(res) {
-        if (res.ok) return res.json();
-        return null;
-      })
-      .then(function(data) {
-        if (data && data.user) {
-          window.location.href = '/dashboard.html';
-        }
-      })
+      .then(function(res) { if (res.ok) return res.json(); return null; })
+      .then(function(data) { if (data && data.user) { window.location.href = '/dashboard.html'; } })
       .catch(function() { /* nessuna sessione, rimane sulla landing */ });
-
-    // ── Helper checkout ─────────────────────────────────────────
-    function doCheckout(planId) {
-      fetch('/api/stripe/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId: planId })
-      })
-        .then(function(res) {
-          if (res.status === 401) {
-            window.PENDING_PLAN = planId;
-            openAuthModal();
-            return null;
-          }
-          return res.json();
-        })
-        .then(function(data) {
-          if (!data) return;
-          if (data.url) window.location.href = data.url;
-          else if (data.error) alert('Errore: ' + data.error);
-        })
-        .catch(function() { alert('Errore durante il reindirizzamento a Stripe. Riprova.'); });
-    }
-
-    // ── Modal Auth helpers ──────────────────────────────────────
-    var overlay = document.getElementById('glv-auth-overlay');
-
-    function openAuthModal() {
-      overlay.classList.add('open');
-    }
-    function closeAuthModal() {
-      overlay.classList.remove('open');
-      document.getElementById('glv-login-error').style.display = 'none';
-      document.getElementById('glv-register-error').style.display = 'none';
-    }
-
-    function showError(elId, msg) {
-      var el = document.getElementById(elId);
-      el.textContent = msg;
-      el.style.display = 'block';
-    }
-
-    // Tab switcher
-    document.querySelectorAll('.glv-auth-tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        var target = this.dataset.tab;
-        document.querySelectorAll('.glv-auth-tab').forEach(function(t) { t.classList.remove('active'); });
-        document.querySelectorAll('.glv-auth-form').forEach(function(f) { f.classList.remove('active'); });
-        this.classList.add('active');
-        document.getElementById('glv-form-' + target).classList.add('active');
-      });
-    });
-
-    // Chiudi modal
-    document.getElementById('glv-auth-close').addEventListener('click', closeAuthModal);
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) closeAuthModal();
-    });
-
-    // Apri modal dal bottone navbar
-    document.querySelectorAll('[data-open-auth]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        openAuthModal();
-      });
-    });
-
-    // ── Bottoni pricing ─────────────────────────────────────────
-    document.querySelectorAll('[data-subscribe-direct]').forEach(function(btn) {
-      btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        var plan = this.dataset.plan;
-        var period = this.dataset.period;
-        var planId = plan + '-' + (period === 'monthly' ? 'mensile' : 'annuale');
-
-        if (window.GLV_USER) {
-          doCheckout(planId);
-        } else {
-          window.PENDING_PLAN = planId;
-          openAuthModal();
-        }
-      });
-    });
-
-    // ── Form Login ──────────────────────────────────────────────
-    document.getElementById('glv-form-login').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var btn = document.getElementById('glv-login-btn');
-      var email = document.getElementById('glv-login-email').value.trim();
-      var password = document.getElementById('glv-login-password').value;
-      document.getElementById('glv-login-error').style.display = 'none';
-
-      if (!email || !password) {
-        showError('glv-login-error', 'Compila tutti i campi.');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Accesso in corso…';
-
-      fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password })
-      })
-        .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
-        .then(function(result) {
-          if (result.ok && result.data.ok) {
-            window.GLV_USER = result.data.user;
-            if (window.PENDING_PLAN) {
-              doCheckout(window.PENDING_PLAN);
-            } else {
-              window.location.href = '/dashboard.html';
-            }
-          } else {
-            showError('glv-login-error', result.data.error || 'Credenziali non valide. Riprova.');
-            btn.disabled = false;
-            btn.textContent = 'Accedi';
-          }
-        })
-        .catch(function() {
-          showError('glv-login-error', 'Errore di rete. Riprova.');
-          btn.disabled = false;
-          btn.textContent = 'Accedi';
-        });
-    });
-
-    // ── Form Registrazione ──────────────────────────────────────
-    document.getElementById('glv-form-register').addEventListener('submit', function(e) {
-      e.preventDefault();
-      var btn = document.getElementById('glv-register-btn');
-      var fullName = document.getElementById('glv-reg-name').value.trim();
-      var email = document.getElementById('glv-reg-email').value.trim();
-      var password = document.getElementById('glv-reg-password').value;
-      var privacy = document.getElementById('glv-reg-privacy').checked;
-      document.getElementById('glv-register-error').style.display = 'none';
-
-      if (!fullName || !email || !password) {
-        showError('glv-register-error', 'Compila tutti i campi.');
-        return;
-      }
-      if (!privacy) {
-        showError('glv-register-error', 'Devi accettare la Privacy Policy e i Termini di Servizio.');
-        return;
-      }
-
-      btn.disabled = true;
-      btn.textContent = 'Registrazione in corso…';
-
-      fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, fullName: fullName, password: password })
-      })
-        .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
-        .then(function(result) {
-          if (result.ok && result.data.ok) {
-            window.GLV_USER = result.data.user;
-            if (window.PENDING_PLAN) {
-              doCheckout(window.PENDING_PLAN);
-            } else {
-              window.location.href = '/dashboard.html';
-            }
-          } else {
-            showError('glv-register-error', result.data.error || 'Registrazione non riuscita. Riprova.');
-            btn.disabled = false;
-            btn.textContent = 'Crea account';
-          }
-        })
-        .catch(function() {
-          showError('glv-register-error', 'Errore di rete. Riprova.');
-          btn.disabled = false;
-          btn.textContent = 'Crea account';
-        });
-    });
   </script>
 </body>
 </html>

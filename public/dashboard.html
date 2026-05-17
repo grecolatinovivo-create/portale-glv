@@ -26,10 +26,16 @@
     <div class="nav-right">
       <button class="nav-search-btn" title="Cerca"><i class="fas fa-search"></i></button>
       <a href="profilo.html" class="btn btn-ghost">Il mio abbonamento</a>
-      <div class="nav-avatar" title="Profilo">M</div>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="window.location.href='profilo.html'">
+        <span id="nav-name" style="font-size:13px;color:var(--text-secondary);max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+        <div class="nav-avatar" id="nav-avatar" title="Vai al profilo"></div>
+      </div>
       <a href="#" class="text-muted" style="font-size: 12px;" data-logout>Esci</a>
     </div>
   </nav>
+
+  <!-- ── BANNER ABBONAMENTO ─────────────────────────────────── -->
+  <div id="subscription-banner" style="display:none;"></div>
 
   <!-- ── HERO BILLBOARD ──────────────────────────────────── -->
   <div class="hero-billboard">
@@ -57,19 +63,24 @@
   </div>
 
   <!-- ── I MIEI CORSI IN CORSO ─────────────────────────────── -->
-  <div id="section-progress" style="display:none; padding:32px 48px 0;">
+  <div id="section-progress" style="padding:32px 48px 0;">
     <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:8px;">
       <h3 style="font-family:'Montserrat',sans-serif; font-size:18px; font-weight:700;">I miei corsi</h3>
       <a href="profilo.html" style="font-size:13px; color:var(--accent); text-decoration:none; font-weight:600;">Vedi attestati →</a>
     </div>
     <div id="progress-list" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px;"></div>
+    <div id="progress-empty" style="display:none; text-align:center; padding:32px 16px 40px;">
+      <div style="font-size:2rem; margin-bottom:12px;">🏛</div>
+      <p style="color:var(--text-secondary); font-size:14px; line-height:1.6; margin-bottom:20px;">Non hai ancora iniziato nessun corso.<br>Sfoglia il catalogo e inizia il tuo percorso nelle lingue classiche.</p>
+      <a href="catalogo.html" class="btn btn-primary">Esplora il catalogo</a>
+    </div>
   </div>
 
   <!-- ── CONTINUA A STUDIARE ─────────────────────────────── -->
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Continua a studiare</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-continua"></div>
   </div>
@@ -78,7 +89,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Nuovi questo mese</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-nuovi"></div>
   </div>
@@ -87,7 +98,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Latino</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Latino" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-latino"></div>
   </div>
@@ -96,7 +107,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Greco Antico</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Greco%20Antico" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-greco"></div>
   </div>
@@ -105,7 +116,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Egiziano Geroglifico</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Egiziano%20Geroglifico" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-egiziano"></div>
   </div>
@@ -114,7 +125,7 @@
   <div class="section-row">
     <div class="row-header">
       <h3 class="row-title">Ebraico Biblico</h3>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Ebraico%20Biblico" class="row-explore">Vedi tutto →</a>
     </div>
     <div class="courses-row" id="row-ebraico"></div>
   </div>
@@ -124,7 +135,7 @@
     <div class="row-header">
       <h3 class="row-title">Corsi Brevi</h3>
       <span style="font-size:11px;font-weight:700;background:#e0f2f1;color:#00796b;border:1px solid rgba(0,121,107,.2);padding:2px 10px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;">Acquisto singolo</span>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Corsi%20Brevi" class="row-explore">Vedi tutto →</a>
     </div>
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Percorsi tematici autonomi · da 4 a 15 ore · accesso immediato</p>
     <div class="courses-row" id="row-brevi"></div>
@@ -135,7 +146,7 @@
     <div class="row-header">
       <h3 class="row-title">Formazione per Docenti</h3>
       <span style="font-size:11px;font-weight:700;background:var(--accent-light);color:var(--accent);border:1px solid rgba(160,26,54,.2);padding:2px 10px;border-radius:3px;letter-spacing:.5px;text-transform:uppercase;">Bonus Docenti</span>
-      <span class="row-explore">Vedi tutto →</span>
+      <a href="catalogo.html?lang=Didattica" class="row-explore">Vedi tutto →</a>
     </div>
     <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">Corsi di aggiornamento professionale accreditati MIUR · 20 ore ciascuno</p>
     <div class="courses-row" id="row-didattica"></div>
@@ -155,11 +166,14 @@
       fetch('/api/progress')
         .then(function(r) { return r.ok ? r.json() : null; })
         .then(function(data) {
-          if (!data || !data.courses || data.courses.length === 0) return;
+          var list       = document.getElementById('progress-list');
+          var emptyState = document.getElementById('progress-empty');
 
-          var section = document.getElementById('section-progress');
-          var list    = document.getElementById('progress-list');
-          section.style.display = 'block';
+          if (!data || !data.courses || data.courses.length === 0) {
+            // Mostra empty state
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+          }
 
           data.courses.forEach(function(c) {
             var pct  = c.percent;
@@ -204,7 +218,11 @@
             list.appendChild(card);
           });
         })
-        .catch(function() { /* silently ignore progress errors */ });
+        .catch(function() {
+          // In caso di errore mostra comunque l'empty state
+          var emptyState = document.getElementById('progress-empty');
+          if (emptyState) emptyState.style.display = 'block';
+        });
     }
   </script>
   <script src="js/app.js"></script>
@@ -224,25 +242,47 @@
           document.documentElement.style.visibility = '';
           window.GLV_USER = data.user;
 
-          // Aggiorna avatar navbar
-          var avatar = document.querySelector('.nav-avatar');
-          if (avatar && data.user) {
-            var name = data.user.fullName || data.user.email || '';
-            avatar.textContent = name.charAt(0).toUpperCase();
+          // ── Avatar e nome navbar ───────────────────────────────
+          var avatarEl = document.getElementById('nav-avatar');
+          var nameEl   = document.getElementById('nav-name');
+          if (data.user) {
+            var fullName = data.user.fullName || data.user.email || '';
+            if (avatarEl) avatarEl.textContent = fullName.charAt(0).toUpperCase();
+            if (nameEl)   nameEl.textContent = fullName.split(' ')[0]; // solo il primo nome
           }
 
-          // Carica progressi corsi
+          // ── Banner abbonamento (4 stati) ───────────────────────
+          var bannerEl = document.getElementById('subscription-banner');
+          if (bannerEl && data.user) {
+            var sub = data.user.subscription;
+            var planLabels = { cultura: 'Cultura', linguae: 'Linguae', accademia: 'Accademia' };
+
+            if (sub && sub.status === 'active') {
+              var endDate   = sub.currentPeriodEnd ? new Date(sub.currentPeriodEnd) : null;
+              var daysLeft  = endDate ? Math.ceil((endDate - Date.now()) / 86400000) : 999;
+              var planLabel = planLabels[sub.plan] || sub.plan;
+
+              if (daysLeft <= 7) {
+                // Stato: in scadenza (arancione)
+                bannerEl.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 24px;background:#ff8c00;color:#fff;font-size:13px;font-family:Roboto,sans-serif;font-weight:500;';
+                bannerEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Il tuo abbonamento <strong>' + planLabel + '</strong> scade tra ' + daysLeft + ' giorn' + (daysLeft === 1 ? 'o' : 'i') + ' &nbsp;·&nbsp; <a href="profilo.html" style="color:#fff;font-weight:700;text-decoration:underline;">Rinnova ora →</a>';
+              } else {
+                // Stato: attivo (verde)
+                var renewStr = endDate ? endDate.toLocaleDateString('it-IT', { day:'2-digit', month:'2-digit', year:'numeric' }) : '';
+                bannerEl.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:8px;padding:8px 24px;background:#1e7e34;color:#fff;font-size:12px;font-family:Roboto,sans-serif;font-weight:500;';
+                bannerEl.innerHTML = '<i class="fas fa-check-circle"></i> Piano <strong>' + planLabel + '</strong> attivo' + (renewStr ? ' &mdash; rinnovo il ' + renewStr : '');
+              }
+            } else {
+              // Stato: nessun piano (bordeaux)
+              bannerEl.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 24px;background:#7b0d1e;color:#fff;font-size:13px;font-family:Roboto,sans-serif;font-weight:500;';
+              bannerEl.innerHTML = '<i class="fas fa-lock"></i> Nessun abbonamento attivo &nbsp;·&nbsp; <a href="/#prezzi" style="color:#fff;font-weight:700;text-decoration:underline;">Scegli un piano →</a>';
+            }
+          }
+
+          // ── Carica progressi corsi ─────────────────────────────
           loadProgress();
 
-          // Banner abbonamento assente
-          if (data.user && !data.user.subscription) {
-            var banner = document.createElement('div');
-            banner.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:40px;background:#a01a36;color:#fff;display:flex;align-items:center;justify-content:center;z-index:10000;font-size:13px;font-family:Roboto,sans-serif;';
-            banner.innerHTML = '<a href="/#prezzi" style="color:#fff;text-decoration:underline;font-weight:600;">Nessun abbonamento attivo. Scegli un piano &rarr;</a>';
-            document.body.insertBefore(banner, document.body.firstChild);
-          }
-
-          // Logout
+          // ── Logout ─────────────────────────────────────────────
           document.querySelectorAll('[data-logout]').forEach(function (btn) {
             btn.addEventListener('click', function (e) {
               e.preventDefault();

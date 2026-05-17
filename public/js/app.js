@@ -849,6 +849,15 @@ const Payments = {
   async subscribeDirectly(plan, period) {
     console.log(`[GLV] subscribeDirectly chiamato: piano="${plan}" periodo="${period}"`);
 
+    // Se non loggato → salva piano pendente e apri modal login
+    const user = await Auth.getUser();
+    if (!user) {
+      sessionStorage.setItem('glv_pending_plan', plan);
+      sessionStorage.setItem('glv_pending_period', period);
+      showAuthModal('login');
+      return;
+    }
+
     // Se i prezzi non sono ancora stati caricati, aspetta o riprova
     if (window.__GLV_PRICES === null) {
       console.log('[GLV] Prezzi non ancora caricati, aspetto...');
