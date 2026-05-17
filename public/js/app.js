@@ -1280,14 +1280,7 @@ function initAuthModals(){
     if (plan) { await Payments.subscribe(plan); return; }
     showAuthModal('register');
   }));
-  document.querySelectorAll('[data-demo-login]').forEach(btn=>btn.addEventListener('click',async e=>{
-    e.preventDefault();
-    const r=await Auth.login('demo@grecolatinovivo.it','demo1234');
-    if(r.ok)window.location.href='dashboard.html'; else showAuthModal('login');
-  }));
   document.querySelectorAll('[data-logout]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Auth.logout();}));
-  document.querySelectorAll('[data-subscribe-monthly]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Payments.subscribeMonthly();}));
-  document.querySelectorAll('[data-subscribe-annual]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Payments.subscribeAnnual();}));
   // Pulsanti abbonamento diretto: data-subscribe-direct data-plan="cultura" data-period="monthly|annual"
   document.querySelectorAll('[data-subscribe-direct]').forEach(btn=>btn.addEventListener('click',async e=>{
     e.preventDefault();
