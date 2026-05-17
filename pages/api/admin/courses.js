@@ -16,6 +16,9 @@ module.exports = withAuth(async function handler(req, res) {
   // ── GET — lista corsi ────────────────────────────────────────────
   if (req.method === 'GET') {
     try {
+      // Recupera i corsi con tutti i campi disponibili
+      // expiresAt / availableUntilLabel sono nuovi: se non esistono nel DB
+      // (prisma db push non ancora eseguito) Prisma li restituirà come undefined
       const courses = await prisma.course.findMany({
         orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
         include: {

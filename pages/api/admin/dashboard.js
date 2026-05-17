@@ -30,43 +30,33 @@ module.exports = withAuth(async function handler(req, res) {
       revokedCertificates,
       totalCourses,
       completedCoursesLast30,
-      recentLogs,
-      expiringCourses,
     ] = await Promise.all([
-      // Utenti totali
       prisma.user.count(),
-
-      // Nuovi utenti ultimi 30 giorni
       prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
-
-      // Abbonamenti attivi o in prova
       prisma.subscription.count({
         where: { status: { in: ['active', 'trialing'] } },
       }),
-
-      // Attestati totali (inclusi revocati)
       prisma.certificate.count(),
-
-      // Attestati revocati
       prisma.certificate.count({ where: { revokedAt: { not: null } } }),
-
-      // Corsi disponibili
       prisma.course.count({ where: { isAvailable: true } }),
-
-      // Corsi completati (100%) negli ultimi 30 giorni
-      // Conteggio dei Certificate emessi nell'ultimo mese come proxy
       prisma.certificate.count({
         where: { issuedAt: { gte: thirtyDaysAgo }, revokedAt: null },
       }),
+    ]);
 
-      // Ultime 10 azioni admin
-      prisma.adminLog.findMany({
+    // AdminLog e campi nuovi (expiresAt) potrebbero non esistere ancora nel DB
+    // se npx prisma db push non è stato eseguito — gestiamo il fallback
+    let recentLogs = [];
+    try {
+      recentLogs = await prisma.adminLog.findMany({
         orderBy: { createdAt: 'desc' },
         take: 10,
-      }),
+      });
+    } catch { /* tabella non ancora creata */ }
 
-      // Corsi in scadenza entro 14 giorni (urgency)
-      prisma.course.findMany({
+    let expiringCourses = [];
+    try {
+      expiringCourses = await prisma.course.findMany({
         where: {
           isAvailable: true,
           expiresAt: {
@@ -76,14 +66,11 @@ module.exports = withAuth(async function handler(req, res) {
           },
         },
         select: {
-          id: true,
-          slug: true,
-          title: true,
-          expiresAt: true,
-          availableUntilLabel: true,
+          id: true, slug: true, title: true,
+          expiresAt: true, availableUntilLabel: true,
         },
-      }),
-    ]);
+      });
+    } catch { /* colonna non ancora creata */ }
 
     return res.status(200).json({
       metrics: {

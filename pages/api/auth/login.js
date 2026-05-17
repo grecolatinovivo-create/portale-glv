@@ -35,6 +35,11 @@ module.exports = async function handler(req, res) {
       return res.status(401).json({ error: 'Credenziali non valide' });
     }
 
+    // Controlla sospensione account (campo opzionale — safe anche se non ancora nel DB)
+    if (user.isSuspended) {
+      return res.status(403).json({ error: 'Account sospeso. Contatta support@grecolatinovivo.it.' });
+    }
+
     // Generazione JWT e impostazione cookie
     const token = signToken({ userId: user.id, email: user.email });
     setAuthCookie(res, token);

@@ -44,7 +44,6 @@ module.exports = withAuth(async function handler(req, res) {
             email: true,
             fullName: true,
             createdAt: true,
-            isSuspended: true,
             subscriptions: {
               where: { status: { in: ['active', 'trialing'] } },
               select: { id: true, plan: true, status: true, currentPeriodEnd: true },
@@ -56,15 +55,27 @@ module.exports = withAuth(async function handler(req, res) {
             certificates: {
               select: { id: true, certCode: true, issuedAt: true, revokedAt: true },
             },
-            _count: {
-              select: { lessonProgress: true },
-            },
           },
         }),
       ]);
 
+      // Prova a leggere isSuspended separatamente (campo nuovo — potrebbe non esistere nel DB)
+      let suspendedIds = new Set();
+      try {
+        const suspended = await prisma.user.findMany({
+          where: { isSuspended: true },
+          select: { id: true },
+        });
+        suspendedIds = new Set(suspended.map(u => u.id));
+      } catch { /* campo non ancora nel DB — tutti considerati attivi */ }
+
+      const usersWithStatus = users.map(u => ({
+        ...u,
+        isSuspended: suspendedIds.has(u.id),
+      }));
+
       return res.status(200).json({
-        users,
+        users: usersWithStatus,
         pagination: {
           total,
           page: parseInt(page),
@@ -74,12 +85,6 @@ module.exports = withAuth(async function handler(req, res) {
       });
     } catch (err) {
       console.error('[admin/users GET]', err);
-      // Gestisci il caso in cui isSuspended non esiste ancora nello schema
-      if (err.code === 'P2025' || err.message?.includes('isSuspended')) {
-        return res.status(500).json({
-          error: 'Campo isSuspended non ancora nel DB. Esegui: npx prisma db push',
-        });
-      }
       return res.status(500).json({ error: 'Errore interno del server' });
     }
   }
