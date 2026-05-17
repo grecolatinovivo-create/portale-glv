@@ -808,6 +808,133 @@
       /* Bottom padding per bottom nav */
       body { padding-bottom: 56px; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       DARK THEME OVERRIDE — Allineamento alla landing page
+       Palette: --dark #15080e · --dark-2 #1d0c13 · --gold #d4a017
+                --ivory #faf8f5 · --primary #a01a36
+    ═══════════════════════════════════════════════════════════════ */
+
+    /* ── Variabili dark ── */
+    :root {
+      --dark:        #15080e;
+      --dark-2:      #1d0c13;
+      --dark-3:      #2a0d18;
+      --dark-card:   #1a0c12;
+      --dark-card-2: #221018;
+      --ivory:       #faf8f5;
+      --text-dim:    rgba(250,248,245,.62);
+      --text-faint:  rgba(250,248,245,.38);
+      --border-dim:  rgba(255,255,255,.09);
+      --gold:        #d4a017;
+      --primary:     #a01a36;
+    }
+
+    /* ── Body dark ── */
+    body {
+      background: var(--dark) !important;
+      color: var(--ivory) !important;
+    }
+
+    /* ── Navbar dark (sempre nera, come la landing) ── */
+    .glv-nav {
+      background: rgba(21,8,14,.97) !important;
+      border-bottom: 1px solid var(--border-dim) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+    }
+    .nav-logo,
+    .glv-nav .nav-links a,
+    .glv-nav .nav-right a,
+    .glv-nav .nav-right .text-muted {
+      color: var(--ivory) !important;
+    }
+    .glv-nav .nav-links a:hover { color: var(--gold) !important; }
+    .glv-nav .btn-ghost {
+      border: 1px solid var(--border-dim) !important;
+      color: rgba(250,248,245,.8) !important;
+    }
+    .glv-nav .btn-ghost:hover { background: rgba(255,255,255,.06) !important; }
+
+    /* Hamburger dark ── */
+    .nav-hamburger span { background: var(--ivory) !important; }
+
+    /* ── Sezioni principali ── */
+    .dash-section-title,
+    .row-title { color: var(--ivory) !important; }
+
+    .dash-section-link { color: var(--gold) !important; }
+
+    /* ── Hero "continua" ── */
+    .dash-hero-continue { background: transparent !important; }
+    .hero-continue-body {
+      background: var(--dark-card) !important;
+      border-left: 1px solid var(--border-dim) !important;
+    }
+    .hero-continue-title { color: var(--ivory) !important; }
+    .hero-continue-eyebrow { color: var(--gold) !important; }
+    .hero-continue-eyebrow::before { background: var(--gold) !important; }
+    .btn-course-link { color: var(--text-dim) !important; }
+    .btn-course-link:hover { color: var(--ivory) !important; }
+    .progress-premium-info { color: var(--text-dim) !important; }
+    .progress-premium-track { background: rgba(255,255,255,.08) !important; }
+    .progress-premium-motivation { color: var(--gold) !important; }
+
+    /* ── Card progressi ── */
+    .pcards-card {
+      background: var(--dark-card) !important;
+      border: 1px solid var(--border-dim) !important;
+      box-shadow: 0 4px 24px rgba(0,0,0,.35) !important;
+    }
+    .pcards-card:hover {
+      box-shadow: 0 16px 48px rgba(0,0,0,.5), 0 0 0 1px rgba(212,160,23,.2) !important;
+      transform: translateY(-4px);
+    }
+    .pcards-title { color: var(--ivory) !important; }
+    .pcards-progress-main-track { background: rgba(255,255,255,.08) !important; }
+    .pcards-lessons-info { color: var(--text-faint) !important; }
+    .pcards-next-lesson { color: var(--gold) !important; }
+    .pcards-next-lesson.done { color: #2ecc71 !important; }
+    .pcards-last { color: var(--text-faint) !important; }
+
+    /* ── Empty state corsi ── */
+    .progress-empty {
+      background: var(--dark-card) !important;
+      border: 2px dashed rgba(212,160,23,.18) !important;
+    }
+    .progress-empty h4 { color: var(--ivory) !important; }
+    .progress-empty p   { color: var(--text-dim) !important; }
+
+    /* ── Course card (scroll row) ── */
+    .course-card {
+      background: var(--dark-card) !important;
+      border: 1px solid var(--border-dim) !important;
+    }
+    .course-card:hover {
+      box-shadow: 0 12px 36px rgba(0,0,0,.5), 0 0 0 1px rgba(212,160,23,.18) !important;
+    }
+    .card-title { color: var(--ivory) !important; }
+    .card-level, .card-duration { color: var(--text-faint) !important; }
+
+    /* ── Nav del catalogo (overflow scroll) ── */
+    .section-row { background: transparent !important; }
+
+    /* ── Footer dark ── */
+    .glv-footer {
+      background: var(--dark-2) !important;
+      border-top: 1px solid var(--border-dim) !important;
+    }
+    .glv-footer a, .glv-footer p, .glv-footer li {
+      color: var(--text-dim) !important;
+    }
+    .footer-bottom p { color: var(--text-faint) !important; }
+
+    /* ── Mobile nav overlay (hamburger panel) ── */
+    .glv-nav .nav-links.open {
+      background: rgba(21,8,14,.98) !important;
+      border-bottom: 1px solid var(--border-dim) !important;
+    }
+    .glv-nav .nav-links.open a { color: var(--ivory) !important; }
   </style>
 </head>
 <body>

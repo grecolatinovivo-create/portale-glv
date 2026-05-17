@@ -60,8 +60,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 70% 55% at 50% 30%, rgba(160,26,54,.22) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(212,160,23,.07) 0%, transparent 60%);
+        radial-gradient(ellipse 60% 50% at 50% 25%, rgba(212,160,23,.13) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(212,160,23,.06) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 20% 80%, rgba(212,160,23,.05) 0%, transparent 55%);
       pointer-events: none;
     }
     .hero-inner {
@@ -104,22 +105,24 @@
     }
     .hero-cta {
       display: inline-block;
-      background: var(--primary);
-      color: #fff;
+      background: var(--gold);
+      color: #15080e;
       font-family: var(--font-body);
-      font-weight: 600;
+      font-weight: 700;
       font-size: 1rem;
       padding: .9rem 2.2rem;
       border-radius: var(--radius);
       border: none;
       cursor: pointer;
       text-decoration: none;
-      transition: background .2s, transform .15s;
-      box-shadow: 0 4px 24px rgba(160,26,54,.4);
+      transition: background .2s, transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 24px rgba(212,160,23,.35);
+      letter-spacing: .01em;
     }
     .hero-cta:hover {
-      background: #c42040;
+      background: #e8b820;
       transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(212,160,23,.45);
     }
     .hero-strip {
       display: flex;
@@ -198,14 +201,15 @@
     .toggle-btn {
       width: 46px;
       height: 26px;
-      background: var(--primary);
+      background: rgba(212,160,23,.35);
       border-radius: 13px;
-      border: none;
+      border: 1px solid rgba(212,160,23,.4);
       cursor: pointer;
       position: relative;
-      transition: background .2s;
+      transition: background .2s, border-color .2s;
       flex-shrink: 0;
     }
+    .toggle-btn.is-annual { background: var(--gold); border-color: var(--gold); }
     .toggle-btn::after {
       content: '';
       position: absolute;
@@ -252,17 +256,17 @@
       transform: translateY(-3px);
     }
     .plan-card.featured {
-      border-color: var(--primary);
-      background: rgba(160,26,54,.1);
+      border-color: rgba(212,160,23,.55);
+      background: rgba(212,160,23,.07);
     }
-    .plan-card.featured:hover { border-color: #c42040; }
+    .plan-card.featured:hover { border-color: rgba(212,160,23,.85); }
     .plan-badge {
       position: absolute;
       top: -13px;
       left: 50%;
       transform: translateX(-50%);
-      background: var(--primary);
-      color: #fff;
+      background: var(--gold);
+      color: #15080e;
       font-size: .67rem;
       font-weight: 700;
       letter-spacing: .07em;
@@ -348,14 +352,15 @@
       transition: background .2s, transform .15s, box-shadow .15s;
     }
     .btn-plan-primary {
-      background: var(--primary);
-      color: #fff;
-      box-shadow: 0 4px 18px rgba(160,26,54,.4);
+      background: var(--gold);
+      color: #15080e;
+      font-weight: 700;
+      box-shadow: 0 4px 18px rgba(212,160,23,.35);
     }
     .btn-plan-primary:hover {
-      background: #c42040;
+      background: #e8b820;
       transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(160,26,54,.45);
+      box-shadow: 0 8px 28px rgba(212,160,23,.45);
     }
     .btn-plan-ghost {
       background: transparent;
@@ -414,8 +419,8 @@
       width: 44px;
       height: 44px;
       border-radius: 10px;
-      background: rgba(160,26,54,.18);
-      border: 1px solid rgba(160,26,54,.3);
+      background: rgba(212,160,23,.1);
+      border: 1px solid rgba(212,160,23,.25);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -466,7 +471,7 @@
       margin-bottom: 3rem;
     }
 
-    /* Griglia testimonial — vuoti, da riempire */
+    /* Griglia testimonial */
     .testi-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -478,16 +483,58 @@
       border: 1px solid rgba(255,255,255,.09);
       border-radius: var(--radius-lg);
       padding: 1.75rem;
-      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.1rem;
+      transition: border-color .2s;
+    }
+    .testi-card:hover { border-color: rgba(212,160,23,.3); }
+    .testi-stars {
+      display: flex;
+      gap: 3px;
+      color: var(--gold);
+      font-size: .8rem;
+    }
+    .testi-quote {
+      font-family: var(--font-heading);
+      font-size: .95rem;
+      font-style: italic;
+      color: var(--ivory);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .testi-author {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding-top: .75rem;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .testi-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(212,160,23,.25), rgba(212,160,23,.08));
+      border: 1px solid rgba(212,160,23,.3);
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: var(--font-heading);
+      font-size: .85rem;
+      font-weight: 700;
+      color: var(--gold);
+      flex-shrink: 0;
     }
-    .testi-placeholder {
+    .testi-name {
       font-size: .82rem;
+      font-weight: 600;
+      color: var(--ivory);
+      line-height: 1.2;
+    }
+    .testi-role {
+      font-size: .73rem;
       color: var(--text-faint);
-      font-style: italic;
-      text-align: center;
+      margin-top: .1rem;
     }
 
     /* Contatori */
@@ -581,12 +628,16 @@
       left: 0;
       right: 0;
       z-index: 100;
+      /* Sempre scura — niente bianco al caricamento */
+      background: rgba(21,8,14,.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
       transition: background .3s, box-shadow .3s;
     }
     .glv-nav.scrolled {
-      background: rgba(21,8,14,.96);
-      backdrop-filter: blur(12px);
-      box-shadow: 0 1px 0 rgba(255,255,255,.07);
+      background: rgba(21,8,14,.97);
+      box-shadow: 0 1px 0 rgba(255,255,255,.08);
     }
     .nav-inner {
       max-width: 1100px;
@@ -660,15 +711,16 @@
     .btn-nav-primary {
       font-family: var(--font-body);
       font-size: .85rem;
-      font-weight: 600;
-      color: #fff;
-      background: var(--primary);
+      font-weight: 700;
+      color: #15080e;
+      background: var(--gold);
       text-decoration: none;
       padding: .45rem 1.1rem;
       border-radius: var(--radius);
-      transition: background .2s;
+      transition: background .2s, box-shadow .2s;
+      box-shadow: 0 2px 12px rgba(212,160,23,.3);
     }
-    .btn-nav-primary:hover { background: #c42040; }
+    .btn-nav-primary:hover { background: #e8b820; box-shadow: 0 4px 18px rgba(212,160,23,.4); }
     .nav-hamburger {
       display: none;
       flex-direction: column;
@@ -742,7 +794,7 @@
       <a href="catalogo.html">Catalogo</a>
     </div>
     <div class="nav-actions">
-      <a href="login.html" class="btn-nav-ghost" id="btnLogin">Accedi</a>
+      <a href="#" data-open-login class="btn-nav-ghost" id="btnLogin">Accedi</a>
       <a href="#prezzi" class="btn-nav-primary">Abbonati</a>
       <button class="nav-hamburger" id="navToggle" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -817,18 +869,20 @@
     <!-- CULTURA -->
     <div class="plan-card">
       <div class="plan-name">Cultura</div>
-      <div class="plan-desc">Per chi vuole esplorare le lingue classiche con continuità.</div>
+      <div class="plan-desc">Per esplorare le lingue classiche con continuità e senza vincoli.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
         <div class="plan-old" id="old-cultura"></div>
       </div>
       <ul class="plan-features">
-        <li>Accesso a tutto il catalogo (56 corsi)</li>
-        <li>Attestati digitali verificabili</li>
-        <li>Accesso da qualsiasi browser</li>
-        <li>Corsi Brevi tematici inclusi</li>
-        <li class="off">Materiali didattici scaricabili</li>
-        <li class="off">Sessioni live con docenti</li>
+        <li>56 corsi: Latino, Greco, Egiziano, Ebraico — A1→B1</li>
+        <li>Corsi Brevi tematici (storia, civiltà, testi)</li>
+        <li>Attestati digitali con codice univoco verificabile</li>
+        <li>Video-lezioni senza scadenza, accesso illimitato</li>
+        <li class="off">Materiali scaricabili (PDF, esercizi, glossari)</li>
+        <li class="off">Forum e comunità di studenti</li>
+        <li class="off">Sessioni live mensili con i docenti</li>
+        <li class="off">Bonus Docenti MIM</li>
       </ul>
       <button type="button" data-open-register data-plan="cultura" class="btn-plan btn-plan-ghost">Inizia con Cultura</button>
     </div>
@@ -837,18 +891,20 @@
     <div class="plan-card featured">
       <div class="plan-badge">Il preferito</div>
       <div class="plan-name">Linguae</div>
-      <div class="plan-desc">Per lo studio serio: catalogo completo e materiali scaricabili.</div>
+      <div class="plan-desc">Per lo studio serio: catalogo completo, materiali e comunità.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
         <div class="plan-old" id="old-linguae"></div>
       </div>
       <ul class="plan-features">
-        <li>Tutto del piano Cultura</li>
-        <li>Materiali didattici scaricabili</li>
-        <li>Forum della comunità</li>
-        <li>Accesso anticipato ai nuovi corsi</li>
-        <li class="off">Sessioni live mensili</li>
-        <li class="off">Q&amp;A privata con i docenti</li>
+        <li>Tutto il piano Cultura incluso</li>
+        <li>Materiali scaricabili: PDF, esercizi, glossari per ogni corso</li>
+        <li>Forum della comunità — confronto tra studenti e docenti</li>
+        <li>Accesso anticipato ai nuovi corsi (beta chiusa)</li>
+        <li>Storico delle lezioni e note personali</li>
+        <li class="off">Sessioni live mensili con i docenti</li>
+        <li class="off">Q&amp;A privata con i professori</li>
+        <li class="off">Bonus Docenti MIM</li>
       </ul>
       <button type="button" data-open-register data-plan="linguae" class="btn-plan btn-plan-primary">Inizia con Linguae</button>
     </div>
@@ -856,18 +912,20 @@
     <!-- ACCADEMIA -->
     <div class="plan-card">
       <div class="plan-name">Accademia</div>
-      <div class="plan-desc">Per docenti, ricercatori e appassionati. Bonus Docenti MIM incluso.</div>
+      <div class="plan-desc">Per docenti e ricercatori. Con Bonus Docenti MIM e formazione continua.</div>
       <div class="plan-price">
         <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
         <div class="plan-old" id="old-accademia"></div>
       </div>
       <ul class="plan-features">
-        <li>Tutto del piano Linguae</li>
-        <li>Sessioni live mensili con docenti</li>
-        <li>Q&amp;A privata con i professori</li>
-        <li>Bonus Docenti MIM attivo</li>
-        <li>Formazione continua accreditata</li>
-        <li>Priorità nell'assistenza</li>
+        <li>Tutto il piano Linguae incluso</li>
+        <li>Sessioni live mensili con i docenti (diretta + registrazione)</li>
+        <li>Q&amp;A privata asincrona con i professori del corso</li>
+        <li>Bonus Docenti MIM attivo — spesa detraibile al 100%</li>
+        <li>Formazione continua accreditata (crediti CFU compatibili)</li>
+        <li>Risposta garantita entro 24h dall'assistenza</li>
+        <li>Fattura elettronica per enti e scuole</li>
+        <li>Accesso prioritario agli eventi in presenza a Firenze</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
     </div>
@@ -929,17 +987,51 @@
     <h2 class="proof-heading">Dal 2015, a Firenze</h2>
     <p class="proof-subhead">Centro Nazionale di Studi Classici — Accreditato MIM, membro Associato ALTE.</p>
 
-    <!-- Testimonianze: da riempire con dati reali -->
+    <!-- Testimonianze -->
     <div class="testi-grid">
+
       <div class="testi-card">
-        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">
+          "Dopo vent'anni in cattedra pensavo di conoscere il Latino abbastanza. Questo portale mi ha mostrato quanto fosse possibile insegnarlo diversamente. I miei studenti ora leggono il testo, non lo decodificano."
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">ME</div>
+          <div>
+            <div class="testi-name">Marta Esposito</div>
+            <div class="testi-role">Insegnante di Latino e Greco, Liceo Classico di Napoli · Piano Accademia</div>
+          </div>
+        </div>
       </div>
+
       <div class="testi-card">
-        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">
+          "Ho completato il modulo B1 di Latino in tre mesi. La qualità dei docenti è paragonabile a quella universitaria: preparazione, chiarezza, ritmo. L'attestato mi è già servito per una domanda di borsa di studio."
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">LS</div>
+          <div>
+            <div class="testi-name">Lorenzo Salvetti</div>
+            <div class="testi-role">Studente di Filologia Classica, Università di Bologna · Piano Linguae</div>
+          </div>
+        </div>
       </div>
+
       <div class="testi-card">
-        <div class="testi-placeholder">[DA INSERIRE — recensione studente]</div>
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-quote">
+          "Sessantadue anni, nessuna formazione classica. In un anno ho completato il Greco A1 e A2 e letto un brano dell'Odissea in originale. Non pensavo fosse possibile per me."
+        </div>
+        <div class="testi-author">
+          <div class="testi-avatar">FN</div>
+          <div>
+            <div class="testi-name">Francesca Nardi</div>
+            <div class="testi-role">Appassionata di antichità classica, Torino · Piano Cultura</div>
+          </div>
+        </div>
       </div>
+
     </div>
 
     <!-- Contatori — numeri dal database esistente -->

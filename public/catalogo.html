@@ -280,6 +280,87 @@
       #catalog-grid { grid-template-columns: 1fr; }
       .catalog-layout { padding: .75rem; }
     }
+
+    /* ══ DARK THEME OVERRIDE ══════════════════════════════════════
+       Allineamento alla palette della landing page
+    ══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg:             #15080e;
+      --bg-base:        #15080e;
+      --bg-white:       #1a0c12;
+      --bg-card:        #1a0c12;
+      --bg-card-hover:  #221018;
+      --bg-warm:        #1d0c13;
+      --bg-section:     #1d0c13;
+      --text-900:       #faf8f5;
+      --text-700:       rgba(250,248,245,.85);
+      --text-600:       rgba(250,248,245,.75);
+      --text-500:       rgba(250,248,245,.62);
+      --text-400:       rgba(250,248,245,.45);
+      --text-300:       rgba(250,248,245,.35);
+      --text-primary:   #faf8f5;
+      --text-secondary: rgba(250,248,245,.8);
+      --text-muted:     rgba(250,248,245,.55);
+      --border:         rgba(255,255,255,.1);
+      --border-light:   rgba(255,255,255,.06);
+      --primary-50:     rgba(160,26,54,.12);
+      --primary-100:    rgba(160,26,54,.2);
+    }
+    body {
+      background: #15080e !important;
+      color: #faf8f5 !important;
+    }
+    /* Navbar dark */
+    .glv-nav {
+      background: rgba(21,8,14,.97) !important;
+      border-bottom: 1px solid rgba(255,255,255,.09) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+    }
+    .glv-nav .nav-links a,
+    .glv-nav .nav-actions a,
+    .nav-logo { color: #faf8f5 !important; }
+    .glv-nav .nav-links a:hover { color: var(--gold) !important; }
+    .glv-nav .btn-ghost {
+      border-color: rgba(255,255,255,.18) !important;
+      color: rgba(250,248,245,.8) !important;
+    }
+    .nav-hamburger span { background: #faf8f5 !important; }
+    /* Sidebar filtri */
+    .catalog-sidebar { background: transparent; }
+    .sidebar-section-title { color: rgba(250,248,245,.45) !important; }
+    .sidebar-filter-item { color: rgba(250,248,245,.7) !important; border-color: rgba(255,255,255,.09); }
+    .sidebar-filter-item:hover { background: rgba(160,26,54,.1) !important; color: var(--gold) !important; }
+    .sidebar-divider { background: rgba(255,255,255,.08) !important; }
+    /* Sort select */
+    .catalog-sort select {
+      background: #1a0c12 !important;
+      border-color: rgba(255,255,255,.12) !important;
+      color: #faf8f5 !important;
+      color-scheme: dark;
+    }
+    /* Risultati info */
+    .catalog-results-info { color: rgba(250,248,245,.55) !important; }
+    .catalog-results-info strong { color: #faf8f5 !important; }
+    /* Filter tabs */
+    .filter-tab { background: rgba(255,255,255,.05) !important; border-color: rgba(255,255,255,.12) !important; color: rgba(250,248,245,.7) !important; }
+    .filter-tab:hover { border-color: rgba(160,26,54,.5) !important; color: var(--gold) !important; }
+    .filter-tab.active { background: var(--primary) !important; border-color: var(--primary) !important; color: #fff !important; }
+    /* Skeleton shimmer: dark version */
+    .skeleton-card { background: #1a0c12 !important; border-color: rgba(255,255,255,.07) !important; }
+    .skeleton-thumb,
+    .skeleton-line {
+      background: linear-gradient(90deg, #2a0d18 25%, #221018 50%, #2a0d18 75%) !important;
+      background-size: 200% 100% !important;
+    }
+    /* Empty state */
+    .catalog-empty { color: rgba(250,248,245,.45) !important; }
+    .catalog-empty-title { color: rgba(250,248,245,.75) !important; }
+    /* Mobile nav overlay */
+    .glv-nav .nav-links.open {
+      background: rgba(21,8,14,.98) !important;
+      border-bottom: 1px solid rgba(255,255,255,.09) !important;
+    }
   </style>
 </head>
 <body>
@@ -300,7 +381,7 @@
       <a href="profilo.html" class="nav-link">Profilo</a>
     </div>
     <div class="nav-actions">
-      <a href="login.html" class="btn btn-ghost" id="btnLogin">Accedi</a>
+      <a href="#" data-open-login class="btn btn-ghost" id="btnLogin">Accedi</a>
       <a href="index.html#prezzi" class="btn btn-primary">Abbonati</a>
       <div class="nav-avatar" id="navAvatar" style="display:none">
         <div class="nav-avatar-initials" id="navInitials">?</div>

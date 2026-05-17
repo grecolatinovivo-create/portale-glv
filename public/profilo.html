@@ -599,6 +599,113 @@
       .profile-hero { padding: 3rem 1rem 2.5rem; }
       .profile-content { padding: 1.5rem 1rem; }
       .profile-tabs-inner { padding: 0 1rem; }
+      .sub-details-grid { grid-template-columns: 1fr !important; }
+      .profile-hero-actions { flex-direction: column; width: 100%; }
+      .profile-hero-actions .btn { width: 100%; justify-content: center; }
+    }
+    @media (max-width: 390px) {
+      .profile-hero-stats { gap: 1rem; }
+      .profile-stat-num { font-size: 1.4rem; }
+    }
+
+    /* ══ DARK THEME OVERRIDE ══════════════════════════════════════
+       Allineamento alla palette della landing page
+    ══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg:             #15080e;
+      --bg-base:        #15080e;
+      --bg-white:       #1a0c12;
+      --bg-card:        #1a0c12;
+      --bg-card-hover:  #221018;
+      --bg-warm:        #1d0c13;
+      --bg-section:     #221018;
+      --text-900:       #faf8f5;
+      --text-700:       rgba(250,248,245,.85);
+      --text-600:       rgba(250,248,245,.75);
+      --text-500:       rgba(250,248,245,.62);
+      --text-400:       rgba(250,248,245,.45);
+      --text-300:       rgba(250,248,245,.35);
+      --text-primary:   #faf8f5;
+      --text-secondary: rgba(250,248,245,.8);
+      --text-muted:     rgba(250,248,245,.55);
+      --border:         rgba(255,255,255,.1);
+      --border-light:   rgba(255,255,255,.06);
+      --primary-50:     rgba(160,26,54,.14);
+      --primary-100:    rgba(160,26,54,.22);
+    }
+    body {
+      background: #15080e !important;
+      color: #faf8f5 !important;
+    }
+    /* Navbar dark */
+    .glv-nav {
+      background: rgba(21,8,14,.97) !important;
+      border-bottom: 1px solid rgba(255,255,255,.09) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+    }
+    .glv-nav .nav-links a,
+    .glv-nav .nav-actions a,
+    .nav-logo { color: #faf8f5 !important; }
+    .glv-nav .nav-links a:hover { color: var(--gold) !important; }
+    .nav-hamburger span { background: #faf8f5 !important; }
+    /* Tabs bar */
+    .profile-tabs-bar {
+      background: #1a0c12 !important;
+      border-bottom: 1px solid rgba(255,255,255,.09) !important;
+    }
+    .profile-tab { color: rgba(250,248,245,.52) !important; }
+    .profile-tab:hover { color: #faf8f5 !important; }
+    .profile-tab.active {
+      color: var(--gold) !important;
+      border-bottom-color: var(--gold) !important;
+    }
+    .profile-tab-badge {
+      background: rgba(160,26,54,.2) !important;
+      color: rgba(250,248,245,.75) !important;
+    }
+    /* Section headings */
+    .section-heading { color: #faf8f5 !important; }
+    /* Course cards */
+    .profile-course-card {
+      background: #1a0c12 !important;
+      border-color: rgba(255,255,255,.09) !important;
+    }
+    .profile-course-card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,.45), 0 0 0 1px rgba(212,160,23,.18) !important;
+    }
+    .profile-course-title { color: #faf8f5 !important; }
+    .profile-course-progress-bar { background: rgba(255,255,255,.08) !important; }
+    .profile-course-pct { color: rgba(250,248,245,.45) !important; }
+    /* Attestati */
+    .profile-cert-card {
+      background: linear-gradient(145deg, #1a0c12 0%, #2a0d18 100%) !important;
+      border-color: rgba(212,160,23,.2) !important;
+    }
+    /* Abbonamento / impostazioni card */
+    .profile-plan-card,
+    .settings-card,
+    .sub-info-card {
+      background: #1a0c12 !important;
+      border-color: rgba(255,255,255,.09) !important;
+    }
+    .plan-name,
+    .settings-label,
+    .sub-info-label { color: rgba(250,248,245,.55) !important; }
+    .plan-value,
+    .settings-value { color: #faf8f5 !important; }
+    /* Input e form fields in dark */
+    input, select, textarea {
+      background: #221018 !important;
+      border-color: rgba(255,255,255,.12) !important;
+      color: #faf8f5 !important;
+      color-scheme: dark;
+    }
+    input::placeholder { color: rgba(250,248,245,.35) !important; }
+    /* Mobile nav overlay */
+    .glv-nav .nav-links.open {
+      background: rgba(21,8,14,.98) !important;
+      border-bottom: 1px solid rgba(255,255,255,.09) !important;
     }
   </style>
 </head>
