@@ -216,79 +216,72 @@
       margin-left: .25rem;
     }
 
-    /* Griglia piani — striscia unica, bordo condiviso */
+    /* Griglia piani */
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 0;
+      gap: 1.25rem;
       max-width: 980px;
       margin: 0 auto;
-      border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px;
-      overflow: hidden;
+      align-items: stretch;
     }
     .plan-card {
-      background: rgba(255,255,255,.03);
-      border: none;
-      border-right: 1px solid rgba(255,255,255,.09);
-      border-radius: 0;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius-lg);
       padding: 2rem 1.75rem;
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: background .2s;
+      transition: border-color .2s, transform .2s;
     }
-    .plan-card:last-child { border-right: none; }
-    .plan-card:hover { background: rgba(255,255,255,.055); }
+    .plan-card:hover {
+      border-color: rgba(255,255,255,.22);
+      transform: translateY(-3px);
+    }
     .plan-card.featured {
-      background: rgba(255,255,255,.055);
-      padding-top: calc(2rem + 34px);
+      border-color: rgba(201,150,42,.4);
+      background: rgba(255,255,255,.04);
     }
-    .plan-card.featured:hover { background: rgba(255,255,255,.075); }
-    /* Barra oro in cima alla carta featured — nessun badge flottante */
-    .plan-card.featured::before {
-      content: 'PIÙ SCELTO';
+    .plan-card.featured:hover { border-color: rgba(201,150,42,.65); }
+    .plan-badge {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: -13px;
+      left: 50%;
+      transform: translateX(-50%);
       background: var(--gold);
       color: #0a0a0a;
-      font-family: var(--font-body);
-      font-size: .65rem;
+      font-size: .67rem;
       font-weight: 700;
-      letter-spacing: .1em;
+      letter-spacing: .07em;
       text-transform: uppercase;
-      text-align: center;
-      padding: .52rem 0;
+      padding: .28rem 1rem;
+      border-radius: 2rem;
+      white-space: nowrap;
     }
-    /* Etichetta piano: piccola, uppercase, oro */
     .plan-name {
-      font-family: var(--font-body);
-      font-size: .72rem;
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
       font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: .65rem;
+      color: var(--ivory);
+      margin-bottom: .35rem;
     }
     .plan-desc {
       font-size: .82rem;
       color: rgba(245,245,245,.65);
       line-height: 1.5;
-      margin-bottom: 1.4rem;
+      margin-bottom: 1.5rem;
       min-height: 40px;
     }
     .plan-price {
-      margin-bottom: 1.6rem;
+      margin-bottom: 1.75rem;
     }
     .plan-amount {
-      font-family: 'Inter', system-ui, sans-serif;
-      font-size: 2.8rem;
-      font-weight: 800;
-      color: #f5f5f5;
+      font-family: var(--font-heading);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--ivory);
       line-height: 1;
-      letter-spacing: -.02em;
     }
     .plan-period {
       font-size: .82rem;
@@ -300,7 +293,7 @@
       font-size: .78rem;
       color: rgba(245,245,245,.55);
       text-decoration: line-through;
-      margin-top: .35rem;
+      margin-top: .3rem;
     }
     .plan-features {
       list-style: none;
@@ -729,14 +722,7 @@
        RESPONSIVE
     ───────────────────────────────────────────────────────── */
     @media (max-width: 900px) {
-      .pricing-grid {
-        grid-template-columns: 1fr;
-        max-width: 420px;
-        margin: 0 auto;
-        border-radius: 10px;
-      }
-      .plan-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,.09); }
-      .plan-card:last-child { border-bottom: none; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
       .testi-grid   { grid-template-columns: 1fr; }
       .counters     { grid-template-columns: repeat(2, 1fr); }
     }
@@ -863,15 +849,20 @@
         <div class="plan-old" id="old-cultura"></div>
       </div>
       <ul class="plan-features">
-        <li>Corsi brevi di cultura classica — Grecia, Roma, Egitto, Bibbia</li>
-        <li>Attestati digitali con codice verificabile</li>
+        <li>Corsi Brevi di cultura classica — mondo greco, Roma, Egitto, Bibbia, storia antica</li>
+        <li>Attestati digitali con codice univoco verificabile</li>
+        <li>Video-lezioni senza scadenza, accesso illimitato</li>
+        <li>2 nuovi corsi al mese inclusi automaticamente</li>
         <li class="off">Corsi di lingua (Latino, Greco, Egiziano, Ebraico)</li>
+        <li class="off">Formazione docenti accreditata MIM</li>
+        <li class="off">Bonus Docenti — detraibilità fiscale</li>
       </ul>
       <button type="button" data-open-register data-plan="cultura" class="btn-plan btn-plan-ghost">Inizia con Cultura</button>
     </div>
 
     <!-- LINGUAE (featured) -->
     <div class="plan-card featured">
+      <div class="plan-badge">Il più scelto</div>
       <div class="plan-name">Linguae</div>
       <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
       <div class="plan-price">
@@ -879,9 +870,13 @@
         <div class="plan-old" id="old-linguae"></div>
       </div>
       <ul class="plan-features">
-        <li>Tutto il piano Cultura incluso</li>
-        <li>Latino, Greco, Egiziano Geroglifico, Ebraico — tutti i livelli</li>
-        <li class="off">Formazione docenti accreditata MIM</li>
+        <li>Tutto il piano Cultura (corsi brevi)</li>
+        <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
+        <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
+        <li>Attestati digitali verificabili per ogni corso completato</li>
+        <li>2 nuovi corsi al mese inclusi automaticamente</li>
+        <li class="off">Corsi di formazione docenti (4 moduli didattici)</li>
+        <li class="off">Bonus Docenti MIM — detraibilità fiscale</li>
       </ul>
       <button type="button" data-open-register data-plan="linguae" class="btn-plan btn-plan-primary">Inizia con Linguae</button>
     </div>
@@ -896,8 +891,11 @@
       </div>
       <ul class="plan-features">
         <li>Tutto il piano Linguae incluso</li>
-        <li>4 moduli formazione docenti — accreditamento MIM</li>
-        <li>Bonus Docenti — spesa detraibile al 100%</li>
+        <li>4 moduli di formazione docenti: Elementa, Principia, Grammatica, Litterae</li>
+        <li>Accreditamento MIM — crediti CFU compatibili per la carriera docente</li>
+        <li>Bonus Docenti attivo — spesa detraibile al 100%</li>
+        <li>Sessioni live mensili con i docenti</li>
+        <li>Q&amp;A privata con i professori del corso</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
     </div>
