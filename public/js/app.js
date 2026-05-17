@@ -7,9 +7,21 @@
 /* ── Config ────────────────────────────────────────────────── */
 const API = {
   BASE: window.location.origin.startsWith('file:') ? 'http://localhost:3000' : '',
-  get:  (path)        => fetch(`${API.BASE}${path}`, { credentials:'include' }).then(r => r.json()),
-  post: (path, body)  => fetch(`${API.BASE}${path}`, { method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(r => r.json()),
-  put:  (path, body)  => fetch(`${API.BASE}${path}`, { method:'PUT',  credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) }).then(r => r.json()),
+  async get(path) {
+    const r = await fetch(`${API.BASE}${path}`, { credentials:'include' });
+    const text = await r.text();
+    try { return JSON.parse(text); } catch { return { error: `Risposta non JSON (${r.status}): ${text.slice(0,120)}` }; }
+  },
+  async post(path, body) {
+    const r = await fetch(`${API.BASE}${path}`, { method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const text = await r.text();
+    try { return JSON.parse(text); } catch { return { error: `Risposta non JSON (${r.status}): ${text.slice(0,120)}` }; }
+  },
+  async put(path, body) {
+    const r = await fetch(`${API.BASE}${path}`, { method:'PUT', credentials:'include', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    const text = await r.text();
+    try { return JSON.parse(text); } catch { return { error: `Risposta non JSON (${r.status}): ${text.slice(0,120)}` }; }
+  },
 };
 
 /* ── Mock Data (fallback per preview statica) ──────────────── */
