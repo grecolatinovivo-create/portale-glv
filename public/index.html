@@ -427,6 +427,184 @@
     }
 
     /* ─────────────────────────────────────────────────────────
+       SEZIONE 3b — CATALOGO PREVIEW (ventaglio)
+    ───────────────────────────────────────────────────────── */
+    .catalog-preview {
+      padding: 5rem 1.5rem;
+      background: var(--dark-3);
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .catalog-preview-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 4rem;
+      align-items: center;
+    }
+    .catalog-preview-text {}
+    .catalog-tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.1rem;
+    }
+    .catalog-heading {
+      font-family: var(--font-heading);
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: var(--ivory);
+      line-height: 1.12;
+      margin-bottom: 1rem;
+    }
+    .catalog-heading em { font-style: italic; color: #e8c875; }
+    .catalog-lead {
+      font-size: .92rem;
+      color: rgba(245,245,245,.65);
+      line-height: 1.7;
+      margin-bottom: 1.8rem;
+      max-width: 420px;
+    }
+    .catalog-langs {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      margin-bottom: 2rem;
+    }
+    .lang-row {
+      display: flex;
+      align-items: center;
+      gap: .85rem;
+    }
+    .lang-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .lang-dot.lat { background: #b04040; }
+    .lang-dot.egy { background: var(--gold); }
+    .lang-dot.cul { background: #6a9a6a; }
+    .lang-dot.doc { background: #9a82c4; }
+    .lang-name {
+      font-size: .85rem;
+      font-weight: 600;
+      color: rgba(245,245,245,.85);
+      min-width: 160px;
+    }
+    .lang-levels {
+      font-size: .75rem;
+      color: rgba(245,245,245,.4);
+      letter-spacing: .04em;
+    }
+    .catalog-link {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .88rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(201,150,42,.35);
+      padding-bottom: .15rem;
+      transition: border-color .2s, color .2s;
+    }
+    .catalog-link:hover { color: #e8c875; border-color: rgba(232,200,117,.6); }
+
+    /* Ventaglio carte */
+    .catalog-fan {
+      position: relative;
+      height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fan-wrap {
+      position: relative;
+      width: 240px;
+      height: 300px;
+    }
+    .fan-card {
+      position: absolute;
+      width: 210px;
+      height: 280px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: var(--dark-2);
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      transform-origin: 50% 115%;
+      display: flex;
+      flex-direction: column;
+      left: 15px;
+      top: 10px;
+    }
+    .fan-card:nth-child(1) { transform: rotate(-11deg); z-index: 1; }
+    .fan-card:nth-child(2) { transform: rotate(-4deg);  z-index: 2; }
+    .fan-card:nth-child(3) { transform: rotate(3deg);   z-index: 3; }
+    .fan-card:nth-child(4) { transform: rotate(10deg);  z-index: 2; opacity: .85; }
+    .fan-card-header {
+      height: 90px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: .75rem 1rem;
+      position: relative;
+    }
+    .fan-card-level {
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.65);
+      margin-bottom: .3rem;
+    }
+    .fan-card-lang {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.9);
+    }
+    .fan-card-body {
+      padding: .9rem 1rem;
+      flex: 1;
+    }
+    .fan-card-title {
+      font-family: var(--font-heading);
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--ivory);
+      line-height: 1.35;
+      margin-bottom: .55rem;
+    }
+    .fan-card-meta {
+      font-size: .7rem;
+      color: rgba(245,245,245,.4);
+      line-height: 1.5;
+    }
+    .fan-card-footer {
+      padding: .7rem 1rem;
+      border-top: 1px solid rgba(255,255,255,.07);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .fan-card-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .fan-card-status {
+      font-size: .65rem;
+      color: rgba(245,245,245,.38);
+      letter-spacing: .04em;
+    }
+
+    /* ─────────────────────────────────────────────────────────
        SEZIONE 4 — SOCIAL PROOF
     ───────────────────────────────────────────────────────── */
     .proof {
@@ -725,6 +903,13 @@
       .pricing-grid { grid-template-columns: 1fr; max-width: 420px; margin: 0 auto; }
       .testi-grid   { grid-template-columns: 1fr; }
       .counters     { grid-template-columns: repeat(2, 1fr); }
+      .catalog-preview-inner {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .catalog-fan { height: 280px; order: -1; }
+      .fan-wrap { width: 200px; height: 260px; }
+      .fan-card { width: 175px; height: 238px; left: 12px; top: 8px; }
     }
     @media (max-width: 640px) {
       .hero { padding: 6rem 1.25rem 3.5rem; }
@@ -951,6 +1136,118 @@
 </section>
 
 
+<!-- ══ SEZIONE 3b — CATALOGO PREVIEW ═══════════════════════ -->
+<section class="catalog-preview">
+  <div class="catalog-preview-inner">
+
+    <!-- Testo sinistra -->
+    <div class="catalog-preview-text">
+      <div class="catalog-tag">Il catalogo</div>
+      <h2 class="catalog-heading">Quattro lingue,<br><em>56 corsi</em> strutturati</h2>
+      <p class="catalog-lead">
+        Dal primo alfabeto al testo autentico. Ogni lingua ha un percorso completo,
+        dall'A1 al B1, costruito da docenti specializzati con metodologia induttivo-contestuale.
+      </p>
+      <div class="catalog-langs">
+        <div class="lang-row">
+          <div class="lang-dot lat"></div>
+          <span class="lang-name">Latino e Greco Antico</span>
+          <span class="lang-levels">A1 · A2 · B1 — dal testo al testo</span>
+        </div>
+        <div class="lang-row">
+          <div class="lang-dot egy"></div>
+          <span class="lang-name">Egiziano e Ebraico Biblico</span>
+          <span class="lang-levels">A1 · A2 — scrittura, lettura, grammatica</span>
+        </div>
+        <div class="lang-row">
+          <div class="lang-dot cul"></div>
+          <span class="lang-name">Cultura classica</span>
+          <span class="lang-levels">Storia, civiltà, testi — corsi brevi accessibili a tutti</span>
+        </div>
+        <div class="lang-row">
+          <div class="lang-dot doc"></div>
+          <span class="lang-name">Formazione docenti</span>
+          <span class="lang-levels">4 moduli accreditati MIM · Bonus Docenti</span>
+        </div>
+      </div>
+      <a href="catalogo.html" class="catalog-link">Sfoglia il catalogo &rarr;</a>
+    </div>
+
+    <!-- Ventaglio carte destra -->
+    <div class="catalog-fan">
+      <div class="fan-wrap">
+
+        <!-- Carta 1 — Ebraico Biblico (retro) -->
+        <div class="fan-card">
+          <div class="fan-card-header" style="background:linear-gradient(160deg,#3a4a5c,#5a7091)">
+            <div class="fan-card-level">Ebraico Biblico · A1</div>
+            <div class="fan-card-lang">Livello Base</div>
+          </div>
+          <div class="fan-card-body">
+            <div class="fan-card-title">L'alfabeto e i primi paradigmi</div>
+            <div class="fan-card-meta">8 lezioni · Prof. D. Levi<br>Attestato incluso</div>
+          </div>
+          <div class="fan-card-footer">
+            <div class="fan-card-dot" style="background:#7b8fa8"></div>
+            <span class="fan-card-status">Ebraico Biblico</span>
+          </div>
+        </div>
+
+        <!-- Carta 2 — Greco Antico -->
+        <div class="fan-card">
+          <div class="fan-card-header" style="background:linear-gradient(160deg,#2b4a78,#4a7ab5)">
+            <div class="fan-card-level">Greco Antico · A2</div>
+            <div class="fan-card-lang">Livello Elementare</div>
+          </div>
+          <div class="fan-card-body">
+            <div class="fan-card-title">Dal dialogo omerico al testo continuo</div>
+            <div class="fan-card-meta">12 lezioni · Prof.ssa M. Conti<br>Attestato incluso</div>
+          </div>
+          <div class="fan-card-footer">
+            <div class="fan-card-dot" style="background:#4a7ab5"></div>
+            <span class="fan-card-status">Greco Antico</span>
+          </div>
+        </div>
+
+        <!-- Carta 3 — Latino (fronte) -->
+        <div class="fan-card">
+          <div class="fan-card-header" style="background:linear-gradient(160deg,#7b2832,#a84040)">
+            <div class="fan-card-level">Latino · B1</div>
+            <div class="fan-card-lang">Livello Intermedio</div>
+          </div>
+          <div class="fan-card-body">
+            <div class="fan-card-title">Cicerone e la prosa classica</div>
+            <div class="fan-card-meta">16 lezioni · Prof. A. Ferretti<br>Attestato incluso</div>
+          </div>
+          <div class="fan-card-footer">
+            <div class="fan-card-dot" style="background:#b04040"></div>
+            <span class="fan-card-status">Latino</span>
+          </div>
+        </div>
+
+        <!-- Carta 4 — Egiziano (fronte-destra) -->
+        <div class="fan-card">
+          <div class="fan-card-header" style="background:linear-gradient(160deg,#7a5c18,#c9962a)">
+            <div class="fan-card-level">Egiziano Geroglifico · A1</div>
+            <div class="fan-card-lang">Livello Base</div>
+          </div>
+          <div class="fan-card-body">
+            <div class="fan-card-title">Scrittura e lettura dei geroglifici</div>
+            <div class="fan-card-meta">10 lezioni · Prof. C. Bianchi<br>Attestato incluso</div>
+          </div>
+          <div class="fan-card-footer">
+            <div class="fan-card-dot" style="background:var(--gold)"></div>
+            <span class="fan-card-status">Egiziano Geroglifico</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
 <!-- ══ SEZIONE 4 — SOCIAL PROOF ════════════════════════════ -->
 <section class="proof">
   <div class="proof-inner">
@@ -969,7 +1266,7 @@
           <div class="testi-avatar">ME</div>
           <div>
             <div class="testi-name">Marta Esposito</div>
-            <div class="testi-role">Insegnante di Latino e Greco, Liceo Classico di Napoli · Piano Accademia</div>
+            <div class="testi-role">Insegnante di Latino e Greco, Liceo Classico di Napoli</div>
           </div>
         </div>
       </div>
@@ -983,7 +1280,7 @@
           <div class="testi-avatar">LS</div>
           <div>
             <div class="testi-name">Lorenzo Salvetti</div>
-            <div class="testi-role">Studente di Filologia Classica, Università di Bologna · Piano Linguae</div>
+            <div class="testi-role">Studente di Filologia Classica, Università di Bologna</div>
           </div>
         </div>
       </div>
@@ -997,7 +1294,7 @@
           <div class="testi-avatar">FN</div>
           <div>
             <div class="testi-name">Francesca Nardi</div>
-            <div class="testi-role">Appassionata di antichità classica, Torino · Piano Cultura</div>
+            <div class="testi-role">Appassionata di antichità classica, Torino</div>
           </div>
         </div>
       </div>
