@@ -826,13 +826,13 @@ function getCurrentBillingPeriod() {
 const Payments = {
   // Avvia checkout per un piano specifico con il periodo corrente del toggle
   async subscribe(plan) {
-    // FIX: guard su window.__GLV_PRICES — potrebbe non essere ancora caricato (race condition)
+    // Carica i prezzi se non ancora disponibili
     if (!window.__GLV_PRICES) {
       try {
         const d = await fetch('/api/config/prices').then(r => r.json());
         window.__GLV_PRICES = d;
       } catch {
-        alert('Impossibile caricare i prezzi. Controlla la connessione e riprova.');
+        showToast('⚠️ Errore di connessione. Riprova tra qualche secondo.', '#8b1a1a');
         return;
       }
     }
@@ -840,7 +840,7 @@ const Payments = {
     const key = `${plan}_${period}`;
     const priceId = window.__GLV_PRICES[key];
     if (!priceId) {
-      alert('Prezzo non ancora disponibile. Attendi qualche secondo e riprova.');
+      showToast('⚠️ Prezzi non ancora disponibili. Attendi e riprova.', '#8b1a1a');
       return;
     }
     return Payments._checkout({ type:'subscription', priceId });
@@ -863,22 +863,21 @@ const Payments = {
       console.log('[GLV] Prezzi non ancora caricati, aspetto...');
       try {
         const r = await fetch('/api/config/prices');
-        if (!r.ok) throw new Error(`HTTP ${r.status} da /api/config/prices`);
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
         window.__GLV_PRICES = await r.json();
-        console.log('[GLV] Prezzi caricati al click:', window.__GLV_PRICES);
       } catch (err) {
         console.error('[GLV] Errore fetch prezzi:', err);
-        alert(`❌ Errore caricamento prezzi:\n${err.message}\n\nVerifica che le variabili d'ambiente su Vercel siano configurate correttamente.`);
+        showToast('⚠️ Errore caricamento prezzi. Riprova.', '#8b1a1a');
         return;
       }
     }
 
     const key = `${plan}_${period}`;
     const priceId = window.__GLV_PRICES[key];
-    console.log(`[GLV] Price ID trovato per "${key}":`, priceId || '(vuoto — variabile mancante su Vercel)');
 
     if (!priceId) {
-      alert(`❌ Price ID mancante per il piano "${plan}" (${period}).\n\nSu Vercel manca la variabile:\nSTRIPE_PRICE_${plan.toUpperCase()}_${period.toUpperCase()}\n\nVerifica in Settings → Environment Variables.`);
+      console.error(`[GLV] Price ID mancante per "${key}". Verifica env vars su Vercel.`);
+      showToast('⚠️ Piano non disponibile. Contatta il supporto.', '#8b1a1a');
       return;
     }
 
@@ -890,7 +889,7 @@ const Payments = {
   async buyCourse(slug)    { return Payments._checkout({ type:'course', courseSlug:slug }); },
   async openPortal() {
     try { const d = await API.post('/api/stripe/portal',{}); if (d.url) window.location.href = d.url; }
-    catch { alert('Impossibile aprire il portale abbonamento.'); }
+    catch { showToast('⚠️ Impossibile aprire il portale abbonamento.', '#8b1a1a'); }
   },
   async _checkout(body) {
     console.log('[GLV] _checkout chiamato con:', body);
@@ -898,15 +897,15 @@ const Payments = {
       const d = await API.post('/api/stripe/checkout', body);
       console.log('[GLV] Risposta checkout API:', d);
       if (d.url) {
-        console.log('[GLV] Redirect a Stripe:', d.url);
         window.location.href = d.url;
       } else {
-        // Mostra l'errore REALE (es. "No such price", "Invalid API key", ecc.)
-        alert(`❌ Errore checkout Stripe:\n\n${d.error || 'Risposta senza URL e senza errore.'}\n\nDettaglio tecnico in console (F12).`);
+        const msg = d.error || 'Errore sconosciuto dal server.';
+        console.error('[GLV] Checkout senza URL:', msg);
+        showToast(`⚠️ ${msg}`, '#8b1a1a');
       }
     } catch (err) {
       console.error('[GLV] Errore di rete nel checkout:', err);
-      alert(`❌ Impossibile contattare il server.\n\n${err.message}\n\nIl portale Vercel potrebbe essere offline o l'API route non risponde.`);
+      showToast('⚠️ Impossibile contattare il server. Controlla la connessione.', '#8b1a1a');
     }
   },
 };
@@ -1333,10 +1332,20 @@ function initAuthModals(){
     e.preventDefault();
     const plan = btn.dataset.plan || null;
     console.log('[GLV] Pulsante abbonamento cliccato — piano:', plan || '(nessuno)');
-    // Se il pulsante ha un piano → vai diretto al checkout (Stripe raccoglie email e dati)
+    // Se il pulsante ha un piano → vai diretto a Stripe (auth non richiesta)
     if (plan) {
-      try { await Payments.subscribe(plan); }
-      catch(err) { console.error('[GLV] Errore in Payments.subscribe:', err); alert('❌ Errore: ' + err.message); }
+      const origText = btn.textContent;
+      btn.textContent = 'Caricamento…';
+      btn.disabled = true;
+      try {
+        await Payments.subscribe(plan);
+      } catch(err) {
+        console.error('[GLV] Errore in Payments.subscribe:', err);
+        showToast('⚠️ Errore: ' + err.message, '#8b1a1a');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
       return;
     }
     showAuthModal('register');

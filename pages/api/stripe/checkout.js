@@ -1,7 +1,10 @@
 // pages/api/stripe/checkout.js — Crea sessione Stripe Checkout per abbonamento
+// Autenticazione OPZIONALE: se l'utente è loggato viene pre-compilata l'email e
+// aggiunto l'userId nei metadata. Se non loggato, Stripe raccoglie l'email da solo.
+// L'account utente viene creato/aggiornato nel webhook checkout.session.completed.
 
 const { stripe } = require('../../../lib/stripe');
-const { requireAuth } = require('../../../lib/auth');
+const { withAuth } = require('../../../lib/auth');
 const { getPriceId, PLANS } = require('../../../lib/resend');
 
 // Lista dei 6 planId validi (formato legacy: 'cultura-mensile', ecc.)
@@ -47,25 +50,32 @@ async function handler(req, res) {
   }
 
   try {
-    // Crea la sessione Stripe Checkout in modalità abbonamento
-    const session = await stripe.checkout.sessions.create({
+    // Costruisce la sessione Stripe — auth opzionale
+    const sessionParams = {
       mode: 'subscription',
       line_items: [{ price: finalPriceId, quantity: 1 }],
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard.html?checkout=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/index.html#prezzi`,
-      customer_email: req.user.email,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/?checkout=success`,
+      cancel_url:  `${process.env.NEXT_PUBLIC_APP_URL}/#prezzi`,
+      // allow_promotion_codes: true, // decommenta per abilitare coupon
       metadata: {
-        userId: req.user.userId,
         planId: resolvedPlanId || finalPriceId,
       },
-    });
+    };
+
+    // Se l'utente è loggato: pre-compila email e aggiungi userId nei metadata
+    if (req.user) {
+      sessionParams.customer_email = req.user.email;
+      sessionParams.metadata.userId = req.user.userId;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
 
     return res.status(200).json({ url: session.url });
   } catch (err) {
-    console.error('[checkout] Errore:', err);
+    console.error('[checkout] Errore Stripe:', err);
     return res.status(500).json({ error: err.message || 'Errore interno del server' });
   }
 }
 
-// Protegge la route con requireAuth: richiede JWT valido nel cookie
-export default requireAuth(handler);
+// withAuth (non requireAuth): legge il cookie se presente ma NON blocca i non-loggati
+export default withAuth(handler);
