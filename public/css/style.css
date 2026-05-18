@@ -490,7 +490,7 @@ body.has-corso-cta { padding-bottom: 80px; }
 .course-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--shadow-md);
-  border-color: var(--border-mid);
+  border-color: rgba(255,255,255,.22);
   z-index: 2;
 }
 
@@ -507,19 +507,23 @@ body.has-corso-cta { padding-bottom: 80px; }
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
   justify-content: flex-end;
-  padding: 14px 16px;
+  padding: 12px 14px;
+  /* velo di leggibilità sul fondo */
+  background-image: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 55%);
+  background-blend-mode: multiply;
 }
 .card-thumb-lang {
   font-family: 'Inter', sans-serif;
-  font-size: 10px; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.75);
-  margin-bottom: 4px;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+  margin-bottom: 3px;
 }
 .card-thumb-level {
-  font-family: 'Playfair Display', serif;
-  font-size: 20px; font-weight: 700;
-  color: #fff; line-height: 1.1;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,.82); line-height: 1.2;
+  letter-spacing: .04em;
 }
 .card-progress {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -598,27 +602,8 @@ body.has-corso-cta { padding-bottom: 80px; }
   display: -webkit-box;
   -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-.card-actions {
-  display: flex; align-items: center; gap: 8px; margin-top: auto;
-}
-.card-btn-play {
-  width: 32px; height: 32px;
-  border-radius: 50%; border: 1.5px solid var(--dark-btn);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--dark-btn);
-  transition: all var(--t-base);
-}
-.card-btn-play:hover { background: var(--dark-btn); color: #fff; }
-.card-btn-add {
-  width: 32px; height: 32px;
-  border-radius: 50%; border: 1.5px solid var(--border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; color: var(--text-muted);
-  transition: all var(--t-base);
-}
-.card-btn-add:hover { border-color: var(--dark-btn); color: var(--dark-btn); }
+.card-actions { display: none; } /* rimosso: clean look dashboard, la card intera è cliccabile */
 .card-hover-extra { display: none; }
-.course-card:hover .card-hover-extra { display: block; }
 
 /* Grid catalogo */
 .course-grid {

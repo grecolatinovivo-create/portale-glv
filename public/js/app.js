@@ -92,12 +92,12 @@ const MOCK_COURSES = [
 ];
 
 const LANG_GRADIENTS = {
-  'Latino':               'linear-gradient(135deg,#7b0d1e 0%,#a01a36 100%)',
-  'Greco Antico':         'linear-gradient(135deg,#1a237e 0%,#3f51b5 100%)',
-  'Egiziano Geroglifico': 'linear-gradient(135deg,#bf360c 0%,#ff6d00 100%)',
-  'Ebraico Biblico':      'linear-gradient(135deg,#1b5e20 0%,#388e3c 100%)',
-  'Didattica':            'linear-gradient(135deg,#4a148c 0%,#7b1fa2 100%)',
-  'Corsi Brevi':          'linear-gradient(135deg,#004d40 0%,#00897b 100%)',
+  'Latino':               'linear-gradient(155deg,#3d1e10,#1c0d06)', /* terracotta bruciata — anfore romane */
+  'Greco Antico':         'linear-gradient(155deg,#0e1e35,#060f1c)', /* ceramica attica a figure nere */
+  'Egiziano Geroglifico': 'linear-gradient(155deg,#3a2a08,#1c1404)', /* papiro antico, oro brunito */
+  'Ebraico Biblico':      'linear-gradient(155deg,#162416,#0a120a)', /* bronzo ossidato, oliva minerale */
+  'Didattica':            'linear-gradient(155deg,#201830,#100d1c)', /* pergamena, inchiostro */
+  'Corsi Brevi':          'linear-gradient(155deg,#1a2020,#0d1414)', /* ardesia, pietra scura */
 };
 
 /* ── State ───────────────────────────────────────────────────── */
@@ -924,7 +924,7 @@ function buildCard(course, opts={}) {
     : '';
 
   return `
-  <div class="course-card" data-slug="${slug}" onclick="goToCourse('${slug}')">
+  <div class="course-card" data-slug="${slug}" data-lingua="${(course.lang||'').toLowerCase()}" data-livello="${(course.level||'').toLowerCase()}" onclick="goToCourse('${slug}')">
     <div class="card-thumb">
       <div class="card-thumb-gradient" style="background:${grad};">
         <span class="card-thumb-lang">${course.lang}</span>
@@ -1017,12 +1017,48 @@ function initFaq(){
 
 /* ── Catalog Filters ─────────────────────────────────────────── */
 async function initCatalogFilters(){
-  const tabs=document.querySelectorAll('.filter-tab'); const grid=document.getElementById('catalog-grid');
-  if(!tabs.length||!grid)return;
+  const grid=document.getElementById('catalog-grid'); if(!grid)return;
+  const filtersBar=document.getElementById('catalogFilters');
   const all=await Courses.getAll();
-  function render(lang){ grid.innerHTML=(lang==='Tutti'?all:all.filter(c=>c.lang===lang)).map(c=>buildCard(c)).join(''); }
-  tabs.forEach(tab=>tab.addEventListener('click',()=>{ tabs.forEach(t=>t.classList.remove('active')); tab.classList.add('active'); render(tab.dataset.lang); }));
-  render('Tutti');
+
+  /* Rimuovi skeleton */
+  grid.querySelectorAll('.skeleton-card').forEach(s=>s.remove());
+
+  /* Lingue uniche nell'ordine desiderato */
+  const langOrder=['Tutti','Latino','Greco Antico','Egiziano Geroglifico','Ebraico Biblico','Didattica','Corsi Brevi'];
+  const present=new Set(all.map(c=>c.lang));
+  const langs=['Tutti',...langOrder.filter(l=>l!=='Tutti'&&present.has(l))];
+
+  /* Inietta filter-tab nel DOM */
+  if(filtersBar){
+    filtersBar.innerHTML=langs.map((l,i)=>
+      `<button class="filter-tab${i===0?' active':''}" data-lingua="${l==='Tutti'?'':l}">${l}</button>`
+    ).join('');
+  }
+
+  /* Render griglia */
+  function render(lang){
+    const list=lang?all.filter(c=>c.lang===lang):all;
+    grid.innerHTML=list.map(c=>buildCard(c)).join('');
+    const cnt=document.getElementById('resultCount');
+    if(cnt) cnt.textContent=list.length;
+  }
+
+  /* Click handler sui tab */
+  document.addEventListener('click', e=>{
+    const tab=e.target.closest('.filter-tab');
+    if(!tab||!filtersBar||!filtersBar.contains(tab))return;
+    filtersBar.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    render(tab.dataset.lingua);
+    /* Sync sidebar lingua */
+    const lang=tab.dataset.lingua||'tutti';
+    document.querySelectorAll('#sidebarLingue .sidebar-filter-item').forEach(i=>{
+      i.classList.toggle('active', i.dataset.lang===(lang||'tutti'));
+    });
+  });
+
+  render(''); /* mostra tutti all'avvio */
 }
 
 /* ── Dashboard ───────────────────────────────────────────────── */
