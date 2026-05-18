@@ -472,119 +472,174 @@ p { line-height: 1.7; }
 body.has-corso-cta { padding-bottom: 80px; }
 
 /* ═══════════════════════════════════════════════════════════════════
-   COURSE CARDS — usate da buildCard() in app.js
+   COURSE CARDS — CSS IDENTICO ALLE FAN-CARD DI INDEX.HTML
+   Copiato pixel per pixel dalla sezione .catalog-preview di index.html
 ═══════════════════════════════════════════════════════════════════ */
+
+/* Wrapper esterno — = .fan-card senza position:absolute */
 .course-card {
   flex-shrink: 0;
-  width: 280px;
-  background: var(--bg-card);
+  width: 210px;
+  background: #111111;                              /* = fan-card bg (--dark-2) */
   border-radius: 14px;                              /* = fan-card */
   border: 1px solid rgba(255,255,255,.12);          /* = fan-card */
-  box-shadow: 0 4px 20px rgba(0,0,0,.35);           /* = fan-card (leggero a riposo) */
   overflow: hidden;
-  cursor: pointer;
-  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-  position: relative;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);            /* = fan-card */
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
 }
 .course-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgba(0,0,0,.55);           /* = fan-card al hover */
+  box-shadow: 0 12px 40px rgba(0,0,0,.65);
   border-color: rgba(255,255,255,.26);
   z-index: 2;
 }
 
-/* Thumbnail */
-.card-thumb {
-  width: 100%;
-  height: 120px;                                    /* proporzionato come fan-card */
-  position: relative;
-  overflow: hidden;
-  border-radius: 14px 14px 0 0;                     /* segue il border-radius card */
-  flex-shrink: 0;
-}
-.card-thumb-gradient {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
+/* Header — = .fan-card-header */
+.fan-card-header {
+  height: 90px;
+  display: flex;
+  flex-direction: column;
   justify-content: flex-end;
-  padding: 12px 14px;
-  /* velo di leggibilità sul fondo */
-  background-image: linear-gradient(to top, rgba(0,0,0,.45) 0%, transparent 55%);
-  background-blend-mode: multiply;
-}
-.card-thumb-lang {
-  font-family: 'Inter', sans-serif;
-  font-size: 9px; font-weight: 700;
-  letter-spacing: .12em; text-transform: uppercase;
-  color: rgba(255,255,255,.65);
-  margin-bottom: 3px;
-}
-.card-thumb-level {
-  font-family: 'Inter', sans-serif;
-  font-size: 11px; font-weight: 600;
-  color: rgba(255,255,255,.82); line-height: 1.2;
-  letter-spacing: .04em;
-}
-.card-progress {
-  position: absolute; bottom: 0; left: 0; right: 0;
-  height: 4px;
-  background: rgba(255,255,255,.2);
-}
-.card-progress-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--gold) 100%);
-  transition: width var(--t-slow);
-}
-.card-locked {
-  position: absolute; top: 10px; right: 10px;
-  width: 28px; height: 28px;
-  background: rgba(0,0,0,.4);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; color: rgba(255,255,255,.85);
-  backdrop-filter: blur(4px);
-}
-.card-ribbon {
-  position: absolute; top: 16px; right: -28px;
-  width: 110px;
-  background: var(--primary-dark);
-  color: #fff;
-  font-family: 'Inter', sans-serif;
-  font-size: 8px; font-weight: 800;
-  letter-spacing: .1em; text-transform: uppercase;
-  text-align: center; padding: 4px 0;
-  transform: rotate(45deg);
-  pointer-events: none; z-index: 3;
+  padding: .75rem 1rem;
+  position: relative;
 }
 
-/* Card body */
-.card-info { flex: 1; display: flex; flex-direction: column; }
-.card-info-inner {
-  padding: 14px 16px 16px;
-  flex: 1; display: flex; flex-direction: column;
+/* Livello — = .fan-card-level */
+.fan-card-level {
+  font-family: 'Inter', sans-serif;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.65);
+  margin-bottom: .3rem;
 }
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 15px; font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.35; margin-bottom: 8px;
+
+/* Nome lingua — = .fan-card-lang */
+.fan-card-lang {
+  font-family: 'Inter', sans-serif;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.9);
+}
+
+/* Body — = .fan-card-body */
+.fan-card-body {
+  padding: .9rem 1rem;
+  flex: 1;
+}
+
+/* Titolo — = .fan-card-title */
+.fan-card-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .88rem;
+  font-weight: 700;
+  color: #f5f5f5;
+  line-height: 1.35;
+  margin-bottom: .55rem;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.card-meta {
-  display: flex; flex-wrap: wrap;
-  gap: 4px; margin-bottom: 6px;
+
+/* Meta testo — = .fan-card-meta */
+.fan-card-meta {
+  font-size: .7rem;
+  color: rgba(245,245,245,.4);
+  line-height: 1.5;
 }
+
+/* Footer — = .fan-card-footer */
+.fan-card-footer {
+  padding: .7rem 1rem;
+  border-top: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+/* Punto colorato — = .fan-card-dot */
+.fan-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Etichetta lingua — = .fan-card-status */
+.fan-card-status {
+  font-family: 'Inter', sans-serif;
+  font-size: .65rem;
+  color: rgba(245,245,245,.38);
+  letter-spacing: .04em;
+}
+
+/* Badge "NUOVO" opzionale */
+.fan-card-badge-new {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--gold);
+  color: #0a0a0a;
+  font-family: 'Inter', sans-serif;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .18rem .5rem;
+  border-radius: 2rem;
+  line-height: 1.4;
+}
+
+/* Badge "BLOCCATO" */
+.fan-card-locked {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 26px; height: 26px;
+  background: rgba(0,0,0,.45);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,.75);
+  backdrop-filter: blur(4px);
+}
+
+/* Barra progressi in fondo all'header */
+.fan-card-progress {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,.15);
+}
+.fan-card-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,.5), rgba(255,255,255,.9));
+  transition: width .6s ease;
+}
+
+/* Alias: card-title punta a fan-card-title (compatibilità filtro catalogo) */
+.card-title { font-family: 'Playfair Display', Georgia, serif; }
+
+/* Grid catalogo — override larghezza */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 20px;
+}
+.course-grid .course-card { width: 100%; flex-shrink: unset; }
+
+/* Badge (retrocompatibilità) */
 .card-badge {
   font-family: 'Inter', sans-serif;
   font-size: 10px; font-weight: 700;
   letter-spacing: .5px; text-transform: uppercase;
   padding: 3px 8px; border-radius: var(--r-sm); line-height: 1.4;
 }
-/* REGOLA 0 — Badge */
 .badge-lang { background: rgba(201,150,42,.12); color: var(--gold-lt); }
 .badge-level { background: var(--bg-card-2); color: var(--text-secondary); }
 .badge-new { background: var(--gold); color: #0a0a0a; font-weight: 700; }
@@ -595,24 +650,6 @@ body.has-corso-cta { padding-bottom: 80px; }
   animation: urgency-pulse 2s ease-in-out infinite;
 }
 @keyframes urgency-pulse { 0%,100%{opacity:1} 50%{opacity:.65} }
-
-.card-desc {
-  font-family: 'Inter', sans-serif;
-  font-size: 12px; color: var(--text-muted);
-  line-height: 1.55; margin-bottom: 10px; flex: 1;
-  display: -webkit-box;
-  -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.card-actions { display: none; } /* rimosso: clean look dashboard, la card intera è cliccabile */
-.card-hover-extra { display: none; }
-
-/* Grid catalogo */
-.course-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
-}
-.course-grid .course-card { width: 100%; flex-shrink: unset; }
 
 /* ═══════════════════════════════════════════════════════════════════
    COURSE ROWS (scroll orizzontale)
@@ -1156,19 +1193,28 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* Card progressi griglia */
 .progress-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   gap: 20px;
 }
+/* ── pcards-card: stile identico a fan-card (index.html) ── */
 .pcards-card {
-  background: var(--bg-card);
-  border-radius: var(--r-md); border: 1px solid var(--border);
+  background: #111111;                              /* = fan-card bg */
+  border-radius: 14px;                              /* = fan-card */
+  border: 1px solid rgba(255,255,255,.12);          /* = fan-card */
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);            /* = fan-card */
   overflow: hidden; cursor: pointer;
-  transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   display: flex; flex-direction: column;
 }
-.pcards-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: var(--border-mid); }
+.pcards-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.65);          /* = fan-card hover */
+  border-color: rgba(255,255,255,.26);
+  z-index: 2;
+}
+/* Thumb: altezza 90px = fan-card-header */
 .pcards-thumb {
-  height: 96px; position: relative;
+  height: 90px; position: relative;
   overflow: hidden; flex-shrink: 0;
 }
 .pcards-thumb-bg { position: absolute; inset: 0; }
@@ -1177,27 +1223,31 @@ body.has-corso-cta { padding-bottom: 80px; }
   background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,.3) 100%);
 }
 .pcards-thumb-footer { position: absolute; bottom: 0; left: 0; right: 0; }
+/* Etichetta lingua: = fan-card-level */
 .pcards-lang-tag {
-  display: inline-block; padding: 0 12px 8px;
+  display: inline-block; padding: 0 1rem .75rem;
   font-family: 'Inter', sans-serif;
-  font-size: 9px; font-weight: 800;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: rgba(255,255,255,.7);
+  font-size: .6rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: rgba(255,255,255,.65);
 }
-.pcards-track { height: 4px; background: rgba(255,255,255,.2); }
+/* Barra progresso: = fan-card-progress */
+.pcards-track { height: 3px; background: rgba(255,255,255,.15); }
 .pcards-bar {
   height: 100%;
-  background: linear-gradient(90deg, rgba(255,255,255,.6), rgba(255,255,255,.95));
+  background: linear-gradient(90deg, rgba(255,255,255,.5), rgba(255,255,255,.9));
   transition: width .6s ease;
 }
+/* Body: padding = fan-card-body */
 .pcards-body {
-  padding: 14px 16px 18px; flex: 1;
+  padding: .9rem 1rem; flex: 1;
   display: flex; flex-direction: column; gap: 8px;
 }
+/* Titolo: = fan-card-title */
 .pcards-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 14px; font-weight: 600;
-  color: var(--text-primary); line-height: 1.3;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .88rem; font-weight: 700;
+  color: #f5f5f5; line-height: 1.35;
 }
 .pcards-progress-row { display: flex; align-items: center; gap: 10px; }
 .pcards-progress-text { flex: 1; }

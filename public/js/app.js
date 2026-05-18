@@ -911,46 +911,60 @@ const Payments = {
   },
 };
 
-/* ── Card Builder ────────────────────────────────────────────── */
+/* ── Card Builder — HTML IDENTICO ALLE FAN-CARD DI INDEX.HTML ── */
+/* Colori dot = fan-card (index.html .catalog-preview) */
+const LANG_DOT_COLORS = {
+  'Latino':               '#5a2e18',
+  'Greco Antico':         '#1a3258',
+  'Egiziano Geroglifico': '#c9962a',
+  'Ebraico Biblico':      '#2a4028',
+  'Didattica':            '#3a1e60',
+  'Corsi Brevi':          '#2a3a3a',
+};
+
+function getLevelLabel(level) {
+  if (!level) return '';
+  const l = level.toLowerCase();
+  if (l.includes('a1')) return 'Livello Base';
+  if (l.includes('a2')) return 'Livello Elementare';
+  if (l.includes('b1')) return 'Livello Intermedio';
+  if (l.includes('b2')) return 'Livello Avanzato';
+  if (l.includes('formazione') || l.includes('modulo') || l.includes('percorso')) return 'Formazione Docenti';
+  return level;
+}
+
 function buildCard(course, opts={}) {
-  const slug  = course.slug || course.id;
-  const grad  = LANG_GRADIENTS[course.lang] || LANG_GRADIENTS['Latino'];
-  const pct   = course.progressPercent || 0;
-  const price = course.priceEur ? `${Math.round(course.priceEur/100)} €` : '';
+  const slug = course.slug || course.id;
+  const grad = LANG_GRADIENTS[course.lang] || LANG_GRADIENTS['Latino'];
+  const pct  = course.progressPercent || 0;
+  const dot  = LANG_DOT_COLORS[course.lang] || '#555555';
 
-  // Fascetta "Ancora per poco" — visibile sul thumbnail se il corso ha scadenza futura
-  const ribbon = (course.expiresAt && !course.isExpired)
-    ? '<span class="card-ribbon">Ancora per poco</span>'
+  const newBadge   = course.isNew ? '<span class="fan-card-badge-new">NUOVO</span>' : '';
+  const lockIcon   = opts.locked  ? '<span class="fan-card-locked">&#128274;</span>' : '';
+  const progressEl = pct > 0
+    ? `<div class="fan-card-progress"><div class="fan-card-progress-bar" style="width:${pct}%"></div></div>`
     : '';
+  const metaText = course.hours
+    ? `${course.hours} ore · Attestato incluso`
+    : (course.teacher || '');
 
+  /* ── STRUTTURA IDENTICA A .fan-card (index.html) ── */
   return `
   <div class="course-card" data-slug="${slug}" data-lingua="${(course.lang||'').toLowerCase()}" data-livello="${(course.level||'').toLowerCase()}" onclick="goToCourse('${slug}')">
-    <div class="card-thumb">
-      <div class="card-thumb-gradient" style="background:${grad};">
-        <span class="card-thumb-lang">${course.lang}</span>
-        <span class="card-thumb-level">${course.level}</span>
-      </div>
-      ${ribbon}
-      ${pct>0?`<div class="card-progress"><div class="card-progress-bar" style="width:${pct}%"></div></div>`:''}
-      ${opts.locked?'<span class="card-locked"><i class="fas fa-lock"></i></span>':''}
+    <div class="fan-card-header" style="background:${grad};">
+      ${newBadge}${lockIcon}
+      <div class="fan-card-level">${course.lang} · ${course.level}</div>
+      <div class="fan-card-lang">${getLevelLabel(course.level)}</div>
+      ${progressEl}
     </div>
-    <div class="card-info"><div class="card-info-inner">
-      <div class="card-title">${course.title}</div>
-      <div class="card-meta">
-        <span class="card-badge badge-lang">${course.lang}</span>
-        <span class="card-badge badge-level">${course.level}</span>
-        ${course.isNew?'<span class="card-badge badge-new">NUOVO</span>':''}
-        ${course.showUrgency && course.isExpired ? '<span class="card-badge badge-expired">SCADUTO</span>' : ''}
-      </div>
-      ${course.teacher?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;"><i class="fas fa-user-tie" style="margin-right:4px;opacity:.7;"></i>${course.teacher}</div>`:''}
-      ${course.hours?`<div style="font-size:10px;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-clock" style="margin-right:4px;"></i>${course.hours} ore · Asincrono${course.lang==='Corsi Brevi'?'':' · MIUR accreditato'}</div>`:''}
-      <div class="card-desc">${course.description||''}</div>
-      <div class="card-actions">
-        <button class="card-btn-play" aria-label="Vai al corso ${course.title}" onclick="event.stopPropagation();goToCourse('${slug}')"><i class="fas fa-play" aria-hidden="true"></i></button>
-        <button class="card-btn-add" aria-label="Aggiungi alla lista" onclick="event.stopPropagation()"><i class="fas fa-plus" aria-hidden="true"></i></button>
-        ${price&&opts.locked?`<span style="margin-left:auto;font-size:12px;font-weight:700;color:var(--text-primary);">${price}</span>`:''}
-      </div>
-    </div></div>
+    <div class="fan-card-body">
+      <div class="fan-card-title card-title">${course.title}</div>
+      <div class="fan-card-meta">${metaText}</div>
+    </div>
+    <div class="fan-card-footer">
+      <div class="fan-card-dot" style="background:${dot};"></div>
+      <span class="fan-card-status">${course.lang}</span>
+    </div>
   </div>`;
 }
 function goToCourse(slug){ window.location.href=`corso.html?id=${slug}`; }
