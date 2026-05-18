@@ -1,0 +1,356 @@
+/* ============================================================
+   GrecoLatinoVivo - Animations CSS
+   ============================================================
+   Include:
+   - Scroll animations (data-animate)
+   - Delay classi (data-delay)
+   - Scroll progress bar
+   - Skeleton loading / shimmer
+   - Rispetta prefers-reduced-motion
+   ============================================================ */
+
+/* ============================================================
+   SCROLL PROGRESS BAR
+   Inserire nell'HTML: <div id="scroll-progress"></div>
+   come primo figlio del <body>
+   ============================================================ */
+#scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #8B1A1A 0%, #C9A84C 60%, #8B1A1A 100%);
+    z-index: 9999;
+    border-radius: 0 2px 2px 0;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px rgba(139, 26, 26, 0.5);
+}
+
+/* ============================================================
+   BASE: elementi animabili
+   Gli elementi partono invisibili e vengono resi visibili
+   dall'IntersectionObserver che aggiunge la classe .visible
+   ============================================================ */
+
+/* --- DEFAULT: Fade in dal basso --- */
+[data-animate],
+[data-animate="fade-up"] {
+    opacity: 0;
+    transform: translateY(32px);
+    transition:
+        opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+/* --- Slide da sinistra --- */
+[data-animate="slide-left"] {
+    opacity: 0;
+    transform: translateX(-48px);
+    transition:
+        opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+/* --- Slide da destra --- */
+[data-animate="slide-right"] {
+    opacity: 0;
+    transform: translateX(48px);
+    transition:
+        opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+/* --- Fade semplice (solo opacità, nessun movimento) --- */
+[data-animate="fade"] {
+    opacity: 0;
+    transform: none;
+    transition: opacity 0.7s ease;
+    will-change: opacity;
+}
+
+/* --- Zoom in --- */
+[data-animate="zoom"] {
+    opacity: 0;
+    transform: scale(0.88);
+    transition:
+        opacity 0.6s cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+/* --- Flip (rotazione 3D sottile) --- */
+[data-animate="flip"] {
+    opacity: 0;
+    transform: perspective(600px) rotateX(20deg) translateY(20px);
+    transition:
+        opacity 0.7s ease,
+        transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+/* ============================================================
+   STATO VISIBILE: comune a tutti i tipi di animazione
+   ============================================================ */
+[data-animate].visible,
+[data-animate="slide-left"].visible,
+[data-animate="slide-right"].visible,
+[data-animate="fade"].visible,
+[data-animate="zoom"].visible,
+[data-animate="fade-up"].visible,
+[data-animate="flip"].visible {
+    opacity: 1;
+    transform: none;
+}
+
+/* ============================================================
+   DELAY CLASSI — attributo data-delay
+   Gestito in JS (setTimeout), ma forniamo anche classi CSS
+   come alternativa/override per layout specifici
+   ============================================================ */
+[data-delay="100"] { transition-delay: 100ms; }
+[data-delay="200"] { transition-delay: 200ms; }
+[data-delay="300"] { transition-delay: 300ms; }
+[data-delay="400"] { transition-delay: 400ms; }
+[data-delay="500"] { transition-delay: 500ms; }
+[data-delay="600"] { transition-delay: 600ms; }
+
+/* Azzera il delay una volta che l'elemento è visibile
+   (evita che il delay riappaia se l'elemento esce e rientra) */
+[data-delay].visible {
+    transition-delay: 0ms;
+}
+
+/* ============================================================
+   SKELETON LOADING — shimmer effect
+   Uso: <div class="skeleton skeleton-text"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-image"></div>
+   ============================================================ */
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        #f0ebe3 25%,
+        #e8e2da 50%,
+        #f0ebe3 75%
+    );
+    background-size: 468px 100%;
+    animation: shimmer 1.4s ease-in-out infinite;
+    border-radius: 6px;
+}
+
+/* Varianti skeleton */
+.skeleton-text {
+    height: 1em;
+    margin-bottom: 0.5em;
+    border-radius: 4px;
+}
+
+.skeleton-text.skeleton-title {
+    height: 1.5em;
+    width: 70%;
+    margin-bottom: 1em;
+}
+
+.skeleton-text.skeleton-short {
+    width: 40%;
+}
+
+.skeleton-image {
+    width: 100%;
+    padding-top: 56.25%; /* aspect ratio 16:9 */
+    border-radius: 8px;
+}
+
+.skeleton-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.skeleton-card .skeleton-image {
+    padding-top: 60%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   LAZY IMAGE LOADING
+   Immagini sfumano in ingresso quando caricate
+   ============================================================ */
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+img[loading="lazy"].loaded,
+img[loading="lazy"][data-loaded="true"] {
+    opacity: 1;
+}
+
+/* Fallback: se l'immagine è già completamente caricata
+   (ad esempio da cache) */
+img[loading="lazy"]:not([data-src]) {
+    opacity: 1;
+}
+
+/* ============================================================
+   HERO PARALLAX
+   L'elemento .hero-parallax viene mosso via JS (transform)
+   Qui impostiamo le proprietà di base
+   ============================================================ */
+.hero-parallax {
+    will-change: transform;
+    transform: translateY(0);
+}
+
+/* ============================================================
+   CARD HOVER ANIMATIONS
+   Per le card del sito (corsi, docenti, ecc.)
+   ============================================================ */
+.card-animated {
+    transition:
+        transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1),
+        box-shadow 0.3s ease;
+}
+
+.card-animated:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.12);
+}
+
+/* ============================================================
+   BUTTON PULSE ANIMATION
+   Per CTA importanti (es. bottone iscrizione)
+   ============================================================ */
+@keyframes pulse-bordeaux {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(139, 26, 26, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(139, 26, 26, 0);
+    }
+}
+
+.btn-pulse {
+    animation: pulse-bordeaux 2.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   FADE IN su caricamento pagina (no scroll trigger)
+   Classe da aggiungere a elementi che devono apparire
+   immediatamente al caricamento
+   ============================================================ */
+@keyframes fadeInPage {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-on-load {
+    animation: fadeInPage 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.animate-on-load-delay-1 { animation-delay: 0.1s; }
+.animate-on-load-delay-2 { animation-delay: 0.2s; }
+.animate-on-load-delay-3 { animation-delay: 0.3s; }
+.animate-on-load-delay-4 { animation-delay: 0.4s; }
+.animate-on-load-delay-5 { animation-delay: 0.5s; }
+
+/* ============================================================
+   COUNTER ANIMATION — stile numeri
+   Numeri che vengono animati in JS
+   ============================================================ */
+[data-counter] {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
+   PREFERS-REDUCED-MOTION
+   Disabilita tutte le animazioni per accessibilità
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    /* Scroll animations: visibili subito */
+    [data-animate],
+    [data-animate="slide-left"],
+    [data-animate="slide-right"],
+    [data-animate="fade"],
+    [data-animate="zoom"],
+    [data-animate="fade-up"],
+    [data-animate="flip"] {
+        opacity: 1;
+        transform: none;
+        transition: none;
+        animation: none;
+    }
+
+    /* Skeleton: no animazione shimmer */
+    .skeleton {
+        animation: none;
+        background: #f0ebe3;
+    }
+
+    /* Immagini lazy: visibili subito */
+    img[loading="lazy"] {
+        opacity: 1;
+        transition: none;
+    }
+
+    /* Card hover: no lift */
+    .card-animated:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Button pulse: off */
+    .btn-pulse {
+        animation: none;
+    }
+
+    /* Page load animations: off */
+    .animate-on-load,
+    .animate-on-load-delay-1,
+    .animate-on-load-delay-2,
+    .animate-on-load-delay-3,
+    .animate-on-load-delay-4,
+    .animate-on-load-delay-5 {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+
+    /* Progress bar: visibile ma statica */
+    #scroll-progress {
+        transition: none;
+    }
+
+    /* Parallax: disabilitato */
+    .hero-parallax {
+        will-change: auto;
+    }
+}

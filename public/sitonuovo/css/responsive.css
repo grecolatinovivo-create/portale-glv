@@ -1,0 +1,238 @@
+/* ============================================================
+   GrecoLatinoVivo — responsive.css
+   Media queries: mobile-first
+   Compatibile con le classi di style.css
+   ============================================================ */
+
+/* ============================================================
+   MOBILE BASE — tutto sotto 768px
+   ============================================================ */
+
+/* Navbar */
+.nav-menu { display: none; }
+.nav-toggle { display: flex; }
+
+/* Hero homepage */
+.hero-section {
+  min-height: 100svh;
+  background-attachment: scroll;
+  padding: 100px 0 60px;
+}
+.hero-section h1 { font-size: clamp(2rem, 8vw, 3rem); }
+.hero-section .hero-actions {
+  flex-direction: column;
+  align-items: stretch;
+}
+.hero-section .hero-actions .btn { width: 100%; justify-content: center; }
+
+/* Stats grid: 2 colonne su mobile */
+.stats-grid {
+  grid-template-columns: repeat(2, 1fr) !important;
+}
+
+/* Services grid: 1 colonna */
+.services-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* About grid: 1 colonna */
+.about-grid {
+  grid-template-columns: 1fr !important;
+  gap: 32px;
+}
+.about-image-col { order: -1; }
+.about-image-placeholder { height: 260px; }
+
+/* Teachers grid: 1 colonna */
+.teachers-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* News grid */
+.news-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* Testimonials grid */
+.testimonials-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* Footer */
+.footer-container {
+  grid-template-columns: 1fr !important;
+  gap: 28px !important;
+}
+
+/* Contact */
+.contact-grid {
+  grid-template-columns: 1fr !important;
+}
+
+/* Form row */
+.form-row { grid-template-columns: 1fr !important; }
+
+/* Page hero smaller on mobile */
+.page-hero { padding: 120px 0 60px; }
+
+/* Stat items: dividers hidden */
+.stat-item::after { display: none; }
+
+/* Container padding tighter */
+.container { padding: 0 16px; }
+
+/* Section padding smaller */
+.section { padding: 60px 0; }
+
+/* CTA section actions */
+.cta-actions {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+.cta-actions .btn { width: 100%; justify-content: center; }
+
+/* Back to top button */
+.back-to-top {
+  bottom: 16px;
+  right: 16px;
+  width: 40px;
+  height: 40px;
+}
+
+/* ============================================================
+   TABLET — 768px+
+   ============================================================ */
+@media (min-width: 768px) {
+
+  /* Navbar */
+  .nav-menu { display: flex; }
+  .nav-toggle { display: none; }
+  .nav-mobile { display: none !important; }
+
+  /* Container */
+  .container { padding: 0 24px; }
+
+  /* Section */
+  .section { padding: 80px 0; }
+
+  /* Stats: 4 colonne */
+  .stats-grid { grid-template-columns: repeat(4, 1fr) !important; }
+  .stat-item { padding: 40px 20px; }
+  .stat-item::after { display: block; }
+
+  /* Services: 2 colonne */
+  .services-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px; }
+
+  /* About: 2 colonne */
+  .about-grid { grid-template-columns: 1fr 1fr !important; gap: 48px; align-items: center; }
+  .about-image-col { order: 0; }
+  .about-image-placeholder { height: 360px; }
+
+  /* Teachers: 2 colonne */
+  .teachers-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px; }
+
+  /* News: 2 colonne */
+  .news-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px; }
+
+  /* Testimonials: 2 colonne */
+  .testimonials-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px; }
+
+  /* Footer */
+  .footer-container { grid-template-columns: 1.5fr 1fr 1fr !important; gap: 32px !important; }
+
+  /* Contact */
+  .contact-grid { grid-template-columns: 3fr 1.5fr !important; gap: 40px; }
+
+  /* Form row */
+  .form-row { grid-template-columns: 1fr 1fr !important; }
+
+  /* Hero */
+  .hero-section { padding: 0; }
+  .hero-section .hero-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+  .hero-section .hero-actions .btn { width: auto; }
+
+  /* CTA actions */
+  .cta-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+  .cta-actions .btn { width: auto; }
+}
+
+/* ============================================================
+   DESKTOP — 1024px+
+   ============================================================ */
+@media (min-width: 1024px) {
+
+  /* Container */
+  .container { padding: 0 32px; max-width: 1180px; }
+
+  /* Section */
+  .section { padding: 100px 0; }
+
+  /* Services: 3 colonne */
+  .services-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 28px; }
+
+  /* Teachers: 3 colonne */
+  .teachers-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 28px; }
+
+  /* News: 3 colonne */
+  .news-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 28px; }
+
+  /* Testimonials: 3 colonne */
+  .testimonials-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 28px; }
+
+  /* About */
+  .about-grid { gap: 64px !important; }
+  .about-image-placeholder { height: 440px; }
+
+  /* Footer */
+  .footer-container { grid-template-columns: 2fr 1fr 1fr 1.5fr !important; gap: 40px !important; }
+
+  /* Nav link spacing */
+  .nav-menu { gap: 6px; }
+  .nav-menu li a { padding: 8px 16px; font-size: 0.95rem; }
+}
+
+/* ============================================================
+   WIDE — 1280px+
+   ============================================================ */
+@media (min-width: 1280px) {
+  .container { padding: 0 24px; }
+  .nav-container { padding: 0 32px; }
+}
+
+/* ============================================================
+   PRINT
+   ============================================================ */
+@media print {
+  .navbar,
+  .nav-toggle,
+  .nav-mobile,
+  .hero-scroll-hint,
+  .back-to-top,
+  .footer { display: none !important; }
+  body { background: white; color: black; font-size: 12pt; }
+  .section { padding: 20px 0; }
+}
+
+/* ============================================================
+   PREFERS-REDUCED-MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal, .reveal-up, .reveal-left, .reveal-right {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
