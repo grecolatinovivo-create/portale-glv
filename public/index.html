@@ -1420,12 +1420,17 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
 
 /* ── Smooth scroll per link interni ─────────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach(a => {
+  const hash = a.getAttribute('href');
+  // Salta href="#" puro (es. pulsante Accedi) — querySelector('#') lancerebbe SyntaxError
+  if (!hash || hash === '#') return;
   a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    try {
+      const target = document.querySelector(hash);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    } catch (_) { /* selettore non valido — ignora */ }
   });
 });
 </script>

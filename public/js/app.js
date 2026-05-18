@@ -1332,8 +1332,13 @@ function initAuthModals(){
   document.querySelectorAll('[data-open-register]').forEach(btn=>btn.addEventListener('click',async e=>{
     e.preventDefault();
     const plan = btn.dataset.plan || null;
+    console.log('[GLV] Pulsante abbonamento cliccato — piano:', plan || '(nessuno)');
     // Se il pulsante ha un piano → vai diretto al checkout (Stripe raccoglie email e dati)
-    if (plan) { await Payments.subscribe(plan); return; }
+    if (plan) {
+      try { await Payments.subscribe(plan); }
+      catch(err) { console.error('[GLV] Errore in Payments.subscribe:', err); alert('❌ Errore: ' + err.message); }
+      return;
+    }
     showAuthModal('register');
   }));
   document.querySelectorAll('[data-logout]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Auth.logout();}));
@@ -1369,11 +1374,13 @@ function initMobileNav(){
     <a href="#corsi" class="bottom-nav-item" aria-label="Corsi">
       <i class="fas fa-th-large bottom-nav-icon" aria-hidden="true"></i><span>Corsi</span>
     </a>
-    <a href="#prezzi" class="bottom-nav-item" aria-label="Abbonamenti">
+    <a href="#prezzi" class="bottom-nav-item" aria-label="Abbonati">
       <i class="fas fa-star bottom-nav-icon" aria-hidden="true"></i><span>Abbonati</span>
     </a>
   `;
   document.body.appendChild(nav);
+  // Padding-bottom per evitare che il nav fisso copra i contenuti cliccabili
+  document.body.style.paddingBottom = '64px';
 }
 
 /* ── Mobile — Sticky CTA Bar (corso.html) ────────────────────── */
