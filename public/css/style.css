@@ -478,29 +478,30 @@ body.has-corso-cta { padding-bottom: 80px; }
   flex-shrink: 0;
   width: 280px;
   background: var(--bg-card);
-  border-radius: var(--r-md);
-  border: 1px solid var(--border);
+  border-radius: 14px;                              /* = fan-card */
+  border: 1px solid rgba(255,255,255,.12);          /* = fan-card */
+  box-shadow: 0 4px 20px rgba(0,0,0,.35);           /* = fan-card (leggero a riposo) */
   overflow: hidden;
   cursor: pointer;
-  transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
   position: relative;
   display: flex;
   flex-direction: column;
 }
 .course-card:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: rgba(255,255,255,.22);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.55);           /* = fan-card al hover */
+  border-color: rgba(255,255,255,.26);
   z-index: 2;
 }
 
-/* Thumbnail 16:9 */
+/* Thumbnail */
 .card-thumb {
   width: 100%;
-  height: 157px; /* 16:9 per 280px */
+  height: 120px;                                    /* proporzionato come fan-card */
   position: relative;
   overflow: hidden;
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  border-radius: 14px 14px 0 0;                     /* segue il border-radius card */
   flex-shrink: 0;
 }
 .card-thumb-gradient {
