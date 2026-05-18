@@ -967,7 +967,7 @@ function buildCard(course, opts={}) {
     </div>
   </div>`;
 }
-function goToCourse(slug){ window.location.href=`corso.html?id=${slug}`; }
+function goToCourse(slug){ /* corso.html rimossa — scroll alla sezione corsi */ document.getElementById('corsi')?.scrollIntoView({behavior:'smooth'}); }
 
 /* ── Row Renderer ────────────────────────────────────────────── */
 async function renderRow(id, filter, locked=false){
@@ -1309,7 +1309,7 @@ function showAuthModal(mode){
       // Controlla parametro redirect (es. ?redirect=admin per il pannello admin)
       const redirectParam = new URLSearchParams(window.location.search).get('redirect');
       if(redirectParam === 'admin'){ window.location.href = 'admin.html'; return; }
-      window.location.href='dashboard.html';
+      window.location.href='index.html';
     }
     else{ errEl.textContent=result.error||'Errore. Riprova.'; errEl.style.display='block'; btn.disabled=false; btn.textContent=mode==='login'?'Accedi →':'Registrati →'; }
   });
@@ -1363,17 +1363,14 @@ function initMobileNav(){
   nav.className = 'glv-bottom-nav';
   nav.setAttribute('aria-label', 'Navigazione principale');
   nav.innerHTML = `
-    <a href="index.html"     class="${isActive('index.html')    ? 'active':''}" aria-label="Home">
-      <i class="fas fa-home" aria-hidden="true"></i><span>Home</span>
+    <a href="index.html"  class="bottom-nav-item ${isActive('index.html') ? 'active':''}" aria-label="Home">
+      <i class="fas fa-home bottom-nav-icon" aria-hidden="true"></i><span>Home</span>
     </a>
-    <a href="catalogo.html"  class="${isActive('catalogo.html') ? 'active':''}" aria-label="Catalogo">
-      <i class="fas fa-th-large" aria-hidden="true"></i><span>Catalogo</span>
+    <a href="#corsi" class="bottom-nav-item" aria-label="Corsi">
+      <i class="fas fa-th-large bottom-nav-icon" aria-hidden="true"></i><span>Corsi</span>
     </a>
-    <a href="dashboard.html" class="${isActive('dashboard.html')? 'active':''}" aria-label="Dashboard">
-      <i class="fas fa-play-circle" aria-hidden="true"></i><span>I miei corsi</span>
-    </a>
-    <a href="profilo.html"   class="${isActive('profilo.html')  ? 'active':''}" aria-label="Profilo">
-      <i class="fas fa-user-circle" aria-hidden="true"></i><span>Profilo</span>
+    <a href="#prezzi" class="bottom-nav-item" aria-label="Abbonamenti">
+      <i class="fas fa-star bottom-nav-icon" aria-hidden="true"></i><span>Abbonati</span>
     </a>
   `;
   document.body.appendChild(nav);

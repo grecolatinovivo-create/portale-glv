@@ -1333,8 +1333,8 @@
     </div>
     <div class="lp-footer-links">
       <a href="#corsi">Corsi</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="termini.html">Termini</a>
+      <a href="mailto:supporto@grecolatinovivo.it">Privacy</a>
+      <a href="mailto:supporto@grecolatinovivo.it">Termini</a>
       <a href="mailto:supporto@grecolatinovivo.it">Contatti</a>
     </div>
     <div class="lp-footer-copy">
@@ -1369,8 +1369,8 @@ document.getElementById('navToggle').addEventListener('click', function () {
       const u = await r.json();
       if (u && u.email) {
         const btn = document.getElementById('btnLogin');
-        btn.textContent = 'Dashboard';
-        btn.href = 'dashboard.html';
+        btn.textContent = 'Area riservata';
+        btn.href = 'admin.html';
       }
     }
   } catch (e) { /* non autenticato, normale */ }
