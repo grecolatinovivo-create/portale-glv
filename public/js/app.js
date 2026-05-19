@@ -1365,31 +1365,35 @@ function initUrlFeedback(){
   if(p.get('subscribed')==='1'){ showToast('✓ Abbonamento attivato. Accesso al portale abilitato.'); window.history.replaceState({},'',window.location.pathname); }
 }
 
-/* ── Mobile — Bottom Navigation Bar ─────────────────────────── */
+/* ── Mobile — Sticky CTA Bar ─────────────────────────────────── */
 function initMobileNav(){
   if(window.innerWidth > 768) return;
 
-  // Rileva pagina corrente
-  const path = window.location.pathname.split('/').pop() || 'index.html';
-  const isActive = (page) => path === page || (page === 'index.html' && (path === '' || path === '/'));
-
-  const nav = document.createElement('nav');
-  nav.className = 'glv-bottom-nav';
-  nav.setAttribute('aria-label', 'Navigazione principale');
-  nav.innerHTML = `
-    <a href="index.html"  class="bottom-nav-item ${isActive('index.html') ? 'active':''}" aria-label="Home">
-      <i class="fas fa-home bottom-nav-icon" aria-hidden="true"></i><span>Home</span>
-    </a>
-    <a href="#corsi" class="bottom-nav-item" aria-label="Corsi">
-      <i class="fas fa-th-large bottom-nav-icon" aria-hidden="true"></i><span>Corsi</span>
-    </a>
-    <a href="#prezzi" class="bottom-nav-item" aria-label="Abbonati">
-      <i class="fas fa-star bottom-nav-icon" aria-hidden="true"></i><span>Abbonati</span>
-    </a>
+  const bar = document.createElement('div');
+  bar.className = 'glv-sticky-cta';
+  bar.setAttribute('role', 'complementary');
+  bar.setAttribute('aria-label', 'Offerta abbonamento');
+  bar.innerHTML = `
+    <div class="glv-sticky-cta__info">
+      <span class="glv-sticky-cta__price">Da €5,90<span class="glv-sticky-cta__period">/mese</span></span>
+      <span class="glv-sticky-cta__sub">Annulla quando vuoi</span>
+    </div>
+    <button type="button" class="glv-sticky-cta__btn" aria-label="Vai ai piani di abbonamento">
+      Abbonati ora <span aria-hidden="true">→</span>
+    </button>
   `;
-  document.body.appendChild(nav);
-  // Padding-bottom per evitare che il nav fisso copra i contenuti cliccabili
-  document.body.style.paddingBottom = '64px';
+
+  bar.querySelector('.glv-sticky-cta__btn').addEventListener('click', () => {
+    const target = document.getElementById('prezzi');
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.location.href = '/#prezzi';
+    }
+  });
+
+  document.body.appendChild(bar);
+  document.body.style.paddingBottom = '68px';
 }
 
 /* ── Mobile — Sticky CTA Bar (corso.html) ────────────────────── */
