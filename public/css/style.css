@@ -2037,3 +2037,451 @@ body.has-corso-cta { padding-bottom: 80px; }
   top: 0;
   outline: 2px solid var(--gold-lt, #e8c875);
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   VISTA CORSO — SPA in-page · Sprint MVP (breve-marziale)
+   Tutte le classi usano esclusivamente variabili CSS esistenti.
+   Nessun colore hardcoded.
+═══════════════════════════════════════════════════════════════════ */
+
+/* ── Contenitori vista catalogo / corso ─────────────────────────── */
+.catalog-view,
+.course-view {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity   0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stato riposo catalog: visibile */
+.catalog-view {
+  transform: translateX(0);
+  opacity: 1;
+  min-height: 100%;
+}
+
+/* Catalog esce a sinistra */
+.catalog-view.slide-out-left {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Corso fuori schermo a destra (stato iniziale) */
+.course-view.offscreen-right {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Corso entra — stato visibile */
+.course-view.slide-in-right {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Animazione inversa — corso torna a destra */
+.course-view.slide-out-right {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Layout wrapper vista corso ─────────────────────────────────── */
+.course-view-inner {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 64px;
+}
+
+@media (max-width: 768px) {
+  .course-view-inner {
+    padding: 16px 16px 48px;
+  }
+}
+
+/* ── Back button ────────────────────────────────────────────────── */
+.course-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  padding: 6px 0;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: color var(--t-fast);
+}
+.course-back-btn:hover {
+  color: var(--text-primary);
+}
+.course-back-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: var(--r-xs);
+}
+
+/* ── Header corso ───────────────────────────────────────────────── */
+.course-header {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.course-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.course-badges .badge--lang {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: var(--primary);
+  color: var(--text-primary);
+}
+.course-badges .badge--level {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  background: var(--bg-card-2);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-mid);
+}
+
+.course-title {
+  font-family: var(--font-body);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+@media (max-width: 768px) {
+  .course-title {
+    font-size: 22px;
+  }
+}
+
+.course-description {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+@media (max-width: 768px) {
+  .course-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+.course-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ── Barra progresso corso ──────────────────────────────────────── */
+.course-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.course-progress-label {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-progress-bar {
+  height: 4px;
+  background: var(--border-mid);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.course-progress-bar__fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* ── Streak badge ───────────────────────────────────────────────── */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gold);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-full);
+  padding: 4px 12px;
+  background: var(--gold-light);
+  white-space: nowrap;
+}
+
+/* ── Lista lezioni ──────────────────────────────────────────────── */
+.course-lessons-section {
+  margin-bottom: 32px;
+}
+
+.course-lessons-heading {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.lesson-list {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  list-style: none;
+}
+
+.lesson-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 64px;
+  background: var(--bg-card);
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--t-fast);
+  font-family: var(--font-body);
+  position: relative;
+}
+.lesson-row:last-child {
+  border-bottom: none;
+}
+.lesson-row:hover:not(.lesson-row--locked) {
+  background: var(--bg-card-2);
+}
+.lesson-row:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: -2px;
+}
+
+/* Stato corrente — bordo sinistro oro + background lieve */
+.lesson-row--current {
+  background: rgba(201,150,42,0.06);
+  border-left: 3px solid var(--gold);
+  padding-left: 13px; /* compensa il bordo da 3px */
+}
+.lesson-row--current .lesson-title {
+  font-weight: 600;
+}
+
+/* Stato bloccato */
+.lesson-row--locked {
+  cursor: default;
+}
+.lesson-row--locked .lesson-title {
+  opacity: 0.45;
+}
+.lesson-row--locked .lesson-duration {
+  opacity: 0.35;
+}
+
+/* Stato completato */
+.lesson-row--completed .lesson-title {
+  color: var(--text-secondary);
+}
+
+.lesson-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+}
+
+.lesson-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lesson-title {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lesson-duration {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.lesson-badge-free {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--gold-light);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--r-sm);
+  padding: 2px 6px;
+}
+
+/* ── Banner lezione bloccata ────────────────────────────────────── */
+.locked-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--primary-light);
+  border: 1px solid rgba(160,26,54,0.2);
+  border-radius: var(--r-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 4px 0 8px;
+  flex-wrap: wrap;
+}
+.locked-banner__cta {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--gold);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--t-fast);
+}
+.locked-banner__cta:hover {
+  color: var(--gold-lt);
+}
+
+/* ── Player Vimeo ───────────────────────────────────────────────── */
+.course-player-section {
+  margin-top: 32px;
+}
+
+.player-lesson-title {
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.course-player-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--bg);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.course-player-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.player-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+.player-nav__prev,
+.player-nav__next {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: color var(--t-fast), border-color var(--t-fast);
+}
+.player-nav__prev:hover,
+.player-nav__next:hover {
+  color: var(--text-primary);
+  border-color: var(--border-mid);
+}
+.player-nav__prev:disabled,
+.player-nav__next:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* ── Wrapper posizionamento relativo per catalog+course ─────────── */
+.dash-spa-wrapper {
+  position: relative;
+  overflow: hidden;
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* ── prefers-reduced-motion: disabilita tutte le animazioni nuove ── */
+@media (prefers-reduced-motion: reduce) {
+  .catalog-view,
+  .course-view {
+    transition: none !important;
+  }
+  .course-progress-bar__fill {
+    transition: none !important;
+  }
+}

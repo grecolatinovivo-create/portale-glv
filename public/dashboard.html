@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="/css/style.css">
+  <script src="https://player.vimeo.com/api/player.js"></script>
   <style>
     :root {
       --dark:#0a0a0a; --dark-2:#111111; --dark-3:#1a1a1a;
@@ -365,6 +366,12 @@
   <!-- main landmark: il contenuto principale inizia qui — skip link punta a questo id -->
   <main id="main-content">
 
+  <!-- ══ SPA WRAPPER: catalogo + vista corso vivono qui fianco a fianco ══ -->
+  <div class="dash-spa-wrapper">
+
+  <!-- ── CATALOGO (vista predefinita) ─────────────────────────── -->
+  <div class="catalog-view" id="catalog-view">
+
   <section class="dash-hero">
     <h1 class="dash-greeting">Bentornato, <em id="dash-name">studente</em>.</h1>
     <p class="dash-subtitle" id="dash-subtitle">Caricamento del tuo catalogo personalizzato…</p>
@@ -460,6 +467,89 @@
       <a href="/index.html">Home</a>
     </nav>
   </footer>
+
+  </div><!-- /#catalog-view -->
+
+  <!-- ── VISTA CORSO (SPA in-page) ─────────────────────────────── -->
+  <div class="course-view offscreen-right" id="course-view" aria-hidden="true">
+    <div class="course-view-inner">
+
+      <!-- Header corso -->
+      <section class="course-header" id="course-header">
+        <button class="course-back-btn" id="course-back-btn" aria-label="Torna al catalogo corsi">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Torna ai corsi
+        </button>
+
+        <div class="course-badges" id="course-badges"></div>
+
+        <h2 class="course-title" id="course-title"></h2>
+        <p class="course-description" id="course-description"></p>
+
+        <div class="course-meta-bar">
+          <div class="course-progress-wrap">
+            <div class="course-progress-label">
+              <span id="course-progress-label-left">0/0 lezioni</span>
+              <span id="course-progress-label-right">0%</span>
+            </div>
+            <div class="course-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="course-progress-bar-el">
+              <div class="course-progress-bar__fill" id="course-progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <span class="streak-badge" id="streak-badge">
+            <svg class="streak-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M12 2C12 2 7 8 7 13a5 5 0 0 0 10 0c0-3-2-6-2-6s-1 2-2 2c0 0 1-4-1-7Z" fill="var(--gold)"/>
+              <path d="M12 17a2 2 0 0 1-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 0 1-2 2Z" fill="var(--bg)" opacity="0.6"/>
+            </svg>
+            <span id="streak-text">0 giorni</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Lista lezioni -->
+      <section class="course-lessons-section" id="course-lessons-section">
+        <div class="course-lessons-heading">LEZIONI</div>
+        <ul class="lesson-list" id="lesson-list" role="list"></ul>
+      </section>
+
+      <!-- Player Vimeo (nascosto fino a selezione lezione) -->
+      <section class="course-player-section" id="course-player-section" hidden>
+        <h3 class="player-lesson-title" id="player-lesson-title"></h3>
+        <div class="course-player-wrap" id="course-player-wrap">
+          <iframe
+            id="vimeo-player"
+            src=""
+            width="100%"
+            height="100%"
+            frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen
+            title="Player lezione"
+          ></iframe>
+        </div>
+        <nav class="player-nav" aria-label="Navigazione lezioni">
+          <button class="player-nav__prev" id="player-prev-btn" aria-label="Lezione precedente">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Precedente
+          </button>
+          <button class="player-nav__next" id="player-next-btn" aria-label="Lezione successiva">
+            Successiva
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </nav>
+      </section>
+
+    </div><!-- /.course-view-inner -->
+  </div><!-- /#course-view -->
+
+  </div><!-- /.dash-spa-wrapper -->
 
   </main><!-- /#main-content -->
 </div><!-- /#glv-dashboard -->
@@ -940,10 +1030,15 @@ async function openSubscriptionModal() {
 
 /* ── Override goToCourse per la dashboard ─────────────────── */
 // app.js definisce goToCourse per scrollare a #corsi — qui la ridefiniremo
-// dopo il load per mostrare invece un toast informativo
+// dopo il load: se slug === CORSO_SLUG_TEST apriamo la vista corso,
+// altrimenti mostriamo un toast informativo.
 window.addEventListener('load', () => {
   window.goToCourse = function(slug) {
-    showToast('🏛️ Accesso diretto al corso in arrivo. Usa la navigazione del portale.');
+    if (slug === CORSO_SLUG_TEST) {
+      openCourseView(slug);
+    } else {
+      showToast('Accesso diretto al corso in arrivo. Usa la navigazione del portale.');
+    }
   };
 });
 
@@ -963,13 +1058,655 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (saved) {
     try {
       quizAnswers = JSON.parse(saved) || quizAnswers;
-      showDashboard();
+      await showDashboard();
+
+      // Controlla URL al caricamento — ?corso=breve-marziale
+      // Viene chiamato DOPO showDashboard() per garantire che il DOM del catalogo sia pronto
+      const params = new URLSearchParams(location.search);
+      if (params.has('corso')) {
+        openCourseView(params.get('corso'), { skipAnimation: true, pushState: false });
+      }
       return;
     } catch { localStorage.removeItem(PROFILE_KEY); }
   }
 
   // Primo accesso: mostra il quiz
   document.getElementById('glv-quiz').classList.remove('hidden');
+});
+</script>
+
+<!-- ══ VISTA CORSO — SPA in-page ══════════════════════════════════
+     Tutte le funzioni sono in namespace separato per non inquinare
+     il namespace globale del dashboard esistente.
+     MVP: abilitato solo per slug 'breve-marziale'.
+═══════════════════════════════════════════════════════════════════ -->
+<script>
+// ── CORSO VIEW — SPA in-page ──────────────────────────────────────
+const CORSO_SLUG_TEST = 'breve-marziale';
+const ALLOWED_SLUGS   = ['breve-marziale']; // rimuovere in fase 2
+
+// Placeholder Vimeo per lezioni senza vimeoUrl (seed ha vimeoUrl: null)
+const VIMEO_PLACEHOLDER = 'https://player.vimeo.com/video/76979871';
+
+// Stato interno del corso aperto
+let _corsoData       = null; // { course, progressData, streak }
+let _lessonSelected  = null; // oggetto lezione attualmente selezionata
+let _vimeoPlayer     = null; // istanza Vimeo.Player SDK
+let _progressTimer   = null; // intervallo salvataggio ogni 10s
+let _lastWatched     = 0;    // secondi guardati (aggiornati da timeupdate)
+let _totalSeconds    = 0;    // durata totale lezione
+
+// ── Helpers ──────────────────────────────────────────────────────
+
+function _langBadgeColor(lang) {
+  const map = {
+    'Latino':               'var(--primary)',
+    'Greco Antico':         'var(--greco-b)',
+    'Egiziano Geroglifico': 'var(--egiziano-b)',
+    'Ebraico Biblico':      'var(--ebraico-b)',
+    'Corsi Brevi':          '#4a4a4a',
+    'Didattica':            'var(--didattica-b)',
+  };
+  return map[lang] || 'var(--primary)';
+}
+
+function _fmtDuration(seconds) {
+  if (!seconds) return '';
+  const m = Math.round(seconds / 60);
+  return m + ' min';
+}
+
+function _lessonProgressMap(progressData) {
+  // Restituisce una Map lessonId → progressObj
+  const map = new Map();
+  if (progressData && Array.isArray(progressData.lessons)) {
+    progressData.lessons.forEach(p => {
+      // L'API /api/progress/course restituisce p.id (non p.lessonId)
+      const key = p.id || p.lessonId;
+      if (key) map.set(key, p);
+    });
+  }
+  return map;
+}
+
+function _findNextLesson(course, progressData) {
+  // Prima lezione non completata e accessibile
+  const map = _lessonProgressMap(progressData);
+  const hasAccess = course.hasAccess;
+  let firstFallback = null;
+  for (const lesson of (course.lessons || [])) {
+    const accessible = lesson.isFree || hasAccess;
+    if (!accessible) continue;
+    const prog = map.get(lesson.id);
+    const completed = prog?.completed ?? false;
+    if (!completed) return lesson;
+    if (!firstFallback) firstFallback = lesson; // ultima fallback = prima lezione
+  }
+  // Tutte completate → ritorna l'ultima completata accessibile (per rivedere)
+  if (firstFallback) return firstFallback;
+  return null;
+}
+
+// ── Icone SVG lezione ─────────────────────────────────────────────
+
+function _iconCompleted() {
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Completata">
+    <circle cx="8" cy="8" r="7" fill="#3db05b" opacity="0.15"/>
+    <circle cx="8" cy="8" r="7" stroke="#3db05b" stroke-width="1.5"/>
+    <path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+function _iconCurrent() {
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Lezione corrente">
+    <circle cx="8" cy="8" r="7" fill="var(--gold)" opacity="0.12"/>
+    <circle cx="8" cy="8" r="7" stroke="var(--gold)" stroke-width="1.5"/>
+    <path d="M6.5 5.5l4 2.5-4 2.5V5.5Z" fill="var(--gold)"/>
+  </svg>`;
+}
+function _iconFree() {
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Disponibile">
+    <circle cx="8" cy="8" r="7" stroke="var(--border-mid)" stroke-width="1.5"/>
+  </svg>`;
+}
+function _iconLocked() {
+  return `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-label="Bloccata">
+    <rect x="4" y="7" width="8" height="6" rx="1" stroke="var(--text-muted)" stroke-width="1.5"/>
+    <path d="M6 7V5.5a2 2 0 0 1 4 0V7" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round"/>
+    <circle cx="8" cy="10" r="1" fill="var(--text-muted)"/>
+  </svg>`;
+}
+
+// ── Apertura vista corso ──────────────────────────────────────────
+
+async function openCourseView(slug, opts) {
+  opts = opts || {};
+  const { skipAnimation = false, pushState = true } = opts;
+
+  if (!ALLOWED_SLUGS.includes(slug)) return;
+
+  // Fetch parallelo: corso + progresso + streak
+  let course, progressData, streakData;
+  try {
+    const [rCourse, rProgress, rStreak] = await Promise.all([
+      fetch(`/api/courses/${slug}`),
+      fetch(`/api/progress/course/${slug}`),
+      fetch('/api/progress/streak'),
+    ]);
+    course       = rCourse.ok       ? ((await rCourse.json())?.course ?? null) : null;
+    progressData = rProgress.ok     ? await rProgress.json()     : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
+    streakData   = rStreak.ok       ? await rStreak.json()       : { streak: 0, lastActivityDate: null };
+  } catch (err) {
+    console.error('[corsoView] Errore fetch:', err);
+    if (typeof showToast === 'function') showToast('Impossibile caricare il corso. Riprova.');
+    return;
+  }
+
+  if (!course) {
+    if (typeof showToast === 'function') showToast('Corso non trovato.');
+    return;
+  }
+
+  _corsoData = { course, progressData, streakData };
+
+  // Render
+  renderCourseHeader(course, progressData, streakData);
+  renderLessonList(course, progressData);
+
+  // Nasconde player finché non si seleziona una lezione
+  const playerSection = document.getElementById('course-player-section');
+  if (playerSection) playerSection.hidden = true;
+
+  // Aggiorna URL history
+  if (pushState) {
+    history.pushState({ corso: slug }, '', '?corso=' + slug);
+  }
+
+  // Animazione
+  const catalogView = document.getElementById('catalog-view');
+  const courseView  = document.getElementById('course-view');
+
+  if (skipAnimation) {
+    catalogView.style.transition = 'none';
+    courseView.style.transition  = 'none';
+    catalogView.classList.add('slide-out-left');
+    courseView.classList.remove('offscreen-right', 'slide-out-right');
+    courseView.classList.add('slide-in-right');
+    courseView.setAttribute('aria-hidden', 'false');
+    // Ripristina transition dopo 1 frame (per animazioni future)
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        catalogView.style.transition = '';
+        courseView.style.transition  = '';
+      });
+    });
+  } else {
+    // Assicura posizione iniziale
+    courseView.classList.add('offscreen-right');
+    courseView.classList.remove('slide-in-right', 'slide-out-right');
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        catalogView.classList.add('slide-out-left');
+        courseView.classList.remove('offscreen-right');
+        courseView.classList.add('slide-in-right');
+        courseView.setAttribute('aria-hidden', 'false');
+      });
+    });
+  }
+
+  // Focus sull'header del corso per accessibilità
+  setTimeout(() => {
+    const backBtn = document.getElementById('course-back-btn');
+    if (backBtn) backBtn.focus();
+
+    // Auto-selezione nextLesson (solo evidenziazione, senza auto-play)
+    const next = _findNextLesson(course, progressData);
+    if (next) {
+      const row = document.querySelector(`.lesson-row[data-lesson-id="${next.id}"]`);
+      if (row) {
+        row.classList.add('lesson-row--current');
+        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, skipAnimation ? 50 : 450);
+
+  // Animazione fill barra progresso
+  setTimeout(() => {
+    const fill = document.getElementById('course-progress-fill');
+    const bar  = document.getElementById('course-progress-bar-el');
+    if (fill && bar) {
+      const pct = progressData.percent || 0;
+      fill.style.width = pct + '%';
+      bar.setAttribute('aria-valuenow', pct);
+    }
+  }, skipAnimation ? 50 : 500);
+}
+
+// ── Chiusura vista corso ──────────────────────────────────────────
+
+function closeCourseView(opts) {
+  opts = opts || {};
+  const { skipAnimation = false, pushState = true } = opts;
+
+  // Ferma il player e il timer progresso
+  _destroyPlayer();
+
+  if (pushState) {
+    history.pushState({}, '', location.pathname);
+  }
+
+  const catalogView = document.getElementById('catalog-view');
+  const courseView  = document.getElementById('course-view');
+
+  if (skipAnimation) {
+    catalogView.style.transition = 'none';
+    courseView.style.transition  = 'none';
+    catalogView.classList.remove('slide-out-left');
+    courseView.classList.remove('slide-in-right');
+    courseView.classList.add('offscreen-right');
+    courseView.setAttribute('aria-hidden', 'true');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        catalogView.style.transition = '';
+        courseView.style.transition  = '';
+      });
+    });
+  } else {
+    courseView.classList.remove('slide-in-right');
+    courseView.classList.add('slide-out-right');
+    courseView.setAttribute('aria-hidden', 'true');
+    catalogView.classList.remove('slide-out-left');
+
+    // Dopo l'animazione: ripristina classe offscreen-right e rimuovi slide-out-right
+    setTimeout(() => {
+      courseView.classList.remove('slide-out-right');
+      courseView.classList.add('offscreen-right');
+    }, 450);
+  }
+
+  // Reset stato interno
+  _corsoData      = null;
+  _lessonSelected = null;
+}
+
+// ── Render header corso ───────────────────────────────────────────
+
+function renderCourseHeader(course, progressData, streakData) {
+  // Badge lingua + livello
+  const badgesEl = document.getElementById('course-badges');
+  if (badgesEl) {
+    badgesEl.innerHTML = `
+      <span class="badge badge--lang" style="background:${_langBadgeColor(course.lang)}">${(course.lang || 'CORSO').toUpperCase()}</span>
+      ${course.level ? `<span class="badge badge--level">${course.level.toUpperCase()}</span>` : ''}
+    `;
+  }
+
+  // Titolo e descrizione
+  const titleEl = document.getElementById('course-title');
+  if (titleEl) titleEl.textContent = course.title || '';
+
+  const descEl = document.getElementById('course-description');
+  if (descEl) descEl.textContent = course.description || '';
+
+  // Streak
+  const streakText = document.getElementById('streak-text');
+  if (streakText) {
+    const n = streakData?.streak ?? 0;
+    streakText.textContent = n + ' ' + (n === 1 ? 'giorno' : 'giorni');
+  }
+
+  // Progresso (la barra parte da 0 — animazione avviene in openCourseView con delay)
+  const labelLeft  = document.getElementById('course-progress-label-left');
+  const labelRight = document.getElementById('course-progress-label-right');
+  const fill       = document.getElementById('course-progress-fill');
+  const barEl      = document.getElementById('course-progress-bar-el');
+
+  const completed = progressData?.completedLessons ?? 0;
+  const total     = progressData?.totalLessons ?? (course.lessons?.length ?? 0);
+  const pct       = progressData?.percent ?? 0;
+
+  if (labelLeft)  labelLeft.textContent  = completed + '/' + total + ' lezioni';
+  if (labelRight) labelRight.textContent = pct + '%';
+  if (fill)       fill.style.width       = '0%'; // parte da 0 — animato dopo
+  if (barEl)      barEl.setAttribute('aria-valuenow', 0);
+}
+
+// ── Render lista lezioni ──────────────────────────────────────────
+
+function renderLessonList(course, progressData) {
+  const listEl = document.getElementById('lesson-list');
+  if (!listEl) return;
+
+  const hasAccess = course.hasAccess;
+  const map       = _lessonProgressMap(progressData);
+  const lessons   = course.lessons || [];
+
+  listEl.innerHTML = '';
+
+  lessons.forEach((lesson, idx) => {
+    const prog       = map.get(lesson.id) || {};
+    const completed  = prog.completed   ?? false;
+    const accessible = lesson.isFree   || hasAccess;
+
+    // Stato riga
+    let statusClass = '';
+    let icon        = '';
+    if (!accessible) {
+      statusClass = 'lesson-row--locked';
+      icon        = _iconLocked();
+    } else if (completed) {
+      statusClass = 'lesson-row--completed';
+      icon        = _iconCompleted();
+    } else {
+      icon        = lesson.isFree ? _iconFree() : _iconCurrent();
+    }
+
+    const durationStr = lesson.durationMin ? (lesson.durationMin + ' min') : '';
+    const freeBadge   = lesson.isFree ? '<span class="lesson-badge-free">FREE</span>' : '';
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <button
+        class="lesson-row ${statusClass}"
+        data-lesson-id="${lesson.id}"
+        data-lesson-idx="${idx}"
+        aria-label="${lesson.title}${durationStr ? ', ' + durationStr : ''}${!accessible ? ', bloccata' : ''}"
+        ${!accessible ? '' : ''}
+      >
+        <span class="lesson-icon" aria-hidden="true">${icon}</span>
+        <span class="lesson-info">
+          <span class="lesson-title">${lesson.title || 'Lezione ' + (idx + 1)}</span>
+          ${durationStr ? `<span class="lesson-duration">${durationStr}</span>` : ''}
+        </span>
+        ${freeBadge}
+      </button>`;
+
+    listEl.appendChild(li);
+
+    // Listener click
+    const btn = li.querySelector('.lesson-row');
+    btn.addEventListener('click', () => selectLesson(lesson, accessible, course));
+  });
+}
+
+// ── Selezione lezione ─────────────────────────────────────────────
+
+function selectLesson(lesson, hasAccess, course) {
+  if (!hasAccess) {
+    // Mostra/aggiorna locked banner
+    _showLockedBanner(lesson);
+    return;
+  }
+
+  // Rimuovi evidenziazione corrente da tutte le righe
+  document.querySelectorAll('.lesson-row').forEach(r => r.classList.remove('lesson-row--current'));
+
+  // Evidenzia riga selezionata
+  const row = document.querySelector(`.lesson-row[data-lesson-id="${lesson.id}"]`);
+  if (row) row.classList.add('lesson-row--current');
+
+  _lessonSelected = lesson;
+  renderPlayer(lesson, course);
+}
+
+function _showLockedBanner(lesson) {
+  // Rimuovi banner precedente
+  const existing = document.querySelector('.locked-banner');
+  if (existing) existing.remove();
+
+  const list = document.getElementById('lesson-list');
+  if (!list) return;
+
+  const row = list.querySelector(`.lesson-row[data-lesson-id="${lesson.id}"]`);
+  if (!row) return;
+
+  const banner = document.createElement('div');
+  banner.className = 'locked-banner';
+  banner.setAttribute('role', 'alert');
+  banner.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="4" y="7" width="8" height="6" rx="1" stroke="var(--text-muted)" stroke-width="1.5"/>
+      <path d="M6 7V5.5a2 2 0 0 1 4 0V7" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="8" cy="10" r="1" fill="var(--text-muted)"/>
+    </svg>
+    <span>Questa lezione è inclusa nei piani di abbonamento.</span>
+    <a href="/index.html#prezzi" class="locked-banner__cta">
+      Scopri i piani
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>`;
+
+  // Inserisce il banner dopo la riga (dentro il <li> parent)
+  const li = row.closest('li');
+  if (li) li.appendChild(banner);
+  else row.insertAdjacentElement('afterend', banner);
+}
+
+// ── Render player Vimeo ───────────────────────────────────────────
+
+function renderPlayer(lesson, course) {
+  const playerSection = document.getElementById('course-player-section');
+  const playerTitle   = document.getElementById('player-lesson-title');
+  const iframe        = document.getElementById('vimeo-player');
+
+  if (!playerSection || !playerTitle || !iframe) return;
+
+  // Distruggi player precedente
+  _destroyPlayer();
+
+  // Titolo lezione
+  playerTitle.textContent = lesson.title || '';
+
+  // URL Vimeo: usa placeholder se vimeoUrl è null
+  const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
+
+  // Mostra la sezione player
+  playerSection.hidden = false;
+
+  // Imposta src iframe (prima di creare l'istanza SDK)
+  iframe.title = lesson.title || 'Player lezione';
+
+  // Aggiorna navigazione prec/succ
+  _updatePlayerNav(lesson, course);
+
+  // Inizializza Vimeo Player SDK
+  const prog      = _lessonProgressMap(_corsoData?.progressData);
+  const lessonProg = prog.get(lesson.id) || {};
+  const resumeAt  = lessonProg.resumeAt || 0;
+  const totalSec  = lesson.durationMin ? lesson.durationMin * 60 : 0;
+
+  initVimeoProgress(lesson.id, lesson.courseId || course.id, resumeAt, totalSec, vimeoUrl);
+
+  // Scroll al player
+  playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function _updatePlayerNav(lesson, course) {
+  const prevBtn = document.getElementById('player-prev-btn');
+  const nextBtn = document.getElementById('player-next-btn');
+  if (!prevBtn || !nextBtn) return;
+
+  const lessons = course?.lessons || _corsoData?.course?.lessons || [];
+  const idx     = lessons.findIndex(l => l.id === lesson.id);
+
+  prevBtn.disabled = idx <= 0;
+  nextBtn.disabled = idx >= lessons.length - 1;
+
+  // Rimuovi listener precedenti
+  const newPrev = prevBtn.cloneNode(true);
+  const newNext = nextBtn.cloneNode(true);
+  prevBtn.replaceWith(newPrev);
+  nextBtn.replaceWith(newNext);
+
+  newPrev.addEventListener('click', () => {
+    if (idx > 0) {
+      const c  = _corsoData.course;
+      const l  = c.lessons[idx - 1];
+      selectLesson(l, l.isFree || c.hasAccess, c);
+    }
+  });
+  newNext.addEventListener('click', () => {
+    if (idx < lessons.length - 1) {
+      const c  = _corsoData.course;
+      const l  = c.lessons[idx + 1];
+      selectLesson(l, l.isFree || c.hasAccess, c);
+    }
+  });
+}
+
+// ── Vimeo Player SDK ──────────────────────────────────────────────
+
+function initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl) {
+  const iframe = document.getElementById('vimeo-player');
+  if (!iframe) return;
+
+  // Attende che Vimeo Player SDK sia disponibile
+  if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
+    // SDK non ancora caricato — riprova tra 200ms
+    setTimeout(() => initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl), 200);
+    return;
+  }
+
+  try {
+    _vimeoPlayer = new Vimeo.Player(iframe, {
+      url:    vimeoUrl,
+      width:  '100%',
+    });
+    _totalSeconds = totalSeconds;
+    _lastWatched  = 0;
+
+    _vimeoPlayer.ready().then(() => {
+      // Riprende dalla posizione salvata
+      if (resumeAt > 0) {
+        _vimeoPlayer.setCurrentTime(resumeAt).catch(() => {});
+      }
+    }).catch(() => {});
+
+    // Salvataggio ogni 10s tramite timeupdate
+    let _lastSaveTime = 0;
+    _vimeoPlayer.on('timeupdate', (data) => {
+      _lastWatched = Math.round(data.seconds || 0);
+      const dur    = Math.round(data.duration || totalSeconds || 0);
+      if (dur > 0 && _totalSeconds === 0) _totalSeconds = dur;
+
+      const now = Date.now();
+      if (now - _lastSaveTime >= 10000) {
+        _lastSaveTime = now;
+        saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false);
+      }
+    });
+
+    // Fine video — marca come completata
+    _vimeoPlayer.on('ended', () => {
+      saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
+        .then(data => {
+          if (data && data.lessonCompleted) {
+            // Aggiorna icona riga a completata
+            const row = document.querySelector(`.lesson-row[data-lesson-id="${lessonId}"]`);
+            if (row) {
+              row.classList.remove('lesson-row--current');
+              row.classList.add('lesson-row--completed');
+              const icon = row.querySelector('.lesson-icon');
+              if (icon) icon.innerHTML = _iconCompleted();
+            }
+            // Aggiorna barra progresso
+            if (data.coursePercent !== undefined) {
+              _updateProgressBar(data.coursePercent);
+            }
+          }
+        });
+    });
+
+  } catch (err) {
+    console.error('[corsoView] Errore Vimeo SDK:', err);
+  }
+}
+
+function _destroyPlayer() {
+  if (_progressTimer) {
+    clearInterval(_progressTimer);
+    _progressTimer = null;
+  }
+  if (_vimeoPlayer) {
+    try { _vimeoPlayer.off('timeupdate'); } catch {}
+    try { _vimeoPlayer.off('ended');      } catch {}
+    try { _vimeoPlayer.destroy();         } catch {}
+    _vimeoPlayer = null;
+  }
+  _lastWatched  = 0;
+  _totalSeconds = 0;
+}
+
+function _updateProgressBar(pct) {
+  const fill    = document.getElementById('course-progress-fill');
+  const barEl   = document.getElementById('course-progress-bar-el');
+  const right   = document.getElementById('course-progress-label-right');
+  if (fill)   fill.style.width = pct + '%';
+  if (barEl)  barEl.setAttribute('aria-valuenow', pct);
+  if (right)  right.textContent = pct + '%';
+
+  // Aggiorna anche label sinistra
+  if (_corsoData) {
+    const total     = _corsoData.course?.lessons?.length ?? 0;
+    const completed = total > 0 ? Math.round((pct / 100) * total) : 0;
+    const labelLeft = document.getElementById('course-progress-label-left');
+    if (labelLeft) labelLeft.textContent = completed + '/' + total + ' lezioni';
+  }
+}
+
+// ── Salvataggio progresso ─────────────────────────────────────────
+
+async function saveProgress(lessonId, courseId, watchedSeconds, totalSeconds, completed) {
+  try {
+    const body = {
+      lessonId,
+      watchedSeconds,
+      totalSeconds,
+      resumeAt: watchedSeconds,
+    };
+    // completed viene gestito server-side se >= 90% — non lo mandiamo esplicitamente
+    // (update.js gestisce isCompleted = ts > 30 && ws >= ts * 0.9)
+    const res  = await fetch('/api/progress/update', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error('[corsoView] saveProgress errore:', err);
+    return null;
+  }
+}
+
+// ── Back button (listener aggiunto subito — il DOM è già pronto quando
+//    questo script viene eseguito dopo il blocco precedente) ────────
+
+(function _initBackBtn() {
+  // Aspetta che il DOM sia pronto (o esegui subito se già pronto)
+  function attach() {
+    const backBtn = document.getElementById('course-back-btn');
+    if (backBtn) {
+      backBtn.addEventListener('click', () => closeCourseView());
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', attach);
+  } else {
+    attach();
+  }
+}());
+
+// ── popstate (Back/Forward browser) ──────────────────────────────
+
+window.addEventListener('popstate', (e) => {
+  const params = new URLSearchParams(location.search);
+  if (params.has('corso')) {
+    openCourseView(params.get('corso'), { skipAnimation: true, pushState: false });
+  } else {
+    closeCourseView({ skipAnimation: true, pushState: false });
+  }
 });
 </script>
 </body>
