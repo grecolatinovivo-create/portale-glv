@@ -43,12 +43,15 @@ export default withAuth(async function handler(req, res) {
         }
       : null;
 
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+
     return res.status(200).json({
       user: {
         id: user.id,
         email: user.email,
         fullName: user.fullName,
         subscription,
+        isAdmin: user.email === ADMIN_EMAIL,
       },
     });
   } catch (err) {

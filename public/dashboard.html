@@ -179,19 +179,13 @@
     }
     .dash-locked-badge{
       position:absolute;bottom:0;left:0;right:0;z-index:2;
-      background:linear-gradient(to top,rgba(10,10,10,.97) 60%,transparent);
-      padding:32px 12px 12px;
-      display:flex;align-items:flex-end;justify-content:space-between;gap:6px;
+      background:linear-gradient(to top,rgba(10,10,10,.97) 55%,transparent);
+      padding:28px 12px 10px;
+      display:flex;align-items:flex-end;
     }
     .dash-locked-badge-text{
       font-family:var(--font-body);font-size:.72rem;font-weight:600;color:var(--gold-lt);
     }
-    .dash-locked-badge-cta{
-      font-size:.7rem;font-weight:700;color:var(--gold);text-decoration:underline;
-      text-underline-offset:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;
-      background:none;border:none;
-    }
-    .dash-locked-badge-cta:hover{color:var(--gold-lt);}
 
     /* Footer */
     .dash-footer{
@@ -217,6 +211,44 @@
     @media(max-width:480px){
       .quiz-options{grid-template-columns:1fr;}
       .dash-greeting{font-size:1.7rem;}
+    }
+
+    /* ── ADMIN PREVIEW BAR ────────────────────────────────── */
+    #admin-preview-bar{
+      position:fixed;bottom:0;left:0;right:0;z-index:500;
+      background:rgba(8,8,8,.97);
+      border-top:1px solid rgba(201,150,42,.35);
+      backdrop-filter:blur(12px);
+      display:flex;align-items:center;justify-content:center;gap:20px;
+      padding:10px 24px;
+    }
+    .apb-label{
+      font-family:var(--font-body);font-size:.68rem;font-weight:700;
+      letter-spacing:.1em;text-transform:uppercase;
+      color:rgba(201,150,42,.75);white-space:nowrap;
+    }
+    .apb-tiers{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
+    .admin-tier-btn{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.11);
+      border-radius:2rem;padding:5px 16px;min-height:30px;
+      color:rgba(245,245,245,.55);font-family:var(--font-body);
+      font-size:.73rem;font-weight:600;cursor:pointer;
+      transition:background .15s,border-color .15s,color .15s;
+    }
+    .admin-tier-btn:hover{
+      background:rgba(255,255,255,.12);color:var(--text);
+    }
+    .admin-tier-btn.active{
+      background:rgba(201,150,42,.18);
+      border-color:rgba(201,150,42,.55);
+      color:var(--gold);
+    }
+    /* Aggiungi padding al body quando la barra è visibile */
+    body.admin-preview-active{ padding-bottom:52px; }
+    @media(max-width:480px){
+      #admin-preview-bar{gap:10px;padding:8px 12px;}
+      .apb-label{display:none;}
     }
   </style>
 </head>
@@ -390,6 +422,7 @@
     <div class="dash-section-header">
       <h2 class="dash-section-title">Latino</h2>
       <span class="dash-section-subtitle">Da zero a Cicerone</span>
+      <span class="dash-section-badge locked-badge" id="badge-latino" style="display:none">Piano Linguae</span>
     </div>
     <div class="courses-row" id="row-latino"></div>
   </section>
@@ -398,6 +431,7 @@
     <div class="dash-section-header">
       <h2 class="dash-section-title">Greco Antico</h2>
       <span class="dash-section-subtitle">Da Omero a Platone</span>
+      <span class="dash-section-badge locked-badge" id="badge-greco" style="display:none">Piano Linguae</span>
     </div>
     <div class="courses-row" id="row-greco"></div>
   </section>
@@ -406,6 +440,7 @@
     <div class="dash-section-header">
       <h2 class="dash-section-title">Egiziano Geroglifico</h2>
       <span class="dash-section-subtitle">Geroglifici e papiri del Medio Regno</span>
+      <span class="dash-section-badge locked-badge" id="badge-egiziano" style="display:none">Piano Linguae</span>
     </div>
     <div class="courses-row" id="row-egiziano"></div>
   </section>
@@ -414,6 +449,7 @@
     <div class="dash-section-header">
       <h2 class="dash-section-title">Ebraico Biblico</h2>
       <span class="dash-section-subtitle">Genesi, Salmi e la lingua della Bibbia</span>
+      <span class="dash-section-badge locked-badge" id="badge-ebraico" style="display:none">Piano Linguae</span>
     </div>
     <div class="courses-row" id="row-ebraico"></div>
   </section>
@@ -456,6 +492,10 @@
 
 const PROFILE_KEY = 'glv_profile';
 let quizAnswers   = { lang: null, level: null, goal: null };
+
+// Admin preview — stato globale
+let _allCourses      = [];   // cache corsi caricati
+let _adminTierActive = null; // null = tier reale, 0-3 = override admin
 
 /* ── Quiz ─────────────────────────────────────────────────── */
 function initQuizOptions() {
@@ -535,11 +575,8 @@ function renderLockedCard(course) {
 
   const badge = document.createElement('div');
   badge.className = 'dash-locked-badge';
-  badge.setAttribute('aria-label', `Corso bloccato — ${upgradeLabel(course.lang)}`);
-  badge.innerHTML = `
-    <span class="dash-locked-badge-text">🔒 ${upgradeLabel(course.lang)}</span>
-    <button class="dash-locked-badge-cta" type="button" onclick="location.href='/#prezzi'" aria-label="Vai ai piani">Scopri →</button>
-  `;
+  badge.setAttribute('aria-label', `Corso bloccato — richiede ${upgradeLabel(course.lang)}`);
+  badge.innerHTML = `<span class="dash-locked-badge-text">🔒 ${upgradeLabel(course.lang)}</span>`;
   card.appendChild(badge);
   return card.outerHTML;
 }
@@ -581,6 +618,109 @@ function buildPerTeRow(all, profile, tier) {
     top = [...top, ...extra];
   }
   return top.map(c => isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)).join('');
+}
+
+/* ── Admin: re-render tutte le righe con un tier diverso ─── */
+function rerenderRows(tier) {
+  const courses = _allCourses;
+  const labels = {
+    3: 'Il tuo catalogo completo — accesso totale al portale GLV.',
+    2: 'Lingua, cultura e civiltà del mondo antico. Tutto tuo.',
+    1: 'Esplora il mondo antico con i Corsi Brevi.',
+    0: 'Scopri i corsi disponibili nel portale.',
+  };
+
+  // Badge navbar
+  document.getElementById('nav-plan-badge').textContent =
+    '👁 ' + (TIER_NAMES[tier] || '—');
+
+  // Sottotitolo hero
+  document.getElementById('dash-subtitle').textContent = labels[tier] ?? labels[0];
+
+  // Upgrade banner
+  const banner = document.getElementById('upgrade-banner');
+  if (tier >= 3) {
+    banner.classList.add('hidden');
+  } else {
+    banner.classList.remove('hidden');
+    if (tier < 2) {
+      document.getElementById('upgrade-banner-title').textContent = 'Sblocca i corsi di lingua';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
+    } else {
+      document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli MIM accreditati con Bonus Docenti al 100%.';
+    }
+  }
+
+  // "Scelti per te"
+  let profile = { lang: null, level: null, goal: null };
+  try { const r = localStorage.getItem(PROFILE_KEY); if (r) profile = JSON.parse(r) || profile; } catch {}
+  document.getElementById('row-per-te').innerHTML = buildPerTeRow(courses, profile, tier);
+
+  // "Continua"
+  const inProgress = courses.filter(c => (c.progressPercent || 0) > 0);
+  const secContinua = document.getElementById('section-continua');
+  if (inProgress.length) {
+    secContinua?.classList.remove('hidden');
+    renderRow('row-continua', inProgress, tier);
+  } else {
+    secContinua?.classList.add('hidden');
+  }
+
+  // Righe per lingua + badge sezione
+  const byLang = lg => courses.filter(c => c.lang === lg);
+
+  const langSections = [
+    { row: 'row-latino',    lang: 'Latino',               badge: 'badge-latino',    req: 2 },
+    { row: 'row-greco',     lang: 'Greco Antico',         badge: 'badge-greco',     req: 2 },
+    { row: 'row-egiziano',  lang: 'Egiziano Geroglifico', badge: 'badge-egiziano',  req: 2 },
+    { row: 'row-ebraico',   lang: 'Ebraico Biblico',      badge: 'badge-ebraico',   req: 2 },
+  ];
+
+  langSections.forEach(({ row, lang, badge, req }) => {
+    renderRow(row, byLang(lang), tier);
+    const el = document.getElementById(badge);
+    if (el) el.style.display = tier < req ? '' : 'none';
+  });
+
+  renderRow('row-brevi',     byLang('Corsi Brevi'),  tier);
+  renderRow('row-didattica', byLang('Didattica'),    tier);
+
+  // Badge Formazione Docenti
+  const b = document.getElementById('didattica-badge');
+  if (b) {
+    b.classList.toggle('locked-badge', tier < 3);
+    b.style.display = '';
+  }
+
+  // Evidenzia bottone attivo nel pannello
+  document.querySelectorAll('.admin-tier-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.tier, 10) === tier);
+  });
+}
+
+/* ── Admin: inietta la barra di anteprima ─────────────────── */
+function injectAdminPanel(currentTier) {
+  const bar = document.createElement('div');
+  bar.id = 'admin-preview-bar';
+  bar.innerHTML = `
+    <span class="apb-label">👁 Admin Preview</span>
+    <div class="apb-tiers">
+      <button class="admin-tier-btn${currentTier===0?' active':''}" data-tier="0">Ospite</button>
+      <button class="admin-tier-btn${currentTier===1?' active':''}" data-tier="1">Cultura</button>
+      <button class="admin-tier-btn${currentTier===2?' active':''}" data-tier="2">Linguae</button>
+      <button class="admin-tier-btn${currentTier===3?' active':''}" data-tier="3">Accademia</button>
+    </div>
+  `;
+  bar.addEventListener('click', e => {
+    const btn = e.target.closest('.admin-tier-btn');
+    if (!btn) return;
+    const t = parseInt(btn.dataset.tier, 10);
+    _adminTierActive = t;
+    rerenderRows(t);
+  });
+  document.body.appendChild(bar);
+  document.body.classList.add('admin-preview-active');
 }
 
 /* ── Show dashboard ───────────────────────────────────────── */
@@ -631,40 +771,15 @@ async function showDashboard() {
     document.getElementById('dash-nav').classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
 
-  // Corsi
-  let courses = [];
-  try { courses = await Courses.getAll(); } catch { courses = []; }
+  // Corsi — carica e metti in cache globale
+  try { _allCourses = await Courses.getAll(); } catch { _allCourses = []; }
 
-  // Profilo quiz
-  let profile = { lang: null, level: null, goal: null };
-  try {
-    const raw = localStorage.getItem(PROFILE_KEY);
-    if (raw) profile = JSON.parse(raw) || profile;
-  } catch { /* ignore */ }
+  // Render iniziale con il tier reale
+  rerenderRows(tier);
 
-  // "Scelti per te"
-  document.getElementById('row-per-te').innerHTML = buildPerTeRow(courses, profile, tier);
-
-  // "Continua"
-  const inProgress = courses.filter(c => (c.progressPercent || 0) > 0);
-  if (inProgress.length) {
-    document.getElementById('section-continua').classList.remove('hidden');
-    renderRow('row-continua', inProgress, tier);
-  }
-
-  // Righe per lingua
-  const byLang = lg => courses.filter(c => c.lang === lg);
-  renderRow('row-latino',    byLang('Latino'),               tier);
-  renderRow('row-greco',     byLang('Greco Antico'),         tier);
-  renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
-  renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
-  renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
-  renderRow('row-didattica', byLang('Didattica'),            tier);
-
-  // Didattica badge: se sbloccato togli il "locked"
-  if (tier >= 3) {
-    const b = document.getElementById('didattica-badge');
-    if (b) { b.classList.remove('locked-badge'); }
+  // Admin preview bar — inietta solo se admin
+  if (user.isAdmin) {
+    injectAdminPanel(tier);
   }
 }
 
