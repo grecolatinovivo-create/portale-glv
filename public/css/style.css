@@ -2039,9 +2039,9 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════
-   VISTA CORSO — SPA in-page · Sprint MVP (breve-marziale)
-   Tutte le classi usano esclusivamente variabili CSS esistenti.
-   Nessun colore hardcoded.
+   VISTA CORSO — SPA in-page · Animazione Premium
+   Fisica reale: le card hanno peso, inerzia, curvano nell'angolo.
+   Nessun colore hardcoded — solo variabili CSS.
 ═══════════════════════════════════════════════════════════════════ */
 
 /* ── Contenitori vista catalogo / corso ─────────────────────────── */
@@ -2049,24 +2049,31 @@ body.has-corso-cta { padding-bottom: 80px; }
 .course-view {
   position: absolute;
   inset: 0;
-  will-change: transform;
-  /* Easing "spring" stile iOS sheet — naturale per movimenti verticali */
-  transition: transform 0.48s cubic-bezier(0.32, 0.72, 0, 1),
-              opacity   0.40s cubic-bezier(0.32, 0.72, 0, 1);
+  will-change: transform, opacity;
+  /* Transizione di base — sovrascritta case-by-case via Web Animations API */
+  transition: transform 0.52s cubic-bezier(0.32, 0.72, 0, 1),
+              opacity   0.42s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
-/* Stato riposo catalog: visibile */
+/* Stato riposo catalogo: piena visibilità */
 .catalog-view {
-  transform: translateY(0) scale(1);
-  transform-origin: top center;
+  transform: translateY(0) scale(1) rotate(0deg);
+  transform-origin: center bottom;   /* ruota attorno alla base — raccoglie le carte */
   opacity: 1;
   min-height: 100%;
+  pointer-events: auto;
 }
 
-/* Catalog scivola in basso — si raccoglie come un mazzo nell'angolo */
+/* ─── STATO "MAZZETTO": il catalogo vola verso l'angolo top-right ─ */
+/*
+  La logica: translateX(sposta a destra) + translateY(sale) + scale(rimpicciolisce)
+  + rotate(piccola rotazione per simulare la presa con la mano)
+  L'ampiezza va calibrata in JS via Web Animations API per inseguire
+  la posizione reale del mazzetto — questo è il fallback CSS puro.
+*/
 .catalog-view.stack-below {
-  transform: translateY(62%) scale(0.82);
-  transform-origin: top center;
+  transform: translateX(calc(100vw - 140px)) translateY(calc(-100% + 120px)) scale(0.10) rotate(4deg);
+  transform-origin: top right;
   opacity: 0;
   pointer-events: none;
 }
@@ -2078,7 +2085,7 @@ body.has-corso-cta { padding-bottom: 80px; }
   pointer-events: none;
 }
 
-/* Corso entra dal basso — stato visibile */
+/* Corso visibile — in posizione */
 .course-view.slide-in-up {
   transform: translateY(0);
   opacity: 1;
@@ -2092,16 +2099,83 @@ body.has-corso-cta { padding-bottom: 80px; }
   pointer-events: none;
 }
 
-/* ── Mazzetto catalogo nell'angolo (floating, visibile durante il corso) */
+/* ─────────────────────────────────────────────────────────────────
+   Keyframe per la traiettoria ad arco del catalogo.
+   Phase 1: le card si "raccolgono" verso il centro-alto (arc peak)
+   Phase 2: da lì atterrano sull'angolo (corner deck position).
+   Usato da element.animate() in JS per massima precisività.
+   ───────────────────────────────────────────────────────────────── */
+@keyframes glv-catalog-fly-out {
+  0% {
+    transform: translateX(0)     translateY(0)     scale(1)    rotate(0deg);
+    opacity: 1;
+  }
+  /* Peak dell'arco: leggero sollevamento centrale prima di piegare */
+  38% {
+    transform: translateX(18%)   translateY(-5%)   scale(0.72) rotate(1.5deg);
+    opacity: 0.85;
+  }
+  /* Curva pronunciata verso top-right */
+  70% {
+    transform: translateX(55%)   translateY(-18%)  scale(0.32) rotate(3.5deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(calc(100vw - 130px)) translateY(calc(-100% + 100px)) scale(0.08) rotate(5deg);
+    opacity: 0;
+  }
+}
+
+@keyframes glv-catalog-fly-in {
+  0% {
+    transform: translateX(calc(100vw - 130px)) translateY(calc(-100% + 100px)) scale(0.08) rotate(5deg);
+    opacity: 0;
+  }
+  30% {
+    transform: translateX(55%)   translateY(-18%)  scale(0.32) rotate(3.5deg);
+    opacity: 0.5;
+  }
+  /* Rimbalzo morbido nell'atterraggio */
+  72% {
+    transform: translateX(0)     translateY(4%)    scale(1.015) rotate(-0.5deg);
+    opacity: 1;
+  }
+  88% {
+    transform: translateX(0)     translateY(-1%)   scale(0.998) rotate(0.1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0)     translateY(0)     scale(1)    rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* Keyframe per il corso che sale con elasticità */
+@keyframes glv-course-rise {
+  0%   { transform: translateY(100%); opacity: 0; }
+  55%  { transform: translateY(-2%);  opacity: 1; }
+  75%  { transform: translateY(0.8%);}
+  90%  { transform: translateY(-0.2%);}
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Keyframe per il corso che cala all'uscita */
+@keyframes glv-course-fall {
+  0%   { transform: translateY(0);    opacity: 1; }
+  30%  { transform: translateY(6%);   opacity: 0.9; }
+  100% { transform: translateY(100%); opacity: 0; }
+}
+
+/* ── Mazzetto catalogo nell'angolo (floating, visibile durante il corso) ── */
 .catalog-corner-deck {
   position: fixed;
   top: calc(var(--nav-height) + 14px);
   right: 18px;
   z-index: 450;
   opacity: 0;
-  transform: translateY(-6px) scale(0.82);
-  transition: opacity 0.28s ease,
-              transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translateY(-8px) scale(0.78);
+  transition: opacity 0.30s ease,
+              transform 0.36s cubic-bezier(0.34, 1.56, 0.64, 1);
   pointer-events: none;
 }
 .catalog-corner-deck.visible {
@@ -2109,8 +2183,19 @@ body.has-corso-cta { padding-bottom: 80px; }
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
+
+/* Piccolo "respiro" quando viene cliccato */
+.catalog-corner-deck.deck-pulse .catalog-corner-deck-btn {
+  animation: glv-deck-pulse 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes glv-deck-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(0.88); }
+  100% { transform: scale(1); }
+}
+
 .catalog-corner-deck-btn {
-  background: rgba(14, 14, 14, 0.88);
+  background: rgba(14, 14, 14, 0.92);
   border: 1px solid var(--border-mid);
   border-radius: 12px;
   cursor: pointer;
@@ -2119,49 +2204,115 @@ body.has-corso-cta { padding-bottom: 80px; }
   align-items: center;
   gap: 7px;
   padding: 10px 14px 9px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: border-color 0.18s ease, background 0.18s ease;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.18s ease, background 0.18s ease, transform 0.15s ease,
+              box-shadow 0.18s ease;
 }
 .catalog-corner-deck-btn:hover {
   border-color: var(--gold-border);
-  background: rgba(20, 20, 20, 0.95);
+  background: rgba(22, 22, 22, 0.97);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+}
+.catalog-corner-deck-btn:active {
+  transform: scale(0.94);
 }
 .catalog-corner-deck-btn:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 3px;
+  border-radius: 12px;
 }
+
+/* ─────────────────────────────────────────────────────────────────
+   Mini-card nel mazzetto: struttura fedele alle .course-card reali.
+   Ogni .corner-card ha header-gradient + body-line + footer-dot.
+   I colori gradient vengono iniettati da JS al volo.
+   ───────────────────────────────────────────────────────────────── */
 .corner-deck-cards {
   position: relative;
-  width: 48px;
-  height: 32px;
+  width: 52px;
+  height: 36px;
 }
+
+/* Base shared */
 .corner-card {
   position: absolute;
-  width: 40px;
-  height: 26px;
+  width: 44px;
+  height: 30px;
   border-radius: 5px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;           /* clip gradient header */
   top: 50%;
   left: 50%;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Struttura interna della mini-card — header gradiente + body + footer */
+.corner-card-header {
+  height: 11px;               /* ~37% della mini-card — proporzionale a fan-card-header */
+  flex-shrink: 0;
+  /* background iniettato da JS — default fallback */
+  background: linear-gradient(155deg, #3c1a62, #1e0c32);
+}
+
+.corner-card-body {
+  flex: 1;
+  background: #141414;
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+}
+
+/* Linea titolo simulata */
+.corner-card-body::after {
+  content: '';
+  display: block;
+  width: 68%;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(245, 245, 245, 0.28);
+}
+
+.corner-card-footer {
+  height: 7px;
+  background: #0f0f0f;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  padding: 0 4px;
+  gap: 3px;
+}
+
+/* Pallino lingua — usa --dot-color iniettato da JS, fallback neutro */
+.corner-card-footer::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--dot-color, rgba(245, 245, 245, 0.35));
+  flex-shrink: 0;
+}
+
+/* ── Rotazioni a ventaglio — carta 1 (sopra, leggermente inclinata a sx) */
 .corner-card--1 {
-  background: var(--bg-card-2);
-  transform: translate(-50%, -50%) rotate(-3deg) translateY(3px);
+  transform: translate(-50%, -50%) rotate(-2.5deg) translateY(2px);
   z-index: 3;
 }
+/* ── Carta 2 (dietro, inclinata a dx) */
 .corner-card--2 {
-  background: var(--bg-card);
-  transform: translate(-44%, -54%) rotate(2deg) translateY(-1px);
+  transform: translate(-44%, -55%) rotate(3deg) translateY(-1px);
   z-index: 2;
-  opacity: 0.72;
+  opacity: 0.80;
 }
+/* ── Carta 3 (più dietro, inclinata a sx) */
 .corner-card--3 {
-  background: var(--bg-card);
-  transform: translate(-56%, -48%) rotate(-7deg) translateY(5px);
+  transform: translate(-56%, -47%) rotate(-6deg) translateY(4px);
   z-index: 1;
-  opacity: 0.38;
+  opacity: 0.45;
 }
+
 .corner-deck-label {
   font-size: 9px;
   font-weight: 700;
@@ -2562,8 +2713,27 @@ body.has-corso-cta { padding-bottom: 80px; }
 @media (prefers-reduced-motion: reduce) {
   .catalog-view,
   .course-view,
-  .catalog-corner-deck {
+  .catalog-corner-deck,
+  .catalog-corner-deck-btn {
     transition: none !important;
+    animation: none !important;
+  }
+  .catalog-view.stack-below {
+    /* Nessun volo — scompare semplicemente */
+    transform: none !important;
+    opacity: 0 !important;
+  }
+  .course-view.offscreen-bottom {
+    transform: none !important;
+    visibility: hidden;
+  }
+  .course-view.slide-in-up {
+    transform: none !important;
+    visibility: visible;
+  }
+  .course-view.slide-out-down {
+    transform: none !important;
+    visibility: hidden;
   }
   .course-progress-bar__fill {
     transition: none !important;
