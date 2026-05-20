@@ -2069,23 +2069,23 @@ body.has-corso-cta { padding-bottom: 80px; }
   pointer-events: none;
 }
 
-/* Corso fuori schermo in basso (stato iniziale) */
+/* Corso fuori schermo in ALTO (stato iniziale) */
 .course-view.offscreen-bottom {
-  transform: translateY(100%);
+  transform: translateY(-110%);
   opacity: 0;
   pointer-events: none;
 }
 
-/* Corso visibile */
+/* Corso visibile — scivola giù dal top */
 .course-view.slide-in-up {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* Corso torna in basso */
+/* Corso torna in ALTO */
 .course-view.slide-out-down {
-  transform: translateY(100%);
+  transform: translateY(-110%);
   opacity: 0;
   pointer-events: none;
 }
@@ -2094,7 +2094,7 @@ body.has-corso-cta { padding-bottom: 80px; }
 .catalog-corner-deck {
   position: fixed;
   bottom: 28px;
-  right: 20px;
+  right: 36px;
   z-index: 450;
   /* nascosto di default — sale dal basso via JS */
   transform: translateY(120px);
@@ -2158,18 +2158,18 @@ body.has-corso-cta { padding-bottom: 80px; }
 
 /* Le tre carte a ventaglio */
 .corner-mini-card--1 {
-  transform: scale(0.32) rotate(-3deg);
+  transform: scale(0.32) rotate(-2deg) translateX(-12px);
   z-index: 3;
 }
 .corner-mini-card--2 {
-  transform: scale(0.32) rotate(2.5deg) translate(-8px, 4px);
+  transform: scale(0.32) rotate(3.5deg) translate(-20px, 5px);
   z-index: 2;
-  opacity: 0.78;
+  opacity: 0.85;
 }
 .corner-mini-card--3 {
-  transform: scale(0.32) rotate(-6deg) translate(6px, 8px);
+  transform: scale(0.32) rotate(-7deg) translate(-6px, 10px);
   z-index: 1;
-  opacity: 0.45;
+  opacity: 0.60;
 }
 
 /* ── Layout wrapper vista corso ─────────────────────────────────── */
@@ -2218,6 +2218,48 @@ body.has-corso-cta { padding-bottom: 80px; }
   border-radius: var(--r-lg);
   padding: 24px;
   margin-bottom: 32px;
+  transition: background 0.3s ease;
+}
+
+/* Header con gradiente lingua — testo bianco su sfondo scuro */
+.course-header--colored {
+  border-color: transparent;
+}
+.course-header--colored .course-back-btn {
+  color: rgba(255,255,255,0.75);
+}
+.course-header--colored .course-back-btn:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.10);
+}
+.course-header--colored .course-title {
+  color: #fff;
+}
+.course-header--colored .course-description {
+  color: rgba(255,255,255,0.78);
+}
+.course-header--colored .course-progress-label span {
+  color: rgba(255,255,255,0.70);
+}
+.course-header--colored .course-progress-bar {
+  background: rgba(255,255,255,0.20);
+}
+.course-header--colored .course-progress-bar__fill {
+  background: rgba(255,255,255,0.85);
+}
+.course-header--colored .streak-badge {
+  color: rgba(255,255,255,0.80);
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.20);
+}
+.course-header--colored .badge--level {
+  background: rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.90);
+  border-color: rgba(255,255,255,0.25);
+}
+.course-header--colored .badge--lang {
+  background: rgba(255,255,255,0.20);
+  color: #fff;
 }
 
 .course-badges {

@@ -477,19 +477,19 @@
             aria-label="Torna al catalogo corsi">
       <div class="corner-mini-stack" aria-hidden="true">
         <div class="corner-mini-card corner-mini-card--3" id="corner-card-3">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#253e3e,#121e1e)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#2e6868,#143838)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#2a3a3a"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#2e6868"></div></div>
         </div>
         <div class="corner-mini-card corner-mini-card--2" id="corner-card-2">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#1a3268,#0c1a3a)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#3060c8,#162878)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#1a3258"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#3060c8"></div></div>
         </div>
         <div class="corner-mini-card corner-mini-card--1" id="corner-card-1">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#7c3618,#3d1a0a)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#d46428,#8c3210)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#5a2e18"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#d46428"></div></div>
         </div>
       </div>
     </button>
@@ -1201,15 +1201,14 @@ function _iconLocked() {
   </svg>`;
 }
 
-// ── Gradients per lingua — specchio di LANG_GRADIENTS ────────────
-// Usati per colorare le mini-card nel mazzetto angolo.
+// ── Gradients per lingua — colori brillanti per header e mini-card ─
 const GLV_LANG_GRADIENTS = {
-  'latino':               'linear-gradient(155deg,#7c3618,#3d1a0a)',
-  'greco antico':         'linear-gradient(155deg,#1a3268,#0c1a3a)',
-  'egiziano geroglifico': 'linear-gradient(155deg,#6e4c0e,#3a2606)',
-  'ebraico biblico':      'linear-gradient(155deg,#1e3e1c,#0e2010)',
-  'didattica':            'linear-gradient(155deg,#3c1a62,#1e0c32)',
-  'corsi brevi':          'linear-gradient(155deg,#253e3e,#121e1e)',
+  'latino':               'linear-gradient(155deg,#d46428,#8c3210)',
+  'greco antico':         'linear-gradient(155deg,#3060c8,#162878)',
+  'egiziano geroglifico': 'linear-gradient(155deg,#c89020,#7a5010)',
+  'ebraico biblico':      'linear-gradient(155deg,#2e7228,#164014)',
+  'didattica':            'linear-gradient(155deg,#7030c0,#3c1266)',
+  'corsi brevi':          'linear-gradient(155deg,#2e6868,#143838)',
 };
 
 /**
@@ -1338,26 +1337,21 @@ async function openCourseView(slug, opts) {
 
   } else {
     // ── ANIMAZIONE ────────────────────────────────────────────────
-    // Step 1: catalogo scende fuori dallo schermo (500ms, ease-in)
+    // Il corso parte nascosto in ALTO, il catalogo in basso
     courseView.classList.add('offscreen-bottom');
     courseView.classList.remove('slide-in-up', 'slide-out-down');
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
+      // Catalogo cade in basso (500ms ease-in)
       catalogView.style.transition = 'transform 0.50s cubic-bezier(0.4, 0, 1, 1), opacity 0.50s ease';
       catalogView.classList.add('stack-below');
 
-      // Step 2: il corso sale subito dopo (parte a 100ms, 550ms spring)
-      setTimeout(() => {
-        courseView.style.transition = 'none';
-        courseView.classList.remove('offscreen-bottom');
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-          courseView.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.28, 0.64, 1), opacity 0.35s ease';
-          courseView.classList.add('slide-in-up');
-          courseView.setAttribute('aria-hidden', 'false');
-        }));
-      }, 100);
+      // Corso scende dall'alto — stessa tempistica (500ms, ease-out per decelerazione naturale)
+      courseView.style.transition = 'transform 0.50s cubic-bezier(0, 0, 0.2, 1), opacity 0.40s ease';
+      courseView.classList.add('slide-in-up');
+      courseView.setAttribute('aria-hidden', 'false');
 
-      // Step 3: il mazzetto sale dal basso-destra dopo 1 secondo
+      // Mazzetto sale dal basso-destra dopo 1 secondo
       setTimeout(() => {
         if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
       }, 1000);
@@ -1424,17 +1418,17 @@ function closeCourseView(opts) {
     courseView.classList.add('offscreen-bottom');
     courseView.setAttribute('aria-hidden', 'true');
   } else {
-    // Corso scende (450ms, ease-in — caduta naturale)
+    // Corso risale verso l'alto (ease-in — accelera uscendo)
     courseView.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 1, 1), opacity 0.35s ease';
     courseView.classList.remove('slide-in-up');
     courseView.classList.add('slide-out-down');
     courseView.setAttribute('aria-hidden', 'true');
 
-    // Catalogo risale (parte a 150ms, spring)
+    // Catalogo risale dal basso (parte a 100ms, spring)
     setTimeout(() => {
       catalogView.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.28, 0.64, 1), opacity 0.40s ease';
       catalogView.classList.remove('stack-below');
-    }, 150);
+    }, 100);
 
     // Pulizia transizioni inline dopo il termine
     setTimeout(() => {
@@ -1442,7 +1436,7 @@ function closeCourseView(opts) {
       courseView.classList.remove('slide-out-down');
       courseView.classList.add('offscreen-bottom');
       catalogView.style.transition = '';
-    }, 750);
+    }, 700);
   }
 
   // Reset stato interno
@@ -1453,11 +1447,25 @@ function closeCourseView(opts) {
 // ── Render header corso ───────────────────────────────────────────
 
 function renderCourseHeader(course, progressData, streakData) {
+  // ── Colora l'header con il gradiente della lingua ────────────────
+  const headerEl = document.getElementById('course-header');
+  if (headerEl) {
+    const langKey = (course.lang || '').toLowerCase();
+    const gradient = GLV_LANG_GRADIENTS[langKey] || null;
+    if (gradient) {
+      headerEl.style.background = gradient;
+      headerEl.classList.add('course-header--colored');
+    } else {
+      headerEl.style.background = '';
+      headerEl.classList.remove('course-header--colored');
+    }
+  }
+
   // Badge lingua + livello
   const badgesEl = document.getElementById('course-badges');
   if (badgesEl) {
     badgesEl.innerHTML = `
-      <span class="badge badge--lang" style="background:${_langBadgeColor(course.lang)}">${(course.lang || 'CORSO').toUpperCase()}</span>
+      <span class="badge badge--lang">${(course.lang || 'CORSO').toUpperCase()}</span>
       ${course.level ? `<span class="badge badge--level">${course.level.toUpperCase()}</span>` : ''}
     `;
   }
