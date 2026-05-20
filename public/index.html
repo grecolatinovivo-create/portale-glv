@@ -1004,6 +1004,9 @@
 </head>
 <body>
 
+<!-- Skip link WCAG 2.4.1 — primo elemento focusabile della pagina -->
+<a href="#main-content" class="skip-link">Vai al contenuto principale</a>
+
 <!-- ══ NAVBAR ══════════════════════════════════════════════ -->
 <nav class="glv-nav" id="mainNav">
   <div class="nav-inner">
@@ -1031,6 +1034,7 @@
 
 
 <!-- ══ SEZIONE 1 — HERO ════════════════════════════════════ -->
+<main id="main-content">
 <section class="hero">
   <div class="hero-inner">
     <div class="hero-tag">Accreditato MIM · Fondato a Firenze nel 2015</div>
@@ -1556,5 +1560,6 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 });
 </script>
 
+</main><!-- /#main-content -->
 </body>
 </html>

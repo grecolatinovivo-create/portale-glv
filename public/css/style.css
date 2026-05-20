@@ -343,7 +343,7 @@ p { line-height: 1.7; }
 .nav-logo-sub {
   font-family: 'Inter', sans-serif;
   font-size: .65rem;
-  color: rgba(245,245,245,.38);
+  color: rgba(245,245,245,.55); /* era .38 (3.45:1 a 10.4px) — .55 → 5.76:1 per WCAG 1.4.3 */
   letter-spacing: .04em;
 }
 
@@ -616,18 +616,18 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* Livello — = .fan-card-level */
 .fan-card-level {
   font-family: 'Inter', sans-serif;
-  font-size: .6rem;
+  font-size: .68rem; /* era .6rem (9.6px) — portato a 10.9px per WCAG 1.4.4 */
   font-weight: 700;
   letter-spacing: .1em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.65);
+  color: rgba(255,255,255,.78); /* era .65 (4.33:1 su Egiziano) — .78 → 5.20:1 */
   margin-bottom: .3rem;
 }
 
 /* Nome lingua — = .fan-card-lang */
 .fan-card-lang {
   font-family: 'Inter', sans-serif;
-  font-size: .68rem;
+  font-size: .72rem; /* era .68rem (10.9px) — portato a 11.5px per WCAG 1.4.4 */
   font-weight: 700;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -640,24 +640,27 @@ body.has-corso-cta { padding-bottom: 80px; }
   flex: 1;
 }
 
-/* Titolo — = .fan-card-title */
+/* Titolo — = .fan-card-title
+   WCAG: cambiato da Playfair Display (serif display, leggibilità ridotta a 14px per titoli lunghi)
+   a Inter (sans-serif, stroke uniforme, molto più leggibile a piccole dimensioni). */
 .fan-card-title {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: .88rem;
-  font-weight: 700;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: .9rem; /* era .88rem — portato a ~14.4px */
+  font-weight: 600; /* Inter 700 è pesante su dark bg; 600 è più equilibrato */
   color: #f5f5f5;
-  line-height: 1.35;
+  line-height: 1.4; /* era 1.35 — migliorato per leggibilità multi-riga */
   margin-bottom: .55rem;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  overflow-wrap: break-word;
 }
 
 /* Meta testo — = .fan-card-meta */
 .fan-card-meta {
-  font-size: .7rem;
-  color: rgba(245,245,245,.4);
+  font-size: .75rem; /* era .7rem (11.2px) — portato a 12px per WCAG 1.4.4 */
+  color: rgba(245,245,245,.60); /* era .40 (3.59:1) — .60 → 6.71:1 per WCAG 1.4.3 */
   line-height: 1.5;
 }
 
@@ -681,8 +684,8 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* Etichetta lingua — = .fan-card-status */
 .fan-card-status {
   font-family: 'Inter', sans-serif;
-  font-size: .65rem;
-  color: rgba(245,245,245,.38);
+  font-size: .72rem; /* era .65rem (10.4px) — portato a 11.5px per WCAG 1.4.4 */
+  color: rgba(245,245,245,.55); /* era .38 (3.39:1) — .55 → 5.76:1 per WCAG 1.4.3 */
   letter-spacing: .04em;
 }
 
@@ -728,7 +731,7 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 
 /* Alias: card-title punta a fan-card-title (compatibilità filtro catalogo) */
-.card-title { font-family: 'Playfair Display', Georgia, serif; }
+.card-title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
 
 /* Grid catalogo — override larghezza */
 .course-grid {
@@ -1995,4 +1998,40 @@ body.has-corso-cta { padding-bottom: 80px; }
   /* ── Spaziatura tra bottoni affiancati ──────────────────────── */
   .landing-hero-actions { gap: 12px; }
   .nav-actions { gap: 8px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   WCAG 2.3.3 — Prefers Reduced Motion
+   Disabilita animazioni e transizioni per utenti sensibili al movimento.
+═══════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  html { scroll-behavior: auto; }
+}
+
+/* ── Skip Link (WCAG 2.4.1) ─────────────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  background: var(--gold, #c9962a);
+  color: #0a0a0a;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 20px;
+  text-decoration: none;
+  z-index: 9999;
+  border-radius: 0 0 6px 6px;
+  border: 2px solid transparent;
+  outline-offset: 0;
+}
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--gold-lt, #e8c875);
 }

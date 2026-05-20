@@ -36,6 +36,10 @@
     .quiz-slide{display:none;animation:quiz-in .35s ease;}
     .quiz-slide.active{display:block;}
     @keyframes quiz-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    @media(prefers-reduced-motion:reduce){
+      .quiz-slide.active{animation:none;}
+      html{scroll-behavior:auto;}
+    }
     .quiz-brand{
       font-family:var(--font-heading);font-size:.85rem;color:var(--primary);
       letter-spacing:.18em;text-transform:uppercase;margin-bottom:40px;
@@ -194,6 +198,9 @@
 </head>
 <body>
 
+<!-- Skip link WCAG 2.4.1 — primo elemento focusabile della pagina -->
+<a href="#main-content" class="skip-link">Vai al contenuto principale</a>
+
 <!-- ══ QUIZ ONBOARDING ════════════════════════════════════ -->
 <div id="glv-quiz" class="hidden">
   <div class="quiz-inner">
@@ -207,8 +214,8 @@
     <!-- Slide 1: Lingua -->
     <div class="quiz-slide active" id="quiz-slide-1">
       <div class="quiz-step">Passo 1 di 3</div>
-      <h2 class="quiz-q">Quale <em>lingua</em> vuoi sentire<br>scorrere nella tua mente?</h2>
-      <div class="quiz-options" id="quiz-opts-1">
+      <h2 class="quiz-q" id="quiz-label-1">Quale <em>lingua</em> vuoi sentire<br>scorrere nella tua mente?</h2>
+      <div class="quiz-options" id="quiz-opts-1" role="group" aria-labelledby="quiz-label-1">
         <button class="quiz-opt" data-val="Latino" type="button">
           <span class="quiz-opt-icon">🏛️</span>
           <div class="quiz-opt-label">Latino</div>
@@ -244,8 +251,8 @@
     <!-- Slide 2: Livello -->
     <div class="quiz-slide" id="quiz-slide-2">
       <div class="quiz-step">Passo 2 di 3</div>
-      <h2 class="quiz-q">Da dove <em>parti</em>?</h2>
-      <div class="quiz-options" id="quiz-opts-2">
+      <h2 class="quiz-q" id="quiz-label-2">Da dove <em>parti</em>?</h2>
+      <div class="quiz-options" id="quiz-opts-2" role="group" aria-labelledby="quiz-label-2">
         <button class="quiz-opt" data-val="beginner" type="button">
           <span class="quiz-opt-icon">🌱</span>
           <div class="quiz-opt-label">Principiante assoluto</div>
@@ -276,8 +283,8 @@
     <!-- Slide 3: Obiettivo -->
     <div class="quiz-slide" id="quiz-slide-3">
       <div class="quiz-step">Passo 3 di 3</div>
-      <h2 class="quiz-q">Qual è il tuo <em>obiettivo</em>?</h2>
-      <div class="quiz-options" id="quiz-opts-3">
+      <h2 class="quiz-q" id="quiz-label-3">Qual è il tuo <em>obiettivo</em>?</h2>
+      <div class="quiz-options" id="quiz-opts-3" role="group" aria-labelledby="quiz-label-3">
         <button class="quiz-opt" data-val="pleasure" type="button">
           <span class="quiz-opt-icon">✨</span>
           <div class="quiz-opt-label">Piacere e curiosità</div>
@@ -304,8 +311,8 @@
         <button class="quiz-btn-next" id="q3-next" type="button" disabled onclick="finishQuiz()">Scopri i tuoi corsi ✦</button>
       </div>
     </div>
-  </div>
-</div>
+  </div><!-- /quiz-inner -->
+</div><!-- /#glv-quiz -->
 
 <!-- ══ DASHBOARD ════════════════════════════════════════════ -->
 <div id="glv-dashboard" class="hidden">
@@ -330,8 +337,9 @@
                aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
                onclick="toggleProfileMenu()">U</div>
           <div class="nav-dropdown-menu" id="profile-menu" role="menu">
+            <!-- WCAG 1.4.3: opacità portata da .4 (3.62:1) a .55 (5.76:1) -->
             <div class="nav-dropdown-item" id="menu-email"
-                 style="color:rgba(245,245,245,.4);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
+                 style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
             <a class="nav-dropdown-item" href="/index.html#prezzi" role="menuitem">Gestisci abbonamento</a>
             <!-- Sezione admin preview — visibile solo se iniettata da JS -->
             <div id="admin-tier-group" style="display:none">
@@ -346,12 +354,16 @@
           </div>
         </div>
         <button class="nav-hamburger" id="dashNavToggle" aria-label="Menu"
-                onclick="document.getElementById('dashNavLinks').classList.toggle('open')">
+                aria-expanded="false" aria-controls="dashNavLinks"
+                onclick="const l=document.getElementById('dashNavLinks');l.classList.toggle('open');this.setAttribute('aria-expanded',l.classList.contains('open'))">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
   </nav>
+
+  <!-- main landmark: il contenuto principale inizia qui — skip link punta a questo id -->
+  <main id="main-content">
 
   <section class="dash-hero">
     <h1 class="dash-greeting">Bentornato, <em id="dash-name">studente</em>.</h1>
@@ -364,7 +376,7 @@
         <strong id="upgrade-banner-title">Sblocca i corsi di lingua</strong>
         <span id="upgrade-banner-sub">Passa a Linguae e studia Latino, Greco, Egiziano ed Ebraico Biblico.</span>
       </div>
-      <a href="/#prezzi" class="upgrade-banner-btn">Esplora i piani →</a>
+      <a href="/index.html#prezzi" class="upgrade-banner-btn">Esplora i piani →</a>
     </div>
   </div>
 
@@ -443,13 +455,14 @@
   <footer class="dash-footer">
     <div class="dash-footer-brand">GrecoLatinoVivo · Centro Nazionale di Studi Classici</div>
     <nav class="dash-footer-links" aria-label="Link footer">
-      <a href="/#prezzi">Abbonamento</a>
+      <a href="/index.html#prezzi">Abbonamento</a>
       <a href="mailto:supporto@grecolatinovivo.it">Supporto</a>
-      <a href="/">Home</a>
+      <a href="/index.html">Home</a>
     </nav>
   </footer>
 
-</div>
+  </main><!-- /#main-content -->
+</div><!-- /#glv-dashboard -->
 
 <script src="/js/app.js"></script>
 <script>
