@@ -92,12 +92,12 @@ const MOCK_COURSES = [
 ];
 
 const LANG_GRADIENTS = {
-  'Latino':               'linear-gradient(155deg,#3d1e10,#1c0d06)', /* terracotta bruciata — anfore romane */
-  'Greco Antico':         'linear-gradient(155deg,#0e1e35,#060f1c)', /* ceramica attica a figure nere */
-  'Egiziano Geroglifico': 'linear-gradient(155deg,#3a2a08,#1c1404)', /* papiro antico, oro brunito */
-  'Ebraico Biblico':      'linear-gradient(155deg,#162416,#0a120a)', /* bronzo ossidato, oliva minerale */
-  'Didattica':            'linear-gradient(155deg,#201830,#100d1c)', /* pergamena, inchiostro */
-  'Corsi Brevi':          'linear-gradient(155deg,#1a2020,#0d1414)', /* ardesia, pietra scura */
+  'Latino':               'linear-gradient(155deg,#7c3618,#3d1a0a)', /* terracotta viva — coccio romano */
+  'Greco Antico':         'linear-gradient(155deg,#1a3268,#0c1a3a)', /* blu ceruleo — ceramica attica */
+  'Egiziano Geroglifico': 'linear-gradient(155deg,#6e4c0e,#3a2606)', /* oro antico — papiro del Medio Regno */
+  'Ebraico Biblico':      'linear-gradient(155deg,#1e3e1c,#0e2010)', /* verde olivo — bronzo ebraico */
+  'Didattica':            'linear-gradient(155deg,#3c1a62,#1e0c32)', /* porpora — inchiostro pergamena */
+  'Corsi Brevi':          'linear-gradient(155deg,#253e3e,#121e1e)', /* ardesia profonda */
 };
 
 /* ── State ───────────────────────────────────────────────────── */
@@ -952,7 +952,7 @@ function buildCard(course, opts={}) {
   <div class="course-card" data-slug="${slug}" data-lingua="${(course.lang||'').toLowerCase()}" data-livello="${(course.level||'').toLowerCase()}" onclick="goToCourse('${slug}')">
     <div class="fan-card-header" style="background:${grad};">
       ${newBadge}${lockIcon}
-      <div class="fan-card-level">${course.lang} · ${course.level}</div>
+      <div class="fan-card-level">${course.lang === 'Corsi Brevi' ? course.lang : `${course.lang} · ${course.level}`}</div>
       <div class="fan-card-lang">${getLevelLabel(course.level)}</div>
       ${progressEl}
     </div>
