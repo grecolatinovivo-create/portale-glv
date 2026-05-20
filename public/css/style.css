@@ -321,7 +321,78 @@ p { line-height: 1.7; }
   text-decoration: none;
 }
 .nav-logo span { color: var(--text-primary); }
-.nav-logo-icon { font-size: 1.2rem; }
+
+/* Pallino ΓΛ + testo due righe — condiviso tra index e dashboard */
+.nav-logo-icon {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold, #c9962a);
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(212,160,23,.35);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.nav-logo-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .9rem; font-weight: 700;
+  color: var(--text-primary, #f5f5f5);
+  line-height: 1.2;
+}
+.nav-logo-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .65rem;
+  color: rgba(245,245,245,.38);
+  letter-spacing: .04em;
+}
+
+/* Avatar profilo (usato in dashboard) */
+.nav-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary, #a01a36);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: .95rem; font-weight: 700; color: #fff;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.12);
+  transition: border-color .2s;
+  flex-shrink: 0;
+}
+.nav-avatar:hover { border-color: var(--gold, #c9962a); }
+
+/* Badge piano — pill gold */
+.nav-plan-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--gold, #c9962a);
+  background: rgba(201,150,42,.12);
+  border: 1px solid rgba(201,150,42,.28);
+  border-radius: 2rem; padding: 4px 13px;
+  white-space: nowrap;
+}
+
+/* Dropdown profilo */
+.nav-profile-dropdown { position: relative; }
+.nav-dropdown-menu {
+  display: none; position: absolute; top: calc(100% + 10px); right: 0;
+  background: var(--bg-card, #111111);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 10px; min-width: 210px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5); overflow: hidden;
+}
+.nav-dropdown-menu.open { display: block; }
+.nav-dropdown-item {
+  display: block; padding: 11px 16px;
+  font-family: 'Inter', sans-serif; font-size: .85rem;
+  color: var(--text-primary, #f5f5f5); cursor: pointer;
+  transition: background .15s; border: none;
+  background: none; width: 100%; text-align: left;
+  text-decoration: none;
+}
+.nav-dropdown-item:hover { background: rgba(255,255,255,.07); }
+.nav-dropdown-item.danger { color: #e05c5c; }
 
 .nav-links {
   display: flex; align-items: center;

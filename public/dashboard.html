@@ -82,48 +82,8 @@
     #glv-dashboard{min-height:100vh;}
     #glv-dashboard.hidden{display:none;}
 
-    /* Navbar */
-    .dash-nav{
-      position:fixed;top:0;left:0;right:0;z-index:100;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 48px;height:64px;
-      background:linear-gradient(to bottom,rgba(10,10,10,.97),transparent);
-      transition:background .3s;
-    }
-    .dash-nav.scrolled{background:rgba(10,10,10,.98);}
-    .dash-nav-logo{font-family:var(--font-heading);font-size:1.15rem;font-weight:700;color:var(--text);}
-    .dash-nav-logo span{color:var(--gold);}
-    .dash-nav-right{display:flex;align-items:center;gap:16px;}
-    .dash-nav-plan{
-      font-family:var(--font-body);font-size:.72rem;font-weight:700;
-      letter-spacing:.06em;text-transform:uppercase;color:var(--gold);
-      background:var(--gold-dim);border:1px solid rgba(201,150,42,.3);
-      border-radius:2rem;padding:5px 14px;
-    }
-    .dash-nav-avatar{
-      width:36px;height:36px;border-radius:50%;background:var(--primary);
-      display:flex;align-items:center;justify-content:center;
-      font-family:var(--font-heading);font-size:.95rem;font-weight:700;color:#fff;
-      cursor:pointer;border:2px solid rgba(255,255,255,.12);transition:border-color .2s;
-    }
-    .dash-nav-avatar:hover{border-color:var(--gold);}
-    .nav-profile-dropdown{position:relative;}
-    .nav-dropdown-menu{
-      display:none;position:absolute;top:calc(100% + 8px);right:0;
-      background:var(--dark-2);border:1px solid var(--border);
-      border-radius:var(--r-md);min-width:200px;box-shadow:var(--shadow-md);overflow:hidden;
-    }
-    .nav-dropdown-menu.open{display:block;}
-    .nav-dropdown-item{
-      display:block;padding:12px 16px;font-family:var(--font-body);font-size:.85rem;
-      color:var(--text);cursor:pointer;transition:background .15s;
-      border:none;background:none;width:100%;text-align:left;
-    }
-    .nav-dropdown-item:hover{background:rgba(255,255,255,.07);}
-    .nav-dropdown-item.danger{color:#e05c5c;}
-
-    /* Hero */
-    .dash-hero{padding:100px 48px 40px;max-width:1200px;margin:0 auto;}
+    /* Hero — padding-top = nav-height (64px) + spazio */
+    .dash-hero{padding:96px 48px 40px;max-width:1200px;margin:0 auto;}
     .dash-greeting{font-family:var(--font-heading);font-size:clamp(1.8rem,4vw,3rem);font-weight:700;margin-bottom:10px;}
     .dash-greeting em{color:var(--gold);font-style:italic;}
     .dash-subtitle{font-family:var(--font-body);font-size:.95rem;color:var(--text-muted);line-height:1.6;}
@@ -220,6 +180,15 @@
     .admin-tier-btn.active{
       color:var(--gold) !important;
       background:rgba(201,150,42,.1);
+    }
+    /* Mobile: nav-links collassabili nella dashboard */
+    @media(max-width:768px){
+      #dashNavLinks{
+        display:none;position:absolute;top:100%;left:0;right:0;
+        background:rgba(10,10,10,.98);padding:12px 20px 16px;
+        flex-direction:column;gap:4px;border-bottom:1px solid rgba(255,255,255,.08);
+      }
+      #dashNavLinks.open{display:flex;}
     }
   </style>
 </head>
@@ -341,29 +310,45 @@
 <!-- ══ DASHBOARD ════════════════════════════════════════════ -->
 <div id="glv-dashboard" class="hidden">
 
-  <nav class="dash-nav" id="dash-nav">
-    <a href="/" class="dash-nav-logo">Greco<span>Latino</span>Vivo</a>
-    <div class="dash-nav-right">
-      <span class="dash-nav-plan" id="nav-plan-badge">—</span>
-      <div class="nav-profile-dropdown">
-        <div class="dash-nav-avatar" id="nav-avatar" role="button" tabindex="0"
-             aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
-             onclick="toggleProfileMenu()">U</div>
-        <div class="nav-dropdown-menu" id="profile-menu" role="menu">
-          <div class="nav-dropdown-item" id="menu-email"
-               style="color:var(--text-muted);font-size:.78rem;border-bottom:1px solid var(--border);cursor:default;">—</div>
-          <a class="nav-dropdown-item" href="/#prezzi" role="menuitem">Gestisci abbonamento</a>
-          <!-- Sezione admin preview — visibile solo se iniettata da JS -->
-          <div id="admin-tier-group" style="display:none">
-            <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border-top:1px solid var(--border);margin-top:4px;">
-              Anteprima piano
-            </div>
-            <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem">Cultura</button>
-            <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem">Linguae</button>
-            <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem">Accademia</button>
-          </div>
-          <button class="nav-dropdown-item danger" role="menuitem" onclick="Auth.logout()">Esci dall'account</button>
+  <nav class="glv-nav" id="dash-nav">
+    <div class="nav-inner">
+      <a href="/index.html" class="nav-logo">
+        <div class="nav-logo-icon">ΓΛ</div>
+        <div>
+          <div class="nav-logo-name">Centro Nazionale di Studi Classici</div>
+          <div class="nav-logo-sub">GrecoLatinoVivo</div>
         </div>
+      </a>
+      <div class="nav-links" id="dashNavLinks">
+        <a href="/index.html#prezzi">Abbonamento</a>
+        <a href="#section-per-te">I miei corsi</a>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-plan-badge" id="nav-plan-badge">—</span>
+        <div class="nav-profile-dropdown">
+          <div class="nav-avatar" id="nav-avatar" role="button" tabindex="0"
+               aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
+               onclick="toggleProfileMenu()">U</div>
+          <div class="nav-dropdown-menu" id="profile-menu" role="menu">
+            <div class="nav-dropdown-item" id="menu-email"
+                 style="color:rgba(245,245,245,.4);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
+            <a class="nav-dropdown-item" href="/index.html#prezzi" role="menuitem">Gestisci abbonamento</a>
+            <!-- Sezione admin preview — visibile solo se iniettata da JS -->
+            <div id="admin-tier-group" style="display:none">
+              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;">
+                Anteprima piano
+              </div>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem">Cultura</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem">Linguae</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem">Accademia</button>
+            </div>
+            <button class="nav-dropdown-item danger" role="menuitem" onclick="Auth.logout()">Esci dall'account</button>
+          </div>
+        </div>
+        <button class="nav-hamburger" id="dashNavToggle" aria-label="Menu"
+                onclick="document.getElementById('dashNavLinks').classList.toggle('open')">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </nav>
