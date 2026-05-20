@@ -127,7 +127,7 @@ const Auth = {
   async logout() {
     await API.post('/api/auth/logout', {}).catch(() => {});
     _user = null;
-    window.location.href = 'index.html';
+    window.location.href = '/index.html';
   },
   hasActiveSubscription(user) {
     return ['active','trialing'].includes(user?.subscription?.status);
@@ -1308,7 +1308,8 @@ function showAuthModal(mode){
       // Controlla parametro redirect (es. ?redirect=admin per il pannello admin)
       const redirectParam = new URLSearchParams(window.location.search).get('redirect');
       if(redirectParam === 'admin'){ window.location.href = 'admin.html'; return; }
-      window.location.href='index.html';
+      // Dopo login/registrazione → dashboard
+      window.location.href = '/dashboard.html';
     }
     else{ errEl.textContent=result.error||'Errore. Riprova.'; errEl.style.display='block'; btn.disabled=false; btn.textContent=mode==='login'?'Accedi →':'Registrati →'; }
   });

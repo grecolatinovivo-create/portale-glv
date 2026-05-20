@@ -590,7 +590,7 @@ async function showDashboard() {
 
   // Auth (dovrebbe già essere loggato — controllo di sicurezza)
   const user = await Auth.getUser();
-  if (!user) { window.location.href = '/'; return; }
+  if (!user) { window.location.href = '/index.html'; return; }
 
   // Navbar
   const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
@@ -698,7 +698,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Auth check preventivo — redirect se non loggato
   const user = await Auth.getUser();
   if (!user) {
-    window.location.href = '/';
+    window.location.href = '/index.html';
     return;
   }
 
