@@ -2358,126 +2358,240 @@ body.has-corso-cta { padding-bottom: 80px; }
   white-space: nowrap;
 }
 
-/* ── Lista lezioni ──────────────────────────────────────────────── */
-.course-lessons-section {
-  margin-bottom: 32px;
-}
-
-.course-lessons-heading {
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 8px;
-}
-
-.lesson-list {
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
+/* ── Area contenuto corso — slide orizzontale pellicola ↔ player ── */
+.course-content-area {
+  display: flex;
+  flex-wrap: nowrap;
   overflow: hidden;
-  list-style: none;
+  width: 100%;
+  /* altezza si adatta al contenuto della sezione visibile */
 }
 
-.lesson-row {
+.course-lessons-section,
+.course-player-section {
+  width: 100%;
+  flex-shrink: 0;
+  transition: transform 0.36s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Chiusura player: leggermente più lenta e distesa */
+.course-content-area.player-closing .course-lessons-section,
+.course-content-area.player-closing .course-player-section {
+  transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Quando il player è aperto: entrambe le sezioni si spostano a sinistra */
+.course-content-area.player-open .course-lessons-section,
+.course-content-area.player-open .course-player-section {
+  transform: translateX(-100%);
+}
+
+/* ── Pellicola Kodak ────────────────────────────────────────────── */
+@keyframes filmStripFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.film-strip {
+  background: #0d0d0d;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0 0 32px;
+  border: 1px solid #1e1e1e;
+  animation: filmStripFadeIn 0.25s ease forwards;
+}
+
+/* Riga fori superiore/inferiore */
+.film-perf-row {
+  height: 20px;
+  background: #060606;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  min-height: 64px;
-  background: var(--bg-card);
+  padding: 0 10px;
+  gap: 8px;
+  overflow: hidden;
+}
+.film-hole {
+  width: 13px;
+  height: 9px;
+  border-radius: 2px;
+  background: #141414;
+  border: 1px solid #1e1e1e;
+  flex-shrink: 0;
+}
+
+/* Zona frame */
+.film-frames {
+  padding: 0;
+}
+
+/* Singolo fotogramma — bottone cliccabile */
+.film-frame-btn {
+  display: flex;
+  align-items: center;
+  background: none;
   border: none;
+  cursor: pointer;
+  padding: 0;
   width: 100%;
   text-align: left;
-  cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background var(--t-fast);
-  font-family: var(--font-body);
   position: relative;
+  /* Animazione di entrata stagger */
+  opacity: 0;
+  transform: translateY(8px);
+  transition: background 0.15s ease, opacity 0s, transform 0s;
 }
-.lesson-row:last-child {
-  border-bottom: none;
+.film-frame-btn.film-frame--revealed {
+  opacity: 1;
+  transform: translateY(0);
+  transition: background 0.15s ease,
+              opacity  0.28s ease,
+              transform 0.28s cubic-bezier(0, 0, 0.2, 1);
 }
-.lesson-row:hover:not(.lesson-row--locked) {
-  background: var(--bg-card-2);
+.film-frame-btn:hover:not(.film-frame--locked) {
+  background: rgba(255,255,255,0.04);
 }
-.lesson-row:focus-visible {
+.film-frame-btn:hover:not(.film-frame--locked) .film-perf-col {
+  border-right-color: var(--gold);
+  transition: border-right-color 0.15s ease;
+}
+.film-frame-btn:focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: -2px;
 }
 
-/* Stato corrente — bordo sinistro oro + background lieve */
-.lesson-row--current {
-  background: rgba(201,150,42,0.06);
-  border-left: 3px solid var(--gold);
-  padding-left: 13px; /* compensa il bordo da 3px */
-}
-.lesson-row--current .lesson-title {
-  font-weight: 600;
-}
-
-/* Stato bloccato */
-.lesson-row--locked {
-  cursor: default;
-}
-.lesson-row--locked .lesson-title {
-  opacity: 0.45;
-}
-.lesson-row--locked .lesson-duration {
-  opacity: 0.35;
-}
-
-/* Stato completato */
-.lesson-row--completed .lesson-title {
-  color: var(--text-secondary);
-}
-
-.lesson-icon {
+/* Fori laterali di ogni fotogramma */
+.film-perf-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 0 7px;
+  background: #060606;
+  border-right: 1px solid #161616;
   flex-shrink: 0;
+  align-self: stretch;
+  transition: border-right-color 0.15s ease;
+}
+.film-perf-col .film-hole {
+  width: 9px;
+  height: 6px;
+}
+
+/* Numero fotogramma */
+.film-frame-num {
+  font-family: 'Courier New', 'Courier', monospace;
+  font-size: 9px;
+  color: #2e2e2e;
+  width: 26px;
+  text-align: right;
+  padding-right: 8px;
+  flex-shrink: 0;
+  user-select: none;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+/* Thumbnail con gradiente lingua */
+.film-thumb {
+  width: 72px;
+  height: 46px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  margin: 9px 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
+  transition: transform 0.2s ease;
 }
-
-.lesson-info {
-  flex: 1;
-  min-width: 0;
+.film-thumb-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.18);
 }
 
-.lesson-title {
-  font-family: var(--font-body);
-  font-size: 14px;
+/* Info testo del fotogramma */
+.film-frame-info {
+  flex: 1;
+  padding: 10px 14px 10px 12px;
+  min-width: 0;
+}
+.film-frame-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
   font-weight: 500;
-  color: var(--text-primary);
-  white-space: nowrap;
+  color: rgba(245,245,245,0.88);
+  line-height: 1.35;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.film-frame-meta {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: rgba(245,245,245,0.35);
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.lesson-duration {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-muted);
-}
-
-.lesson-badge-free {
-  flex-shrink: 0;
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: 600;
+/* Badge FREE nella pellicola */
+.film-frame-free-badge {
+  font-size: 9px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--gold);
   background: var(--gold-light);
   border: 1px solid var(--gold-border);
-  border-radius: var(--r-sm);
-  padding: 2px 6px;
+  border-radius: 3px;
+  padding: 1px 5px;
+  flex-shrink: 0;
+  align-self: center;
+  margin-right: 14px;
+}
+
+/* Varianti di stato fotogramma */
+.film-frame-btn.film-frame--locked {
+  cursor: default;
+}
+.film-frame-btn.film-frame--locked .film-frame-title {
+  color: rgba(245,245,245,0.28);
+}
+.film-frame-btn.film-frame--locked .film-thumb {
+  opacity: 0.3;
+}
+.film-frame-btn.film-frame--locked .film-thumb-overlay {
+  background: rgba(0,0,0,0.45);
+}
+.film-frame-btn.film-frame--completed .film-frame-title {
+  color: rgba(245,245,245,0.55);
+}
+.film-frame-btn.film-frame--selected {
+  background: rgba(255,255,255,0.055);
+}
+.film-frame-btn.film-frame--selected .film-frame-title {
+  color: rgba(245,245,245,1);
+  font-weight: 600;
+}
+.film-frame-btn.film-frame--selected .film-thumb {
+  transform: scale(1.04);
+}
+
+/* Divisore tra fotogrammi */
+.film-frame-divider {
+  height: 1px;
+  background: #161616;
+  margin-left: 116px; /* allineato dopo thumb */
 }
 
 /* ── Banner lezione bloccata ────────────────────────────────────── */
@@ -2485,14 +2599,14 @@ body.has-corso-cta { padding-bottom: 80px; }
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: var(--primary-light);
   border: 1px solid rgba(160,26,54,0.2);
   border-radius: var(--r-sm);
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-secondary);
-  margin: 4px 0 8px;
+  margin: 0 12px 2px 116px; /* rientro: allineato con il testo del frame */
   flex-wrap: wrap;
 }
 .locked-banner__cta {
@@ -2501,27 +2615,41 @@ body.has-corso-cta { padding-bottom: 80px; }
   align-items: center;
   gap: 4px;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--gold);
   text-decoration: none;
   white-space: nowrap;
   transition: color var(--t-fast);
 }
-.locked-banner__cta:hover {
-  color: var(--gold-lt);
+.locked-banner__cta:hover { color: var(--gold-lt); }
+
+/* ── Pulsante "Tutte le lezioni" nel player ─────────────────────── */
+.player-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: none;
+  border: none;
+  color: rgba(245,245,245,0.48);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 0 22px;
+  transition: transform 0.1s ease, color var(--t-fast);
+  letter-spacing: 0.01em;
+}
+.player-back-btn:hover { color: rgba(245,245,245,0.88); }
+.player-back-btn:active { transform: scale(0.96); }
+.player-back-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
 /* ── Player Vimeo ───────────────────────────────────────────────── */
 .course-player-section {
-  margin-top: 32px;
-}
-
-.player-lesson-title {
-  font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 12px;
+  padding-top: 4px; /* piccolo respiro sopra il back button */
 }
 
 .course-player-wrap {
@@ -2588,10 +2716,15 @@ body.has-corso-cta { padding-bottom: 80px; }
 @media (prefers-reduced-motion: reduce) {
   .catalog-view,
   .course-view,
-  .catalog-corner-deck {
+  .catalog-corner-deck,
+  .course-lessons-section,
+  .course-player-section,
+  .film-frame-btn,
+  .film-strip {
     transition: none !important;
     animation: none !important;
   }
+  .film-frame-btn { opacity: 1 !important; transform: none !important; }
   .course-progress-bar__fill {
     transition: none !important;
   }
