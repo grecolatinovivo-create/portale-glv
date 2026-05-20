@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Il mio Portale — GrecoLatinoVivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    :root {
+      --dark:#0a0a0a; --dark-2:#111111; --dark-3:#1a1a1a;
+      --primary:#a01a36; --gold:#c9962a; --gold-lt:#e8b84b;
+      --gold-dim:rgba(201,150,42,.15);
+      --text:#f5f5f5; --text-muted:#9a9a9a;
+      --border:rgba(255,255,255,.1);
+      --r-sm:6px; --r-md:12px; --r-lg:18px;
+      --t-fast:.15s ease;
+      --font-heading:'Playfair Display','Georgia',serif;
+      --font-body:'Inter','Helvetica Neue',sans-serif;
+      --shadow-md:0 8px 32px rgba(0,0,0,.5);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{background:var(--dark);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden;}
+    a{color:inherit;text-decoration:none;}
+
+    /* ── QUIZ OVERLAY ─────────────────────────────────────── */
+    #glv-quiz{
+      position:fixed;inset:0;background:var(--dark);z-index:9999;
+      display:flex;align-items:center;justify-content:center;padding:24px;
+    }
+    #glv-quiz.hidden{display:none;}
+    .quiz-inner{width:100%;max-width:680px;}
+    .quiz-slide{display:none;animation:quiz-in .35s ease;}
+    .quiz-slide.active{display:block;}
+    @keyframes quiz-in{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+    .quiz-brand{
+      font-family:var(--font-heading);font-size:.85rem;color:var(--primary);
+      letter-spacing:.18em;text-transform:uppercase;margin-bottom:40px;
+    }
+    .quiz-dots{display:flex;gap:8px;margin-bottom:36px;}
+    .quiz-dot{width:28px;height:3px;border-radius:2px;background:var(--border);transition:background .3s;}
+    .quiz-dot.done{background:var(--gold);}
+    .quiz-dot.active{background:var(--gold);opacity:.55;}
+    .quiz-step{font-family:var(--font-body);font-size:.75rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+    .quiz-q{
+      font-family:var(--font-heading);font-size:clamp(1.5rem,4vw,2.4rem);
+      font-weight:700;line-height:1.25;color:var(--text);margin-bottom:36px;
+    }
+    .quiz-q em{color:var(--gold);font-style:italic;}
+    .quiz-options{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+      gap:12px;margin-bottom:32px;
+    }
+    .quiz-opt{
+      background:var(--dark-2);border:1.5px solid var(--border);border-radius:var(--r-md);
+      padding:18px 16px;cursor:pointer;text-align:left;
+      transition:border-color .2s,background .2s,transform .15s;
+    }
+    .quiz-opt:hover{border-color:rgba(201,150,42,.4);background:var(--dark-3);transform:translateY(-2px);}
+    .quiz-opt.selected{border-color:var(--gold);background:var(--gold-dim);}
+    .quiz-opt-icon{font-size:1.6rem;margin-bottom:10px;display:block;}
+    .quiz-opt-label{font-family:var(--font-body);font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px;}
+    .quiz-opt-sub{font-size:.78rem;color:var(--text-muted);line-height:1.4;}
+    .quiz-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;}
+    .quiz-btn-next{
+      background:var(--gold);color:#0a0a0a;font-family:var(--font-body);font-size:.9rem;font-weight:700;
+      border:none;border-radius:2rem;padding:14px 36px;cursor:pointer;min-height:44px;
+      transition:background .2s,transform .15s;
+    }
+    .quiz-btn-next:hover{background:var(--gold-lt);transform:translateY(-1px);}
+    .quiz-btn-next:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .quiz-btn-skip{
+      background:none;border:none;color:var(--text-muted);font-family:var(--font-body);
+      font-size:.82rem;cursor:pointer;padding:8px;min-height:44px;transition:color .2s;
+    }
+    .quiz-btn-skip:hover{color:var(--text);}
+
+    /* ── DASHBOARD ─────────────────────────────────────────── */
+    #glv-dashboard{min-height:100vh;}
+    #glv-dashboard.hidden{display:none;}
+
+    /* Navbar */
+    .dash-nav{
+      position:fixed;top:0;left:0;right:0;z-index:100;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 48px;height:64px;
+      background:linear-gradient(to bottom,rgba(10,10,10,.97),transparent);
+      transition:background .3s;
+    }
+    .dash-nav.scrolled{background:rgba(10,10,10,.98);}
+    .dash-nav-logo{font-family:var(--font-heading);font-size:1.15rem;font-weight:700;color:var(--text);}
+    .dash-nav-logo span{color:var(--gold);}
+    .dash-nav-right{display:flex;align-items:center;gap:16px;}
+    .dash-nav-plan{
+      font-family:var(--font-body);font-size:.72rem;font-weight:700;
+      letter-spacing:.06em;text-transform:uppercase;color:var(--gold);
+      background:var(--gold-dim);border:1px solid rgba(201,150,42,.3);
+      border-radius:2rem;padding:5px 14px;
+    }
+    .dash-nav-avatar{
+      width:36px;height:36px;border-radius:50%;background:var(--primary);
+      display:flex;align-items:center;justify-content:center;
+      font-family:var(--font-heading);font-size:.95rem;font-weight:700;color:#fff;
+      cursor:pointer;border:2px solid rgba(255,255,255,.12);transition:border-color .2s;
+    }
+    .dash-nav-avatar:hover{border-color:var(--gold);}
+    .nav-profile-dropdown{position:relative;}
+    .nav-dropdown-menu{
+      display:none;position:absolute;top:calc(100% + 8px);right:0;
+      background:var(--dark-2);border:1px solid var(--border);
+      border-radius:var(--r-md);min-width:200px;box-shadow:var(--shadow-md);overflow:hidden;
+    }
+    .nav-dropdown-menu.open{display:block;}
+    .nav-dropdown-item{
+      display:block;padding:12px 16px;font-family:var(--font-body);font-size:.85rem;
+      color:var(--text);cursor:pointer;transition:background .15s;
+      border:none;background:none;width:100%;text-align:left;
+    }
+    .nav-dropdown-item:hover{background:rgba(255,255,255,.07);}
+    .nav-dropdown-item.danger{color:#e05c5c;}
+
+    /* Hero */
+    .dash-hero{padding:100px 48px 40px;max-width:1200px;margin:0 auto;}
+    .dash-greeting{font-family:var(--font-heading);font-size:clamp(1.8rem,4vw,3rem);font-weight:700;margin-bottom:10px;}
+    .dash-greeting em{color:var(--gold);font-style:italic;}
+    .dash-subtitle{font-family:var(--font-body);font-size:.95rem;color:var(--text-muted);line-height:1.6;}
+
+    /* Upgrade banner */
+    .upgrade-banner{
+      margin:0 auto 40px;max-width:1104px;padding:0 48px;
+    }
+    .upgrade-banner-inner{
+      background:linear-gradient(135deg,rgba(160,26,54,.14),rgba(201,150,42,.07));
+      border:1px solid rgba(160,26,54,.28);border-radius:var(--r-lg);
+      padding:20px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;
+    }
+    .upgrade-banner.hidden{display:none;}
+    .upgrade-banner-text strong{
+      font-family:var(--font-heading);font-size:1.05rem;color:var(--text);display:block;margin-bottom:5px;
+    }
+    .upgrade-banner-text span{font-size:.83rem;color:var(--text-muted);}
+    .upgrade-banner-btn{
+      flex-shrink:0;background:var(--primary);color:#fff;
+      font-family:var(--font-body);font-size:.83rem;font-weight:700;
+      border:none;border-radius:2rem;padding:11px 24px;min-height:42px;cursor:pointer;
+      text-decoration:none;transition:background .2s;white-space:nowrap;display:inline-block;
+    }
+    .upgrade-banner-btn:hover{background:#c02040;}
+
+    /* Sections */
+    .dash-section{padding:0 48px;max-width:1200px;margin:0 auto 44px;}
+    .dash-section.hidden{display:none;}
+    .dash-section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+    .dash-section-title{font-family:var(--font-heading);font-size:1.4rem;font-weight:700;color:var(--text);}
+    .dash-section-subtitle{font-size:.8rem;color:var(--text-muted);}
+    .dash-section-badge{
+      font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+      padding:3px 10px;border-radius:2rem;
+      background:var(--gold-dim);color:var(--gold);border:1px solid rgba(201,150,42,.25);
+    }
+    .dash-section-badge.locked-badge{
+      background:rgba(255,255,255,.05);color:var(--text-muted);border-color:rgba(255,255,255,.1);
+    }
+
+    /* Course row */
+    .courses-row{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;}
+    .courses-row::-webkit-scrollbar{display:none;}
+    .courses-row .course-card{flex-shrink:0;}
+    .row-empty{font-size:.88rem;color:var(--text-muted);padding:24px 0;font-style:italic;}
+
+    /* Locked card */
+    .course-card.dash-locked{position:relative;cursor:default !important;}
+    .course-card.dash-locked::after{
+      content:'';position:absolute;inset:0;
+      background:rgba(10,10,10,.58);border-radius:inherit;pointer-events:none;
+    }
+    .dash-locked-badge{
+      position:absolute;bottom:0;left:0;right:0;z-index:2;
+      background:linear-gradient(to top,rgba(10,10,10,.97) 60%,transparent);
+      padding:32px 12px 12px;
+      display:flex;align-items:flex-end;justify-content:space-between;gap:6px;
+    }
+    .dash-locked-badge-text{
+      font-family:var(--font-body);font-size:.72rem;font-weight:600;color:var(--gold-lt);
+    }
+    .dash-locked-badge-cta{
+      font-size:.7rem;font-weight:700;color:var(--gold);text-decoration:underline;
+      text-underline-offset:2px;cursor:pointer;white-space:nowrap;flex-shrink:0;
+      background:none;border:none;
+    }
+    .dash-locked-badge-cta:hover{color:var(--gold-lt);}
+
+    /* Footer */
+    .dash-footer{
+      padding:40px 48px;border-top:1px solid var(--border);
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;
+      margin-top:40px;
+    }
+    .dash-footer-brand{font-family:var(--font-heading);font-size:.9rem;color:var(--text-muted);}
+    .dash-footer-links{display:flex;gap:24px;}
+    .dash-footer-links a{font-size:.8rem;color:var(--text-muted);transition:color .2s;}
+    .dash-footer-links a:hover{color:var(--text);}
+
+    /* Responsive */
+    @media(max-width:768px){
+      .dash-nav{padding:0 20px;}
+      .dash-hero{padding:88px 20px 32px;}
+      .dash-section{padding:0 20px;}
+      .upgrade-banner{padding:0 20px;}
+      .upgrade-banner-inner{flex-direction:column;align-items:flex-start;}
+      .dash-footer{padding:32px 20px;}
+      .quiz-options{grid-template-columns:1fr 1fr;}
+    }
+    @media(max-width:480px){
+      .quiz-options{grid-template-columns:1fr;}
+      .dash-greeting{font-size:1.7rem;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ QUIZ ONBOARDING ════════════════════════════════════ -->
+<div id="glv-quiz" class="hidden">
+  <div class="quiz-inner">
+    <div class="quiz-brand">GrecoLatinoVivo</div>
+    <div class="quiz-dots">
+      <div class="quiz-dot active" id="qd-1"></div>
+      <div class="quiz-dot" id="qd-2"></div>
+      <div class="quiz-dot" id="qd-3"></div>
+    </div>
+
+    <!-- Slide 1: Lingua -->
+    <div class="quiz-slide active" id="quiz-slide-1">
+      <div class="quiz-step">Passo 1 di 3</div>
+      <h2 class="quiz-q">Quale <em>lingua</em> vuoi sentire<br>scorrere nella tua mente?</h2>
+      <div class="quiz-options" id="quiz-opts-1">
+        <button class="quiz-opt" data-val="Latino" type="button">
+          <span class="quiz-opt-icon">🏛️</span>
+          <div class="quiz-opt-label">Latino</div>
+          <div class="quiz-opt-sub">Cicerone, Virgilio, Cesare</div>
+        </button>
+        <button class="quiz-opt" data-val="Greco Antico" type="button">
+          <span class="quiz-opt-icon">⚡</span>
+          <div class="quiz-opt-label">Greco Antico</div>
+          <div class="quiz-opt-sub">Omero, Platone, Sofocle</div>
+        </button>
+        <button class="quiz-opt" data-val="Egiziano Geroglifico" type="button">
+          <span class="quiz-opt-icon">𓂀</span>
+          <div class="quiz-opt-label">Egiziano</div>
+          <div class="quiz-opt-sub">Geroglifici e papiri</div>
+        </button>
+        <button class="quiz-opt" data-val="Ebraico Biblico" type="button">
+          <span class="quiz-opt-icon">✡️</span>
+          <div class="quiz-opt-label">Ebraico Biblico</div>
+          <div class="quiz-opt-sub">Genesi e Salmi in originale</div>
+        </button>
+        <button class="quiz-opt" data-val="Corsi Brevi" type="button">
+          <span class="quiz-opt-icon">🌍</span>
+          <div class="quiz-opt-label">Tutto il mondo antico</div>
+          <div class="quiz-opt-sub">Civiltà, storia, arte e cultura</div>
+        </button>
+      </div>
+      <div class="quiz-actions">
+        <button class="quiz-btn-skip" type="button" onclick="skipQuiz()">Salta →</button>
+        <button class="quiz-btn-next" id="q1-next" type="button" disabled onclick="nextSlide(1)">Avanti</button>
+      </div>
+    </div>
+
+    <!-- Slide 2: Livello -->
+    <div class="quiz-slide" id="quiz-slide-2">
+      <div class="quiz-step">Passo 2 di 3</div>
+      <h2 class="quiz-q">Da dove <em>parti</em>?</h2>
+      <div class="quiz-options" id="quiz-opts-2">
+        <button class="quiz-opt" data-val="beginner" type="button">
+          <span class="quiz-opt-icon">🌱</span>
+          <div class="quiz-opt-label">Principiante assoluto</div>
+          <div class="quiz-opt-sub">Non ho mai studiato questa lingua</div>
+        </button>
+        <button class="quiz-opt" data-val="elementary" type="button">
+          <span class="quiz-opt-icon">📖</span>
+          <div class="quiz-opt-label">Ho qualche base</div>
+          <div class="quiz-opt-sub">L'ho studiata a scuola o da autodidatta</div>
+        </button>
+        <button class="quiz-opt" data-val="intermediate" type="button">
+          <span class="quiz-opt-icon">🎓</span>
+          <div class="quiz-opt-label">Livello intermedio</div>
+          <div class="quiz-opt-sub">Leggo testi con supporto</div>
+        </button>
+        <button class="quiz-opt" data-val="teacher" type="button">
+          <span class="quiz-opt-icon">🏫</span>
+          <div class="quiz-opt-label">Sono un docente</div>
+          <div class="quiz-opt-sub">Cerco aggiornamento e formazione</div>
+        </button>
+      </div>
+      <div class="quiz-actions">
+        <button class="quiz-btn-skip" type="button" onclick="skipQuiz()">Salta →</button>
+        <button class="quiz-btn-next" id="q2-next" type="button" disabled onclick="nextSlide(2)">Avanti</button>
+      </div>
+    </div>
+
+    <!-- Slide 3: Obiettivo -->
+    <div class="quiz-slide" id="quiz-slide-3">
+      <div class="quiz-step">Passo 3 di 3</div>
+      <h2 class="quiz-q">Qual è il tuo <em>obiettivo</em>?</h2>
+      <div class="quiz-options" id="quiz-opts-3">
+        <button class="quiz-opt" data-val="pleasure" type="button">
+          <span class="quiz-opt-icon">✨</span>
+          <div class="quiz-opt-label">Piacere e curiosità</div>
+          <div class="quiz-opt-sub">Esploro per il gusto di farlo</div>
+        </button>
+        <button class="quiz-opt" data-val="study" type="button">
+          <span class="quiz-opt-icon">🏆</span>
+          <div class="quiz-opt-label">Studio e carriera</div>
+          <div class="quiz-opt-sub">Attestati e progressione accademica</div>
+        </button>
+        <button class="quiz-opt" data-val="teaching" type="button">
+          <span class="quiz-opt-icon">📚</span>
+          <div class="quiz-opt-label">Insegnamento</div>
+          <div class="quiz-opt-sub">Formarmi per insegnare meglio</div>
+        </button>
+        <button class="quiz-opt" data-val="culture" type="button">
+          <span class="quiz-opt-icon">🏺</span>
+          <div class="quiz-opt-label">Cultura e civiltà</div>
+          <div class="quiz-opt-sub">Storia, arte e pensiero del mondo antico</div>
+        </button>
+      </div>
+      <div class="quiz-actions">
+        <button class="quiz-btn-skip" type="button" onclick="skipQuiz()">Salta →</button>
+        <button class="quiz-btn-next" id="q3-next" type="button" disabled onclick="finishQuiz()">Scopri i tuoi corsi ✦</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ════════════════════════════════════════════ -->
+<div id="glv-dashboard" class="hidden">
+
+  <nav class="dash-nav" id="dash-nav">
+    <a href="/" class="dash-nav-logo">Greco<span>Latino</span>Vivo</a>
+    <div class="dash-nav-right">
+      <span class="dash-nav-plan" id="nav-plan-badge">—</span>
+      <div class="nav-profile-dropdown">
+        <div class="dash-nav-avatar" id="nav-avatar" role="button" tabindex="0"
+             aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
+             onclick="toggleProfileMenu()">U</div>
+        <div class="nav-dropdown-menu" id="profile-menu" role="menu">
+          <div class="nav-dropdown-item" id="menu-email"
+               style="color:var(--text-muted);font-size:.78rem;border-bottom:1px solid var(--border);cursor:default;">—</div>
+          <a class="nav-dropdown-item" href="/#prezzi" role="menuitem">Gestisci abbonamento</a>
+          <button class="nav-dropdown-item danger" role="menuitem" onclick="Auth.logout()">Esci dall'account</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <section class="dash-hero">
+    <h1 class="dash-greeting">Bentornato, <em id="dash-name">studente</em>.</h1>
+    <p class="dash-subtitle" id="dash-subtitle">Caricamento del tuo catalogo personalizzato…</p>
+  </section>
+
+  <div class="upgrade-banner hidden" id="upgrade-banner">
+    <div class="upgrade-banner-inner">
+      <div class="upgrade-banner-text">
+        <strong id="upgrade-banner-title">Sblocca i corsi di lingua</strong>
+        <span id="upgrade-banner-sub">Passa a Linguae e studia Latino, Greco, Egiziano ed Ebraico Biblico.</span>
+      </div>
+      <a href="/#prezzi" class="upgrade-banner-btn">Esplora i piani →</a>
+    </div>
+  </div>
+
+  <section class="dash-section" id="section-per-te">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Scelti per te</h2>
+      <span class="dash-section-badge">Personalizzato</span>
+    </div>
+    <div class="courses-row" id="row-per-te"></div>
+  </section>
+
+  <section class="dash-section hidden" id="section-continua">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Continua dove hai lasciato</h2>
+    </div>
+    <div class="courses-row" id="row-continua"></div>
+  </section>
+
+  <section class="dash-section" id="section-latino">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Latino</h2>
+      <span class="dash-section-subtitle">Da zero a Cicerone</span>
+    </div>
+    <div class="courses-row" id="row-latino"></div>
+  </section>
+
+  <section class="dash-section" id="section-greco">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Greco Antico</h2>
+      <span class="dash-section-subtitle">Da Omero a Platone</span>
+    </div>
+    <div class="courses-row" id="row-greco"></div>
+  </section>
+
+  <section class="dash-section" id="section-egiziano">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Egiziano Geroglifico</h2>
+      <span class="dash-section-subtitle">Geroglifici e papiri del Medio Regno</span>
+    </div>
+    <div class="courses-row" id="row-egiziano"></div>
+  </section>
+
+  <section class="dash-section" id="section-ebraico">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Ebraico Biblico</h2>
+      <span class="dash-section-subtitle">Genesi, Salmi e la lingua della Bibbia</span>
+    </div>
+    <div class="courses-row" id="row-ebraico"></div>
+  </section>
+
+  <section class="dash-section" id="section-brevi">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Corsi Brevi</h2>
+      <span class="dash-section-subtitle">Civiltà, storia, arte e spiritualità</span>
+      <span class="dash-section-badge">Incluso in tutti i piani</span>
+    </div>
+    <div class="courses-row" id="row-brevi"></div>
+  </section>
+
+  <section class="dash-section" id="section-didattica">
+    <div class="dash-section-header">
+      <h2 class="dash-section-title">Formazione Docenti</h2>
+      <span class="dash-section-badge locked-badge" id="didattica-badge">Piano Accademia</span>
+    </div>
+    <div class="courses-row" id="row-didattica"></div>
+  </section>
+
+  <footer class="dash-footer">
+    <div class="dash-footer-brand">GrecoLatinoVivo · Centro Nazionale di Studi Classici</div>
+    <nav class="dash-footer-links" aria-label="Link footer">
+      <a href="/#prezzi">Abbonamento</a>
+      <a href="mailto:supporto@grecolatinovivo.it">Supporto</a>
+      <a href="/">Home</a>
+    </nav>
+  </footer>
+
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+/* ══ DASHBOARD GLV ══════════════════════════════════════════
+   Ordine: 1) DOMContentLoaded → auth check + quiz/dashboard
+           2) Quiz logic
+           3) showDashboard() → render catalogo personalizzato
+   ══════════════════════════════════════════════════════════ */
+
+const PROFILE_KEY = 'glv_profile';
+let quizAnswers   = { lang: null, level: null, goal: null };
+
+/* ── Quiz ─────────────────────────────────────────────────── */
+function initQuizOptions() {
+  document.querySelectorAll('.quiz-options').forEach(group => {
+    group.querySelectorAll('.quiz-opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.quiz-opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        const nextBtn = btn.closest('.quiz-slide').querySelector('.quiz-btn-next');
+        if (nextBtn) nextBtn.disabled = false;
+      });
+    });
+  });
+}
+
+function nextSlide(from) {
+  const sel = document.querySelector(`#quiz-opts-${from} .quiz-opt.selected`);
+  const val = sel ? sel.dataset.val : null;
+  if (from === 1) quizAnswers.lang  = val;
+  if (from === 2) quizAnswers.level = val;
+  // Aggiorna dots
+  const dot = document.getElementById(`qd-${from}`);
+  if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+  const nextDot = document.getElementById(`qd-${from + 1}`);
+  if (nextDot) nextDot.classList.add('active');
+  document.getElementById(`quiz-slide-${from}`).classList.remove('active');
+  const next = document.getElementById(`quiz-slide-${from + 1}`);
+  if (next) next.classList.add('active');
+}
+
+function finishQuiz() {
+  const sel = document.querySelector('#quiz-opts-3 .quiz-opt.selected');
+  quizAnswers.goal = sel ? sel.dataset.val : null;
+  const dot = document.getElementById('qd-3');
+  if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(quizAnswers));
+  showDashboard();
+}
+
+function skipQuiz() {
+  localStorage.setItem(PROFILE_KEY, JSON.stringify({ lang: null, level: null, goal: null }));
+  showDashboard();
+}
+
+/* ── Tier logic ───────────────────────────────────────────── */
+function getTierLevel(sub) {
+  if (!sub || !['active','trialing'].includes(sub.status)) return 0;
+  const p = (sub.plan || '').toLowerCase();
+  if (p.includes('accademia')) return 3;
+  if (p.includes('linguae'))   return 2;
+  if (p.includes('cultura'))   return 1;
+  return 1; // subscription attiva ma plan non mappato → accesso base
+}
+
+const TIER_NAMES = { 3:'Accademia', 2:'Linguae', 1:'Cultura', 0:'—' };
+
+function isLangUnlocked(lang, tier) {
+  if (tier >= 3) return true;
+  if (tier >= 2) return lang !== 'Didattica';
+  if (tier >= 1) return lang === 'Corsi Brevi';
+  return false;
+}
+
+function upgradeLabel(lang) {
+  return lang === 'Didattica' ? 'Piano Accademia' : 'Piano Linguae';
+}
+
+/* ── Card rendering ───────────────────────────────────────── */
+function renderLockedCard(course) {
+  const base = buildCard(course, {}); // buildCard da app.js
+  const wrap = document.createElement('div');
+  wrap.innerHTML = base;
+  const card = wrap.firstElementChild;
+  card.classList.add('dash-locked');
+  card.removeAttribute('onclick');
+  card.style.position = 'relative';
+
+  const badge = document.createElement('div');
+  badge.className = 'dash-locked-badge';
+  badge.setAttribute('aria-label', `Corso bloccato — ${upgradeLabel(course.lang)}`);
+  badge.innerHTML = `
+    <span class="dash-locked-badge-text">🔒 ${upgradeLabel(course.lang)}</span>
+    <button class="dash-locked-badge-cta" type="button" onclick="location.href='/#prezzi'" aria-label="Vai ai piani">Scopri →</button>
+  `;
+  card.appendChild(badge);
+  return card.outerHTML;
+}
+
+function renderRow(id, courses, tier) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!courses.length) {
+    el.innerHTML = '<div class="row-empty">Nessun corso disponibile in questa categoria.</div>';
+    return;
+  }
+  el.innerHTML = courses.map(c =>
+    isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+  ).join('');
+}
+
+/* ── "Scelti per te" ──────────────────────────────────────── */
+function buildPerTeRow(all, profile, tier) {
+  const { lang, level, goal } = profile;
+  const scored = all.map(c => ({ c, s: 0 }));
+  scored.forEach(x => {
+    if (lang && x.c.lang === lang)                                   x.s += 10;
+    if (!lang && x.c.lang === 'Corsi Brevi')                         x.s +=  3;
+    if (level === 'beginner'    && (x.c.level||'').includes('A1'))   x.s +=  5;
+    if (level === 'elementary'  && (x.c.level||'').includes('A2'))   x.s +=  5;
+    if (level === 'intermediate'&& (x.c.level||'').includes('B1'))   x.s +=  5;
+    if (level === 'teacher'     && x.c.lang === 'Didattica')         x.s +=  8;
+    if (goal === 'teaching'     && x.c.lang === 'Didattica')         x.s +=  6;
+    if (goal === 'culture'      && x.c.lang === 'Corsi Brevi')       x.s +=  6;
+    if (x.c.isNew)                                                   x.s +=  3;
+    if ((x.c.progressPercent||0) > 0)                                x.s +=  4;
+  });
+  scored.sort((a,b) => b.s - a.s);
+  let top = scored.slice(0, 10).map(x => x.c);
+  // Garantisci almeno 2 Corsi Brevi nella row per varietà
+  const breviN = top.filter(c => c.lang === 'Corsi Brevi').length;
+  if (breviN < 2) {
+    const extra = all.filter(c => c.lang === 'Corsi Brevi' && !top.includes(c)).slice(0, 2 - breviN);
+    top = [...top, ...extra];
+  }
+  return top.map(c => isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)).join('');
+}
+
+/* ── Show dashboard ───────────────────────────────────────── */
+async function showDashboard() {
+  document.getElementById('glv-quiz').classList.add('hidden');
+  document.getElementById('glv-dashboard').classList.remove('hidden');
+
+  // Auth (dovrebbe già essere loggato — controllo di sicurezza)
+  const user = await Auth.getUser();
+  if (!user) { window.location.href = '/'; return; }
+
+  // Navbar
+  const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
+  document.getElementById('nav-avatar').textContent = initials;
+  document.getElementById('menu-email').textContent  = user.email;
+
+  // Tier & piano
+  const sub   = user.subscription || null;
+  const tier  = getTierLevel(sub);
+  const label = sub ? (TIER_NAMES[tier] || sub.plan) : 'Nessun piano';
+  document.getElementById('nav-plan-badge').textContent = label;
+
+  // Greeting
+  const name = user.fullName ? user.fullName.split(' ')[0] : 'studente';
+  document.getElementById('dash-name').textContent = name;
+  const subs = {
+    3: 'Il tuo catalogo completo — accesso totale al portale GLV.',
+    2: 'Lingua, cultura e civiltà del mondo antico. Tutto tuo.',
+    1: 'Esplora il mondo antico con i Corsi Brevi.',
+    0: 'Scopri i corsi disponibili nel portale.',
+  };
+  document.getElementById('dash-subtitle').textContent = subs[tier] ?? subs[0];
+
+  // Upgrade banner
+  if (tier < 3) {
+    document.getElementById('upgrade-banner').classList.remove('hidden');
+    if (tier < 2) {
+      document.getElementById('upgrade-banner-title').textContent = 'Sblocca i corsi di lingua';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
+    } else {
+      document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli MIM accreditati con Bonus Docenti al 100%.';
+    }
+  }
+
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('dash-nav').classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+
+  // Corsi
+  let courses = [];
+  try { courses = await Courses.getAll(); } catch { courses = []; }
+
+  // Profilo quiz
+  let profile = { lang: null, level: null, goal: null };
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (raw) profile = JSON.parse(raw) || profile;
+  } catch { /* ignore */ }
+
+  // "Scelti per te"
+  document.getElementById('row-per-te').innerHTML = buildPerTeRow(courses, profile, tier);
+
+  // "Continua"
+  const inProgress = courses.filter(c => (c.progressPercent || 0) > 0);
+  if (inProgress.length) {
+    document.getElementById('section-continua').classList.remove('hidden');
+    renderRow('row-continua', inProgress, tier);
+  }
+
+  // Righe per lingua
+  const byLang = lg => courses.filter(c => c.lang === lg);
+  renderRow('row-latino',    byLang('Latino'),               tier);
+  renderRow('row-greco',     byLang('Greco Antico'),         tier);
+  renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
+  renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
+  renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
+  renderRow('row-didattica', byLang('Didattica'),            tier);
+
+  // Didattica badge: se sbloccato togli il "locked"
+  if (tier >= 3) {
+    const b = document.getElementById('didattica-badge');
+    if (b) { b.classList.remove('locked-badge'); }
+  }
+}
+
+/* ── Profile dropdown ─────────────────────────────────────── */
+function toggleProfileMenu() {
+  const menu   = document.getElementById('profile-menu');
+  const avatar = document.getElementById('nav-avatar');
+  const open   = menu.classList.toggle('open');
+  avatar.setAttribute('aria-expanded', open);
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-profile-dropdown')) {
+    const m = document.getElementById('profile-menu');
+    if (m) { m.classList.remove('open'); document.getElementById('nav-avatar')?.setAttribute('aria-expanded','false'); }
+  }
+});
+
+/* ── Override goToCourse per la dashboard ─────────────────── */
+// app.js definisce goToCourse per scrollare a #corsi — qui la ridefiniremo
+// dopo il load per mostrare invece un toast informativo
+window.addEventListener('load', () => {
+  window.goToCourse = function(slug) {
+    showToast('🏛️ Accesso diretto al corso in arrivo. Usa la navigazione del portale.');
+  };
+});
+
+/* ── INIT ─────────────────────────────────────────────────── */
+document.addEventListener('DOMContentLoaded', async () => {
+  initQuizOptions();
+
+  // Auth check preventivo — redirect se non loggato
+  const user = await Auth.getUser();
+  if (!user) {
+    window.location.href = '/';
+    return;
+  }
+
+  // Se il profilo esiste già, salta il quiz
+  const saved = localStorage.getItem(PROFILE_KEY);
+  if (saved) {
+    try {
+      quizAnswers = JSON.parse(saved) || quizAnswers;
+      showDashboard();
+      return;
+    } catch { localStorage.removeItem(PROFILE_KEY); }
+  }
+
+  // Primo accesso: mostra il quiz
+  document.getElementById('glv-quiz').classList.remove('hidden');
+});
+</script>
+</body>
+</html>

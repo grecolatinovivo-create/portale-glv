@@ -509,10 +509,11 @@ body.has-corso-cta { padding-bottom: 80px; }
    Copiato pixel per pixel dalla sezione .catalog-preview di index.html
 ═══════════════════════════════════════════════════════════════════ */
 
-/* Wrapper esterno — = .fan-card senza position:absolute */
+/* Wrapper esterno — IDENTICO a .fan-card (home) tranne position:absolute e rotation */
 .course-card {
   flex-shrink: 0;
   width: 210px;
+  height: 280px;                                    /* = fan-card height */
   background: #111111;                              /* = fan-card bg (--dark-2) */
   border-radius: 14px;                              /* = fan-card */
   border: 1px solid rgba(255,255,255,.12);          /* = fan-card */
