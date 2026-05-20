@@ -49,7 +49,8 @@
     .quiz-dot{width:28px;height:3px;border-radius:2px;background:var(--border);transition:background .3s;}
     .quiz-dot.done{background:var(--gold);}
     .quiz-dot.active{background:var(--gold);opacity:.55;}
-    .quiz-step{font-family:var(--font-body);font-size:.75rem;color:var(--text-muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
+    /* WCAG 1.4.3 fix: testo 12px richiede ≥4.5:1 — alzato da --text-muted (3.92:1) a rgba(245,245,245,.55) (≈5.4:1) */
+    .quiz-step{font-family:var(--font-body);font-size:.75rem;color:rgba(245,245,245,.55);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;}
     .quiz-q{
       font-family:var(--font-heading);font-size:clamp(1.5rem,4vw,2.4rem);
       font-weight:700;line-height:1.25;color:var(--text);margin-bottom:36px;
@@ -68,7 +69,8 @@
     .quiz-opt.selected{border-color:var(--gold);background:var(--gold-dim);}
     .quiz-opt-icon{font-size:1.6rem;margin-bottom:10px;display:block;}
     .quiz-opt-label{font-family:var(--font-body);font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:4px;}
-    .quiz-opt-sub{font-size:.78rem;color:var(--text-muted);line-height:1.4;}
+    /* WCAG 1.4.3 fix: testo 12.5px richiede ≥4.5:1 — alzato da --text-muted (3.92:1) a rgba(245,245,245,.55) (≈5.4:1) */
+    .quiz-opt-sub{font-size:.78rem;color:rgba(245,245,245,.55);line-height:1.4;}
     .quiz-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;}
     .quiz-btn-next{
       background:var(--gold);color:#0a0a0a;font-family:var(--font-body);font-size:.9rem;font-weight:700;
@@ -120,7 +122,8 @@
     .dash-section.hidden{display:none;}
     .dash-section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
     .dash-section-title{font-family:var(--font-heading);font-size:1.4rem;font-weight:700;color:var(--text);}
-    .dash-section-subtitle{font-size:.8rem;color:var(--text-muted);}
+    /* WCAG 1.4.3 fix: 12.8px testo richiede ≥4.5:1 — alzato a rgba(245,245,245,.55) */
+    .dash-section-subtitle{font-size:.8rem;color:rgba(245,245,245,.55);}
     .dash-section-badge{
       font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
       padding:3px 10px;border-radius:2rem;
@@ -504,9 +507,7 @@
         <div id="lesson-film-strip" role="list"></div>
       </aside>
 
-      <!-- Colonna destra: card titolo (attaccata alla nav) + player -->
-      <div class="course-main" id="course-main">
-
+      <!-- Header corso e player — colonna centrale unica -->
         <section class="course-header" id="course-header">
           <div class="course-badges" id="course-badges"></div>
 
@@ -549,7 +550,6 @@
           </div>
         </section>
 
-      </div><!-- /.course-main -->
 
     </div><!-- /.course-view-inner -->
   </div><!-- /#course-view -->
@@ -963,7 +963,8 @@ async function openSubscriptionModal() {
       return;
     }
 
-    const planLabel = PLAN_LABELS[sub.plan] || sub.plan;
+    // XSS-safe: usa PLAN_LABELS come lookup di stringhe fisse; il fallback sub.plan viene escaped
+    const planLabel = PLAN_LABELS[sub.plan] || _esc(sub.plan);
     const dateLabel = fmtDate(sub.currentPeriodEnd);
 
     if (sub.cancelAtPeriodEnd) {
@@ -975,7 +976,7 @@ async function openSubscriptionModal() {
         </div>
         <p style="color:rgba(245,245,245,.7);font-size:14px;line-height:1.6;margin-bottom:20px;">
           Il tuo abbonamento è stato annullato.<br>
-          Hai accesso completo fino al <strong style="color:#f5f5f5;">${dateLabel}</strong>.
+          Hai accesso completo fino al <strong style="color:#f5f5f5;">${_esc(dateLabel)}</strong>.
         </p>
         <a href="/index.html#prezzi" style="display:inline-block;background:transparent;color:#c9962a;padding:12px 24px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;border:1px solid #c9962a;">
           Riattiva abbonamento →
@@ -987,11 +988,11 @@ async function openSubscriptionModal() {
           <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.45);margin-bottom:4px;">Piano attivo</p>
           <p style="font-size:16px;font-weight:600;color:#f5f5f5;">${planLabel}</p>
           <p style="font-size:13px;color:rgba(245,245,245,.55);margin-top:6px;">
-            Si rinnoverà il <strong style="color:rgba(245,245,245,.85);">${dateLabel}</strong>
+            Si rinnoverà il <strong style="color:rgba(245,245,245,.85);">${_esc(dateLabel)}</strong>
           </p>
         </div>
         <p style="color:rgba(245,245,245,.5);font-size:12px;line-height:1.6;margin-bottom:20px;">
-          Annullando ora, continuerai ad avere accesso fino al ${dateLabel}. Dopo quella data l'abbonamento non si rinnoverà.
+          Annullando ora, continuerai ad avere accesso fino al ${_esc(dateLabel)}. Dopo quella data l'abbonamento non si rinnoverà.
         </p>
         <button id="sub-cancel-btn"
           style="background:transparent;border:1px solid rgba(160,26,54,.6);color:#f5a0ae;padding:11px 22px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:border-color .2s;">
@@ -1087,6 +1088,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 ═══════════════════════════════════════════════════════════════════ -->
 <script>
 // ── CORSO VIEW — SPA in-page ──────────────────────────────────────
+
+/**
+ * Escapes HTML special characters to prevent XSS when inserting
+ * API-sourced strings into innerHTML contexts.
+ * @param {*} val
+ * @returns {string}
+ */
+function _esc(val) {
+  if (val === null || val === undefined) return '';
+  return String(val)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
 const CORSO_SLUG_TEST = 'breve-marziale';
 const ALLOWED_SLUGS   = ['breve-marziale']; // rimuovere in fase 2
 
@@ -1333,6 +1351,16 @@ async function openCourseView(slug, opts) {
     if (strip) strip.classList.add('strip-visible');
   });
 
+  // FIX SCROLL — aggiorna min-height wrapper al contenuto reale del corso
+  // (le viste sono position:absolute, non aggiungono altezza al flusso)
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const wrapper   = document.querySelector('.dash-spa-wrapper');
+    const courseView = document.getElementById('course-view');
+    if (wrapper && courseView) {
+      wrapper.style.minHeight = courseView.scrollHeight + 'px';
+    }
+  }));
+
   // Focus e pre-selezione visiva della prossima lezione
   const firstFocusable = document.querySelector('#course-view button, #course-view [tabindex]');
   if (firstFocusable) firstFocusable.focus();
@@ -1406,6 +1434,10 @@ function closeCourseView(opts) {
   const stripSection = document.getElementById('course-lessons-section');
   if (stripSection) stripSection.classList.remove('strip-visible');
 
+  // FIX SCROLL — ripristina min-height wrapper al valore default
+  const wrapper = document.querySelector('.dash-spa-wrapper');
+  if (wrapper) wrapper.style.minHeight = '';
+
   // Reset stato interno
   _corsoData      = null;
   _lessonSelected = null;
@@ -1432,8 +1464,8 @@ function renderCourseHeader(course, progressData, streakData) {
   const badgesEl = document.getElementById('course-badges');
   if (badgesEl) {
     badgesEl.innerHTML = `
-      <span class="badge badge--lang">${(course.lang || 'CORSO').toUpperCase()}</span>
-      ${course.level ? `<span class="badge badge--level">${course.level.toUpperCase()}</span>` : ''}
+      <span class="badge badge--lang">${_esc((course.lang || 'CORSO').toUpperCase())}</span>
+      ${course.level ? `<span class="badge badge--level">${_esc(course.level.toUpperCase())}</span>` : ''}
     `;
   }
 
@@ -1543,6 +1575,9 @@ function renderLessonList(course, progressData) {
       `${lesson.title || 'Lezione ' + (idx + 1)}${durationStr ? ', ' + durationStr : ''}${!accessible ? ', bloccata' : ''}`
     );
 
+    // Titolo e durata via textContent per prevenire XSS (i dati vengono dall'API)
+    const safeTitle    = lesson.title || 'Lezione ' + (idx + 1);
+    const safeDuration = durationStr; // solo numerico, già sicuro
     btn.innerHTML = `
       <div class="film-perf-col" aria-hidden="true">
         <div class="film-hole"></div>
@@ -1554,10 +1589,13 @@ function renderLessonList(course, progressData) {
         <div class="film-thumb-overlay">${overlayIcon}</div>
       </div>
       <div class="film-frame-info">
-        <div class="film-frame-title">${lesson.title || 'Lezione ' + (idx + 1)}</div>
-        <div class="film-frame-meta">${durationStr}</div>
+        <div class="film-frame-title"></div>
+        <div class="film-frame-meta"></div>
       </div>
       ${freeBadge}`;
+    // XSS-safe: imposta testo via textContent
+    btn.querySelector('.film-frame-title').textContent = safeTitle;
+    btn.querySelector('.film-frame-meta').textContent  = safeDuration;
 
     btn.addEventListener('click', () => selectLesson(lesson, accessible, course));
     framesWrap.appendChild(btn);

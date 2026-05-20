@@ -2047,7 +2047,8 @@ body.has-corso-cta { padding-bottom: 80px; }
 .catalog-view,
 .course-view {
   position: absolute;
-  inset: 0;
+  top: 0; left: 0; right: 0;
+  /* NO bottom:0 — altezza dal contenuto, non vincolata al wrapper */
   will-change: transform, opacity;
   /* Transizione di base — sovrascritta case-by-case via Web Animations API */
   transition: transform 0.52s cubic-bezier(0.32, 0.72, 0, 1),
@@ -2183,43 +2184,53 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* ── Layout wrapper vista corso ─────────────────────────────────── */
 .course-view-inner {
   width: 100%;
-  max-width: 1100px;
+  max-width: 860px;
   margin: 0 auto;
   /* card direttamente sotto la navbar — nessun gap extra */
   padding: var(--nav-height) 24px 80px;
-  display: flex;
-  align-items: start;
-  gap: 32px;
 }
 
 @media (max-width: 900px) {
   .course-view-inner {
-    flex-direction: column;
     max-width: 860px;
     padding: calc(var(--nav-height) + 24px) 16px 56px;
-    gap: 24px;
   }
 }
 
-/* ── Pellicola — sidebar sinistra ───────────────────────────────── */
+/* ── Pellicola lezioni — fixed top-left, speculare al mazzetto bottom-right ── */
 .course-sidebar {
-  width: 210px;
-  flex-shrink: 0;
+  position: fixed;
+  top: calc(var(--nav-height) + 28px);
+  left: 72px;
+  width: 200px;
+  z-index: 450;
   /* entra dall'esterno sinistro */
-  transform: translateX(-36px);
+  transform: translateX(-120%);
   opacity: 0;
   transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1),
               opacity  0.30s ease;
+  /* Safe area mobile */
+  left: max(72px, env(safe-area-inset-left, 0px) + 16px);
 }
 .course-sidebar.strip-visible {
   transform: translateX(0);
   opacity: 1;
 }
 
-/* ── Colonna destra: card + player ──────────────────────────────── */
-.course-main {
-  flex: 1;
-  min-width: 0;
+@media (max-width: 900px) {
+  /* Su mobile la pellicola scende in basso, non si sovrappone al contenuto */
+  .course-sidebar {
+    top: auto;
+    bottom: 80px;
+    left: 50%;
+    width: min(90vw, 340px);
+    transform: translateX(-50%) translateY(20px);
+    opacity: 0;
+  }
+  .course-sidebar.strip-visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
 }
 
 /* .course-back-btn rimosso — navigazione affidata al mazzetto in basso a destra */
@@ -2652,7 +2663,10 @@ body.has-corso-cta { padding-bottom: 80px; }
 */
 .dash-spa-wrapper {
   position: relative;
-  overflow: clip;
+  /* overflow-x: clip taglia le viste animate laterali senza bloccare lo scroll verticale.
+     overflow-y: visible permette al contenuto del corso (più alto di 100vh) di estendersi. */
+  overflow-x: clip;
+  overflow-y: visible;
   min-height: calc(100vh - var(--nav-height));
 }
 
@@ -2668,7 +2682,7 @@ body.has-corso-cta { padding-bottom: 80px; }
     animation: none !important;
   }
   /* Mostra subito pellicola e fotogrammi senza animazioni */
-  .course-sidebar { opacity: 1 !important; transform: none !important; }
+  .course-sidebar { opacity: 1 !important; transform: translateX(0) !important; }
   .film-frame-btn { opacity: 1 !important; transform: none !important; }
   .course-progress-bar__fill { transition: none !important; }
 }
