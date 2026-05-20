@@ -2183,16 +2183,43 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* ── Layout wrapper vista corso ─────────────────────────────────── */
 .course-view-inner {
   width: 100%;
-  max-width: 860px;
+  max-width: 1100px;
   margin: 0 auto;
-  /* top: navbar (64px) + respiro generoso (48px) */
-  padding: calc(var(--nav-height) + 48px) 24px 80px;
+  /* card direttamente sotto la navbar — nessun gap extra */
+  padding: var(--nav-height) 24px 80px;
+  display: flex;
+  align-items: start;
+  gap: 32px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .course-view-inner {
+    flex-direction: column;
+    max-width: 860px;
     padding: calc(var(--nav-height) + 24px) 16px 56px;
+    gap: 24px;
   }
+}
+
+/* ── Pellicola — sidebar sinistra ───────────────────────────────── */
+.course-sidebar {
+  width: 210px;
+  flex-shrink: 0;
+  /* entra dall'esterno sinistro */
+  transform: translateX(-36px);
+  opacity: 0;
+  transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1),
+              opacity  0.30s ease;
+}
+.course-sidebar.strip-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* ── Colonna destra: card + player ──────────────────────────────── */
+.course-main {
+  flex: 1;
+  min-width: 0;
 }
 
 /* .course-back-btn rimosso — navigazione affidata al mazzetto in basso a destra */
@@ -2358,31 +2385,9 @@ body.has-corso-cta { padding-bottom: 80px; }
   white-space: nowrap;
 }
 
-/* ── Area contenuto corso — griglia: pellicola sinistra + player destra ── */
-.course-content-area {
-  display: grid;
-  grid-template-columns: 230px 1fr;
-  gap: 28px;
-  align-items: start;
-  width: 100%;
-}
-
-/* Pellicola: scivola dall'esterno sinistro quando il corso si apre */
-.course-lessons-section {
-  transform: translateX(-28px);
-  opacity: 0;
-  transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1),
-              opacity  0.30s ease;
-}
-.course-lessons-section.strip-visible {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-/* Player: sticky, rimane in vista durante lo scroll della pellicola */
+/* Player: spazio sopra rispetto alla card, stesso colonna */
 .course-player-section {
-  position: sticky;
-  top: calc(var(--nav-height) + 20px);
+  margin-top: 20px;
 }
 
 /* ── Pellicola Kodak ────────────────────────────────────────────── */
@@ -2656,14 +2661,14 @@ body.has-corso-cta { padding-bottom: 80px; }
   .catalog-view,
   .course-view,
   .catalog-corner-deck,
-  .course-lessons-section,
+  .course-sidebar,
   .film-frame-btn,
   .film-strip {
     transition: none !important;
     animation: none !important;
   }
   /* Mostra subito pellicola e fotogrammi senza animazioni */
-  .course-lessons-section { opacity: 1 !important; transform: none !important; }
+  .course-sidebar { opacity: 1 !important; transform: none !important; }
   .film-frame-btn { opacity: 1 !important; transform: none !important; }
   .course-progress-bar__fill { transition: none !important; }
 }
