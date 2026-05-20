@@ -2094,7 +2094,7 @@ body.has-corso-cta { padding-bottom: 80px; }
 .catalog-corner-deck {
   position: fixed;
   bottom: 28px;
-  right: 36px;
+  right: 72px;
   z-index: 450;
   /* nascosto di default — sale dal basso via JS */
   transform: translateY(120px);
@@ -2134,42 +2134,50 @@ body.has-corso-cta { padding-bottom: 80px; }
   in un ventaglio. transform-origin: bottom right perché il punto
   fisso del mazzetto è l'angolo in basso a destra.
 */
+/*
+  Il ventaglio riproduce la disposizione della home page:
+  transform-origin al centro-basso (come 50% 115% in index.html),
+  rotazioni: -11° -4° +3°, le stesse della sezione catalog-preview.
+  A scale(0.32) ogni carta diventa ~64×84px.
+  Le carte sono centrate orizzontalmente nel container.
+*/
 .corner-mini-stack {
   position: relative;
-  /* footprint visivo ≈ 64px × 84px (200px × 0.32 = 64px, 263px × 0.32 = 84px) */
-  width: 64px;
-  height: 84px;
+  width: 88px;   /* abbastanza largo per il fan spread */
+  height: 90px;
 }
 
 .corner-mini-card {
   position: absolute;
   bottom: 0;
-  right: 0;
-  width: 200px;   /* larghezza reale fan-card */
-  height: 263px;  /* altezza reale fan-card (header 90 + body flex + footer ~50) */
-  border-radius: var(--r-md, 10px);
+  left: 50%;
+  margin-left: -100px;  /* centra la carta da 200px sull'asse del container */
+  width: 200px;
+  height: 263px;
+  border-radius: 14px;
   overflow: hidden;
   background: var(--bg-card);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
   display: flex;
   flex-direction: column;
-  transform-origin: bottom right;
+  transform-origin: 50% 100%;  /* centro del bordo inferiore — uguale a home */
 }
 
-/* Le tre carte a ventaglio */
+/* Le tre carte a ventaglio — rotazioni identiche a home */
 .corner-mini-card--1 {
-  transform: scale(0.32) rotate(-2deg) translateX(-12px);
-  z-index: 3;
+  transform: scale(0.32) rotate(-11deg);
+  z-index: 1;
+  opacity: 0.65;
 }
 .corner-mini-card--2 {
-  transform: scale(0.32) rotate(3.5deg) translate(-20px, 5px);
+  transform: scale(0.32) rotate(-4deg);
   z-index: 2;
   opacity: 0.85;
 }
 .corner-mini-card--3 {
-  transform: scale(0.32) rotate(-7deg) translate(-6px, 10px);
-  z-index: 1;
-  opacity: 0.60;
+  transform: scale(0.32) rotate(3deg);
+  z-index: 3;
 }
 
 /* ── Layout wrapper vista corso ─────────────────────────────────── */
@@ -2186,30 +2194,7 @@ body.has-corso-cta { padding-bottom: 80px; }
   }
 }
 
-/* ── Back button ────────────────────────────────────────────────── */
-.course-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: none;
-  border: none;
-  padding: 6px 0;
-  cursor: pointer;
-  margin-bottom: 20px;
-  transition: color var(--t-fast);
-}
-.course-back-btn:hover {
-  color: var(--text-primary);
-}
-.course-back-btn:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 4px;
-  border-radius: var(--r-xs);
-}
+/* .course-back-btn rimosso — navigazione affidata al mazzetto in basso a destra */
 
 /* ── Header corso ───────────────────────────────────────────────── */
 .course-header {
@@ -2224,13 +2209,6 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* Header con gradiente lingua — testo bianco su sfondo scuro */
 .course-header--colored {
   border-color: transparent;
-}
-.course-header--colored .course-back-btn {
-  color: rgba(255,255,255,0.75);
-}
-.course-header--colored .course-back-btn:hover {
-  color: #fff;
-  background: rgba(255,255,255,0.10);
 }
 .course-header--colored .course-title {
   color: #fff;
@@ -2594,9 +2572,14 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 
 /* ── Wrapper posizionamento relativo per catalog+course ─────────── */
+/*
+  overflow: clip — come overflow:hidden ma NON crea un nuovo BFC
+  né un nuovo scroll container, quindi non blocca lo scroll della pagina.
+  Taglia comunque le viste animate che escono dai bordi laterali.
+*/
 .dash-spa-wrapper {
   position: relative;
-  overflow: hidden;
+  overflow: clip;
   min-height: calc(100vh - var(--nav-height));
 }
 

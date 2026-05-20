@@ -477,19 +477,19 @@
             aria-label="Torna al catalogo corsi">
       <div class="corner-mini-stack" aria-hidden="true">
         <div class="corner-mini-card corner-mini-card--3" id="corner-card-3">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#2e6868,#143838)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#1e3e1c,#0e2010)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#2e6868"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#2a4028"></div></div>
         </div>
         <div class="corner-mini-card corner-mini-card--2" id="corner-card-2">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#3060c8,#162878)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#1a3268,#0c1a3a)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#3060c8"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#1a3258"></div></div>
         </div>
         <div class="corner-mini-card corner-mini-card--1" id="corner-card-1">
-          <div class="fan-card-header" style="background:linear-gradient(155deg,#d46428,#8c3210)"></div>
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#7c3618,#3d1a0a)"></div>
           <div class="fan-card-body"><div class="fan-card-title"></div></div>
-          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#d46428"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#5a2e18"></div></div>
         </div>
       </div>
     </button>
@@ -501,13 +501,6 @@
 
       <!-- Header corso -->
       <section class="course-header" id="course-header">
-        <button class="course-back-btn" id="course-back-btn" aria-label="Torna al catalogo corsi">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          Torna ai corsi
-        </button>
-
         <div class="course-badges" id="course-badges"></div>
 
         <h2 class="course-title" id="course-title"></h2>
@@ -1201,14 +1194,14 @@ function _iconLocked() {
   </svg>`;
 }
 
-// ── Gradients per lingua — colori brillanti per header e mini-card ─
+// ── Gradients per lingua — identici a LANG_GRADIENTS in app.js ───
 const GLV_LANG_GRADIENTS = {
-  'latino':               'linear-gradient(155deg,#d46428,#8c3210)',
-  'greco antico':         'linear-gradient(155deg,#3060c8,#162878)',
-  'egiziano geroglifico': 'linear-gradient(155deg,#c89020,#7a5010)',
-  'ebraico biblico':      'linear-gradient(155deg,#2e7228,#164014)',
-  'didattica':            'linear-gradient(155deg,#7030c0,#3c1266)',
-  'corsi brevi':          'linear-gradient(155deg,#2e6868,#143838)',
+  'latino':               'linear-gradient(155deg,#7c3618,#3d1a0a)',
+  'greco antico':         'linear-gradient(155deg,#1a3268,#0c1a3a)',
+  'egiziano geroglifico': 'linear-gradient(155deg,#6e4c0e,#3a2606)',
+  'ebraico biblico':      'linear-gradient(155deg,#1e3e1c,#0e2010)',
+  'didattica':            'linear-gradient(155deg,#3c1a62,#1e0c32)',
+  'corsi brevi':          'linear-gradient(155deg,#253e3e,#121e1e)',
 };
 
 /**
@@ -1220,8 +1213,8 @@ const GLV_LANG_GRADIENTS = {
  * @param {string} currentSlug — slug del corso appena aperto
  */
 function _glvDeckSetGradients(currentSlug) {
-  // Raccoglie i gradienti da tutte le fan-card-header nel DOM
-  const headers = document.querySelectorAll('.fan-card-header');
+  // Raccoglie i gradienti dalle card del catalogo (ESCLUSE le mini-card nel mazzetto)
+  const headers = document.querySelectorAll('#catalog-view .fan-card-header');
   const gradients = [];
   headers.forEach(h => {
     const bg = h.style.background || h.style.backgroundImage;
@@ -1279,7 +1272,46 @@ async function openCourseView(slug, opts) {
 
   if (!ALLOWED_SLUGS.includes(slug)) return;
 
-  // Fetch parallelo: corso + progresso + streak
+  const catalogView = document.getElementById('catalog-view');
+  const courseView  = document.getElementById('course-view');
+  const cornerDeck  = document.getElementById('catalog-corner-deck');
+  const cornerBtn   = document.getElementById('catalog-corner-deck-btn');
+  const noAnim = skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ── STEP 1: ANIMAZIONE IMMEDIATA — non aspetta la rete ───────────
+  _glvDeckSetGradients(slug);
+
+  if (noAnim) {
+    catalogView.classList.add('stack-below');
+    courseView.classList.remove('offscreen-bottom', 'slide-out-down');
+    courseView.classList.add('slide-in-up');
+    courseView.setAttribute('aria-hidden', 'false');
+    if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
+  } else {
+    courseView.classList.add('offscreen-bottom');
+    courseView.classList.remove('slide-in-up', 'slide-out-down');
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      catalogView.style.transition = 'transform 0.50s cubic-bezier(0.4, 0, 1, 1), opacity 0.50s ease';
+      catalogView.classList.add('stack-below');
+      courseView.style.transition = 'transform 0.50s cubic-bezier(0, 0, 0.2, 1), opacity 0.40s ease';
+      courseView.classList.add('slide-in-up');
+      courseView.setAttribute('aria-hidden', 'false');
+      setTimeout(() => {
+        if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
+      }, 1000);
+    }));
+  }
+
+  // URL aggiornato subito
+  if (pushState) history.pushState({ corso: slug }, '', '?corso=' + slug);
+
+  // Listener mazzetto
+  if (cornerBtn && !cornerBtn._deckListenerAttached) {
+    cornerBtn.addEventListener('click', () => closeCourseView());
+    cornerBtn._deckListenerAttached = true;
+  }
+
+  // ── STEP 2: FETCH IN PARALLELO — mentre la transizione è già in corso
   let course, progressData, streakData;
   try {
     const [rCourse, rProgress, rStreak] = await Promise.all([
@@ -1287,96 +1319,42 @@ async function openCourseView(slug, opts) {
       fetch(`/api/progress/course/${slug}`),
       fetch('/api/progress/streak'),
     ]);
-    course       = rCourse.ok       ? ((await rCourse.json())?.course ?? null) : null;
-    progressData = rProgress.ok     ? await rProgress.json()     : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
-    streakData   = rStreak.ok       ? await rStreak.json()       : { streak: 0, lastActivityDate: null };
+    course       = rCourse.ok   ? ((await rCourse.json())?.course ?? null) : null;
+    progressData = rProgress.ok ? await rProgress.json() : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
+    streakData   = rStreak.ok   ? await rStreak.json()   : { streak: 0, lastActivityDate: null };
   } catch (err) {
     console.error('[corsoView] Errore fetch:', err);
     if (typeof showToast === 'function') showToast('Impossibile caricare il corso. Riprova.');
+    closeCourseView({ skipAnimation: noAnim, pushState: false });
     return;
   }
 
   if (!course) {
     if (typeof showToast === 'function') showToast('Corso non trovato.');
+    closeCourseView({ skipAnimation: noAnim, pushState: false });
     return;
   }
 
   _corsoData = { course, progressData, streakData };
 
-  // Render
+  // ── STEP 3: RENDER DEI DATI nella vista già visibile ─────────────
   renderCourseHeader(course, progressData, streakData);
   renderLessonList(course, progressData);
 
-  // Nasconde player finché non si seleziona una lezione
   const playerSection = document.getElementById('course-player-section');
   if (playerSection) playerSection.hidden = true;
 
-  // Aggiorna URL history
-  if (pushState) {
-    history.pushState({ corso: slug }, '', '?corso=' + slug);
-  }
-
-  // ── Blocco animazione ── (fetch, render, history.pushState intoccati sopra)
-  const catalogView = document.getElementById('catalog-view');
-  const courseView  = document.getElementById('course-view');
-  const cornerDeck  = document.getElementById('catalog-corner-deck');
-  const cornerBtn   = document.getElementById('catalog-corner-deck-btn');
-
-  // Aggiorna i gradienti delle mini-card con i colori reali del corso aperto
-  _glvDeckSetGradients(slug);
-
-  const noAnim = skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (noAnim) {
-    // Commutazione immediata senza animazione
-    catalogView.classList.add('stack-below');
-    courseView.classList.remove('offscreen-bottom', 'slide-out-down');
-    courseView.classList.add('slide-in-up');
-    courseView.setAttribute('aria-hidden', 'false');
-    if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
-
-  } else {
-    // ── ANIMAZIONE ────────────────────────────────────────────────
-    // Il corso parte nascosto in ALTO, il catalogo in basso
-    courseView.classList.add('offscreen-bottom');
-    courseView.classList.remove('slide-in-up', 'slide-out-down');
-
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      // Catalogo cade in basso (500ms ease-in)
-      catalogView.style.transition = 'transform 0.50s cubic-bezier(0.4, 0, 1, 1), opacity 0.50s ease';
-      catalogView.classList.add('stack-below');
-
-      // Corso scende dall'alto — stessa tempistica (500ms, ease-out per decelerazione naturale)
-      courseView.style.transition = 'transform 0.50s cubic-bezier(0, 0, 0.2, 1), opacity 0.40s ease';
-      courseView.classList.add('slide-in-up');
-      courseView.setAttribute('aria-hidden', 'false');
-
-      // Mazzetto sale dal basso-destra dopo 1 secondo
-      setTimeout(() => {
-        if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
-      }, 1000);
-    }));
-  }
-
-  // Listener sul mazzetto
-  if (cornerBtn && !cornerBtn._deckListenerAttached) {
-    cornerBtn.addEventListener('click', () => closeCourseView());
-    cornerBtn._deckListenerAttached = true;
-  }
-
   // Focus e auto-selezione next lesson
-  setTimeout(() => {
-    const backBtn = document.getElementById('course-back-btn');
-    if (backBtn) backBtn.focus();
-    const next = _findNextLesson(course, progressData);
-    if (next) {
-      const row = document.querySelector(`.lesson-row[data-lesson-id="${next.id}"]`);
-      if (row) { row.classList.add('lesson-row--current'); row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
-    }
-  }, noAnim ? 50 : 650);
+  const firstFocusable = document.querySelector('#course-view button, #course-view [tabindex]');
+  if (firstFocusable) firstFocusable.focus();
+  const next = _findNextLesson(course, progressData);
+  if (next) {
+    const row = document.querySelector(`.lesson-row[data-lesson-id="${next.id}"]`);
+    if (row) { row.classList.add('lesson-row--current'); row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  }
 
   // Animazione barra progresso
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     const fill = document.getElementById('course-progress-fill');
     const bar  = document.getElementById('course-progress-bar-el');
     if (fill && bar) {
@@ -1384,7 +1362,7 @@ async function openCourseView(slug, opts) {
       fill.style.width = pct + '%';
       bar.setAttribute('aria-valuenow', pct);
     }
-  }, noAnim ? 50 : 700);
+  });
 }
 
 // ── Chiusura vista corso ──────────────────────────────────────────
