@@ -1271,7 +1271,7 @@ function showAuthModal(mode){
       </form>
       <p style="text-align:center;font-size:12px;color:#888;margin-top:20px;">
         ${mode==='login'
-          ?`Non hai un account? <a href="#" style="color:#a01a36;font-weight:600;" onclick="event.preventDefault();document.getElementById('glv-auth-modal').remove();showAuthModal('register')">Registrati</a>`
+          ?`Vuoi abbonarti? <a href="/index.html#prezzi" style="color:#a01a36;font-weight:600;">Scegli un piano →</a>`
           :`Hai già un account? <a href="#" style="color:#a01a36;font-weight:600;" onclick="event.preventDefault();document.getElementById('glv-auth-modal').remove();showAuthModal('login')">Accedi</a>`}
       </p>
     </div>`;
@@ -1349,7 +1349,8 @@ function initAuthModals(){
       }
       return;
     }
-    showAuthModal('register');
+    // Nessun piano specificato → porta alla sezione prezzi invece di aprire il form di registrazione
+    window.location.href = '/index.html#prezzi';
   }));
   document.querySelectorAll('[data-logout]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();Auth.logout();}));
   // Pulsanti abbonamento diretto: data-subscribe-direct data-plan="cultura" data-period="monthly|annual"

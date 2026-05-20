@@ -1,4 +1,8 @@
 // pages/api/auth/register.js — Registrazione nuovo utente
+//
+// ⚠️  ENDPOINT AD USO INTERNO — accessibile solo via webhook Stripe.
+// Le richieste prive dell'header X-Internal-Token corretto ricevono 404
+// (come se l'endpoint non esistesse) per non rivelare l'esistenza della route.
 
 const bcrypt = require('bcryptjs');
 const { prisma } = require('../../../lib/prisma');
@@ -6,6 +10,14 @@ const { signToken, setAuthCookie } = require('../../../lib/auth');
 const { sendWelcomeEmail } = require('../../../lib/resend');
 
 export default async function handler(req, res) {
+  // ── Protezione endpoint interno ──────────────────────────────────────────
+  // Accetta solo richieste che portano il token segreto di servizio.
+  // Risponde 404 (non 401/403) per non rivelare l'esistenza della route.
+  const internalToken = process.env.INTERNAL_API_TOKEN;
+  if (!internalToken || req.headers['x-internal-token'] !== internalToken) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
   // Accetta solo richieste POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);

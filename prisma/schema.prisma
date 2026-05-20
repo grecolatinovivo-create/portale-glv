@@ -22,10 +22,11 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  subscriptions   Subscription[]
-  purchases       Purchase[]
-  lessonProgress  LessonProgress[]
-  certificates    Certificate[]
+  subscriptions        Subscription[]
+  purchases            Purchase[]
+  lessonProgress       LessonProgress[]
+  certificates         Certificate[]
+  passwordResetTokens  PasswordResetToken[]
 }
 
 // Corsi disponibili nel catalogo
@@ -128,6 +129,21 @@ model Certificate {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])   // un solo attestato per coppia utente+corso
+}
+
+// Token monouso per impostare la password dopo il primo pagamento
+// Generato dal webhook Stripe alla creazione dell'account, valido 48 ore.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?            // null = non ancora usato
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
 }
 
 // Audit trail di tutte le azioni admin — non cancellabile, append-only
