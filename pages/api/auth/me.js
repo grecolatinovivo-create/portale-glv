@@ -37,9 +37,10 @@ export default withAuth(async function handler(req, res) {
     const activeSub = user.subscriptions.length > 0 ? user.subscriptions[0] : null;
     const subscription = activeSub
       ? {
-          plan: activeSub.plan,
-          status: activeSub.status,
-          currentPeriodEnd: activeSub.currentPeriodEnd,
+          plan:              activeSub.plan,
+          status:            activeSub.status,
+          currentPeriodEnd:  activeSub.currentPeriodEnd,
+          cancelAtPeriodEnd: activeSub.cancelAtPeriodEnd,
         }
       : null;
 

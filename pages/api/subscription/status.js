@@ -10,8 +10,9 @@ export default requireAuth(async function handler(req, res) {
   }
 
   try {
-    const subscription = await prisma.subscription.findUnique({
-      where: { userId: req.user.id },
+    const subscription = await prisma.subscription.findFirst({
+      where: { userId: req.user.userId, status: { in: ['active', 'past_due'] } },
+      orderBy: { createdAt: 'desc' },
     });
 
     if (!subscription) {

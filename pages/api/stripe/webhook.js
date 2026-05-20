@@ -186,8 +186,9 @@ export default async function handler(req, res) {
           await prisma.subscription.update({
             where: { stripeSubscriptionId: sub.id },
             data: {
-              status:          sub.status,
-              currentPeriodEnd: new Date(sub.current_period_end * 1000),
+              status:            sub.status,
+              cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
+              currentPeriodEnd:  new Date(sub.current_period_end * 1000),
             },
           });
         } else {

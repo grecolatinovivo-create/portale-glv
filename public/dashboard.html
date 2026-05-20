@@ -340,7 +340,7 @@
             <!-- WCAG 1.4.3: opacità portata da .4 (3.62:1) a .55 (5.76:1) -->
             <div class="nav-dropdown-item" id="menu-email"
                  style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
-            <a class="nav-dropdown-item" href="/index.html#prezzi" role="menuitem">Gestisci abbonamento</a>
+            <button class="nav-dropdown-item" role="menuitem" onclick="openSubscriptionModal()">Gestisci abbonamento</button>
             <!-- Sezione admin preview — visibile solo se iniettata da JS -->
             <div id="admin-tier-group" style="display:none">
               <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;">
@@ -801,6 +801,142 @@ document.addEventListener('click', e => {
     if (m) { m.classList.remove('open'); document.getElementById('nav-avatar')?.setAttribute('aria-expanded','false'); }
   }
 });
+
+/* ── Modale gestione abbonamento ──────────────────────────── */
+async function openSubscriptionModal() {
+  // Chiudi il dropdown prima
+  document.getElementById('profile-menu')?.classList.remove('open');
+  document.getElementById('nav-avatar')?.setAttribute('aria-expanded','false');
+
+  // Etichette piani
+  const PLAN_LABELS = {
+    'cultura-mensile':   'Cultura — €5,90/mese',
+    'cultura-annuale':   'Cultura — €49/anno',
+    'linguae-mensile':   'Linguae — €12,90/mese',
+    'linguae-annuale':   'Linguae — €99/anno',
+    'accademia-mensile': 'Accademia — €19,90/mese',
+    'accademia-annuale': 'Accademia — €179/anno',
+  };
+
+  function fmtDate(iso) {
+    return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  // Crea overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'sub-modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'sub-modal-title');
+  overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;`;
+
+  overlay.innerHTML = `
+    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:36px;width:100%;max-width:440px;position:relative;">
+      <button id="sub-modal-close" aria-label="Chiudi"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.55);font-size:22px;cursor:pointer;line-height:1;padding:4px;">×</button>
+      <h2 id="sub-modal-title" style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:24px;">Il tuo abbonamento</h2>
+      <div id="sub-modal-body" style="font-family:'Inter',sans-serif;">
+        <p style="color:rgba(245,245,245,.55);font-size:14px;">Caricamento…</p>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Chiudi con × o click fuori
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('sub-modal-close').addEventListener('click', () => overlay.remove());
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+  });
+
+  // Carica dati
+  try {
+    const res  = await fetch('/api/subscription/status');
+    const data = await res.json();
+    const sub  = data.subscription;
+    const body = document.getElementById('sub-modal-body');
+
+    if (!sub) {
+      body.innerHTML = `
+        <p style="color:rgba(245,245,245,.7);font-size:14px;line-height:1.6;margin-bottom:20px;">
+          Nessun abbonamento attivo.<br>
+          Scegli un piano per accedere al catalogo completo.
+        </p>
+        <a href="/index.html#prezzi" style="display:inline-block;background:#a01a36;color:#fff;padding:12px 28px;border-radius:4px;text-decoration:none;font-weight:700;font-size:13px;letter-spacing:1px;text-transform:uppercase;">
+          Scopri i piani →
+        </a>`;
+      return;
+    }
+
+    const planLabel = PLAN_LABELS[sub.plan] || sub.plan;
+    const dateLabel = fmtDate(sub.currentPeriodEnd);
+
+    if (sub.cancelAtPeriodEnd) {
+      // Abbonamento in scadenza programmata
+      body.innerHTML = `
+        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:20px;border:1px solid #2a2a2a;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.45);margin-bottom:4px;">Piano attivo</p>
+          <p style="font-size:16px;font-weight:600;color:#f5f5f5;">${planLabel}</p>
+        </div>
+        <p style="color:rgba(245,245,245,.7);font-size:14px;line-height:1.6;margin-bottom:20px;">
+          Il tuo abbonamento è stato annullato.<br>
+          Hai accesso completo fino al <strong style="color:#f5f5f5;">${dateLabel}</strong>.
+        </p>
+        <a href="/index.html#prezzi" style="display:inline-block;background:transparent;color:#c9962a;padding:12px 24px;border-radius:4px;text-decoration:none;font-weight:600;font-size:13px;border:1px solid #c9962a;">
+          Riattiva abbonamento →
+        </a>`;
+    } else {
+      // Abbonamento attivo e in rinnovo
+      body.innerHTML = `
+        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:20px;border:1px solid #2a2a2a;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.45);margin-bottom:4px;">Piano attivo</p>
+          <p style="font-size:16px;font-weight:600;color:#f5f5f5;">${planLabel}</p>
+          <p style="font-size:13px;color:rgba(245,245,245,.55);margin-top:6px;">
+            Si rinnoverà il <strong style="color:rgba(245,245,245,.85);">${dateLabel}</strong>
+          </p>
+        </div>
+        <p style="color:rgba(245,245,245,.5);font-size:12px;line-height:1.6;margin-bottom:20px;">
+          Annullando ora, continuerai ad avere accesso fino al ${dateLabel}. Dopo quella data l'abbonamento non si rinnoverà.
+        </p>
+        <button id="sub-cancel-btn"
+          style="background:transparent;border:1px solid rgba(160,26,54,.6);color:#f5a0ae;padding:11px 22px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:border-color .2s;">
+          Annulla abbonamento
+        </button>`;
+
+      document.getElementById('sub-cancel-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('sub-cancel-btn');
+        // Conferma esplicita
+        if (!confirm(`Sei sicuro di voler annullare? Continuerai ad avere accesso fino al ${dateLabel}.`)) return;
+
+        btn.disabled    = true;
+        btn.textContent = 'Annullamento…';
+
+        try {
+          const r    = await fetch('/api/stripe/cancel-subscription', { method:'POST' });
+          const resp = await r.json();
+          if (r.ok && resp.ok) {
+            document.getElementById('sub-modal-body').innerHTML = `
+              <p style="color:#90eaa5;font-size:14px;line-height:1.7;">
+                ✓ Abbonamento annullato.<br>
+                Hai accesso completo fino al <strong>${dateLabel}</strong>.
+              </p>`;
+          } else {
+            btn.disabled    = false;
+            btn.textContent = 'Annulla abbonamento';
+            alert(resp.error || 'Errore. Riprova.');
+          }
+        } catch {
+          btn.disabled    = false;
+          btn.textContent = 'Annulla abbonamento';
+          alert('Errore di rete. Riprova tra qualche secondo.');
+        }
+      });
+    }
+  } catch {
+    document.getElementById('sub-modal-body').innerHTML =
+      `<p style="color:#f5a0ae;font-size:14px;">Impossibile caricare i dati. Riprova.</p>`;
+  }
+}
 
 /* ── Override goToCourse per la dashboard ─────────────────── */
 // app.js definisce goToCourse per scrollare a #corsi — qui la ridefiniremo
