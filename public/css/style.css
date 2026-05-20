@@ -2050,43 +2050,126 @@ body.has-corso-cta { padding-bottom: 80px; }
   position: absolute;
   inset: 0;
   will-change: transform;
-  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity   0.42s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Easing "spring" stile iOS sheet — naturale per movimenti verticali */
+  transition: transform 0.48s cubic-bezier(0.32, 0.72, 0, 1),
+              opacity   0.40s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 /* Stato riposo catalog: visibile */
 .catalog-view {
-  transform: translateX(0);
+  transform: translateY(0) scale(1);
+  transform-origin: top center;
   opacity: 1;
   min-height: 100%;
 }
 
-/* Catalog esce a sinistra */
-.catalog-view.slide-out-left {
-  transform: translateX(-100%);
+/* Catalog scivola in basso — si raccoglie come un mazzo nell'angolo */
+.catalog-view.stack-below {
+  transform: translateY(62%) scale(0.82);
+  transform-origin: top center;
   opacity: 0;
   pointer-events: none;
 }
 
-/* Corso fuori schermo a destra (stato iniziale) */
-.course-view.offscreen-right {
-  transform: translateX(100%);
+/* Corso fuori schermo in basso (stato iniziale) */
+.course-view.offscreen-bottom {
+  transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
 }
 
-/* Corso entra — stato visibile */
-.course-view.slide-in-right {
-  transform: translateX(0);
+/* Corso entra dal basso — stato visibile */
+.course-view.slide-in-up {
+  transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
 }
 
-/* Animazione inversa — corso torna a destra */
-.course-view.slide-out-right {
-  transform: translateX(100%);
+/* Corso torna in basso all'uscita */
+.course-view.slide-out-down {
+  transform: translateY(100%);
   opacity: 0;
   pointer-events: none;
+}
+
+/* ── Mazzetto catalogo nell'angolo (floating, visibile durante il corso) */
+.catalog-corner-deck {
+  position: fixed;
+  top: calc(var(--nav-height) + 14px);
+  right: 18px;
+  z-index: 450;
+  opacity: 0;
+  transform: translateY(-6px) scale(0.82);
+  transition: opacity 0.28s ease,
+              transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+}
+.catalog-corner-deck.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.catalog-corner-deck-btn {
+  background: rgba(14, 14, 14, 0.88);
+  border: 1px solid var(--border-mid);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px 9px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+.catalog-corner-deck-btn:hover {
+  border-color: var(--gold-border);
+  background: rgba(20, 20, 20, 0.95);
+}
+.catalog-corner-deck-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+.corner-deck-cards {
+  position: relative;
+  width: 48px;
+  height: 32px;
+}
+.corner-card {
+  position: absolute;
+  width: 40px;
+  height: 26px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  top: 50%;
+  left: 50%;
+}
+.corner-card--1 {
+  background: var(--bg-card-2);
+  transform: translate(-50%, -50%) rotate(-3deg) translateY(3px);
+  z-index: 3;
+}
+.corner-card--2 {
+  background: var(--bg-card);
+  transform: translate(-44%, -54%) rotate(2deg) translateY(-1px);
+  z-index: 2;
+  opacity: 0.72;
+}
+.corner-card--3 {
+  background: var(--bg-card);
+  transform: translate(-56%, -48%) rotate(-7deg) translateY(5px);
+  z-index: 1;
+  opacity: 0.38;
+}
+.corner-deck-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  white-space: nowrap;
 }
 
 /* ── Layout wrapper vista corso ─────────────────────────────────── */
@@ -2478,7 +2561,8 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* ── prefers-reduced-motion: disabilita tutte le animazioni nuove ── */
 @media (prefers-reduced-motion: reduce) {
   .catalog-view,
-  .course-view {
+  .course-view,
+  .catalog-corner-deck {
     transition: none !important;
   }
   .course-progress-bar__fill {

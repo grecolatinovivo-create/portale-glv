@@ -470,8 +470,21 @@
 
   </div><!-- /#catalog-view -->
 
+  <!-- ── MAZZETTO CATALOGO — floating in angolo top-right ─────────── -->
+  <div class="catalog-corner-deck" id="catalog-corner-deck" aria-hidden="true">
+    <button class="catalog-corner-deck-btn" id="catalog-corner-deck-btn"
+            aria-label="Torna al catalogo corsi">
+      <div class="corner-deck-cards" aria-hidden="true">
+        <span class="corner-card corner-card--3"></span>
+        <span class="corner-card corner-card--2"></span>
+        <span class="corner-card corner-card--1"></span>
+      </div>
+      <span class="corner-deck-label">Corsi</span>
+    </button>
+  </div>
+
   <!-- ── VISTA CORSO (SPA in-page) ─────────────────────────────── -->
-  <div class="course-view offscreen-right" id="course-view" aria-hidden="true">
+  <div class="course-view offscreen-bottom" id="course-view" aria-hidden="true">
     <div class="course-view-inner">
 
       <!-- Header corso -->
@@ -1225,13 +1238,18 @@ async function openCourseView(slug, opts) {
   const catalogView = document.getElementById('catalog-view');
   const courseView  = document.getElementById('course-view');
 
+  // Mazzetto nell'angolo — appare insieme alla vista corso
+  const cornerDeck = document.getElementById('catalog-corner-deck');
+  const cornerBtn  = document.getElementById('catalog-corner-deck-btn');
+
   if (skipAnimation) {
     catalogView.style.transition = 'none';
     courseView.style.transition  = 'none';
-    catalogView.classList.add('slide-out-left');
-    courseView.classList.remove('offscreen-right', 'slide-out-right');
-    courseView.classList.add('slide-in-right');
+    catalogView.classList.add('stack-below');
+    courseView.classList.remove('offscreen-bottom', 'slide-out-down');
+    courseView.classList.add('slide-in-up');
     courseView.setAttribute('aria-hidden', 'false');
+    if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
     // Ripristina transition dopo 1 frame (per animazioni future)
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -1241,17 +1259,24 @@ async function openCourseView(slug, opts) {
     });
   } else {
     // Assicura posizione iniziale
-    courseView.classList.add('offscreen-right');
-    courseView.classList.remove('slide-in-right', 'slide-out-right');
+    courseView.classList.add('offscreen-bottom');
+    courseView.classList.remove('slide-in-up', 'slide-out-down');
 
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        catalogView.classList.add('slide-out-left');
-        courseView.classList.remove('offscreen-right');
-        courseView.classList.add('slide-in-right');
+        catalogView.classList.add('stack-below');
+        courseView.classList.remove('offscreen-bottom');
+        courseView.classList.add('slide-in-up');
         courseView.setAttribute('aria-hidden', 'false');
+        if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
       });
     });
+  }
+
+  // Listener sul mazzetto — porta al catalogo
+  if (cornerBtn && !cornerBtn._deckListenerAttached) {
+    cornerBtn.addEventListener('click', () => closeCourseView());
+    cornerBtn._deckListenerAttached = true;
   }
 
   // Focus sull'header del corso per accessibilità
@@ -1298,12 +1323,16 @@ function closeCourseView(opts) {
   const catalogView = document.getElementById('catalog-view');
   const courseView  = document.getElementById('course-view');
 
+  // Nascondi mazzetto nell'angolo
+  const cornerDeck = document.getElementById('catalog-corner-deck');
+  if (cornerDeck) { cornerDeck.classList.remove('visible'); cornerDeck.setAttribute('aria-hidden', 'true'); }
+
   if (skipAnimation) {
     catalogView.style.transition = 'none';
     courseView.style.transition  = 'none';
-    catalogView.classList.remove('slide-out-left');
-    courseView.classList.remove('slide-in-right');
-    courseView.classList.add('offscreen-right');
+    catalogView.classList.remove('stack-below');
+    courseView.classList.remove('slide-in-up');
+    courseView.classList.add('offscreen-bottom');
     courseView.setAttribute('aria-hidden', 'true');
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -1312,16 +1341,16 @@ function closeCourseView(opts) {
       });
     });
   } else {
-    courseView.classList.remove('slide-in-right');
-    courseView.classList.add('slide-out-right');
+    courseView.classList.remove('slide-in-up');
+    courseView.classList.add('slide-out-down');
     courseView.setAttribute('aria-hidden', 'true');
-    catalogView.classList.remove('slide-out-left');
+    catalogView.classList.remove('stack-below');
 
-    // Dopo l'animazione: ripristina classe offscreen-right e rimuovi slide-out-right
+    // Dopo l'animazione: ripristina classe offscreen-bottom
     setTimeout(() => {
-      courseView.classList.remove('slide-out-right');
-      courseView.classList.add('offscreen-right');
-    }, 450);
+      courseView.classList.remove('slide-out-down');
+      courseView.classList.add('offscreen-bottom');
+    }, 500);
   }
 
   // Reset stato interno
