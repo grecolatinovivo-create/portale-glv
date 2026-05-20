@@ -785,7 +785,9 @@ body.has-corso-cta { padding-bottom: 80px; }
 .courses-row {
   display: flex; gap: 16px;
   overflow-x: auto;
+  padding-top: 8px;    /* spazio per hover lift (translateY -4px) senza clipping */
   padding-bottom: 12px;
+  margin-top: -8px;    /* compensa il padding nel layout */
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
