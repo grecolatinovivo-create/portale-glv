@@ -527,22 +527,16 @@
         </div>
       </section>
 
-      <!-- Contenuto corso: pellicola + player, scivolano orizzontalmente -->
+      <!-- Contenuto corso: pellicola a sinistra + player a destra -->
       <div class="course-content-area" id="course-content-area">
 
-        <!-- Pellicola lezioni -->
+        <!-- Pellicola lezioni — sidebar sinistra, entra dall'esterno -->
         <section class="course-lessons-section" id="course-lessons-section" aria-label="Lezioni del corso">
           <div id="lesson-film-strip" role="list"></div>
         </section>
 
-        <!-- Player Vimeo (slide da destra al click sulla lezione) -->
+        <!-- Player Vimeo — colonna destra, sempre visibile -->
         <section class="course-player-section" id="course-player-section" aria-label="Player lezione">
-          <button class="player-back-btn" id="player-back-btn" aria-label="Torna all'elenco lezioni">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-              <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Tutte le lezioni
-          </button>
           <div class="course-player-wrap" id="course-player-wrap">
             <iframe
               id="vimeo-player"
@@ -555,20 +549,6 @@
               title="Player lezione"
             ></iframe>
           </div>
-          <nav class="player-nav" aria-label="Navigazione lezioni">
-            <button class="player-nav__prev" id="player-prev-btn" aria-label="Lezione precedente">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Precedente
-            </button>
-            <button class="player-nav__next" id="player-next-btn" aria-label="Lezione successiva">
-              Successiva
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </nav>
         </section>
 
       </div><!-- /.course-content-area -->
@@ -1349,9 +1329,11 @@ async function openCourseView(slug, opts) {
   renderCourseHeader(course, progressData, streakData);
   renderLessonList(course, progressData);
 
-  // Assicura che la pellicola sia visibile (non il player)
-  const contentArea = document.getElementById('course-content-area');
-  if (contentArea) contentArea.classList.remove('player-open');
+  // Attiva l'entrata della pellicola (slide da sinistra) dopo un tick
+  requestAnimationFrame(() => {
+    const strip = document.getElementById('course-lessons-section');
+    if (strip) strip.classList.add('strip-visible');
+  });
 
   // Focus e pre-selezione visiva della prossima lezione
   const firstFocusable = document.querySelector('#course-view button, #course-view [tabindex]');
@@ -1422,9 +1404,9 @@ function closeCourseView(opts) {
     }, 700);
   }
 
-  // Reset vista player (riporta alla pellicola senza animazione)
-  const contentArea = document.getElementById('course-content-area');
-  if (contentArea) contentArea.classList.remove('player-open');
+  // Reset pellicola (nascosta per la prossima apertura)
+  const stripSection = document.getElementById('course-lessons-section');
+  if (stripSection) stripSection.classList.remove('strip-visible');
 
   // Reset stato interno
   _corsoData      = null;
@@ -1618,7 +1600,6 @@ function selectLesson(lesson, hasAccess, course) {
 
   _lessonSelected = lesson;
   renderPlayer(lesson, course);
-  _openPlayerView();
 }
 
 function _showLockedBanner(lesson) {
@@ -1652,23 +1633,6 @@ function _showLockedBanner(lesson) {
   frame.insertAdjacentElement('afterend', banner);
 }
 
-// ── Apertura / chiusura vista player ─────────────────────────────
-
-function _openPlayerView() {
-  const area = document.getElementById('course-content-area');
-  if (area) area.classList.add('player-open');
-}
-
-function _closePlayerView() {
-  const area = document.getElementById('course-content-area');
-  if (!area) return;
-  area.classList.add('player-closing');
-  area.classList.remove('player-open');
-  // Deseleziona il fotogramma
-  document.querySelectorAll('.film-frame-btn').forEach(b => b.classList.remove('film-frame--selected'));
-  setTimeout(() => { area.classList.remove('player-closing'); }, 700);
-}
-
 function renderPlayer(lesson, course) {
   const playerSection = document.getElementById('course-player-section');
   const iframe        = document.getElementById('vimeo-player');
@@ -1696,58 +1660,9 @@ function renderPlayer(lesson, course) {
   initVimeoProgress(lesson.id, lesson.courseId || course.id, resumeAt, totalSec, vimeoUrl);
 }
 
+// _updatePlayerNav — nessun bottone nella UI, funzione no-op
 function _updatePlayerNav(lesson, course) {
-  const prevBtn = document.getElementById('player-prev-btn');
-  const nextBtn = document.getElementById('player-next-btn');
-  const backBtn = document.getElementById('player-back-btn');
-
-  const lessons = course?.lessons || _corsoData?.course?.lessons || [];
-  const idx     = lessons.findIndex(l => l.id === lesson.id);
-
-  if (prevBtn && nextBtn) {
-    prevBtn.disabled = idx <= 0;
-    nextBtn.disabled = idx >= lessons.length - 1;
-
-    // Rimuovi listener precedenti (clona e sostituisci)
-    const newPrev = prevBtn.cloneNode(true);
-    const newNext = nextBtn.cloneNode(true);
-    prevBtn.replaceWith(newPrev);
-    nextBtn.replaceWith(newNext);
-
-    newPrev.addEventListener('click', () => {
-      if (idx > 0) {
-        const c = _corsoData.course;
-        const l = c.lessons[idx - 1];
-        // Cambia lezione rimanendo nel player (no animazione apertura)
-        document.querySelectorAll('.film-frame-btn').forEach(b => b.classList.remove('film-frame--selected'));
-        const fr = document.querySelector(`.film-frame-btn[data-lesson-id="${l.id}"]`);
-        if (fr) fr.classList.add('film-frame--selected');
-        _lessonSelected = l;
-        renderPlayer(l, c);
-      }
-    });
-    newNext.addEventListener('click', () => {
-      if (idx < lessons.length - 1) {
-        const c = _corsoData.course;
-        const l = c.lessons[idx + 1];
-        document.querySelectorAll('.film-frame-btn').forEach(b => b.classList.remove('film-frame--selected'));
-        const fr = document.querySelector(`.film-frame-btn[data-lesson-id="${l.id}"]`);
-        if (fr) fr.classList.add('film-frame--selected');
-        _lessonSelected = l;
-        renderPlayer(l, c);
-      }
-    });
-  }
-
-  // Back button — torna alla pellicola
-  if (backBtn) {
-    const newBack = backBtn.cloneNode(true);
-    backBtn.replaceWith(newBack);
-    newBack.addEventListener('click', () => {
-      _destroyPlayer();
-      _closePlayerView();
-    });
-  }
+  // Navigazione gestita cliccando direttamente i fotogrammi della pellicola
 }
 
 // ── Vimeo Player SDK ──────────────────────────────────────────────

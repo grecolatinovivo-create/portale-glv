@@ -2358,32 +2358,31 @@ body.has-corso-cta { padding-bottom: 80px; }
   white-space: nowrap;
 }
 
-/* ── Area contenuto corso — slide orizzontale pellicola ↔ player ── */
+/* ── Area contenuto corso — griglia: pellicola sinistra + player destra ── */
 .course-content-area {
-  display: flex;
-  flex-wrap: nowrap;
-  overflow: hidden;
+  display: grid;
+  grid-template-columns: 230px 1fr;
+  gap: 28px;
+  align-items: start;
   width: 100%;
-  /* altezza si adatta al contenuto della sezione visibile */
 }
 
-.course-lessons-section,
+/* Pellicola: scivola dall'esterno sinistro quando il corso si apre */
+.course-lessons-section {
+  transform: translateX(-28px);
+  opacity: 0;
+  transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1),
+              opacity  0.30s ease;
+}
+.course-lessons-section.strip-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Player: sticky, rimane in vista durante lo scroll della pellicola */
 .course-player-section {
-  width: 100%;
-  flex-shrink: 0;
-  transition: transform 0.36s cubic-bezier(0, 0, 0.2, 1);
-}
-
-/* Chiusura player: leggermente più lenta e distesa */
-.course-content-area.player-closing .course-lessons-section,
-.course-content-area.player-closing .course-player-section {
-  transition: transform 0.44s cubic-bezier(0, 0, 0.2, 1);
-}
-
-/* Quando il player è aperto: entrambe le sezioni si spostano a sinistra */
-.course-content-area.player-open .course-lessons-section,
-.course-content-area.player-open .course-player-section {
-  transform: translateX(-100%);
+  position: sticky;
+  top: calc(var(--nav-height) + 20px);
 }
 
 /* ── Pellicola Kodak ────────────────────────────────────────────── */
@@ -2623,40 +2622,12 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 .locked-banner__cta:hover { color: var(--gold-lt); }
 
-/* ── Pulsante "Tutte le lezioni" nel player ─────────────────────── */
-.player-back-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: none;
-  border: none;
-  color: rgba(245,245,245,0.48);
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 0 0 22px;
-  transition: transform 0.1s ease, color var(--t-fast);
-  letter-spacing: 0.01em;
-}
-.player-back-btn:hover { color: rgba(245,245,245,0.88); }
-.player-back-btn:active { transform: scale(0.96); }
-.player-back-btn:focus-visible {
-  outline: 2px solid var(--gold);
-  outline-offset: 4px;
-  border-radius: 3px;
-}
-
 /* ── Player Vimeo ───────────────────────────────────────────────── */
-.course-player-section {
-  padding-top: 4px; /* piccolo respiro sopra il back button */
-}
-
 .course-player-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: var(--bg);
+  background: #0d0d0d;
   border-radius: var(--r-md);
   overflow: hidden;
 }
@@ -2666,38 +2637,6 @@ body.has-corso-cta { padding-bottom: 80px; }
   width: 100%;
   height: 100%;
   border: 0;
-}
-
-.player-nav {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-.player-nav__prev,
-.player-nav__next {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--r-sm);
-  padding: 8px 14px;
-  cursor: pointer;
-  transition: color var(--t-fast), border-color var(--t-fast);
-}
-.player-nav__prev:hover,
-.player-nav__next:hover {
-  color: var(--text-primary);
-  border-color: var(--border-mid);
-}
-.player-nav__prev:disabled,
-.player-nav__next:disabled {
-  opacity: 0.35;
-  cursor: default;
 }
 
 /* ── Wrapper posizionamento relativo per catalog+course ─────────── */
@@ -2712,20 +2651,19 @@ body.has-corso-cta { padding-bottom: 80px; }
   min-height: calc(100vh - var(--nav-height));
 }
 
-/* ── prefers-reduced-motion: disabilita tutte le animazioni nuove ── */
+/* ── prefers-reduced-motion: disabilita tutte le animazioni ────── */
 @media (prefers-reduced-motion: reduce) {
   .catalog-view,
   .course-view,
   .catalog-corner-deck,
   .course-lessons-section,
-  .course-player-section,
   .film-frame-btn,
   .film-strip {
     transition: none !important;
     animation: none !important;
   }
+  /* Mostra subito pellicola e fotogrammi senza animazioni */
+  .course-lessons-section { opacity: 1 !important; transform: none !important; }
   .film-frame-btn { opacity: 1 !important; transform: none !important; }
-  .course-progress-bar__fill {
-    transition: none !important;
-  }
+  .course-progress-bar__fill { transition: none !important; }
 }
