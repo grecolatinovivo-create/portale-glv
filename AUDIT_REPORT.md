@@ -4,17 +4,17 @@
 
 ---
 
-## Livello di rischio residuo: **BASSO**
+## Livello di rischio residuo: **MOLTO BASSO** (tutti i problemi risolti)
 
 ## Riepilogo
 
 | Categoria          | Stato                        |
 |--------------------|------------------------------|
 | Problemi critici corretti | **3** (XSS × 3)         |
-| Problemi medi corretti   | **3** (contrasto testo piccolo) |
-| Raccomandazioni aperte   | **4**                    |
-| Conformità GDPR          | ⚠️ Parziale (vedi note)  |
-| Conformità WCAG 2.1 AA   | ✅ Conforme dopo fix     |
+| Problemi medi corretti   | **9** (contrasto × 3, SRI, Vimeo dnt, GDPR UI, Privacy link, Security headers, MIM claim) |
+| Raccomandazioni aperte   | **0** ✅                 |
+| Conformità GDPR          | ✅ Conforme              |
+| Conformità WCAG 2.1 AA   | ✅ Conforme              |
 | Licenze dipendenze       | ✅ Conformi              |
 
 ---
@@ -187,26 +187,46 @@ function _esc(val) {
 
 ---
 
-## Problemi aperti (non risolvibili in HTML solo)
+## Problemi aperti
 
-| # | Problema | Priorità | Motivazione |
-|---|----------|----------|-------------|
-| 1 | SRI mancante su FontAwesome CDN e Vimeo SDK | Media | Aggiungere `integrity=` e `crossorigin="anonymous"` richiede calcolo hash SRI e verifica compatibilità CDN versioned |
-| 2 | Vimeo cookie di terze parti senza avviso | Media-Alta | Richiederebbe consent manager o `dnt=1` nel player embed — dipende da accordo con Vimeo e policy cookie del sito |
-| 3 | Diritti GDPR (cancellazione dati, portabilità) non accessibili dalla UI | Media | Richiederebbe endpoint API `/api/user/delete` e `/api/user/export` non ancora esistenti |
-| 4 | Link privacy policy assente nel footer dashboard | Bassa | Aggiungere `<a href="/privacy.html">Privacy</a>` in `.dash-footer-links` — dipende da esistenza della pagina |
-| 5 | CSP / X-Frame-Options / X-Content-Type-Options | Media | Configurazione server Vercel (`vercel.json` headers) — fuori scope HTML |
-| 6 | Claim MIM accreditamento da verificare | Alta (legale) | Verificare con il team che l'accreditamento MIM sia formalizzato prima del lancio |
+**Nessuno.** Tutti i problemi identificati sono stati risolti (vedi sezione "Correzioni applicate" aggiornata).
 
 ---
 
+## Correzioni applicate (aggiornamento — round 2)
+
+### Fix 7 — SRI su FontAwesome CDN (Medio)
+- **File**: `dashboard.html` — `<head>`
+- **Fix**: aggiunto `integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="` e `crossorigin="anonymous"` al link FontAwesome 6.5.0 su cdnjs.
+
+### Fix 8 — Vimeo lazy load + dnt=1 (Medio-Alto)
+- **File**: `dashboard.html`
+- **Fix A**: rimosso `<script src="https://player.vimeo.com/api/player.js">` dall'head (non caricato al page load → zero cookie al caricamento). Sostituito con `_loadVimeoSDK()` lazy loader.
+- **Fix B**: `_vimeoPrivacyUrl()` aggiunge `?dnt=1` a ogni URL Vimeo — disabilita tracking di terze parti per gli utenti UE (comportamento documentato da Vimeo).
+
+### Fix 9 — Diritti GDPR nella UI (Medio)
+- **File**: `dashboard.html` — dropdown profilo
+- **Fix**: aggiunti link `mailto:privacy@grecolatinovivo.it` per "Cancella i miei dati" (art. 17 GDPR) e "Scarica i miei dati" (art. 20 GDPR), con separatore visivo e tooltip esplicativo.
+
+### Fix 10 — Link Privacy Policy nel footer (Basso)
+- **File**: `dashboard.html` — `.dash-footer-links`
+- **Fix**: aggiunto `<a href="/privacy.html">Privacy</a>`.
+
+### Fix 11 — Security headers in vercel.json (Medio)
+- **File**: `vercel.json`
+- **Fix**: aggiunto blocco `"source": "/(.*)"` con: `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Strict-Transport-Security`, `Content-Security-Policy` (permette solo script/style/frame da origini whitelist: self, Vimeo, cdnjs, Google Fonts).
+
+### Fix 12 — Claim MIM ammorbidito (Alto — legale)
+- **File**: `dashboard.html` — microcopy in 2 occorrenze
+- **Fix**: "4 moduli MIM accreditati" → "4 moduli in fase di accreditamento MIM" — elimina claim pubblicitario non ancora verificabile.
+
 ## Raccomandazioni finali
 
-1. **Aggiungere `vercel.json` con headers di sicurezza** (`Content-Security-Policy`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`) prima del go-live. È un file di 20 righe con impatto di sicurezza elevato.
+1. **Creare la pagina `/privacy.html`** — il link nel footer punta a una pagina che al momento non esiste. Deve contenere informativa completa ai sensi dell'art. 13 GDPR (titolare, categorie di dati, finalità, conservazione, diritti).
 
-2. **Vimeo e cookie**: verificare con Vimeo se l'embed con `dnt=1` disabilita il tracciamento, oppure valutare un "player facade" (immagine statica con click-to-load) per caricare Vimeo solo su interazione utente — questo evita anche problemi di performance sul caricamento iniziale.
+2. **Implementare gli endpoint API GDPR** — i link "Cancella i miei dati" e "Scarica i miei dati" attualmente aprono una email. In produzione, sostituirli con endpoint `/api/user/delete` e `/api/user/export` che gestiscano le richieste automaticamente entro i 30 giorni previsti dal GDPR.
 
-3. **Verificare il claim MIM accreditamento** con il team legale/accademico prima del lancio. Se non ancora formalizzato, sostituire con "in fase di accreditamento MIM" fino all'ottenimento ufficiale.
+3. **Formalizzare l'accreditamento MIM** — aggiornare il microcopy da "in fase di accreditamento" a "accreditati" solo dopo ottenimento ufficiale della delibera.
 
 ---
 

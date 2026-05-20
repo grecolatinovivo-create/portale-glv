@@ -6,9 +6,23 @@
   <title>Il mio Portale — GrecoLatinoVivo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer">
   <link rel="stylesheet" href="/css/style.css">
-  <script src="https://player.vimeo.com/api/player.js"></script>
+  <!-- Vimeo Player SDK: caricato solo su interazione utente (privacy — nessun cookie di terze parti al caricamento pagina) -->
+  <script>
+    window._vimeoSDKLoaded = false;
+    function _loadVimeoSDK(callback) {
+      if (window._vimeoSDKLoaded && typeof Vimeo !== 'undefined') { if (callback) callback(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://player.vimeo.com/api/player.js';
+      s.onload = () => { window._vimeoSDKLoaded = true; if (callback) callback(); };
+      document.head.appendChild(s);
+    }
+  </script>
   <style>
     :root {
       --dark:#0a0a0a; --dark-2:#111111; --dark-3:#1a1a1a;
@@ -354,6 +368,16 @@
               <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem">Linguae</button>
               <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem">Accademia</button>
             </div>
+            <!-- GDPR art. 17 & 20 — diritti dell'interessato -->
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+            <a class="nav-dropdown-item" role="menuitem"
+               href="mailto:privacy@grecolatinovivo.it?subject=Richiesta%20cancellazione%20account&body=Gentili%2C%20richiedo%20la%20cancellazione%20del%20mio%20account%20e%20di%20tutti%20i%20dati%20personali%20ai%20sensi%20dell%27art.%2017%20GDPR."
+               style="font-size:.78rem;color:rgba(245,245,245,.55);"
+               title="Diritto alla cancellazione — art. 17 GDPR">Cancella i miei dati</a>
+            <a class="nav-dropdown-item" role="menuitem"
+               href="mailto:privacy@grecolatinovivo.it?subject=Richiesta%20portabilit%C3%A0%20dati&body=Gentili%2C%20richiedo%20una%20copia%20dei%20miei%20dati%20personali%20ai%20sensi%20dell%27art.%2020%20GDPR."
+               style="font-size:.78rem;color:rgba(245,245,245,.55);"
+               title="Diritto alla portabilità — art. 20 GDPR">Scarica i miei dati</a>
             <button class="nav-dropdown-item danger" role="menuitem" onclick="Auth.logout()">Esci dall'account</button>
           </div>
         </div>
@@ -467,6 +491,7 @@
     <nav class="dash-footer-links" aria-label="Link footer">
       <a href="/index.html#prezzi">Abbonamento</a>
       <a href="mailto:supporto@grecolatinovivo.it">Supporto</a>
+      <a href="/privacy.html">Privacy</a>
       <a href="/index.html">Home</a>
     </nav>
   </footer>
@@ -745,7 +770,7 @@ function rerenderRows(tier) {
       document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
     } else {
       document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli MIM accreditati con Bonus Docenti al 100%.';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli in fase di accreditamento MIM con Bonus Docenti al 100%.';
     }
   }
 
@@ -862,7 +887,7 @@ async function showDashboard() {
       document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
     } else {
       document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli MIM accreditati con Bonus Docenti al 100%.';
+      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli in fase di accreditamento MIM con Bonus Docenti al 100%.';
     }
   }
 
@@ -1707,16 +1732,27 @@ function initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl)
   const iframe = document.getElementById('vimeo-player');
   if (!iframe) return;
 
-  // Attende che Vimeo Player SDK sia disponibile
+  // Aggiunge dnt=1 (Do Not Track) all'URL Vimeo per disabilitare cookie di terze parti
+  // https://vimeo.com/privacy — parametro supportato ufficialmente
+  function _vimeoPrivacyUrl(url) {
+    if (!url) return url;
+    try {
+      const u = new URL(url);
+      u.searchParams.set('dnt', '1');
+      return u.toString();
+    } catch { return url + (url.includes('?') ? '&' : '?') + 'dnt=1'; }
+  }
+  const privacyUrl = _vimeoPrivacyUrl(vimeoUrl);
+
+  // Carica Vimeo SDK solo al momento del play (lazy load — nessun cookie al caricamento pagina)
   if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
-    // SDK non ancora caricato — riprova tra 200ms
-    setTimeout(() => initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl), 200);
+    _loadVimeoSDK(() => initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl));
     return;
   }
 
   try {
     _vimeoPlayer = new Vimeo.Player(iframe, {
-      url:    vimeoUrl,
+      url:    privacyUrl,  // include dnt=1 — no terze parti tracking
       width:  '100%',
     });
     _totalSeconds = totalSeconds;
