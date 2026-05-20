@@ -151,7 +151,7 @@
     .upgrade-banner-btn:hover{background:#c02040;}
 
     /* Sections */
-    .dash-section{padding:0 48px;max-width:1200px;margin:0 auto 44px;}
+    .dash-section{padding:0 48px;max-width:1200px;margin:0 auto 44px;scroll-margin-top:80px;}
     .dash-section.hidden{display:none;}
     .dash-section-header{display:flex;align-items:baseline;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
     .dash-section-title{font-family:var(--font-heading);font-size:1.4rem;font-weight:700;color:var(--text);}
@@ -171,11 +171,14 @@
     .courses-row .course-card{flex-shrink:0;}
     .row-empty{font-size:.88rem;color:var(--text-muted);padding:24px 0;font-style:italic;}
 
-    /* Locked card */
+    /* Locked card — spegni senza toccare il gradient */
     .course-card.dash-locked{position:relative;cursor:default !important;}
-    .course-card.dash-locked::after{
-      content:'';position:absolute;inset:0;
-      background:rgba(10,10,10,.58);border-radius:inherit;pointer-events:none;
+    .course-card.dash-locked .fan-card-header{
+      filter:saturate(.25) brightness(.55);
+    }
+    .course-card.dash-locked .fan-card-body,
+    .course-card.dash-locked .fan-card-footer{
+      opacity:.45;
     }
     .dash-locked-badge{
       position:absolute;bottom:0;left:0;right:0;z-index:2;
@@ -213,42 +216,10 @@
       .dash-greeting{font-size:1.7rem;}
     }
 
-    /* ── ADMIN PREVIEW BAR ────────────────────────────────── */
-    #admin-preview-bar{
-      position:fixed;bottom:0;left:0;right:0;z-index:500;
-      background:rgba(8,8,8,.97);
-      border-top:1px solid rgba(201,150,42,.35);
-      backdrop-filter:blur(12px);
-      display:flex;align-items:center;justify-content:center;gap:20px;
-      padding:10px 24px;
-    }
-    .apb-label{
-      font-family:var(--font-body);font-size:.68rem;font-weight:700;
-      letter-spacing:.1em;text-transform:uppercase;
-      color:rgba(201,150,42,.75);white-space:nowrap;
-    }
-    .apb-tiers{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;}
-    .admin-tier-btn{
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.11);
-      border-radius:2rem;padding:5px 16px;min-height:30px;
-      color:rgba(245,245,245,.55);font-family:var(--font-body);
-      font-size:.73rem;font-weight:600;cursor:pointer;
-      transition:background .15s,border-color .15s,color .15s;
-    }
-    .admin-tier-btn:hover{
-      background:rgba(255,255,255,.12);color:var(--text);
-    }
+    /* ── ADMIN PREVIEW (nel dropdown) ────────────────────── */
     .admin-tier-btn.active{
-      background:rgba(201,150,42,.18);
-      border-color:rgba(201,150,42,.55);
-      color:var(--gold);
-    }
-    /* Aggiungi padding al body quando la barra è visibile */
-    body.admin-preview-active{ padding-bottom:52px; }
-    @media(max-width:480px){
-      #admin-preview-bar{gap:10px;padding:8px 12px;}
-      .apb-label{display:none;}
+      color:var(--gold) !important;
+      background:rgba(201,150,42,.1);
     }
   </style>
 </head>
@@ -382,6 +353,15 @@
           <div class="nav-dropdown-item" id="menu-email"
                style="color:var(--text-muted);font-size:.78rem;border-bottom:1px solid var(--border);cursor:default;">—</div>
           <a class="nav-dropdown-item" href="/#prezzi" role="menuitem">Gestisci abbonamento</a>
+          <!-- Sezione admin preview — visibile solo se iniettata da JS -->
+          <div id="admin-tier-group" style="display:none">
+            <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);border-top:1px solid var(--border);margin-top:4px;">
+              Anteprima piano
+            </div>
+            <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem">Cultura</button>
+            <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem">Linguae</button>
+            <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem">Accademia</button>
+          </div>
           <button class="nav-dropdown-item danger" role="menuitem" onclick="Auth.logout()">Esci dall'account</button>
         </div>
       </div>
@@ -403,73 +383,77 @@
     </div>
   </div>
 
-  <section class="dash-section" id="section-per-te">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Scelti per te</h2>
-      <span class="dash-section-badge">Personalizzato</span>
-    </div>
-    <div class="courses-row" id="row-per-te"></div>
-  </section>
+  <div id="course-sections">
 
-  <section class="dash-section hidden" id="section-continua">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Continua dove hai lasciato</h2>
-    </div>
-    <div class="courses-row" id="row-continua"></div>
-  </section>
+    <section class="dash-section" id="section-per-te">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Scelti per te</h2>
+        <span class="dash-section-badge">Personalizzato</span>
+      </div>
+      <div class="courses-row" id="row-per-te"></div>
+    </section>
 
-  <section class="dash-section" id="section-latino">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Latino</h2>
-      <span class="dash-section-subtitle">Da zero a Cicerone</span>
-      <span class="dash-section-badge locked-badge" id="badge-latino" style="display:none">Piano Linguae</span>
-    </div>
-    <div class="courses-row" id="row-latino"></div>
-  </section>
+    <section class="dash-section hidden" id="section-continua">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Continua dove hai lasciato</h2>
+      </div>
+      <div class="courses-row" id="row-continua"></div>
+    </section>
 
-  <section class="dash-section" id="section-greco">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Greco Antico</h2>
-      <span class="dash-section-subtitle">Da Omero a Platone</span>
-      <span class="dash-section-badge locked-badge" id="badge-greco" style="display:none">Piano Linguae</span>
-    </div>
-    <div class="courses-row" id="row-greco"></div>
-  </section>
+    <section class="dash-section" id="section-brevi">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Corsi Brevi</h2>
+        <span class="dash-section-subtitle">Civiltà, storia, arte e spiritualità</span>
+        <span class="dash-section-badge">Incluso in tutti i piani</span>
+      </div>
+      <div class="courses-row" id="row-brevi"></div>
+    </section>
 
-  <section class="dash-section" id="section-egiziano">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Egiziano Geroglifico</h2>
-      <span class="dash-section-subtitle">Geroglifici e papiri del Medio Regno</span>
-      <span class="dash-section-badge locked-badge" id="badge-egiziano" style="display:none">Piano Linguae</span>
-    </div>
-    <div class="courses-row" id="row-egiziano"></div>
-  </section>
+    <section class="dash-section" id="section-latino">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Latino</h2>
+        <span class="dash-section-subtitle">Da zero a Cicerone</span>
+        <span class="dash-section-badge locked-badge" id="badge-latino" style="display:none">Piano Linguae</span>
+      </div>
+      <div class="courses-row" id="row-latino"></div>
+    </section>
 
-  <section class="dash-section" id="section-ebraico">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Ebraico Biblico</h2>
-      <span class="dash-section-subtitle">Genesi, Salmi e la lingua della Bibbia</span>
-      <span class="dash-section-badge locked-badge" id="badge-ebraico" style="display:none">Piano Linguae</span>
-    </div>
-    <div class="courses-row" id="row-ebraico"></div>
-  </section>
+    <section class="dash-section" id="section-greco">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Greco Antico</h2>
+        <span class="dash-section-subtitle">Da Omero a Platone</span>
+        <span class="dash-section-badge locked-badge" id="badge-greco" style="display:none">Piano Linguae</span>
+      </div>
+      <div class="courses-row" id="row-greco"></div>
+    </section>
 
-  <section class="dash-section" id="section-brevi">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Corsi Brevi</h2>
-      <span class="dash-section-subtitle">Civiltà, storia, arte e spiritualità</span>
-      <span class="dash-section-badge">Incluso in tutti i piani</span>
-    </div>
-    <div class="courses-row" id="row-brevi"></div>
-  </section>
+    <section class="dash-section" id="section-egiziano">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Egiziano Geroglifico</h2>
+        <span class="dash-section-subtitle">Geroglifici e papiri del Medio Regno</span>
+        <span class="dash-section-badge locked-badge" id="badge-egiziano" style="display:none">Piano Linguae</span>
+      </div>
+      <div class="courses-row" id="row-egiziano"></div>
+    </section>
 
-  <section class="dash-section" id="section-didattica">
-    <div class="dash-section-header">
-      <h2 class="dash-section-title">Formazione Docenti</h2>
-      <span class="dash-section-badge locked-badge" id="didattica-badge">Piano Accademia</span>
-    </div>
-    <div class="courses-row" id="row-didattica"></div>
-  </section>
+    <section class="dash-section" id="section-ebraico">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Ebraico Biblico</h2>
+        <span class="dash-section-subtitle">Genesi, Salmi e la lingua della Bibbia</span>
+        <span class="dash-section-badge locked-badge" id="badge-ebraico" style="display:none">Piano Linguae</span>
+      </div>
+      <div class="courses-row" id="row-ebraico"></div>
+    </section>
+
+    <section class="dash-section" id="section-didattica">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Formazione Docenti</h2>
+        <span class="dash-section-badge locked-badge" id="didattica-badge">Piano Accademia</span>
+      </div>
+      <div class="courses-row" id="row-didattica"></div>
+    </section>
+
+  </div><!-- /course-sections -->
 
   <footer class="dash-footer">
     <div class="dash-footer-brand">GrecoLatinoVivo · Centro Nazionale di Studi Classici</div>
@@ -620,6 +604,27 @@ function buildPerTeRow(all, profile, tier) {
   return top.map(c => isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)).join('');
 }
 
+/* ── Ordina le sezioni in base al tier ───────────────────── */
+function reorderSections(tier) {
+  const container = document.getElementById('course-sections');
+  if (!container) return;
+
+  // Cultura (tier 1): Corsi Brevi in cima tra i contenuti di lingua
+  // Linguae/Accademia: ordine lingua standard, Corsi Brevi dopo le lingue
+  const order = tier <= 1
+    ? ['section-per-te','section-continua','section-brevi',
+       'section-latino','section-greco','section-egiziano','section-ebraico',
+       'section-didattica']
+    : ['section-per-te','section-continua',
+       'section-latino','section-greco','section-egiziano','section-ebraico',
+       'section-brevi','section-didattica'];
+
+  order.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) container.appendChild(el); // sposta in fondo = rispetta l'ordine
+  });
+}
+
 /* ── Admin: re-render tutte le righe con un tier diverso ─── */
 function rerenderRows(tier) {
   const courses = _allCourses;
@@ -631,8 +636,7 @@ function rerenderRows(tier) {
   };
 
   // Badge navbar
-  document.getElementById('nav-plan-badge').textContent =
-    '👁 ' + (TIER_NAMES[tier] || '—');
+  document.getElementById('nav-plan-badge').textContent = TIER_NAMES[tier] || '—';
 
   // Sottotitolo hero
   document.getElementById('dash-subtitle').textContent = labels[tier] ?? labels[0];
@@ -693,34 +697,37 @@ function rerenderRows(tier) {
     b.style.display = '';
   }
 
+  // Riordina sezioni in base a cosa è sbloccato
+  reorderSections(tier);
+
   // Evidenzia bottone attivo nel pannello
   document.querySelectorAll('.admin-tier-btn').forEach(btn => {
     btn.classList.toggle('active', parseInt(btn.dataset.tier, 10) === tier);
   });
 }
 
-/* ── Admin: inietta la barra di anteprima ─────────────────── */
+/* ── Admin: attiva il gruppo tier nel dropdown navbar ──────── */
 function injectAdminPanel(currentTier) {
-  const bar = document.createElement('div');
-  bar.id = 'admin-preview-bar';
-  bar.innerHTML = `
-    <span class="apb-label">👁 Admin Preview</span>
-    <div class="apb-tiers">
-      <button class="admin-tier-btn${currentTier===0?' active':''}" data-tier="0">Ospite</button>
-      <button class="admin-tier-btn${currentTier===1?' active':''}" data-tier="1">Cultura</button>
-      <button class="admin-tier-btn${currentTier===2?' active':''}" data-tier="2">Linguae</button>
-      <button class="admin-tier-btn${currentTier===3?' active':''}" data-tier="3">Accademia</button>
-    </div>
-  `;
-  bar.addEventListener('click', e => {
+  // Mostra la sezione "Anteprima piano" nel dropdown
+  const group = document.getElementById('admin-tier-group');
+  if (group) group.style.display = '';
+
+  // Segna il tier attivo corrente
+  document.querySelectorAll('.admin-tier-btn').forEach(btn => {
+    btn.classList.toggle('active', parseInt(btn.dataset.tier, 10) === currentTier);
+  });
+
+  // Listener su tutti i bottoni tier (dropdown)
+  document.getElementById('profile-menu')?.addEventListener('click', e => {
     const btn = e.target.closest('.admin-tier-btn');
     if (!btn) return;
     const t = parseInt(btn.dataset.tier, 10);
     _adminTierActive = t;
     rerenderRows(t);
+    // Chiudi il dropdown dopo la scelta
+    document.getElementById('profile-menu')?.classList.remove('open');
+    document.getElementById('nav-avatar')?.setAttribute('aria-expanded', 'false');
   });
-  document.body.appendChild(bar);
-  document.body.classList.add('admin-preview-active');
 }
 
 /* ── Show dashboard ───────────────────────────────────────── */
