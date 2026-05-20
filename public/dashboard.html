@@ -470,37 +470,28 @@
 
   </div><!-- /#catalog-view -->
 
-  <!-- ── MAZZETTO CATALOGO — floating in angolo top-right ─────────── -->
-  <!--
-    Le .corner-card--N sono mini-versioni fedeli delle course-card GLV:
-    header con gradiente lingua + body con linea-titolo + footer con pallino.
-    I gradienti vengono iniettati da JS (glv-deck-init) in base ai corsi
-    effettivamente presenti nel catalogo.
-  -->
+  <!-- ── MAZZETTO CATALOGO — bottom-right, sale dal fondo ────────── -->
+  <!-- Fan-card vere scalate, nessuna cornicetta intorno -->
   <div class="catalog-corner-deck" id="catalog-corner-deck" aria-hidden="true">
     <button class="catalog-corner-deck-btn" id="catalog-corner-deck-btn"
             aria-label="Torna al catalogo corsi">
-      <div class="corner-deck-cards" aria-hidden="true">
-        <!-- Carta più indietro -->
-        <span class="corner-card corner-card--3" id="corner-card-3">
-          <span class="corner-card-header"></span>
-          <span class="corner-card-body"></span>
-          <span class="corner-card-footer"></span>
-        </span>
-        <!-- Carta centrale -->
-        <span class="corner-card corner-card--2" id="corner-card-2">
-          <span class="corner-card-header"></span>
-          <span class="corner-card-body"></span>
-          <span class="corner-card-footer"></span>
-        </span>
-        <!-- Carta in cima (la più visibile) -->
-        <span class="corner-card corner-card--1" id="corner-card-1">
-          <span class="corner-card-header"></span>
-          <span class="corner-card-body"></span>
-          <span class="corner-card-footer"></span>
-        </span>
+      <div class="corner-mini-stack" aria-hidden="true">
+        <div class="corner-mini-card corner-mini-card--3" id="corner-card-3">
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#253e3e,#121e1e)"></div>
+          <div class="fan-card-body"><div class="fan-card-title"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#2a3a3a"></div></div>
+        </div>
+        <div class="corner-mini-card corner-mini-card--2" id="corner-card-2">
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#1a3268,#0c1a3a)"></div>
+          <div class="fan-card-body"><div class="fan-card-title"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#1a3258"></div></div>
+        </div>
+        <div class="corner-mini-card corner-mini-card--1" id="corner-card-1">
+          <div class="fan-card-header" style="background:linear-gradient(155deg,#7c3618,#3d1a0a)"></div>
+          <div class="fan-card-body"><div class="fan-card-title"></div></div>
+          <div class="fan-card-footer"><div class="fan-card-dot" style="background:#5a2e18"></div></div>
+        </div>
       </div>
-      <span class="corner-deck-label">Corsi</span>
     </button>
   </div>
 
@@ -1266,13 +1257,13 @@ function _glvDeckSetGradients(currentSlug) {
 
   function applyGradient(card, gradient) {
     if (!card) return;
-    const hdr = card.querySelector('.corner-card-header');
+    // Le mini-card usano .fan-card-header e .fan-card-dot — stesse classi delle card reali
+    const hdr = card.querySelector('.fan-card-header');
     if (hdr) hdr.style.background = gradient;
-    // Colore del pallino footer — estrae il primo colore del gradient
-    const ftr = card.querySelector('.corner-card-footer');
-    if (ftr) {
+    const dot = card.querySelector('.fan-card-dot');
+    if (dot) {
       const match = gradient.match(/#([0-9a-fA-F]{6})/);
-      if (match) ftr.style.setProperty('--dot-color', '#' + match[1]);
+      if (match) dot.style.background = '#' + match[1];
     }
   }
 
@@ -1335,147 +1326,62 @@ async function openCourseView(slug, opts) {
   // Aggiorna i gradienti delle mini-card con i colori reali del corso aperto
   _glvDeckSetGradients(slug);
 
-  if (skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    // ── Nessuna animazione: commutazione immediata ──────────────────
-    catalogView.style.transition = 'none';
-    courseView.style.transition  = 'none';
+  const noAnim = skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (noAnim) {
+    // Commutazione immediata senza animazione
     catalogView.classList.add('stack-below');
     courseView.classList.remove('offscreen-bottom', 'slide-out-down');
     courseView.classList.add('slide-in-up');
     courseView.setAttribute('aria-hidden', 'false');
-    if (cornerDeck) {
-      cornerDeck.classList.add('visible');
-      cornerDeck.setAttribute('aria-hidden', 'false');
-    }
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      catalogView.style.transition = '';
-      courseView.style.transition  = '';
-    }));
+    if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
 
   } else {
-    // ── Animazione premium: arco fisico + corso elastico ────────────
-
-    // 1. Assicura posizione di partenza del corso (fuori schermo in basso)
+    // ── ANIMAZIONE ────────────────────────────────────────────────
+    // Step 1: catalogo scende fuori dallo schermo (500ms, ease-in)
     courseView.classList.add('offscreen-bottom');
     courseView.classList.remove('slide-in-up', 'slide-out-down');
-    courseView.style.transition = 'none';
 
     requestAnimationFrame(() => requestAnimationFrame(() => {
+      catalogView.style.transition = 'transform 0.50s cubic-bezier(0.4, 0, 1, 1), opacity 0.50s ease';
+      catalogView.classList.add('stack-below');
 
-      // 2. Il catalogo "vola" verso l'angolo con traiettoria ad arco
-      //    Usiamo Web Animations API per pieno controllo dei keyframe.
-      //    transform-origin: top right — il punto d'ancoraggio è l'angolo
-      //    da cui il mazzetto compare.
-      catalogView.style.transformOrigin = 'top right';
-      catalogView.getAnimations().forEach(a => a.cancel());
-
-      const catalogAnim = catalogView.animate([
-        // Fotogramma 0: posizione naturale
-        {
-          transform: 'translateX(0) translateY(0) scale(1) rotate(0deg)',
-          opacity: '1',
-          offset: 0
-        },
-        // Fotogramma 1 (38%): sollevamento — inizio dell'arco, come prendere in mano un mazzo
-        {
-          transform: 'translateX(12%) translateY(-4%) scale(0.78) rotate(1.2deg)',
-          opacity: '0.92',
-          offset: 0.30
-        },
-        // Fotogramma 2 (65%): picco dell'arco, curva decisa verso top-right
-        {
-          transform: 'translateX(38%) translateY(-14%) scale(0.42) rotate(3deg)',
-          opacity: '0.65',
-          offset: 0.60
-        },
-        // Fotogramma 3 (85%): accelerazione finale verso il mazzetto
-        {
-          transform: 'translateX(68%) translateY(-22%) scale(0.16) rotate(4.5deg)',
-          opacity: '0.22',
-          offset: 0.82
-        },
-        // Fotogramma finale: atterraggio sull'angolo
-        {
-          transform: 'translateX(82%) translateY(-28%) scale(0.06) rotate(5.5deg)',
-          opacity: '0',
-          offset: 1
-        }
-      ], {
-        duration: 540,
-        easing: 'cubic-bezier(0.36, 0, 0.66, -0.56)',  /* anticipazione — la massa accelera lentamente poi scatta */
-        fill: 'forwards'
-      });
-
-      // Al termine: applica la classe CSS definitiva e pulisce l'animazione
-      catalogAnim.addEventListener('finish', () => {
-        catalogView.getAnimations().forEach(a => a.cancel());
-        catalogView.classList.add('stack-below');
-        catalogView.style.transformOrigin = '';
-      });
-
-      // 3. Il corso sale dal basso con easing elastico (con leggero overshoot)
-      //    Parte 80ms dopo il catalogo — segue il gesto, non precede
+      // Step 2: il corso sale subito dopo (parte a 100ms, 550ms spring)
       setTimeout(() => {
         courseView.style.transition = 'none';
         courseView.classList.remove('offscreen-bottom');
-
         requestAnimationFrame(() => requestAnimationFrame(() => {
-          courseView.style.transition = '';
-          courseView.getAnimations().forEach(a => a.cancel());
-
-          courseView.animate([
-            { transform: 'translateY(100%)', opacity: '0',   offset: 0    },
-            { transform: 'translateY(-2.5%)', opacity: '1',  offset: 0.62 },
-            { transform: 'translateY(0.8%)',                 offset: 0.78 },
-            { transform: 'translateY(-0.3%)',                offset: 0.90 },
-            { transform: 'translateY(0)',    opacity: '1',   offset: 1    }
-          ], {
-            duration: 600,
-            easing: 'linear',
-            fill: 'forwards'
-          }).addEventListener('finish', () => {
-            courseView.getAnimations().forEach(a => a.cancel());
-            courseView.classList.add('slide-in-up');
-          });
+          courseView.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.28, 0.64, 1), opacity 0.35s ease';
+          courseView.classList.add('slide-in-up');
+          courseView.setAttribute('aria-hidden', 'false');
         }));
-      }, 80);
+      }, 100);
 
-      // 4. Il mazzetto appare nell'angolo con un pop elastico
-      //    Ritardato rispetto al catalogo — è la "destinazione" dell'animazione
+      // Step 3: il mazzetto sale dal basso-destra dopo 1 secondo
       setTimeout(() => {
-        courseView.setAttribute('aria-hidden', 'false');
-        if (cornerDeck) {
-          cornerDeck.classList.add('visible');
-          cornerDeck.setAttribute('aria-hidden', 'false');
-        }
-      }, 340);
-
-    })); // fine double-rAF
+        if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
+      }, 1000);
+    }));
   }
 
-  // Listener sul mazzetto — porta al catalogo
+  // Listener sul mazzetto
   if (cornerBtn && !cornerBtn._deckListenerAttached) {
     cornerBtn.addEventListener('click', () => closeCourseView());
     cornerBtn._deckListenerAttached = true;
   }
 
-  // Focus sull'header del corso per accessibilità
+  // Focus e auto-selezione next lesson
   setTimeout(() => {
     const backBtn = document.getElementById('course-back-btn');
     if (backBtn) backBtn.focus();
-
-    // Auto-selezione nextLesson (solo evidenziazione, senza auto-play)
     const next = _findNextLesson(course, progressData);
     if (next) {
       const row = document.querySelector(`.lesson-row[data-lesson-id="${next.id}"]`);
-      if (row) {
-        row.classList.add('lesson-row--current');
-        row.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      }
+      if (row) { row.classList.add('lesson-row--current'); row.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
     }
-  }, skipAnimation ? 50 : 450);
+  }, noAnim ? 50 : 650);
 
-  // Animazione fill barra progresso
+  // Animazione barra progresso
   setTimeout(() => {
     const fill = document.getElementById('course-progress-fill');
     const bar  = document.getElementById('course-progress-bar-el');
@@ -1484,7 +1390,7 @@ async function openCourseView(slug, opts) {
       fill.style.width = pct + '%';
       bar.setAttribute('aria-valuenow', pct);
     }
-  }, skipAnimation ? 50 : 500);
+  }, noAnim ? 50 : 700);
 }
 
 // ── Chiusura vista corso ──────────────────────────────────────────
@@ -1504,105 +1410,39 @@ function closeCourseView(opts) {
   const courseView  = document.getElementById('course-view');
   const cornerDeck  = document.getElementById('catalog-corner-deck');
 
-  // ── Mazzetto: feedback visivo (pulse) poi scompare ──────────────
+  // Mazzetto: scompare subito
   if (cornerDeck) {
-    // Breve pulse prima di nascondersi — conferma il clic
-    cornerDeck.classList.add('deck-pulse');
-    setTimeout(() => {
-      cornerDeck.classList.remove('visible', 'deck-pulse');
-      cornerDeck.setAttribute('aria-hidden', 'true');
-    }, 160);
+    cornerDeck.classList.remove('visible');
+    cornerDeck.setAttribute('aria-hidden', 'true');
   }
 
-  if (skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    // ── Nessuna animazione ──────────────────────────────────────────
-    catalogView.style.transition = 'none';
-    courseView.style.transition  = 'none';
+  const noAnim = skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (noAnim) {
     catalogView.classList.remove('stack-below');
     courseView.classList.remove('slide-in-up');
     courseView.classList.add('offscreen-bottom');
     courseView.setAttribute('aria-hidden', 'true');
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      catalogView.style.transition = '';
-      courseView.style.transition  = '';
-    }));
-
   } else {
-    // ── Animazione speculare: catalogo esce dall'angolo e scende ────
+    // Corso scende (450ms, ease-in — caduta naturale)
+    courseView.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 1, 1), opacity 0.35s ease';
+    courseView.classList.remove('slide-in-up');
+    courseView.classList.add('slide-out-down');
+    courseView.setAttribute('aria-hidden', 'true');
 
-    // 1. Il corso scende (uscita rapida — meno enfasi che l'entrata)
-    courseView.getAnimations().forEach(a => a.cancel());
-    courseView.animate([
-      { transform: 'translateY(0)',    opacity: '1', offset: 0    },
-      { transform: 'translateY(5%)',   opacity: '0.85', offset: 0.25 },
-      { transform: 'translateY(100%)', opacity: '0', offset: 1    }
-    ], {
-      duration: 380,
-      easing: 'cubic-bezier(0.32, 0, 0.67, 0)',   /* decelerazione: parte piano poi cade */
-      fill: 'forwards'
-    }).addEventListener('finish', () => {
-      courseView.getAnimations().forEach(a => a.cancel());
-      courseView.classList.remove('slide-in-up', 'slide-out-down');
-      courseView.classList.add('offscreen-bottom');
-      courseView.setAttribute('aria-hidden', 'true');
-    });
-
-    // 2. Il catalogo esce dall'angolo e torna al centro
-    //    Traiettoria speculare: part da top-right piccolo, torna grande al centro.
-    //    Inizia un po' dopo il corso (la carta "aspetta" che lo spazio sia libero)
+    // Catalogo risale (parte a 150ms, spring)
     setTimeout(() => {
-      // Rimuove lo stato CSS statico prima dell'animazione JS
-      catalogView.style.transition = 'none';
+      catalogView.style.transition = 'transform 0.55s cubic-bezier(0.34, 1.28, 0.64, 1), opacity 0.40s ease';
       catalogView.classList.remove('stack-below');
-      catalogView.style.transformOrigin = 'top right';
+    }, 150);
 
-      // Parte dalla posizione del mazzetto (piccolo, in alto a destra)
-      // poi distende verso il centro con rimbalzo
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        catalogView.style.transition = '';
-        catalogView.getAnimations().forEach(a => a.cancel());
-
-        catalogView.animate([
-          {
-            transform: 'translateX(82%) translateY(-28%) scale(0.06) rotate(5.5deg)',
-            opacity: '0',
-            offset: 0
-          },
-          {
-            transform: 'translateX(62%) translateY(-20%) scale(0.18) rotate(4deg)',
-            opacity: '0.25',
-            offset: 0.18
-          },
-          {
-            transform: 'translateX(32%) translateY(-10%) scale(0.52) rotate(2deg)',
-            opacity: '0.72',
-            offset: 0.48
-          },
-          {
-            transform: 'translateX(4%) translateY(2%) scale(1.02) rotate(-0.4deg)',
-            opacity: '1',
-            offset: 0.80
-          },
-          {
-            transform: 'translateX(0) translateY(-0.5%) scale(0.998) rotate(0.1deg)',
-            opacity: '1',
-            offset: 0.92
-          },
-          {
-            transform: 'translateX(0) translateY(0) scale(1) rotate(0deg)',
-            opacity: '1',
-            offset: 1
-          }
-        ], {
-          duration: 560,
-          easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',  /* spring con overshoot */
-          fill: 'forwards'
-        }).addEventListener('finish', () => {
-          catalogView.getAnimations().forEach(a => a.cancel());
-          catalogView.style.transformOrigin = '';
-        });
-      }));
-    }, 120);
+    // Pulizia transizioni inline dopo il termine
+    setTimeout(() => {
+      courseView.style.transition = '';
+      courseView.classList.remove('slide-out-down');
+      courseView.classList.add('offscreen-bottom');
+      catalogView.style.transition = '';
+    }, 750);
   }
 
   // Reset stato interno
