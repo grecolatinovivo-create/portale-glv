@@ -1296,9 +1296,8 @@ async function openCourseView(slug, opts) {
       courseView.style.transition = 'transform 0.50s cubic-bezier(0, 0, 0.2, 1), opacity 0.40s ease';
       courseView.classList.add('slide-in-up');
       courseView.setAttribute('aria-hidden', 'false');
-      setTimeout(() => {
-        if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
-      }, 1000);
+      // Mazzetto entra insieme alla vista corso
+      if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
     }));
   }
 
@@ -1382,21 +1381,17 @@ function closeCourseView(opts) {
   const courseView  = document.getElementById('course-view');
   const cornerDeck  = document.getElementById('catalog-corner-deck');
 
-  // Mazzetto: scompare subito
-  if (cornerDeck) {
-    cornerDeck.classList.remove('visible');
-    cornerDeck.setAttribute('aria-hidden', 'true');
-  }
-
   const noAnim = skipAnimation || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   if (noAnim) {
+    if (cornerDeck) { cornerDeck.classList.remove('visible'); cornerDeck.setAttribute('aria-hidden', 'true'); }
     catalogView.classList.remove('stack-below');
     courseView.classList.remove('slide-in-up');
     courseView.classList.add('offscreen-bottom');
     courseView.setAttribute('aria-hidden', 'true');
   } else {
-    // Corso risale verso l'alto (ease-in — accelera uscendo)
+    // Corso e mazzetto escono insieme (stesso momento)
+    if (cornerDeck) { cornerDeck.classList.remove('visible'); cornerDeck.setAttribute('aria-hidden', 'true'); }
     courseView.style.transition = 'transform 0.45s cubic-bezier(0.4, 0, 1, 1), opacity 0.35s ease';
     courseView.classList.remove('slide-in-up');
     courseView.classList.add('slide-out-down');

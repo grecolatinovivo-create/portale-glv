@@ -2185,12 +2185,13 @@ body.has-corso-cta { padding-bottom: 80px; }
   width: 100%;
   max-width: 860px;
   margin: 0 auto;
-  padding: 40px 24px 64px;
+  /* top: navbar (64px) + respiro generoso (48px) */
+  padding: calc(var(--nav-height) + 48px) 24px 80px;
 }
 
 @media (max-width: 768px) {
   .course-view-inner {
-    padding: 16px 16px 48px;
+    padding: calc(var(--nav-height) + 24px) 16px 56px;
   }
 }
 
