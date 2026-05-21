@@ -4,6 +4,9 @@
 const { prisma } = require('../../../lib/prisma');
 const { withAuth } = require('../../../lib/auth');
 
+// Admin bypass
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+
 // ── Gerarchia tier ────────────────────────────────────────────
 // cultura (1) < linguae (2) < accademia (3)
 const TIER_RANK = { cultura: 1, linguae: 2, accademia: 3 };
@@ -47,29 +50,28 @@ export default withAuth(async function handler(req, res) {
     }
 
     let hasAccess = false;
-    let accessSource = null; // 'subscription' | 'purchase' | null
+    let accessSource = null; // 'subscription' | 'purchase' | 'admin' | null
 
     if (req.user) {
-      // 1. Controlla acquisto singolo corso — PRIORITÀ MASSIMA, mai bloccato da expiresAt
-      const purchase = await prisma.purchase.findFirst({
-        where: { userId: req.user.userId, courseId: course.id },
-      });
-      if (purchase) {
+      // 0. Admin bypass — l'admin vede sempre tutto
+      if (req.user.email === ADMIN_EMAIL) {
         hasAccess = true;
-        accessSource = 'purchase';
+        accessSource = 'admin';
       }
 
-      // 2. Accesso default "cultura" per tutti gli utenti registrati
-      //    Tutti gli iscritti al portale (anche senza abbonamento) possono
-      //    accedere ai Corsi Brevi (tierRequired = 'cultura') gratuitamente.
-      if (!hasAccess && (course.tierRequired === 'cultura' || !course.tierRequired)) {
-        hasAccess   = true;
-        accessSource = 'default-cultura';
-      }
-
-      // 3. Controlla abbonamento attivo per corsi linguae / accademia
+      // 1. Controlla acquisto singolo corso — PRIORITÀ MASSIMA, mai bloccato da expiresAt
       if (!hasAccess) {
-        const now = new Date();
+        const purchase = await prisma.purchase.findFirst({
+          where: { userId: req.user.userId, courseId: course.id },
+        });
+        if (purchase) {
+          hasAccess = true;
+          accessSource = 'purchase';
+        }
+      }
+
+      // 2. Controlla abbonamento attivo per corsi linguae / accademia
+      if (!hasAccess) {
         const subscription = await prisma.subscription.findFirst({
           where: {
             userId: req.user.userId,

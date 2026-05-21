@@ -203,6 +203,12 @@
       color:var(--gold) !important;
       background:rgba(201,150,42,.1);
     }
+    /* Pill admin — bordo rosso, indicatore anteprima */
+    .nav-plan-badge--admin{
+      color:var(--primary) !important;
+      background:rgba(160,26,54,.12) !important;
+      border-color:rgba(160,26,54,.35) !important;
+    }
     /* Mobile: nav-links collassabili nella dashboard */
     @media(max-width:768px){
       #dashNavLinks{
@@ -827,11 +833,22 @@ function rerenderRows(tier) {
   });
 }
 
+/* ── Admin: pill anteprima ─────────────────────────────────── */
+function _setAdminPill(tier) {
+  const badge = document.getElementById('nav-plan-badge');
+  if (!badge) return;
+  badge.textContent = TIER_NAMES[tier] || 'Accademia';
+  badge.classList.add('nav-plan-badge--admin');
+}
+
 /* ── Admin: attiva il gruppo tier nel dropdown navbar ──────── */
 function injectAdminPanel(currentTier) {
   // Mostra la sezione "Anteprima piano" nel dropdown
   const group = document.getElementById('admin-tier-group');
   if (group) group.style.display = '';
+
+  // Imposta pill con tier corrente
+  _setAdminPill(currentTier);
 
   // Segna il tier attivo corrente
   document.querySelectorAll('.admin-tier-btn').forEach(btn => {
@@ -844,6 +861,7 @@ function injectAdminPanel(currentTier) {
     if (!btn) return;
     const t = parseInt(btn.dataset.tier, 10);
     _adminTierActive = t;
+    _setAdminPill(t);
     rerenderRows(t);
     // Chiudi il dropdown dopo la scelta
     document.getElementById('profile-menu')?.classList.remove('open');
@@ -869,7 +887,7 @@ async function showDashboard() {
   const sub   = user.subscription || null;
   const tier  = getTierLevel(sub);
   const label = sub ? (TIER_NAMES[tier] || sub.plan) : 'Nessun piano';
-  document.getElementById('nav-plan-badge').textContent = label;
+  if (!user.isAdmin) document.getElementById('nav-plan-badge').textContent = label;
 
   // Greeting
   const name = user.fullName ? user.fullName.split(' ')[0] : 'studente';
@@ -882,8 +900,8 @@ async function showDashboard() {
   };
   document.getElementById('dash-subtitle').textContent = subs[tier] ?? subs[0];
 
-  // Upgrade banner
-  if (tier < 3) {
+  // Upgrade banner — nascosto per admin
+  if (!user.isAdmin && tier < 3) {
     document.getElementById('upgrade-banner').classList.remove('hidden');
     if (tier < 2) {
       document.getElementById('upgrade-banner-title').textContent = 'Sblocca i corsi di lingua';
@@ -902,12 +920,13 @@ async function showDashboard() {
   // Corsi — carica e metti in cache globale
   try { _allCourses = await Courses.getAll(); } catch { _allCourses = []; }
 
-  // Render iniziale con il tier reale
-  rerenderRows(tier);
-
-  // Admin preview bar — inietta solo se admin
+  // Render iniziale — admin parte da tier 3 (vede tutto)
   if (user.isAdmin) {
-    injectAdminPanel(tier);
+    _adminTierActive = 3;
+    rerenderRows(3);
+    injectAdminPanel(3);
+  } else {
+    rerenderRows(tier);
   }
 }
 
