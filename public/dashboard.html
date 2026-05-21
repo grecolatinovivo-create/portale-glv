@@ -1478,9 +1478,19 @@ function closeCourseView(opts) {
     }, 700);
   }
 
-  // Reset pellicola (nascosta per la prossima apertura)
+  // Pellicola esce con animazione inversa (ease-in = accelerazione verso sinistra)
   const stripSection = document.getElementById('course-lessons-section');
-  if (stripSection) stripSection.classList.remove('strip-visible');
+  if (stripSection) {
+    if (noAnim) {
+      stripSection.style.transition = 'none';
+      stripSection.classList.remove('strip-visible');
+      requestAnimationFrame(() => { stripSection.style.transition = ''; });
+    } else {
+      stripSection.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 1, 1), opacity 0.25s ease-in';
+      stripSection.classList.remove('strip-visible');
+      setTimeout(() => { stripSection.style.transition = ''; }, 400);
+    }
+  }
 
   // FIX SCROLL — ripristina min-height wrapper al valore default
   const wrapper = document.querySelector('.dash-spa-wrapper');
