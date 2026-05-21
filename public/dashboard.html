@@ -529,14 +529,16 @@
     </button>
   </div>
 
+  <!-- ── PELLICOLA LEZIONI — FUORI da course-view per evitare che il transform
+       del genitore (translateY) crei un nuovo containing block per position:fixed
+       e trascini la sidebar fuori schermo durante la chiusura del corso ─────── -->
+  <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
+    <div id="lesson-film-strip" role="list"></div>
+  </aside>
+
   <!-- ── VISTA CORSO (SPA in-page) ─────────────────────────────── -->
   <div class="course-view offscreen-bottom" id="course-view" aria-hidden="true">
     <div class="course-view-inner">
-
-      <!-- Pellicola lezioni — sidebar sinistra, entra dall'esterno -->
-      <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
-        <div id="lesson-film-strip" role="list"></div>
-      </aside>
 
       <!-- Header corso e player — colonna centrale unica -->
         <section class="course-header" id="course-header">
@@ -1821,7 +1823,6 @@ function _initVimeoPlayer(container, lessonId, courseId, resumeAt, totalSeconds,
       url:      vimeoUrl,
       dnt:      true,
       autoplay: true,
-      responsive: true,
       title:    false,
       byline:   false,
       portrait: false,
