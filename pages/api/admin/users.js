@@ -89,16 +89,15 @@ export default withAuth(async function handler(req, res) {
     }
   }
 
-  // ── POST — sospendi / riattiva ───────────────────────────────────
+  // ── POST — sospendi / riattiva / assegna piano / revoca piano ───
   if (req.method === 'POST') {
     const { userId, action } = req.body || {};
 
-    if (!userId || !['suspend', 'restore'].includes(action)) {
-      return res.status(400).json({ error: 'userId e action (suspend|restore) sono obbligatori' });
+    if (!userId || !['suspend', 'restore', 'grant-cultura', 'revoke-plan'].includes(action)) {
+      return res.status(400).json({ error: 'userId e action (suspend|restore|grant-cultura|revoke-plan) sono obbligatori' });
     }
 
-    // Non permettere di sospendere se stesso
-    if (userId === req.user.userId) {
+    if (action === 'suspend' && userId === req.user.userId) {
       return res.status(400).json({ error: 'Non puoi sospendere il tuo stesso account' });
     }
 
@@ -106,23 +105,89 @@ export default withAuth(async function handler(req, res) {
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) return res.status(404).json({ error: 'Utente non trovato' });
 
-      const updated = await prisma.user.update({
-        where: { id: userId },
-        data: { isSuspended: action === 'suspend' },
-        select: { id: true, email: true, fullName: true, isSuspended: true },
-      });
+      // ── Sospendi / Riattiva ─────────────────────────────────────
+      if (action === 'suspend' || action === 'restore') {
+        const updated = await prisma.user.update({
+          where: { id: userId },
+          data: { isSuspended: action === 'suspend' },
+          select: { id: true, email: true, fullName: true, isSuspended: true },
+        });
 
-      await prisma.adminLog.create({
-        data: {
-          adminEmail: req.user.email,
-          action: action === 'suspend' ? 'SUSPEND_USER' : 'RESTORE_USER',
-          targetType: 'user',
-          targetId: userId,
-          payload: JSON.stringify({ email: user.email, fullName: user.fullName }),
-        },
-      });
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: req.user.email,
+            action:     action === 'suspend' ? 'SUSPEND_USER' : 'RESTORE_USER',
+            targetType: 'user',
+            targetId:   userId,
+            payload:    JSON.stringify({ email: user.email, fullName: user.fullName }),
+          },
+        });
 
-      return res.status(200).json({ ok: true, user: updated });
+        return res.status(200).json({ ok: true, user: updated });
+      }
+
+      // ── Assegna piano Cultura manuale (senza Stripe) ────────────
+      if (action === 'grant-cultura') {
+        const syntheticSubId = `admin_cultura_${userId}`;
+        const farFuture = new Date('2099-12-31T23:59:59Z');
+
+        await prisma.subscription.upsert({
+          where: { stripeSubscriptionId: syntheticSubId },
+          create: {
+            userId,
+            plan:                 'cultura-manuale',
+            stripeSubscriptionId: syntheticSubId,
+            stripeCustomerId:     `admin_${userId}`,
+            status:               'active',
+            currentPeriodEnd:     farFuture,
+          },
+          update: {
+            status:           'active',
+            currentPeriodEnd: farFuture,
+          },
+        });
+
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: req.user.email,
+            action:     'GRANT_CULTURA',
+            targetType: 'user',
+            targetId:   userId,
+            payload:    JSON.stringify({ plan: 'cultura-manuale', note: "assegnato manualmente dall'admin" }),
+          },
+        });
+
+        return res.status(200).json({ ok: true });
+      }
+
+      // ── Revoca piano manuale ─────────────────────────────────────
+      if (action === 'revoke-plan') {
+        const syntheticSubId = `admin_cultura_${userId}`;
+
+        await prisma.subscription.updateMany({
+          where: {
+            userId,
+            OR: [
+              { stripeSubscriptionId: syntheticSubId },
+              { plan: 'cultura-manuale' },
+            ],
+          },
+          data: { status: 'canceled' },
+        });
+
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: req.user.email,
+            action:     'REVOKE_PLAN',
+            targetType: 'user',
+            targetId:   userId,
+            payload:    JSON.stringify({ note: "piano manuale revocato dall'admin" }),
+          },
+        });
+
+        return res.status(200).json({ ok: true });
+      }
+
     } catch (err) {
       console.error('[admin/users POST]', err);
       return res.status(500).json({ error: 'Errore interno del server' });

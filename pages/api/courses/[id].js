@@ -59,7 +59,15 @@ export default withAuth(async function handler(req, res) {
         accessSource = 'purchase';
       }
 
-      // 2. Controlla abbonamento attivo — solo se non ha acquistato singolarmente
+      // 2. Accesso default "cultura" per tutti gli utenti registrati
+      //    Tutti gli iscritti al portale (anche senza abbonamento) possono
+      //    accedere ai Corsi Brevi (tierRequired = 'cultura') gratuitamente.
+      if (!hasAccess && (course.tierRequired === 'cultura' || !course.tierRequired)) {
+        hasAccess   = true;
+        accessSource = 'default-cultura';
+      }
+
+      // 3. Controlla abbonamento attivo per corsi linguae / accademia
       if (!hasAccess) {
         const now = new Date();
         const subscription = await prisma.subscription.findFirst({

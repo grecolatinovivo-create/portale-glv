@@ -1244,8 +1244,9 @@ async function loadUsers() {
 
       // Piano: label leggibile e colore
       const planLabels = {
-        'cultura-mensile':   { label: 'Cultura', sub: 'mensile',   color: '#e0f2fe', text: '#0369a1' },
-        'cultura-annuale':   { label: 'Cultura', sub: 'annuale',   color: '#e0f2fe', text: '#0369a1' },
+        'cultura-mensile':   { label: 'Cultura',  sub: 'mensile',  color: '#e0f2fe', text: '#0369a1' },
+        'cultura-annuale':   { label: 'Cultura',  sub: 'annuale',  color: '#e0f2fe', text: '#0369a1' },
+        'cultura-manuale':   { label: 'Cultura',  sub: 'manuale',  color: '#dcfce7', text: '#15803d' },
         'linguae-mensile':   { label: 'Linguae',  sub: 'mensile',  color: '#ede9fe', text: '#6d28d9' },
         'linguae-annuale':   { label: 'Linguae',  sub: 'annuale',  color: '#ede9fe', text: '#6d28d9' },
         'accademia-mensile': { label: 'Accademia',sub: 'mensile',  color: '#fef3c7', text: '#92400e' },
@@ -1276,6 +1277,12 @@ async function loadUsers() {
         ? `<button class="btn btn-success btn-sm" onclick="promptUserAction('${u.id}', 'restore', '${escAttr(u.email)}')">Riattiva</button>`
         : `<button class="btn btn-danger btn-sm" onclick="promptUserAction('${u.id}', 'suspend', '${escAttr(u.email)}')">Sospendi</button>`;
 
+      // Pulsanti gestione piano manuale
+      const hasManualSub = sub && sub.plan === 'cultura-manuale' && sub.status === 'active';
+      const planBtn = hasManualSub
+        ? `<button class="btn btn-outline btn-sm" style="color:#dc2626;border-color:#dc2626;" onclick="adminGrantPlan('${u.id}', 'revoke-plan', '${escAttr(u.email)}')">Revoca</button>`
+        : `<button class="btn btn-outline btn-sm" style="color:#0369a1;border-color:#0369a1;" onclick="adminGrantPlan('${u.id}', 'grant-cultura', '${escAttr(u.email)}')">+ Cultura</button>`;
+
       const purchases = u.purchases?.length || 0;
       const certs = u.certificates?.length || 0;
 
@@ -1303,7 +1310,12 @@ async function loadUsers() {
           </td>
           <td><span style="font-size:13px;color:var(--gray-600)">${formatDateShort(u.createdAt)}</span></td>
           <td>${statusBadge}</td>
-          <td>${actionBtn}</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${actionBtn}
+              ${planBtn}
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -1376,6 +1388,33 @@ async function confirmUserAction() {
     alertEl.className = 'alert alert-error';
     alertEl.textContent = 'Errore di rete';
     alertEl.style.display = 'flex';
+  }
+}
+
+// ── Assegna / revoca piano manuale dall'admin ─────────────────
+async function adminGrantPlan(userId, action, email) {
+  const label = action === 'grant-cultura'
+    ? `Assegnare piano Cultura gratuito a ${email}?`
+    : `Revocare il piano manuale di ${email}?`;
+
+  if (!confirm(label)) return;
+
+  try {
+    const r = await fetch('/api/admin/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, action }),
+    });
+
+    if (!r.ok) {
+      const err = await r.json();
+      alert('Errore: ' + (err.error || 'riprova'));
+      return;
+    }
+
+    loadUsers(); // ricarica la tabella
+  } catch {
+    alert('Errore di rete');
   }
 }
 
