@@ -17,6 +17,10 @@ out/
 # Prisma
 prisma/migrations/
 
+# Database dump — file pesante di migrazione, NON va in repository
+*.sql
+database_latin-cert.sql
+
 # OS
 .DS_Store
 Thumbs.db
