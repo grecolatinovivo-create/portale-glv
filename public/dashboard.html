@@ -1777,13 +1777,23 @@ function _showLockedBanner(lesson, course) {
 }
 
 function renderPlayer(lesson, course) {
-  const playerSection = document.getElementById('course-player-section');
-  const iframe        = document.getElementById('vimeo-player');
+  const wrap = document.getElementById('course-player-wrap');
+  if (!wrap) return;
 
-  if (!playerSection || !iframe) return;
-
-  // Distruggi player precedente
+  // Distruggi player precedente (Vimeo SDK rimuove l'iframe dal DOM al destroy)
   _destroyPlayer();
+
+  // Ricrea sempre l'iframe — dopo destroy() non esiste più nel DOM
+  let iframe = document.getElementById('vimeo-player');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id            = 'vimeo-player';
+    iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', '');
+    iframe.setAttribute('frameborder', '0');
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+    wrap.appendChild(iframe);
+  }
 
   // URL Vimeo: usa placeholder se vimeoUrl è null
   const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
@@ -1795,10 +1805,10 @@ function renderPlayer(lesson, course) {
   _updatePlayerNav(lesson, course);
 
   // Inizializza Vimeo Player SDK
-  const prog      = _lessonProgressMap(_corsoData?.progressData);
+  const prog       = _lessonProgressMap(_corsoData?.progressData);
   const lessonProg = prog.get(lesson.id) || {};
-  const resumeAt  = lessonProg.resumeAt || 0;
-  const totalSec  = lesson.durationMin ? lesson.durationMin * 60 : 0;
+  const resumeAt   = lessonProg.resumeAt || 0;
+  const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
 
   initVimeoProgress(lesson.id, lesson.courseId || course.id, resumeAt, totalSec, vimeoUrl);
 }
