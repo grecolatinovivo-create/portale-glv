@@ -571,16 +571,10 @@
 
         <section class="course-player-section" id="course-player-section" aria-label="Player lezione">
           <div class="course-player-wrap" id="course-player-wrap">
-            <iframe
-              id="vimeo-player"
-              src=""
-              width="100%"
-              height="100%"
-              frameborder="0"
-              allow="autoplay; fullscreen; picture-in-picture"
-              allowfullscreen
-              title="Player lezione"
-            ></iframe>
+            <!-- Il Vimeo Player SDK crea e gestisce il suo iframe dentro questo div.
+                 Usiamo il container invece dell'iframe diretto: destroy() rimuove
+                 solo l'iframe interno, il container sopravvive per la prossima lezione. -->
+            <div id="vimeo-player-container" aria-label="Player lezione"></div>
           </div>
         </section>
 
@@ -1478,17 +1472,25 @@ function closeCourseView(opts) {
     }, 700);
   }
 
-  // Pellicola esce con animazione inversa (ease-in = accelerazione verso sinistra)
+  // Pellicola: esce scorrendo a sinistra (solo transform, opacity fissa a 1 durante l'uscita)
+  // Se si animasse anche l'opacity, l'elemento sparisce prima di uscire dallo schermo
+  // creando un effetto "verso l'angolo". Teniamo opacity:1 inline durante il movimento.
   const stripSection = document.getElementById('course-lessons-section');
   if (stripSection) {
     if (noAnim) {
       stripSection.style.transition = 'none';
+      stripSection.style.opacity    = '';
       stripSection.classList.remove('strip-visible');
       requestAnimationFrame(() => { stripSection.style.transition = ''; });
     } else {
-      stripSection.style.transition = 'transform 0.35s cubic-bezier(0.4, 0, 1, 1), opacity 0.25s ease-in';
+      stripSection.style.opacity    = '1';   // rimane visibile durante lo slide
+      stripSection.style.transition = 'transform 0.38s cubic-bezier(0.4, 0, 1, 1)';
       stripSection.classList.remove('strip-visible');
-      setTimeout(() => { stripSection.style.transition = ''; }, 400);
+      // Dopo l'animazione ripristina gli stili inline: torna allo stato hidden (opacity:0, translateX(-120%))
+      setTimeout(() => {
+        stripSection.style.transition = '';
+        stripSection.style.opacity    = '';
+      }, 420);
     }
   }
 
@@ -1776,88 +1778,66 @@ function _showLockedBanner(lesson, course) {
   frame.insertAdjacentElement('afterend', banner);
 }
 
-function renderPlayer(lesson, course) {
-  const wrap = document.getElementById('course-player-wrap');
-  if (!wrap) return;
+// ── Player Vimeo ──────────────────────────────────────────────────
+//
+// Architettura:
+//   - Il DOM contiene un <div id="vimeo-player-container"> fisso.
+//   - Il Vimeo Player SDK crea il suo <iframe> DENTRO il container.
+//   - destroy() rimuove l'iframe interno ma lascia intatto il container.
+//   - Al click successivo, il container c'è ancora e il SDK ricrea l'iframe.
+//   - Nessuna manipolazione manuale di iframe: zero rischi di DOM rotto.
 
-  // Distruggi player precedente (Vimeo SDK rimuove l'iframe dal DOM al destroy)
+function renderPlayer(lesson, course) {
+  const container = document.getElementById('vimeo-player-container');
+  if (!container) return;
+
+  // Distruggi il player precedente (rimuove l'iframe interno al container)
   _destroyPlayer();
 
-  // Ricrea sempre l'iframe — dopo destroy() non esiste più nel DOM
-  let iframe = document.getElementById('vimeo-player');
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.id            = 'vimeo-player';
-    iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
-    iframe.setAttribute('allowfullscreen', '');
-    iframe.setAttribute('frameborder', '0');
-    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
-    wrap.appendChild(iframe);
-  }
-
-  // URL Vimeo: usa placeholder se vimeoUrl è null
   const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
 
-  // Imposta titolo accessibile sull'iframe
-  iframe.title = lesson.title || 'Player lezione';
-
-  // Aggiorna navigazione prec/succ + back button
-  _updatePlayerNav(lesson, course);
-
-  // Inizializza Vimeo Player SDK
+  // Leggi progresso salvato per ripartire dal punto giusto
   const prog       = _lessonProgressMap(_corsoData?.progressData);
   const lessonProg = prog.get(lesson.id) || {};
   const resumeAt   = lessonProg.resumeAt || 0;
   const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
 
-  initVimeoProgress(lesson.id, lesson.courseId || course.id, resumeAt, totalSec, vimeoUrl);
-}
-
-// _updatePlayerNav — nessun bottone nella UI, funzione no-op
-function _updatePlayerNav(lesson, course) {
-  // Navigazione gestita cliccando direttamente i fotogrammi della pellicola
-}
-
-// ── Vimeo Player SDK ──────────────────────────────────────────────
-
-function initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl) {
-  const iframe = document.getElementById('vimeo-player');
-  if (!iframe) return;
-
-  // Aggiunge dnt=1 (Do Not Track) all'URL Vimeo per disabilitare cookie di terze parti
-  // https://vimeo.com/privacy — parametro supportato ufficialmente
-  function _vimeoPrivacyUrl(url) {
-    if (!url) return url;
-    try {
-      const u = new URL(url);
-      u.searchParams.set('dnt', '1');
-      return u.toString();
-    } catch { return url + (url.includes('?') ? '&' : '?') + 'dnt=1'; }
-  }
-  const privacyUrl = _vimeoPrivacyUrl(vimeoUrl);
-
-  // Carica Vimeo SDK solo al momento del play (lazy load — nessun cookie al caricamento pagina)
+  // Carica SDK al primo click (lazy — no cookie/tracciamento al caricamento pagina)
   if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
-    _loadVimeoSDK(() => initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl));
+    _loadVimeoSDK(() => renderPlayer(lesson, course));
     return;
   }
 
+  _initVimeoPlayer(container, lesson.id, lesson.courseId || course.id,
+                   resumeAt, totalSec, vimeoUrl, lesson.title);
+}
+
+function _initVimeoPlayer(container, lessonId, courseId, resumeAt, totalSeconds, vimeoUrl, lessonTitle) {
   try {
-    _vimeoPlayer = new Vimeo.Player(iframe, {
-      url:    privacyUrl,  // include dnt=1 — no terze parti tracking
-      width:  '100%',
+    // Il SDK accetta direttamente l'URL vimeo.com — converte internamente in embed.
+    // dnt:true = Do Not Track, nessun cookie di terze parti (GDPR).
+    // autoplay:true = parte subito al click sulla lezione.
+    _vimeoPlayer = new Vimeo.Player(container, {
+      url:      vimeoUrl,
+      dnt:      true,
+      autoplay: true,
+      responsive: true,
+      title:    false,
+      byline:   false,
+      portrait: false,
     });
+
     _totalSeconds = totalSeconds;
     _lastWatched  = 0;
 
+    // Riprendi dalla posizione salvata
     _vimeoPlayer.ready().then(() => {
-      // Riprende dalla posizione salvata
       if (resumeAt > 0) {
         _vimeoPlayer.setCurrentTime(resumeAt).catch(() => {});
       }
     }).catch(() => {});
 
-    // Salvataggio ogni 10s tramite timeupdate
+    // Salva il progresso ogni 10 secondi
     let _lastSaveTime = 0;
     _vimeoPlayer.on('timeupdate', (data) => {
       _lastWatched = Math.round(data.seconds || 0);
@@ -1871,42 +1851,36 @@ function initVimeoProgress(lessonId, courseId, resumeAt, totalSeconds, vimeoUrl)
       }
     });
 
-    // Fine video — marca come completata
+    // Fine video — marca lezione come completata
     _vimeoPlayer.on('ended', () => {
       saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
         .then(data => {
-          if (data && data.lessonCompleted) {
-            // Aggiorna il fotogramma a completato nella pellicola
-            const frame = document.querySelector(`.film-frame-btn[data-lesson-id="${lessonId}"]`);
-            if (frame) {
-              frame.classList.remove('film-frame--selected');
-              frame.classList.add('film-frame--completed');
-              const overlay = frame.querySelector('.film-thumb-overlay');
-              if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          if (!data?.lessonCompleted) return;
+          // Aggiorna fotogramma → completato
+          const frame = document.querySelector(`.film-frame-btn[data-lesson-id="${lessonId}"]`);
+          if (frame) {
+            frame.classList.remove('film-frame--selected');
+            frame.classList.add('film-frame--completed');
+            const overlay = frame.querySelector('.film-thumb-overlay');
+            if (overlay) overlay.innerHTML = `
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                 <circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/>
                 <path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>`;
-              const title = frame.querySelector('.film-frame-title');
-              if (title) frame.classList.add('film-frame--completed');
-            }
-            // Aggiorna barra progresso
-            if (data.coursePercent !== undefined) {
-              _updateProgressBar(data.coursePercent);
-            }
           }
-        });
+          // Aggiorna barra progresso
+          if (data.coursePercent !== undefined) _updateProgressBar(data.coursePercent);
+        })
+        .catch(() => {});
     });
 
   } catch (err) {
-    console.error('[corsoView] Errore Vimeo SDK:', err);
+    console.error('[corsoView] Errore Vimeo Player:', err);
   }
 }
 
 function _destroyPlayer() {
-  if (_progressTimer) {
-    clearInterval(_progressTimer);
-    _progressTimer = null;
-  }
+  if (_progressTimer) { clearInterval(_progressTimer); _progressTimer = null; }
   if (_vimeoPlayer) {
     try { _vimeoPlayer.off('timeupdate'); } catch {}
     try { _vimeoPlayer.off('ended');      } catch {}
