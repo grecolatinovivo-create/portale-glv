@@ -43,6 +43,12 @@ model Course {
   sortOrder     Int      @default(0)
   createdAt     DateTime @default(now())
 
+  // Tier minimo richiesto per accedere tramite abbonamento.
+  // Gerarchia: cultura < linguae < accademia
+  // null = accessibile a tutti (corsi gratuiti/preview)
+  // Non influisce mai sugli acquisti singoli (Purchase).
+  tierRequired         String?   @default("cultura") // 'cultura' | 'linguae' | 'accademia' | null
+
   // Scadenza accesso da abbonamento (null = nessuna scadenza)
   // Non influisce mai sugli acquisti singoli (Purchase).
   expiresAt            DateTime? // data oltre la quale l'abbonato perde l'accesso

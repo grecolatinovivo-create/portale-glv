@@ -28,6 +28,7 @@ export default withAuth(async function handler(req, res) {
         sortOrder: true,
         expiresAt: true,
         availableUntilLabel: true,
+        tierRequired: true,
         _count: { select: { lessons: true } },
       },
     });

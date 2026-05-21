@@ -539,6 +539,9 @@
           <h2 class="course-title" id="course-title"></h2>
           <p class="course-description" id="course-description"></p>
 
+          <!-- Banner upgrade tier: visibile solo se l'abbonamento non copre questo corso -->
+          <div id="course-tier-banner" style="display:none;"></div>
+
           <div class="course-meta-bar">
             <div class="course-progress-wrap">
               <div class="course-progress-label">
@@ -1368,6 +1371,7 @@ async function openCourseView(slug, opts) {
 
   // ── STEP 3: RENDER DEI DATI nella vista già visibile ─────────────
   renderCourseHeader(course, progressData, streakData);
+  renderTierBanner(course);
   renderLessonList(course, progressData);
 
   // Attiva l'entrata della pellicola (slide da sinistra) dopo un tick
@@ -1469,6 +1473,30 @@ function closeCourseView(opts) {
 }
 
 // ── Render header corso ───────────────────────────────────────────
+
+// ── Banner upgrade tier (header corso) ───────────────────────────
+function renderTierBanner(course) {
+  const el = document.getElementById('course-tier-banner');
+  if (!el) return;
+
+  const TIER_LABELS = { cultura: 'Cultura', linguae: 'Linguae', accademia: 'Accademia' };
+
+  if (course.accessSource === 'subscription-tier' && course.tierRequired) {
+    const tierLabel = TIER_LABELS[course.tierRequired] || course.tierRequired;
+    el.innerHTML = `
+      <div style="background:rgba(240,192,64,.12);border:1px solid rgba(240,192,64,.4);border-radius:8px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px;font-size:13px;">
+        <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true" style="flex-shrink:0;">
+          <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="rgba(240,192,64,.7)"/>
+        </svg>
+        <span style="color:var(--text-muted);flex:1;">Piano <strong style="color:var(--text);">${tierLabel}</strong> richiesto per questo corso.</span>
+        <a href="/index.html#prezzi" style="color:var(--accent);font-weight:700;white-space:nowrap;text-decoration:none;">Fai upgrade →</a>
+      </div>`;
+    el.style.display = '';
+  } else {
+    el.innerHTML = '';
+    el.style.display = 'none';
+  }
+}
 
 function renderCourseHeader(course, progressData, streakData) {
   // ── Colora l'header con il gradiente della lingua ────────────────
@@ -1650,7 +1678,7 @@ function renderLessonList(course, progressData) {
 
 function selectLesson(lesson, hasAccess, course) {
   if (!hasAccess) {
-    _showLockedBanner(lesson);
+    _showLockedBanner(lesson, course);
     return;
   }
 
@@ -1663,7 +1691,7 @@ function selectLesson(lesson, hasAccess, course) {
   renderPlayer(lesson, course);
 }
 
-function _showLockedBanner(lesson) {
+function _showLockedBanner(lesson, course) {
   // Rimuovi banner precedente
   document.querySelectorAll('.locked-banner').forEach(b => b.remove());
 
@@ -1673,22 +1701,47 @@ function _showLockedBanner(lesson) {
   const frame = framesWrap.querySelector(`.film-frame-btn[data-lesson-id="${lesson.id}"]`);
   if (!frame) return;
 
+  const TIER_LABELS = { cultura: 'Cultura', linguae: 'Linguae', accademia: 'Accademia' };
+
+  // Distingue: tier insufficiente (abbonato ma piano basso) vs nessun abbonamento
+  const isTierBlock = course && course.accessSource === 'subscription-tier' && course.tierRequired;
+  const tierLabel   = isTierBlock ? (TIER_LABELS[course.tierRequired] || course.tierRequired) : null;
+
   const banner = document.createElement('div');
   banner.className = 'locked-banner';
   banner.setAttribute('role', 'alert');
-  banner.innerHTML = `
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <rect x="4" y="7" width="8" height="6" rx="1" stroke="var(--text-muted)" stroke-width="1.5"/>
-      <path d="M6 7V5.5a2 2 0 0 1 4 0V7" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="8" cy="10" r="1" fill="var(--text-muted)"/>
-    </svg>
-    <span>Inclusa nei piani di abbonamento.</span>
-    <a href="/index.html#prezzi" class="locked-banner__cta">
-      Scopri i piani
-      <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-        <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  if (isTierBlock) {
+    // Abbonato con piano insufficiente → invita a fare upgrade
+    banner.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="4" y="7" width="8" height="6" rx="1" stroke="var(--text-muted)" stroke-width="1.5"/>
+        <path d="M6 7V5.5a2 2 0 0 1 4 0V7" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="10" r="1" fill="var(--text-muted)"/>
       </svg>
-    </a>`;
+      <span>Richiede piano <strong>${tierLabel}</strong>.</span>
+      <a href="/index.html#prezzi" class="locked-banner__cta">
+        Passa a ${tierLabel}
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>`;
+  } else {
+    // Nessun abbonamento attivo → invita a sottoscrivere
+    banner.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <rect x="4" y="7" width="8" height="6" rx="1" stroke="var(--text-muted)" stroke-width="1.5"/>
+        <path d="M6 7V5.5a2 2 0 0 1 4 0V7" stroke="var(--text-muted)" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="8" cy="10" r="1" fill="var(--text-muted)"/>
+      </svg>
+      <span>Inclusa nei piani di abbonamento.</span>
+      <a href="/index.html#prezzi" class="locked-banner__cta">
+        Scopri i piani
+        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+          <path d="M4 2l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>`;
+  }
 
   // Inserisce il banner subito dopo il fotogramma (prima del divisore)
   frame.insertAdjacentElement('afterend', banner);

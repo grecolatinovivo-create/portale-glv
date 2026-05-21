@@ -4,6 +4,28 @@
 const { prisma } = require('../../../lib/prisma');
 const { withAuth } = require('../../../lib/auth');
 
+// ── Gerarchia tier ────────────────────────────────────────────
+// cultura (1) < linguae (2) < accademia (3)
+const TIER_RANK = { cultura: 1, linguae: 2, accademia: 3 };
+
+// Estrae il nome del tier da un planId (es. 'cultura-mensile' → 'cultura')
+// Gestisce anche il caso in cui il plan sia un Stripe priceId (price_xxx)
+function planToTier(plan) {
+  if (!plan || typeof plan !== 'string') return null;
+  if (plan.startsWith('cultura'))   return 'cultura';
+  if (plan.startsWith('linguae'))   return 'linguae';
+  if (plan.startsWith('accademia')) return 'accademia';
+  return null; // plan non riconosciuto (es. price_xxx da checkout legacy)
+}
+
+// Restituisce true se il tier dell'abbonato è >= il tier richiesto dal corso
+function hasTierAccess(userPlan, courseRequiredTier) {
+  if (!courseRequiredTier) return true; // nessun requisito
+  const userTier = planToTier(userPlan);
+  if (!userTier) return false; // piano non riconosciuto → nessun accesso tier
+  return (TIER_RANK[userTier] || 0) >= (TIER_RANK[courseRequiredTier] || 0);
+}
+
 export default withAuth(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -48,10 +70,13 @@ export default withAuth(async function handler(req, res) {
         });
 
         if (subscription) {
-          // Abbonamento valido: blocca solo se il corso ha una scadenza superata
+          // Abbonamento valido: verifica tier + scadenza
           if (course.expiresAt && new Date(course.expiresAt) <= now) {
-            // Corso scaduto per abbonati — hasAccess rimane false
+            // Corso scaduto per abbonati
             accessSource = 'subscription-expired';
+          } else if (!hasTierAccess(subscription.plan, course.tierRequired)) {
+            // Tier insufficiente — hasAccess rimane false
+            accessSource = 'subscription-tier';
           } else {
             hasAccess = true;
             accessSource = 'subscription';
@@ -81,7 +106,8 @@ export default withAuth(async function handler(req, res) {
         ...course,
         lessons,
         hasAccess,
-        accessSource,       // 'purchase' | 'subscription' | 'subscription-expired' | null
+        accessSource,       // 'purchase' | 'subscription' | 'subscription-expired' | 'subscription-tier' | null
+        tierRequired: course.tierRequired || null,
         isExpiringSoon,
         availableUntilLabel: course.availableUntilLabel || null,
       },

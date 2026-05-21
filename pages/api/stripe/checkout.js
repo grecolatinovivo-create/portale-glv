@@ -32,6 +32,17 @@ async function handler(req, res) {
     }
     finalPriceId = directPriceId;
 
+    // Risolve il planId leggibile (es. 'cultura-mensile') a partire dal priceId,
+    // cercando quale env var corrisponde. Necessario per la gerarchia tier nel webhook.
+    if (!resolvedPlanId) {
+      for (const [pId, pData] of Object.entries(PLANS)) {
+        if (process.env[pData.envKey] === finalPriceId) {
+          resolvedPlanId = pId;
+          break;
+        }
+      }
+    }
+
   } else if (planId) {
     // Percorso legacy: lookup tramite nome piano
     if (!VALID_PLAN_IDS.includes(planId)) {

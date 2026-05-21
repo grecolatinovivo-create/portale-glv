@@ -1179,6 +1179,30 @@ async function initCorsoPage(){
   const ll=document.getElementById('lessons-list'); if(!ll)return;
   const lessons=course.lessons||[];
 
+  // ── Banner upgrade tier ───────────────────────────────────────
+  // Visibile solo se l'abbonamento esiste ma il tier è insufficiente
+  const tierBanner = document.getElementById('tier-upgrade-banner');
+  if (tierBanner) {
+    const TIER_LABELS = { cultura: 'Cultura', linguae: 'Linguae', accademia: 'Accademia' };
+    if (course.accessSource === 'subscription-tier' && course.tierRequired) {
+      const tierLabel = TIER_LABELS[course.tierRequired] || course.tierRequired;
+      tierBanner.innerHTML = `
+        <div style="background:#fff8e1;border:1.5px solid #f0c040;border-radius:10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <span style="font-size:22px;">⬆️</span>
+          <div style="flex:1;">
+            <div style="font-weight:700;color:#7a5800;font-size:14px;">Piano ${tierLabel} richiesto</div>
+            <div style="color:#7a5800;font-size:13px;margin-top:2px;">Il tuo abbonamento attuale non include questo corso. Passa al piano ${tierLabel} per sbloccarlo.</div>
+          </div>
+          <button onclick="Payments.subscribe('${course.tierRequired}')" style="background:#a01a36;color:#fff;border:none;border-radius:6px;padding:9px 18px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;">
+            Passa a ${tierLabel}
+          </button>
+        </div>`;
+      tierBanner.style.display = '';
+    } else {
+      tierBanner.style.display = 'none';
+    }
+  }
+
   if(lessons.length>0){
     // Aggiorna il conteggio lezioni
     const countLabel = document.getElementById('lessons-count-label');
