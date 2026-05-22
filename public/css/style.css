@@ -2649,19 +2649,12 @@ body.has-corso-cta { padding-bottom: 80px; }
   border-radius: var(--r-md);
   overflow: hidden;
 }
-/* Container div — l'SDK Vimeo crea il suo iframe dentro questo elemento */
-#vimeo-player-container {
+/* iframe creato dinamicamente da renderPlayer() */
+#vimeo-player {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-}
-/* iframe creato dall'SDK dentro il container */
-#vimeo-player-container iframe {
-  position: absolute;
-  inset: 0;
-  width: 100% !important;
-  height: 100% !important;
   border: 0;
 }
 

@@ -12,17 +12,6 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer">
   <link rel="stylesheet" href="/css/style.css">
-  <!-- Vimeo Player SDK: caricato solo su interazione utente (privacy — nessun cookie di terze parti al caricamento pagina) -->
-  <script>
-    window._vimeoSDKLoaded = false;
-    function _loadVimeoSDK(callback) {
-      if (window._vimeoSDKLoaded && typeof Vimeo !== 'undefined') { if (callback) callback(); return; }
-      const s = document.createElement('script');
-      s.src = 'https://player.vimeo.com/api/player.js';
-      s.onload = () => { window._vimeoSDKLoaded = true; if (callback) callback(); };
-      document.head.appendChild(s);
-    }
-  </script>
   <style>
     :root {
       --dark:#0a0a0a; --dark-2:#111111; --dark-3:#1a1a1a;
@@ -573,10 +562,7 @@
 
         <section class="course-player-section" id="course-player-section" aria-label="Player lezione">
           <div class="course-player-wrap" id="course-player-wrap">
-            <!-- Il Vimeo Player SDK crea e gestisce il suo iframe dentro questo div.
-                 Usiamo il container invece dell'iframe diretto: destroy() rimuove
-                 solo l'iframe interno, il container sopravvive per la prossima lezione. -->
-            <div id="vimeo-player-container" aria-label="Player lezione"></div>
+            <!-- iframe creato/rimosso dinamicamente da renderPlayer() -->
           </div>
         </section>
 
@@ -1157,8 +1143,7 @@ const VIMEO_PLACEHOLDER = 'https://player.vimeo.com/video/76979871';
 // Stato interno del corso aperto
 let _corsoData       = null; // { course, progressData, streak }
 let _lessonSelected  = null; // oggetto lezione attualmente selezionata
-let _vimeoPlayer     = null; // istanza Vimeo.Player SDK
-let _progressTimer   = null; // intervallo salvataggio ogni 10s
+let _vimeoMsgHandler = null; // handler window.message per postMessage API
 let _lastWatched     = 0;    // secondi guardati (aggiornati da timeupdate)
 let _totalSeconds    = 0;    // durata totale lezione
 
@@ -1780,121 +1765,120 @@ function _showLockedBanner(lesson, course) {
   frame.insertAdjacentElement('afterend', banner);
 }
 
-// ── Player Vimeo ──────────────────────────────────────────────────
+// ── Player Vimeo — iframe diretto + postMessage API ───────────────
 //
-// Architettura:
-//   - Il DOM contiene un <div id="vimeo-player-container"> fisso.
-//   - Il Vimeo Player SDK crea il suo <iframe> DENTRO il container.
-//   - destroy() rimuove l'iframe interno ma lascia intatto il container.
-//   - Al click successivo, il container c'è ancora e il SDK ricrea l'iframe.
-//   - Nessuna manipolazione manuale di iframe: zero rischi di DOM rotto.
+// Architettura senza SDK:
+//   - renderPlayer() crea un <iframe> direttamente nel #course-player-wrap.
+//   - L'URL contiene autoplay=1 — funziona perché siamo nel contesto di un
+//     click utente (user gesture).
+//   - _startVimeoTracking() ascolta window.message per eventi timeupdate/finish
+//     senza dipendere da alcuna libreria di terze parti.
+//   - _destroyPlayer() rimuove l'iframe e il message listener — DOM pulito.
+
+function _extractVimeoId(url) {
+  if (!url) return null;
+  const m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  return m ? m[1] : null;
+}
 
 function renderPlayer(lesson, course) {
-  const container = document.getElementById('vimeo-player-container');
-  if (!container) return;
+  const wrap = document.getElementById('course-player-wrap');
+  if (!wrap) return;
 
-  // Distruggi il player precedente (rimuove l'iframe interno al container)
+  // Distruggi il player precedente
   _destroyPlayer();
 
   const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
+  const videoId  = _extractVimeoId(vimeoUrl);
+  if (!videoId) return;
 
   // Leggi progresso salvato per ripartire dal punto giusto
   const prog       = _lessonProgressMap(_corsoData?.progressData);
   const lessonProg = prog.get(lesson.id) || {};
   const resumeAt   = lessonProg.resumeAt || 0;
   const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
+  const courseId   = lesson.courseId || course.id;
 
-  // Carica SDK al primo click (lazy — no cookie/tracciamento al caricamento pagina)
-  if (typeof Vimeo === 'undefined' || !Vimeo.Player) {
-    _loadVimeoSDK(() => renderPlayer(lesson, course));
-    return;
-  }
+  // Crea iframe — autoplay=1 funziona perché chiamato da click utente
+  const iframe = document.createElement('iframe');
+  iframe.id = 'vimeo-player';
+  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.setAttribute('frameborder', '0');
+  iframe.title = lesson.title || 'Player lezione';
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+  wrap.appendChild(iframe);
 
-  _initVimeoPlayer(container, lesson.id, lesson.courseId || course.id,
-                   resumeAt, totalSec, vimeoUrl, lesson.title);
+  _lastWatched  = 0;
+  _totalSeconds = totalSec;
+
+  // Imposta src dopo appendChild per evitare race condition
+  let src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
+  if (resumeAt > 0) src += `#t=${resumeAt}s`;
+  iframe.src = src;
+
+  // Avvia tracking tramite postMessage
+  _startVimeoTracking(iframe, lesson.id, courseId, totalSec);
 }
 
-function _initVimeoPlayer(container, lessonId, courseId, resumeAt, totalSeconds, vimeoUrl, lessonTitle) {
-  try {
-    // Il SDK accetta direttamente l'URL vimeo.com — converte internamente in embed.
-    // dnt:true = Do Not Track, nessun cookie di terze parti (GDPR).
-    // autoplay:true = parte subito al click sulla lezione.
-    _vimeoPlayer = new Vimeo.Player(container, {
-      url:      vimeoUrl,
-      dnt:      true,
-      // autoplay:true con dnt:true viene bloccato dalla browser autoplay policy
-      // perché il video non è muted. Usiamo autoplay:false e chiamiamo .play()
-      // manualmente nel .ready() — questo funziona perché siamo nella catena
-      // di un click utente (user gesture propagata tramite Promises synchronously).
-      autoplay: false,
-      title:    false,
-      byline:   false,
-      portrait: false,
-    });
+function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds) {
+  let lastSave = 0;
 
-    _totalSeconds = totalSeconds;
-    _lastWatched  = 0;
+  _vimeoMsgHandler = (e) => {
+    if (!e.origin.includes('vimeo.com')) return;
+    let d;
+    try { d = JSON.parse(e.data); } catch { return; }
 
-    // Riprendi dalla posizione salvata e avvia la riproduzione
-    _vimeoPlayer.ready().then(() => {
-      const chain = resumeAt > 0
-        ? _vimeoPlayer.setCurrentTime(resumeAt).catch(() => {})
-        : Promise.resolve();
-      // .play() dopo setCurrentTime — avvio garantito perché siamo nel task
-      // del click utente originale (user-gesture trust propagata via Promise).
-      return chain.then(() => _vimeoPlayer.play().catch(() => {}));
-    }).catch(() => {});
-
-    // Salva il progresso ogni 10 secondi
-    let _lastSaveTime = 0;
-    _vimeoPlayer.on('timeupdate', (data) => {
-      _lastWatched = Math.round(data.seconds || 0);
-      const dur    = Math.round(data.duration || totalSeconds || 0);
+    if (d.event === 'timeupdate') {
+      _lastWatched = Math.round(d.data?.seconds || 0);
+      const dur = Math.round(d.data?.duration || totalSeconds || 0);
       if (dur > 0 && _totalSeconds === 0) _totalSeconds = dur;
 
       const now = Date.now();
-      if (now - _lastSaveTime >= 10000) {
-        _lastSaveTime = now;
+      if (now - lastSave >= 10000) {
+        lastSave = now;
         saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false);
       }
-    });
+    }
 
-    // Fine video — marca lezione come completata
-    _vimeoPlayer.on('ended', () => {
+    if (d.event === 'finish') {
       saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
-        .then(data => {
-          if (!data?.lessonCompleted) return;
+        .then(result => {
+          if (!result?.lessonCompleted) return;
           // Aggiorna fotogramma → completato
           const frame = document.querySelector(`.film-frame-btn[data-lesson-id="${lessonId}"]`);
           if (frame) {
             frame.classList.remove('film-frame--selected');
             frame.classList.add('film-frame--completed');
             const overlay = frame.querySelector('.film-thumb-overlay');
-            if (overlay) overlay.innerHTML = `
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/>
-                <path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>`;
+            if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/><path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
           }
           // Aggiorna barra progresso
-          if (data.coursePercent !== undefined) _updateProgressBar(data.coursePercent);
-        })
-        .catch(() => {});
-    });
+          if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
+        }).catch(() => {});
+    }
+  };
 
-  } catch (err) {
-    console.error('[corsoView] Errore Vimeo Player:', err);
-  }
+  window.addEventListener('message', _vimeoMsgHandler);
+
+  // Quando l'iframe è caricato, registra gli eventi via postMessage
+  iframe.addEventListener('load', () => {
+    try {
+      iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'timeupdate' }), '*');
+      iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'finish' }), '*');
+    } catch {}
+  }, { once: true });
 }
 
 function _destroyPlayer() {
-  if (_progressTimer) { clearInterval(_progressTimer); _progressTimer = null; }
-  if (_vimeoPlayer) {
-    try { _vimeoPlayer.off('timeupdate'); } catch {}
-    try { _vimeoPlayer.off('ended');      } catch {}
-    try { _vimeoPlayer.destroy();         } catch {}
-    _vimeoPlayer = null;
+  // Rimuovi message listener
+  if (_vimeoMsgHandler) {
+    window.removeEventListener('message', _vimeoMsgHandler);
+    _vimeoMsgHandler = null;
   }
+  // Rimuovi iframe
+  const old = document.getElementById('vimeo-player');
+  if (old) old.remove();
   _lastWatched  = 0;
   _totalSeconds = 0;
 }
