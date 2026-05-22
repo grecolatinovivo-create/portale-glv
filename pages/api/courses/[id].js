@@ -49,6 +49,10 @@ export default withAuth(async function handler(req, res) {
       return res.status(404).json({ error: 'Corso non trovato' });
     }
 
+    // FIX: 'now' dichiarato qui — era dopo il primo utilizzo (riga ~84),
+    // causando ReferenceError in Temporal Dead Zone → 500 → course=null nel client.
+    const now = new Date();
+
     let hasAccess = false;
     let accessSource = null; // 'subscription' | 'purchase' | 'admin' | null
 
@@ -96,7 +100,6 @@ export default withAuth(async function handler(req, res) {
     }
 
     // Urgency per abbonati
-    const now = new Date();
     let isExpiringSoon = false;
     if (course.expiresAt && accessSource === 'subscription') {
       const daysLeft = Math.ceil((new Date(course.expiresAt) - now) / (1000 * 60 * 60 * 24));

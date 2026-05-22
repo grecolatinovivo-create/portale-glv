@@ -1822,7 +1822,11 @@ function _initVimeoPlayer(container, lessonId, courseId, resumeAt, totalSeconds,
     _vimeoPlayer = new Vimeo.Player(container, {
       url:      vimeoUrl,
       dnt:      true,
-      autoplay: true,
+      // autoplay:true con dnt:true viene bloccato dalla browser autoplay policy
+      // perché il video non è muted. Usiamo autoplay:false e chiamiamo .play()
+      // manualmente nel .ready() — questo funziona perché siamo nella catena
+      // di un click utente (user gesture propagata tramite Promises synchronously).
+      autoplay: false,
       title:    false,
       byline:   false,
       portrait: false,
@@ -1831,11 +1835,14 @@ function _initVimeoPlayer(container, lessonId, courseId, resumeAt, totalSeconds,
     _totalSeconds = totalSeconds;
     _lastWatched  = 0;
 
-    // Riprendi dalla posizione salvata
+    // Riprendi dalla posizione salvata e avvia la riproduzione
     _vimeoPlayer.ready().then(() => {
-      if (resumeAt > 0) {
-        _vimeoPlayer.setCurrentTime(resumeAt).catch(() => {});
-      }
+      const chain = resumeAt > 0
+        ? _vimeoPlayer.setCurrentTime(resumeAt).catch(() => {})
+        : Promise.resolve();
+      // .play() dopo setCurrentTime — avvio garantito perché siamo nel task
+      // del click utente originale (user-gesture trust propagata via Promise).
+      return chain.then(() => _vimeoPlayer.play().catch(() => {}));
     }).catch(() => {});
 
     // Salva il progresso ogni 10 secondi
