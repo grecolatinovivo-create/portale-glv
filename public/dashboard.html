@@ -399,6 +399,43 @@
     <p class="dash-subtitle" id="dash-subtitle">Caricamento del tuo catalogo personalizzato…</p>
   </section>
 
+  <!-- ── RIPRENDI + PROGRESSO GLOBALE ───────────────────────── -->
+  <div id="riprendi-section" class="riprendi-section hidden" aria-live="polite">
+    <div id="riprendi-card" class="riprendi-card" role="button" tabindex="0"
+         aria-label="Riprendi ultima lezione">
+      <div class="riprendi-gradient" id="riprendi-gradient" aria-hidden="true"></div>
+      <div class="riprendi-body">
+        <div class="riprendi-label">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M5 3l6 5-6 5V3z" fill="currentColor"/>
+          </svg>
+          Riprendi
+        </div>
+        <div class="riprendi-course" id="riprendi-course-title"></div>
+        <div class="riprendi-lesson" id="riprendi-lesson-title"></div>
+        <div class="riprendi-progress-wrap" aria-hidden="true">
+          <div class="riprendi-progress-bar">
+            <div class="riprendi-progress-fill" id="riprendi-progress-fill"></div>
+          </div>
+          <span class="riprendi-progress-pct" id="riprendi-progress-pct"></span>
+        </div>
+      </div>
+      <div class="riprendi-cta" aria-hidden="true">→</div>
+    </div>
+
+    <div id="global-progress-widget" class="global-progress-widget hidden">
+      <div class="gp-stat" id="gp-lessons">
+        <span class="gp-num" id="gp-lessons-num">—</span>
+        <span class="gp-label">lezioni completate</span>
+      </div>
+      <div class="gp-divider" aria-hidden="true"></div>
+      <div class="gp-stat" id="gp-weekly">
+        <span class="gp-num" id="gp-weekly-num">—</span>
+        <span class="gp-label">questa settimana</span>
+      </div>
+    </div>
+  </div>
+
   <div class="upgrade-banner hidden" id="upgrade-banner">
     <div class="upgrade-banner-inner">
       <div class="upgrade-banner-text">
@@ -406,6 +443,28 @@
         <span id="upgrade-banner-sub">Passa a Linguae e studia Latino, Greco, Egiziano ed Ebraico Biblico.</span>
       </div>
       <a href="/index.html#prezzi" class="upgrade-banner-btn">Esplora i piani →</a>
+    </div>
+  </div>
+
+  <!-- ── RICERCA + FILTRI ────────────────────────────────── -->
+  <div class="course-filter-bar" id="course-filter-bar" role="search" aria-label="Cerca e filtra corsi">
+    <div class="course-search-wrap">
+      <svg class="course-search-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      <input type="search" id="course-search-input" class="course-search-input"
+             placeholder="Cerca corsi…" aria-label="Cerca corsi" autocomplete="off">
+      <button class="course-search-clear hidden" id="course-search-clear"
+              aria-label="Cancella ricerca" type="button">×</button>
+    </div>
+    <div class="course-filter-chips" role="group" aria-label="Filtra per lingua" id="course-filter-chips">
+      <button class="filter-chip active" data-filter="all"  type="button">Tutti</button>
+      <button class="filter-chip" data-filter="Latino"               type="button">Latino</button>
+      <button class="filter-chip" data-filter="Greco Antico"         type="button">Greco</button>
+      <button class="filter-chip" data-filter="Egiziano Geroglifico" type="button">Egiziano</button>
+      <button class="filter-chip" data-filter="Ebraico Biblico"      type="button">Ebraico</button>
+      <button class="filter-chip" data-filter="Corsi Brevi"          type="button">Corsi Brevi</button>
     </div>
   </div>
 
@@ -563,6 +622,27 @@
         <section class="course-player-section" id="course-player-section" aria-label="Player lezione">
           <div class="course-player-wrap" id="course-player-wrap">
             <!-- iframe creato/rimosso dinamicamente da renderPlayer() -->
+
+            <!-- Overlay "Prossima lezione" — visibile solo al termine del video -->
+            <div class="next-lesson-overlay hidden" id="next-lesson-overlay" role="dialog" aria-label="Prossima lezione">
+              <div class="nlo-inner">
+                <div class="nlo-check" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                    <circle cx="16" cy="16" r="15" fill="rgba(61,176,91,.2)" stroke="#3db05b" stroke-width="1.5"/>
+                    <path d="M9 16l5 5 9-9" stroke="#3db05b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <p class="nlo-label">Lezione completata</p>
+                <p class="nlo-next-title" id="nlo-next-title"></p>
+                <div class="nlo-actions">
+                  <button class="nlo-btn-next" id="nlo-btn-next" type="button">
+                    Prossima lezione
+                    <span class="nlo-countdown" id="nlo-countdown"></span>
+                  </button>
+                  <button class="nlo-btn-dismiss" id="nlo-btn-dismiss" type="button" aria-label="Rimani su questa lezione">✕</button>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -902,9 +982,13 @@ async function showDashboard() {
   // Corsi — carica e metti in cache globale
   try { _allCourses = await Courses.getAll(); } catch { _allCourses = []; }
 
+  // Salva tier corrente per il sistema di filtri
+  _currentTier = tier;
+
   // Render iniziale — admin parte da tier 3 (vede tutto)
   if (user.isAdmin) {
     _adminTierActive = 3;
+    _currentTier = 3;
     rerenderRows(3);
     injectAdminPanel(3);
   } else {
@@ -1064,16 +1148,10 @@ async function openSubscriptionModal() {
 }
 
 /* ── Override goToCourse per la dashboard ─────────────────── */
-// app.js definisce goToCourse per scrollare a #corsi — qui la ridefiniremo
-// dopo il load: se slug === CORSO_SLUG_TEST apriamo la vista corso,
-// altrimenti mostriamo un toast informativo.
+// Tutti i corsi sono apribili — accesso controllato server-side.
 window.addEventListener('load', () => {
   window.goToCourse = function(slug) {
-    if (slug === CORSO_SLUG_TEST) {
-      openCourseView(slug);
-    } else {
-      showToast('Accesso diretto al corso in arrivo. Usa la navigazione del portale.');
-    }
+    openCourseView(slug);
   };
 });
 
@@ -1134,8 +1212,7 @@ function _esc(val) {
     .replace(/'/g, '&#x27;');
 }
 
-const CORSO_SLUG_TEST = 'breve-marziale';
-const ALLOWED_SLUGS   = ['breve-marziale']; // rimuovere in fase 2
+// Tutti i corsi sono ora aperibili — accesso controllato server-side in /api/courses/[id]
 
 // Placeholder Vimeo per lezioni senza vimeoUrl (seed ha vimeoUrl: null)
 const VIMEO_PLACEHOLDER = 'https://player.vimeo.com/video/76979871';
@@ -1303,7 +1380,7 @@ async function openCourseView(slug, opts) {
   opts = opts || {};
   const { skipAnimation = false, pushState = true } = opts;
 
-  if (!ALLOWED_SLUGS.includes(slug)) return;
+  // Accesso controllato server-side — qualsiasi slug è apribile dal client
 
   const catalogView = document.getElementById('catalog-view');
   const courseView  = document.getElementById('course-view');
@@ -1419,6 +1496,7 @@ function closeCourseView(opts) {
 
   // Ferma il player e il timer progresso
   _destroyPlayer();
+  dismissNextLessonOverlay();
 
   if (pushState) {
     history.pushState({}, '', location.pathname);
@@ -1855,6 +1933,8 @@ function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds) {
           }
           // Aggiorna barra progresso
           if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
+          // Mostra overlay "Prossima lezione"
+          showNextLessonOverlay();
         }).catch(() => {});
     }
   };
@@ -1942,6 +2022,298 @@ async function saveProgress(lessonId, courseId, watchedSeconds, totalSeconds, co
     attach();
   }
 }());
+
+// ══ OVERVIEW — Riprendi + Progresso globale + Weekly stat ════════
+
+let _overviewData = null; // cache per evitare fetch multipli
+
+async function fetchAndRenderOverview() {
+  try {
+    const res = await fetch('/api/progress/overview');
+    if (!res.ok) return;
+    _overviewData = await res.json();
+    _renderRiprendiCard(_overviewData);
+    _renderGlobalProgress(_overviewData);
+  } catch {}
+}
+
+function _renderRiprendiCard(data) {
+  if (!data?.lastLesson) return;
+  const { courseSlug, courseTitle, courseLang, lessonTitle, progressPercent, completed } = data.lastLesson;
+
+  const section = document.getElementById('riprendi-section');
+  const card    = document.getElementById('riprendi-card');
+  if (!section || !card) return;
+
+  // Gradiente lingua
+  const gradient = GLV_LANG_GRADIENTS[(courseLang || '').toLowerCase()] || 'linear-gradient(155deg,#252525,#111)';
+  const gradEl = document.getElementById('riprendi-gradient');
+  if (gradEl) gradEl.style.background = gradient;
+
+  // Testi (textContent per XSS safety)
+  const courseEl = document.getElementById('riprendi-course-title');
+  const lessonEl = document.getElementById('riprendi-lesson-title');
+  if (courseEl) courseEl.textContent = courseTitle || '';
+  if (lessonEl) lessonEl.textContent = completed ? '✓ Completata — ' + (lessonTitle || '') : (lessonTitle || '');
+
+  // Barra progresso
+  const fillEl  = document.getElementById('riprendi-progress-fill');
+  const pctEl   = document.getElementById('riprendi-progress-pct');
+  if (fillEl) fillEl.style.width = (progressPercent || 0) + '%';
+  if (pctEl)  pctEl.textContent  = (progressPercent || 0) + '%';
+
+  // Rendi cliccabile
+  card.onclick = () => {
+    const lessonId = data.lastLesson.lessonId;
+    openCourseView(courseSlug, { preselectLessonId: lessonId });
+  };
+  card.onkeydown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.onclick(); }
+  };
+
+  section.classList.remove('hidden');
+}
+
+function _renderGlobalProgress(data) {
+  if (!data || data.totalLessons === 0) return;
+  const widget = document.getElementById('global-progress-widget');
+  if (!widget) return;
+
+  const numEl     = document.getElementById('gp-lessons-num');
+  const weeklyEl  = document.getElementById('gp-weekly-num');
+  if (numEl)    numEl.textContent    = data.completedLessons + '/' + data.totalLessons;
+  if (weeklyEl) weeklyEl.textContent = data.weeklyLessons;
+
+  widget.classList.remove('hidden');
+}
+
+// ── Riprendi al click: pre-seleziona la lezione nel corso ─────────
+// openCourseView già esistente — aggiungiamo supporto a opts.preselectLessonId
+// La selezione avviene dopo che i dati del corso sono caricati (STEP 3 di openCourseView)
+// via _pendingPreselectId che selectLesson controlla.
+
+let _pendingPreselectId = null;
+
+// Patch di openCourseView per passare preselectLessonId
+const _origOpenCourseView = openCourseView;
+window.openCourseView = async function(slug, opts) {
+  opts = opts || {};
+  if (opts.preselectLessonId) {
+    _pendingPreselectId = opts.preselectLessonId;
+  }
+  return _origOpenCourseView(slug, opts);
+};
+// Mantieni openCourseView come alias globale
+openCourseView = window.openCourseView;
+
+
+// ══ OVERLAY "PROSSIMA LEZIONE" ════════════════════════════════════
+
+let _nextLessonTimer = null;
+
+function showNextLessonOverlay() {
+  if (!_corsoData) return;
+  const lessons = _corsoData.course?.lessons || [];
+  if (!_lessonSelected) return;
+
+  // Trova la lezione successiva nell'ordine
+  const idx  = lessons.findIndex(l => l.id === _lessonSelected.id);
+  const next = lessons[idx + 1] || null;
+
+  const overlay   = document.getElementById('next-lesson-overlay');
+  const titleEl   = document.getElementById('nlo-next-title');
+  const btnNext   = document.getElementById('nlo-btn-next');
+  const btnDismiss= document.getElementById('nlo-btn-dismiss');
+  const countdown = document.getElementById('nlo-countdown');
+  if (!overlay) return;
+
+  if (!next) {
+    // Corso completato — nessuna prossima lezione
+    if (titleEl) titleEl.textContent = 'Hai completato tutte le lezioni!';
+    if (btnNext) btnNext.style.display = 'none';
+    overlay.classList.remove('hidden');
+    btnDismiss?.addEventListener('click', () => overlay.classList.add('hidden'), { once: true });
+    return;
+  }
+
+  if (titleEl) titleEl.textContent = next.title || 'Prossima lezione';
+  if (btnNext) btnNext.style.display = '';
+  overlay.classList.remove('hidden');
+  btnNext?.focus();
+
+  // Countdown 5s → auto-avanza
+  let secs = 5;
+  if (countdown) countdown.textContent = ' (' + secs + ')';
+  _nextLessonTimer = setInterval(() => {
+    secs--;
+    if (secs > 0) {
+      if (countdown) countdown.textContent = ' (' + secs + ')';
+    } else {
+      _advanceToLesson(next);
+    }
+  }, 1000);
+
+  function cleanup() {
+    clearInterval(_nextLessonTimer);
+    _nextLessonTimer = null;
+    overlay.classList.add('hidden');
+    if (countdown) countdown.textContent = '';
+    btnNext?.removeEventListener('click', onNext);
+    btnDismiss?.removeEventListener('click', onDismiss);
+  }
+
+  function onNext() { cleanup(); _advanceToLesson(next); }
+  function onDismiss() { cleanup(); }
+
+  btnNext?.addEventListener('click', onNext, { once: true });
+  btnDismiss?.addEventListener('click', onDismiss, { once: true });
+}
+
+function _advanceToLesson(lesson) {
+  const overlay = document.getElementById('next-lesson-overlay');
+  if (overlay) overlay.classList.add('hidden');
+  if (!_corsoData) return;
+  const hasAccess = lesson.isFree || _corsoData.course.hasAccess;
+  selectLesson(lesson, hasAccess, _corsoData.course);
+}
+
+function dismissNextLessonOverlay() {
+  clearInterval(_nextLessonTimer);
+  _nextLessonTimer = null;
+  const overlay = document.getElementById('next-lesson-overlay');
+  if (overlay) overlay.classList.add('hidden');
+}
+
+
+// ══ RICERCA + FILTRI CATALOGO ═════════════════════════════════════
+
+let _activeFilter  = 'all';
+let _searchQuery   = '';
+
+function initCourseFilter() {
+  const searchInput = document.getElementById('course-search-input');
+  const clearBtn    = document.getElementById('course-search-clear');
+  const chips       = document.querySelectorAll('.filter-chip');
+
+  if (!searchInput) return;
+
+  searchInput.addEventListener('input', (e) => {
+    _searchQuery = e.target.value.trim().toLowerCase();
+    clearBtn?.classList.toggle('hidden', !_searchQuery);
+    _applyFilter();
+  });
+
+  clearBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    _searchQuery = '';
+    clearBtn.classList.add('hidden');
+    _applyFilter();
+  });
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      _activeFilter = chip.dataset.filter;
+      _applyFilter();
+    });
+  });
+}
+
+function _applyFilter() {
+  if (!_allCourses) return;
+  const tier = typeof _adminTierActive !== 'undefined' ? _adminTierActive : _currentTier;
+
+  const filtered = _allCourses.filter(c => {
+    const matchLang  = _activeFilter === 'all' || c.lang === _activeFilter;
+    const matchQuery = !_searchQuery ||
+      (c.title  || '').toLowerCase().includes(_searchQuery) ||
+      (c.lang   || '').toLowerCase().includes(_searchQuery) ||
+      (c.level  || '').toLowerCase().includes(_searchQuery);
+    return matchLang && matchQuery;
+  });
+
+  // Ripopola tutte le righe con il subset filtrato
+  const byLang = lg => filtered.filter(c => c.lang === lg);
+
+  renderRow('row-per-te',    _buildFilteredPerTe(filtered, tier), tier);
+  renderRow('row-continua',  filtered.filter(c => (c.progressPercent || 0) > 0), tier);
+  renderRow('row-latino',    byLang('Latino'),               tier);
+  renderRow('row-greco',     byLang('Greco Antico'),         tier);
+  renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
+  renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
+  renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
+  renderRow('row-didattica', byLang('Didattica'),            tier);
+
+  // Mostra/nascondi sezione "Continua"
+  const inProg = filtered.filter(c => (c.progressPercent || 0) > 0);
+  const secC = document.getElementById('section-continua');
+  if (secC) secC.classList.toggle('hidden', !inProg.length);
+
+  // Messaggio "nessun risultato"
+  const secAll = document.getElementById('course-sections');
+  let noResults = document.getElementById('no-results-msg');
+  if (filtered.length === 0) {
+    if (!noResults) {
+      noResults = document.createElement('p');
+      noResults.id = 'no-results-msg';
+      noResults.className = 'row-empty';
+      noResults.style.cssText = 'text-align:center;padding:48px 0;';
+      noResults.textContent = 'Nessun corso trovato per "' + (_searchQuery || _activeFilter) + '"';
+      secAll?.prepend(noResults);
+    }
+  } else {
+    noResults?.remove();
+  }
+}
+
+function _buildFilteredPerTe(courses, tier) {
+  // Versione semplificata: prende i corsi più rilevanti dal subset filtrato
+  const scored = courses.map(c => ({
+    c,
+    s: ((c.progressPercent || 0) > 0 ? 6 : 0) + (c.isNew ? 3 : 0),
+  }));
+  scored.sort((a, b) => b.s - a.s);
+  return scored.slice(0, 10).map(x => x.c);
+}
+
+// Cache tier per il filtro
+let _currentTier = 0;
+
+
+// ══ COLLEGAMENTO OVERVIEW + FILTER A showDashboard ═══════════════
+// Patchiamo showDashboard per chiamare le nuove funzioni dopo il render
+
+const _origShowDashboard = showDashboard;
+window.showDashboard = async function() {
+  await _origShowDashboard.call(this);
+  // Dopo che il catalogo è caricato, lancia overview in background
+  fetchAndRenderOverview();
+  // Inizializza filtri
+  initCourseFilter();
+};
+showDashboard = window.showDashboard;
+
+
+// ══ PATCH openCourseView per preselectLessonId ════════════════════
+// Quando il corso è aperto e le lezioni sono renderizzate,
+// selectLesson viene chiamata — aggiungiamo un hook su renderLessonList
+// per attivare il preselect.
+// Usiamo _pendingPreselectId per la comunicazione.
+const _origRenderLessonList = renderLessonList;
+window.renderLessonList = function(course, progressData) {
+  _origRenderLessonList(course, progressData);
+  if (_pendingPreselectId) {
+    const lesson = (course.lessons || []).find(l => l.id === _pendingPreselectId);
+    _pendingPreselectId = null;
+    if (lesson) {
+      const hasAccess = lesson.isFree || course.hasAccess;
+      setTimeout(() => selectLesson(lesson, hasAccess, course), 80);
+    }
+  }
+};
+renderLessonList = window.renderLessonList;
+
 
 // ── popstate (Back/Forward browser) ──────────────────────────────
 
