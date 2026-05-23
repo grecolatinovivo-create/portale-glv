@@ -59,6 +59,7 @@ model Course {
   purchases      Purchase[]
   lessonProgress LessonProgress[]
   certificates   Certificate[]
+  resources      CourseResource[]
 }
 
 // Lezioni appartenenti a un corso
@@ -77,15 +78,31 @@ model Lesson {
   resources      LessonResource[]
 }
 
+// Materiali scaricabili a livello di corso (PDF, slide, esercizi...)
+// Migrati da /classroomresources/{IDCR}/ su latin-cert via FTP → Vercel Blob
+model CourseResource {
+  id        String   @id @default(cuid())
+  courseId  String
+  title     String               // nome file leggibile (es. "LEZIONE 04 11")
+  filename  String               // nome file originale
+  blobUrl   String?              // URL Vercel Blob (private)
+  fileType  String   @default("pdf")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
 // Risorse scaricabili collegate a una lezione (PDF, documenti, materiali)
-// Migrate dalla tabella `compiti` di latin-cert (righe con file non-NULL)
+// Migrate da classroomresources/ di latin-cert via FTP → Vercel Blob (private)
 model LessonResource {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   lessonId    String
-  title       String               // titolo della risorsa (campo `consegna` in latin-cert)
-  filename    String               // nome file hashed (es. "67201277b9ecc.pdf")
-  fileType    String  @default("pdf")  // "pdf" | "image" | "other"
-  sortOrder   Int     @default(0)
+  title       String               // titolo della risorsa (nome file pulito o consegna)
+  filename    String               // nome file originale (es. "esercizi_lezione1.pdf")
+  blobUrl     String?              // URL Vercel Blob (private) — usato per il download
+  fileType    String   @default("pdf")  // "pdf" | "image" | "audio" | "other"
+  sortOrder   Int      @default(0)
   createdAt   DateTime @default(now())
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)

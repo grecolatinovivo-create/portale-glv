@@ -21,17 +21,21 @@ export default withAuth(async function handler(req, res) {
         title: true,
         filename: true,
         fileType: true,
+        blobUrl: true,
       },
     });
 
-    // Costruisce l'URL pubblico per ogni file
+    // Per ogni risorsa, costruisce l'URL di download tramite proxy autenticato.
+    // Il client fa GET /api/download-resource?id=xxx — l'API verifica l'auth
+    // e proxa il blob privato da Vercel, senza esporre l'URL diretto.
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || '';
     const result = resources.map(r => ({
       id: r.id,
       title: r.title,
       filename: r.filename,
       fileType: r.fileType,
-      url: `${baseUrl}/resources/lessons/${r.filename}`,
+      // URL proxy — richiede autenticazione, non espone URL blob diretto
+      downloadUrl: `${baseUrl}/api/download-resource?id=${r.id}`,
     }));
 
     return res.status(200).json({ resources: result });
