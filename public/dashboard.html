@@ -665,19 +665,6 @@
        e trascini la sidebar fuori schermo durante la chiusura del corso ─────── -->
   <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
     <div id="lesson-film-strip" role="list"></div>
-    <!-- Materiali scaricabili del corso (course-level resources) -->
-    <div id="course-resources-section" style="display:none;" aria-live="polite">
-      <div class="lesson-resources-header">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          <polyline points="9,15 12,18 15,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        Materiali del corso
-      </div>
-      <ul id="course-resources-list" class="lesson-resources-list"></ul>
-    </div>
     <!-- Risorse scaricabili per la lezione selezionata -->
     <div id="lesson-resources-section" style="display:none;" aria-live="polite">
       <div class="lesson-resources-header">
@@ -769,6 +756,22 @@
           </div>
         </section>
 
+        <!-- ── Materiali del corso — pannello sotto il video ────────────── -->
+        <section id="course-materials-panel" class="course-materials-panel" style="display:none;" aria-label="Materiali del corso">
+          <button class="materials-toggle" id="materials-toggle-btn" aria-expanded="true" aria-controls="course-materials-list">
+            <span class="materials-toggle-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Materiali del corso</span>
+              <span class="materials-count" id="materials-count"></span>
+            </span>
+            <svg class="materials-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <ul class="materials-list" id="course-materials-list" role="list"></ul>
+        </section>
 
     </div><!-- /.course-view-inner -->
   </div><!-- /#course-view -->
@@ -1969,42 +1972,60 @@ async function loadLessonResources(lessonId) {
   }
 }
 
-// ── Materiali del corso (course-level resources) ─────────────────────────────
+// ── Materiali del corso (pannello sotto il video) ────────────────────────────
 async function loadCourseResources(courseId) {
-  const section = document.getElementById('course-resources-section');
-  const list    = document.getElementById('course-resources-list');
-  if (!section || !list) return;
+  const panel      = document.getElementById('course-materials-panel');
+  const list       = document.getElementById('course-materials-list');
+  const countEl    = document.getElementById('materials-count');
+  const toggleBtn  = document.getElementById('materials-toggle-btn');
+  if (!panel || !list) return;
+
   list.innerHTML = '';
-  section.style.display = 'none';
+  panel.style.display = 'none';
+
   try {
     const res = await fetch(`/api/course-resources?courseId=${encodeURIComponent(courseId)}`);
     if (!res.ok) return;
     const { resources } = await res.json();
     if (!resources || resources.length === 0) return;
+
+    if (countEl) countEl.textContent = resources.length;
+
     resources.forEach(r => {
       const ext = (r.filename.split('.').pop() || 'pdf').toUpperCase();
       const li  = document.createElement('li');
-      li.className = 'lesson-resource-item';
+      li.className = 'material-item';
+
       const a = document.createElement('a');
-      a.className = 'lesson-resource-link';
+      a.className = 'material-link';
       a.href      = r.downloadUrl;
       a.setAttribute('download', r.filename);
-      a.setAttribute('aria-label', `${r.title} (${ext})`);
+      a.setAttribute('aria-label', `Scarica ${r.title} (${ext})`);
       a.innerHTML = `
-        <svg class="lesson-resource-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg class="material-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
           <polyline points="9,15 12,18 15,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="lesson-resource-name"></span>
-        <span class="lesson-resource-ext">${ext}</span>`;
-      a.querySelector('.lesson-resource-name').textContent = r.title;
+        <span class="material-name"></span>
+        <span class="material-ext">${ext}</span>`;
+      a.querySelector('.material-name').textContent = r.title;
       li.appendChild(a);
       list.appendChild(li);
     });
-    section.style.display = 'block';
+
+    panel.style.display = 'block';
+
+    // Toggle apertura/chiusura cartella
+    if (toggleBtn && !toggleBtn._matToggleAttached) {
+      toggleBtn._matToggleAttached = true;
+      toggleBtn.addEventListener('click', () => {
+        const open = toggleBtn.getAttribute('aria-expanded') === 'true';
+        toggleBtn.setAttribute('aria-expanded', String(!open));
+      });
+    }
   } catch (_) { /* silenzioso */ }
 }
 
