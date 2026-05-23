@@ -665,6 +665,19 @@
        e trascini la sidebar fuori schermo durante la chiusura del corso ─────── -->
   <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
     <div id="lesson-film-strip" role="list"></div>
+    <!-- Risorse scaricabili per la lezione selezionata -->
+    <div id="lesson-resources-section" style="display:none;" aria-live="polite">
+      <div class="lesson-resources-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <polyline points="9,15 12,18 15,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Risorse da scaricare
+      </div>
+      <ul id="lesson-resources-list" class="lesson-resources-list"></ul>
+    </div>
   </aside>
 
   <!-- ── VISTA CORSO (SPA in-page) ─────────────────────────────── -->
@@ -1661,6 +1674,10 @@ function closeCourseView(opts) {
   const wrapper = document.querySelector('.dash-spa-wrapper');
   if (wrapper) wrapper.style.minHeight = '';
 
+  // Nasconde sezione risorse al cambio corso
+  const resSection = document.getElementById('lesson-resources-section');
+  if (resSection) resSection.style.display = 'none';
+
   // Reset stato interno
   _corsoData      = null;
   _lessonSelected = null;
@@ -1883,6 +1900,59 @@ function selectLesson(lesson, hasAccess, course) {
 
   _lessonSelected = lesson;
   renderPlayer(lesson, course);
+  loadLessonResources(lesson.id);
+}
+
+// ── Risorse da scaricare ──────────────────────────────────────────────
+async function loadLessonResources(lessonId) {
+  const section = document.getElementById('lesson-resources-section');
+  const list    = document.getElementById('lesson-resources-list');
+  if (!section || !list) return;
+
+  // Svuota e nasconde mentre carica
+  list.innerHTML = '';
+  section.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/lesson-resources?lessonId=${encodeURIComponent(lessonId)}`);
+    if (!res.ok) return;
+    const { resources } = await res.json();
+    if (!resources || resources.length === 0) return;
+
+    resources.forEach(r => {
+      const ext  = (r.filename.split('.').pop() || 'pdf').toUpperCase();
+      const li   = document.createElement('li');
+      li.className = 'lesson-resource-item';
+
+      const a = document.createElement('a');
+      a.className  = 'lesson-resource-link';
+      a.href       = r.url;
+      a.target     = '_blank';
+      a.rel        = 'noopener noreferrer';
+      a.setAttribute('aria-label', `${r.title} (${ext}, si apre in nuova scheda)`);
+
+      a.innerHTML = `
+        <svg class="lesson-resource-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          <polyline points="9,15 12,18 15,15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="lesson-resource-name"></span>
+        <span class="lesson-resource-ext">${ext}</span>`;
+
+      // XSS-safe
+      a.querySelector('.lesson-resource-name').textContent = r.title;
+
+      li.appendChild(a);
+      list.appendChild(li);
+    });
+
+    section.style.display = 'block';
+  } catch (_) {
+    // Silenzioso — la sezione rimane nascosta
+  }
 }
 
 function _showLockedBanner(lesson, course) {

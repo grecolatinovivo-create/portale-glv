@@ -63,16 +63,32 @@ model Course {
 
 // Lezioni appartenenti a un corso
 model Lesson {
-  id          String  @id @default(cuid())
-  courseId    String
-  title       String
-  durationMin Int
-  isFree      Boolean @default(false)
-  sortOrder   Int
-  vimeoUrl    String?
+  id           String  @id @default(cuid())
+  courseId     String
+  title        String
+  durationMin  Int
+  isFree       Boolean @default(false)
+  sortOrder    Int
+  vimeoUrl     String?
+  latinCertId  Int?    @unique  // IDL originale da latin-cert (per mapping risorse)
 
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
+  resources      LessonResource[]
+}
+
+// Risorse scaricabili collegate a una lezione (PDF, documenti, materiali)
+// Migrate dalla tabella `compiti` di latin-cert (righe con file non-NULL)
+model LessonResource {
+  id          String  @id @default(cuid())
+  lessonId    String
+  title       String               // titolo della risorsa (campo `consegna` in latin-cert)
+  filename    String               // nome file hashed (es. "67201277b9ecc.pdf")
+  fileType    String  @default("pdf")  // "pdf" | "image" | "other"
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 }
 
 // Abbonamenti Stripe attivi o cessati
