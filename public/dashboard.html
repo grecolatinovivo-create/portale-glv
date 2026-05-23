@@ -678,7 +678,36 @@
       </div>
       <ul id="lesson-resources-list" class="lesson-resources-list"></ul>
     </div>
+
+    <!-- Esercizi autocorrettivi per la lezione selezionata -->
+    <div id="lesson-exercises-section" style="display:none;" aria-live="polite">
+      <div class="lesson-exercises-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Esercizi autocorrettivi
+      </div>
+      <ul id="lesson-exercises-list" class="lesson-exercises-list"></ul>
+    </div>
   </aside>
+
+  <!-- ══ EXERCISE RUNNER OVERLAY ══════════════════════════════════ -->
+  <div id="glv-exercise-runner" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ex-runner-title">
+    <div class="ex-header">
+      <button class="ex-close-btn" type="button" id="ex-close-btn" aria-label="Chiudi esercizi" onclick="ExerciseRunner.close()">×</button>
+      <div class="ex-title" id="ex-runner-title"></div>
+      <div class="ex-progress-wrap" aria-live="polite" aria-atomic="true">
+        <div class="ex-progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="ex-progress-bar">
+          <div class="ex-progress-fill" id="ex-progress-fill" style="width:0%"></div>
+        </div>
+        <span class="ex-progress-label" id="ex-progress-label">0/0</span>
+      </div>
+    </div>
+    <div class="ex-body">
+      <div class="ex-card" id="ex-card"></div>
+    </div>
+  </div>
 
   <!-- ── VISTA CORSO (SPA in-page) ─────────────────────────────── -->
   <div class="course-view offscreen-bottom" id="course-view" aria-hidden="true">
@@ -1673,9 +1702,11 @@ function closeCourseView(opts) {
   const wrapper = document.querySelector('.dash-spa-wrapper');
   if (wrapper) wrapper.style.minHeight = '';
 
-  // Nasconde sezione risorse al cambio corso
+  // Nasconde sezione risorse ed esercizi al cambio corso
   const resSection = document.getElementById('lesson-resources-section');
   if (resSection) resSection.style.display = 'none';
+  const exSection = document.getElementById('lesson-exercises-section');
+  if (exSection) exSection.style.display = 'none';
 
   // Reset stato interno
   _corsoData      = null;
@@ -1900,6 +1931,7 @@ function selectLesson(lesson, hasAccess, course) {
   _lessonSelected = lesson;
   renderPlayer(lesson, course);
   loadLessonResources(lesson.id);
+  loadLessonExercises(lesson.id);
 }
 
 // ── Risorse da scaricare ──────────────────────────────────────────────
@@ -1953,6 +1985,815 @@ async function loadLessonResources(lessonId) {
     // Silenzioso — la sezione rimane nascosta
   }
 }
+
+
+// ── Esercizi autocorrettivi ────────────────────────────────────────────────
+async function loadLessonExercises(lessonId) {
+  const section = document.getElementById('lesson-exercises-section');
+  const list    = document.getElementById('lesson-exercises-list');
+  if (!section || !list) return;
+
+  list.innerHTML = '';
+  section.style.display = 'none';
+
+  try {
+    const res = await fetch(`/api/exercises?lessonId=${encodeURIComponent(lessonId)}`);
+    if (!res.ok) return;
+    const { tests } = await res.json();
+    if (!tests || tests.length === 0) return;
+
+    tests.forEach(test => {
+      const li = document.createElement('li');
+      li.className = 'lesson-exercise-item';
+      li.setAttribute('role', 'listitem');
+
+      const totalQ = test.sections.reduce((n, s) => n + s.questions.length, 0);
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'lesson-exercise-name';
+      nameSpan.textContent = test.title || 'Esercizi';
+
+      const btn = document.createElement('button');
+      btn.className = 'lesson-exercise-btn';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Avvia: ${test.title}`);
+      btn.textContent = `▶ ${totalQ} domande`;
+
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        ExerciseRunner.open(test);
+      });
+      li.addEventListener('click', () => ExerciseRunner.open(test));
+
+      li.appendChild(document.createTextNode('📝 '));
+      li.appendChild(nameSpan);
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+
+    section.style.display = 'block';
+  } catch (_) {
+    // Silenzioso
+  }
+}
+
+// ══ ExerciseRunner ════════════════════════════════════════════════════════
+const ExerciseRunner = (() => {
+  // Stato interno
+  let _test       = null;   // test corrente
+  let _questions  = [];     // lista piatta delle domande {q, sectionName}
+  let _idx        = 0;      // indice domanda corrente
+  let _score      = 0;      // risposte corrette (tipi autocorrettivi)
+  let _skipped    = 0;      // risposte aperte / saltate
+  let _answered   = 0;      // risposte date
+  let _dragTarget = null;   // drop target attivo (ClozeDragDrop)
+  let _matchSel   = null;   // elemento selezionato in Abbinamento (lato sinistro)
+
+  const _runner  = () => document.getElementById('glv-exercise-runner');
+  const _card    = () => document.getElementById('ex-card');
+  const _titleEl = () => document.getElementById('ex-runner-title');
+  const _progFill= () => document.getElementById('ex-progress-fill');
+  const _progBar = () => document.getElementById('ex-progress-bar');
+  const _progLbl = () => document.getElementById('ex-progress-label');
+
+  function open(test) {
+    _test      = test;
+    _questions = [];
+    _idx = _score = _skipped = _answered = 0;
+    _dragTarget = _matchSel = null;
+
+    // Appiattisce sezioni → domande
+    (test.sections || []).forEach(sec => {
+      (sec.questions || []).forEach(q => {
+        _questions.push({ q, sectionName: sec.name || '' });
+      });
+    });
+
+    if (_questions.length === 0) return;
+
+    _titleEl().textContent = test.title || 'Esercizi';
+    _runner().classList.remove('hidden');
+    _runner().removeAttribute('aria-hidden');
+    document.body.style.overflow = 'hidden';
+    _renderQuestion();
+  }
+
+  function close() {
+    _runner().classList.add('hidden');
+    _runner().setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    _test = null;
+  }
+
+  function _updateProgress() {
+    const pct = _questions.length > 0 ? Math.round((_idx / _questions.length) * 100) : 0;
+    if (_progFill()) _progFill().style.width = pct + '%';
+    if (_progBar())  _progBar().setAttribute('aria-valuenow', pct);
+    if (_progLbl())  _progLbl().textContent = `${_idx}/${_questions.length}`;
+  }
+
+  function _renderQuestion() {
+    if (_idx >= _questions.length) { _showResults(); return; }
+    _updateProgress();
+    const { q, sectionName } = _questions[_idx];
+    const card = _card();
+    card.innerHTML = '';
+
+    // Sezione label
+    if (sectionName) {
+      const sn = document.createElement('div');
+      sn.className = 'ex-section-name';
+      sn.textContent = sectionName;
+      card.appendChild(sn);
+    }
+
+    // Numero domanda
+    const qnum = document.createElement('div');
+    qnum.className = 'ex-q-number';
+    qnum.textContent = `Domanda ${_idx + 1} di ${_questions.length}`;
+    card.appendChild(qnum);
+
+    // Instruction
+    if (q.instruction) {
+      const ins = document.createElement('div');
+      ins.className = 'ex-instruction';
+      ins.textContent = q.instruction;
+      card.appendChild(ins);
+    }
+
+    // Contesto
+    if (q.contextText) {
+      const ctx = document.createElement('div');
+      ctx.className = 'ex-context';
+      ctx.textContent = q.contextText;
+      card.appendChild(ctx);
+    }
+
+    // Titolo domanda (se presente, come testo della domanda principale)
+    if (q.title) {
+      const qt = document.createElement('div');
+      qt.className = 'ex-q-text';
+      qt.textContent = q.title;
+      card.appendChild(qt);
+    }
+
+    // Feedback div (shared)
+    const fb = document.createElement('div');
+    fb.className = 'ex-feedback';
+    fb.setAttribute('role', 'alert');
+    fb.setAttribute('aria-live', 'assertive');
+
+    // Render per tipo
+    switch (q.questionType) {
+      case 'SceltaMultipla':   _renderSM(card, q, fb); break;
+      case 'VeroFalso':        _renderVF(card, q, fb); break;
+      case 'Completamento':    _renderCompletamento(card, q, fb); break;
+      case 'ClozeDragDrop':    _renderDragDrop(card, q, fb); break;
+      case 'ClozeSceltaMultipla': _renderClozeCSM(card, q, fb); break;
+      case 'Abbinamento':      _renderAbbinamento(card, q, fb); break;
+      case 'RiordinoTesto':    _renderRiordino(card, q, fb); break;
+      case 'RispostaAperta':   _renderAperta(card, q, fb); break;
+      default:
+        const unk = document.createElement('p');
+        unk.style.cssText = 'color:var(--text-muted);font-size:.9rem;margin-bottom:20px;';
+        unk.textContent = `[Tipo non supportato: ${q.questionType}]`;
+        card.appendChild(unk);
+        card.appendChild(fb);
+        _appendNextBtn(card);
+    }
+  }
+
+  // ── SceltaMultipla ──────────────────────────────────────────────────
+  function _renderSM(card, q, fb) {
+    const data = Array.isArray(q.data) ? q.data : [];
+    if (data.length === 0) { card.appendChild(fb); _appendNextBtn(card); return; }
+
+    data.forEach((item, itemIdx) => {
+      if (!item.question) return;
+
+      // Domanda multipla in un solo esercizio → mostra ogni item separatamente
+      // (ma qui carichiamo una alla volta per semplicità)
+      if (itemIdx > 0) return; // per ora rendiamo solo il primo item (la gestione multi-item è via paginazione)
+
+      const qText = document.createElement('div');
+      if (!q.title) { qText.className = 'ex-q-text'; qText.textContent = item.question; card.appendChild(qText); }
+
+      const opts = [item.correct, item.wrong_1, item.wrong_2, item.wrong_3].filter(Boolean);
+      const shuffled = _shuffle([...opts]);
+
+      const optsDiv = document.createElement('div');
+      optsDiv.className = 'ex-options';
+      card.appendChild(optsDiv);
+      card.appendChild(fb);
+
+      shuffled.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'ex-opt';
+        btn.type = 'button';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          optsDiv.querySelectorAll('.ex-opt').forEach(b => b.disabled = true);
+          const correct = opt === item.correct;
+          btn.classList.add(correct ? 'correct' : 'wrong');
+          if (!correct) optsDiv.querySelectorAll('.ex-opt').forEach(b => { if (b.textContent === item.correct) b.classList.add('correct'); });
+          _showFeedback(fb, correct, `Risposta corretta: ${item.correct}`);
+          correct ? _score++ : 0;
+          _answered++;
+        });
+        optsDiv.appendChild(btn);
+      });
+    });
+
+    _appendNextBtn(card);
+  }
+
+  // ── VeroFalso ────────────────────────────────────────────────────────
+  function _renderVF(card, q, fb) {
+    const data = Array.isArray(q.data) ? q.data : [];
+    const item = data[0];
+    if (!item) { card.appendChild(fb); _appendNextBtn(card); return; }
+
+    if (!q.title) {
+      const qt = document.createElement('div');
+      qt.className = 'ex-q-text';
+      qt.textContent = item.question;
+      card.appendChild(qt);
+    }
+
+    const vfDiv = document.createElement('div');
+    vfDiv.className = 'ex-vf-btns';
+    card.appendChild(vfDiv);
+    card.appendChild(fb);
+
+    [{ label: '✓ Vero', val: 1 }, { label: '✗ Falso', val: 0 }].forEach(({ label, val }) => {
+      const btn = document.createElement('button');
+      btn.className = 'ex-vf-btn';
+      btn.type = 'button';
+      btn.textContent = label;
+      btn.addEventListener('click', () => {
+        vfDiv.querySelectorAll('.ex-vf-btn').forEach(b => b.disabled = true);
+        const correct = val === item.correct;
+        btn.classList.add(correct ? 'correct' : 'wrong');
+        if (!correct) vfDiv.querySelectorAll('.ex-vf-btn').forEach(b => { if ((b.textContent.includes('Vero') && item.correct === 1) || (b.textContent.includes('Falso') && item.correct === 0)) b.classList.add('correct'); });
+        _showFeedback(fb, correct, `La risposta è: ${item.correct === 1 ? 'Vero' : 'Falso'}`);
+        correct ? _score++ : 0;
+        _answered++;
+      });
+      vfDiv.appendChild(btn);
+    });
+
+    _appendNextBtn(card);
+  }
+
+  // ── Completamento (fill-in-blank) ────────────────────────────────────
+  function _renderCompletamento(card, q, fb) {
+    const html = q.data?.html || '';
+    const wrapper = document.createElement('div');
+    wrapper.className = 'ex-cloze-text';
+    card.appendChild(wrapper);
+    card.appendChild(fb);
+
+    const inputs = [];
+
+    if (!html) {
+      wrapper.textContent = 'Esercizio non disponibile.';
+    } else {
+      // Trasforma <span class="completamento"><label>hint</label>answer</span> → input
+      const temp = document.createElement('div');
+      temp.innerHTML = _sanitizeHtml(html);
+
+      temp.querySelectorAll('span.completamento').forEach(span => {
+        const labelEl = span.querySelector('label');
+        const hint    = labelEl ? labelEl.textContent.trim() : '';
+        // La risposta corretta è il testo NON nel label
+        let answer = span.textContent.replace(hint, '').trim();
+        if (!answer && span.textContent.trim()) answer = span.textContent.trim();
+
+        const input = document.createElement('input');
+        input.className = 'ex-blank';
+        input.type = 'text';
+        input.placeholder = hint || '…';
+        input.dataset.answer = answer.toLowerCase().trim();
+        input.autocomplete = 'off';
+        inputs.push(input);
+        span.replaceWith(input);
+      });
+
+      wrapper.appendChild(temp);
+    }
+
+    // Bottone verifica
+    const actions = document.createElement('div');
+    actions.className = 'ex-actions';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'ex-btn-primary';
+    checkBtn.type = 'button';
+    checkBtn.textContent = 'Verifica';
+    checkBtn.addEventListener('click', () => {
+      checkBtn.disabled = true;
+      let correct = 0;
+      inputs.forEach(inp => {
+        inp.disabled = true;
+        const ok = inp.value.toLowerCase().trim() === inp.dataset.answer;
+        inp.classList.add(ok ? 'correct' : 'wrong');
+        if (ok) correct++;
+      });
+      _showFeedback(fb, correct === inputs.length && inputs.length > 0,
+        inputs.length > 0 ? `${correct}/${inputs.length} risposte corrette` : '');
+      _score += correct;
+      _answered++;
+    });
+    actions.appendChild(checkBtn);
+    _appendNextBtn(actions, true);
+    card.appendChild(actions);
+  }
+
+  // ── ClozeDragDrop ────────────────────────────────────────────────────
+  function _renderDragDrop(card, q, fb) {
+    const html = q.data?.html || '';
+    if (!html) { const p = document.createElement('p'); p.textContent = 'Esercizio non disponibile.'; card.appendChild(p); card.appendChild(fb); _appendNextBtn(card); return; }
+
+    const temp = document.createElement('div');
+    temp.innerHTML = _sanitizeHtml(html);
+
+    const answers = [];
+    const drops = [];
+
+    temp.querySelectorAll('span.completamento').forEach((span, i) => {
+      const answer = span.textContent.trim();
+      answers.push(answer);
+
+      const target = document.createElement('span');
+      target.className = 'ex-drop-target';
+      target.dataset.idx = i;
+      target.dataset.answer = answer.toLowerCase();
+      target.textContent = '  ◌  ';
+      target.setAttribute('role', 'button');
+      target.setAttribute('tabindex', '0');
+      target.setAttribute('aria-label', `Spazio ${i+1}: vuoto`);
+      drops.push(target);
+      span.replaceWith(target);
+    });
+
+    // Word bank (parole mescolate)
+    const shuffledWords = _shuffle([...answers]);
+    const bankDiv = document.createElement('div');
+    bankDiv.className = 'ex-word-bank';
+    bankDiv.setAttribute('aria-label', 'Parole disponibili');
+    const chips = {};
+    shuffledWords.forEach((word, i) => {
+      const chip = document.createElement('button');
+      chip.className = 'ex-word-chip';
+      chip.type = 'button';
+      chip.textContent = word;
+      chip.dataset.word = word;
+      chip.dataset.chipIdx = i;
+      chip.addEventListener('click', () => {
+        if (chip.classList.contains('used')) return;
+        // Trova il primo drop vuoto o il target selezionato
+        const emptyDrop = drops.find(d => !d.dataset.filled);
+        if (!emptyDrop) return;
+        _fillDrop(emptyDrop, word, chip);
+      });
+      bankDiv.appendChild(chip);
+      chips[i] = chip;
+    });
+
+    // Click su drop per svuotarlo
+    drops.forEach(target => {
+      target.addEventListener('click', () => {
+        if (target.dataset.filled) {
+          const word = target.dataset.filled;
+          // Riattiva chip corrispondente
+          Object.values(chips).forEach(c => { if (c.dataset.word === word && c.classList.contains('used')) { c.classList.remove('used'); return; } });
+          target.textContent = '  ◌  ';
+          target.classList.remove('filled');
+          delete target.dataset.filled;
+          target.setAttribute('aria-label', `Spazio ${parseInt(target.dataset.idx)+1}: vuoto`);
+        }
+      });
+    });
+
+    function _fillDrop(dropEl, word, chipEl) {
+      chipEl.classList.add('used');
+      dropEl.textContent = word;
+      dropEl.classList.add('filled');
+      dropEl.dataset.filled = word;
+      dropEl.setAttribute('aria-label', `Spazio ${parseInt(dropEl.dataset.idx)+1}: ${word}`);
+    }
+
+    card.appendChild(bankDiv);
+
+    const clozeDiv = document.createElement('div');
+    clozeDiv.className = 'ex-cloze-text';
+    clozeDiv.appendChild(temp);
+    card.appendChild(clozeDiv);
+    card.appendChild(fb);
+
+    const actions = document.createElement('div');
+    actions.className = 'ex-actions';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'ex-btn-primary';
+    checkBtn.type = 'button';
+    checkBtn.textContent = 'Verifica';
+    checkBtn.addEventListener('click', () => {
+      checkBtn.disabled = true;
+      let correct = 0;
+      drops.forEach(d => {
+        const ok = (d.dataset.filled || '').toLowerCase() === d.dataset.answer;
+        d.classList.add(ok ? 'correct' : 'wrong');
+        if (ok) correct++;
+      });
+      _showFeedback(fb, correct === drops.length && drops.length > 0,
+        `${correct}/${drops.length} risposte corrette`);
+      _score += correct > 0 && correct === drops.length ? 1 : 0;
+      _answered++;
+    });
+    actions.appendChild(checkBtn);
+    _appendNextBtn(actions, true);
+    card.appendChild(actions);
+  }
+
+  // ── ClozeSceltaMultipla ──────────────────────────────────────────────
+  function _renderClozeCSM(card, q, fb) {
+    const html = q.data?.html || '';
+    if (!html) { const p = document.createElement('p'); p.textContent = 'Esercizio non disponibile.'; card.appendChild(p); card.appendChild(fb); _appendNextBtn(card); return; }
+
+    const temp = document.createElement('div');
+    temp.innerHTML = _sanitizeHtml(html);
+
+    const selects = [];
+    temp.querySelectorAll('span').forEach(span => {
+      const correct   = span.getAttribute('correct')   || span.getAttribute('data-correct') || span.textContent.trim();
+      const incorrect  = span.getAttribute('incorrect')  || span.getAttribute('data-incorrect')  || '';
+      const incorrect2 = span.getAttribute('incorrect2') || span.getAttribute('data-incorrect2') || '';
+      if (!correct) return;
+
+      const options = _shuffle([correct, incorrect, incorrect2].filter(Boolean));
+
+      const wrap = document.createElement('span');
+      wrap.className = 'ex-inline-select';
+
+      const sel = document.createElement('select');
+      sel.dataset.correct = correct.toLowerCase().trim();
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '—';
+      sel.appendChild(placeholder);
+      options.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt;
+        sel.appendChild(o);
+      });
+      selects.push(sel);
+      wrap.appendChild(sel);
+      span.replaceWith(wrap);
+    });
+
+    const clozeDiv = document.createElement('div');
+    clozeDiv.className = 'ex-cloze-text';
+    clozeDiv.appendChild(temp);
+    card.appendChild(clozeDiv);
+    card.appendChild(fb);
+
+    const actions = document.createElement('div');
+    actions.className = 'ex-actions';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'ex-btn-primary';
+    checkBtn.type = 'button';
+    checkBtn.textContent = 'Verifica';
+    checkBtn.addEventListener('click', () => {
+      checkBtn.disabled = true;
+      let correct = 0;
+      selects.forEach(sel => {
+        sel.disabled = true;
+        const ok = sel.value.toLowerCase().trim() === sel.dataset.correct;
+        sel.classList.add(ok ? 'correct' : 'wrong');
+        if (ok) correct++;
+      });
+      _showFeedback(fb, correct === selects.length && selects.length > 0,
+        `${correct}/${selects.length} risposte corrette`);
+      _score += correct > 0 && correct === selects.length ? 1 : 0;
+      _answered++;
+    });
+    actions.appendChild(checkBtn);
+    _appendNextBtn(actions, true);
+    card.appendChild(actions);
+  }
+
+  // ── Abbinamento ──────────────────────────────────────────────────────
+  function _renderAbbinamento(card, q, fb) {
+    const pairs = Array.isArray(q.data) ? q.data : [];
+    if (pairs.length === 0) { card.appendChild(fb); _appendNextBtn(card); return; }
+
+    const leftItems  = pairs.map(p => p.w1);
+    const rightItems = _shuffle(pairs.map(p => p.w2));
+    const pairMap = {};
+    pairs.forEach(p => { pairMap[p.w1] = p.w2; pairMap[p.w2] = p.w1; });
+
+    let selectedLeft  = null;
+    let matchedPairs  = 0;
+
+    const grid = document.createElement('div');
+    grid.className = 'ex-match-grid';
+    const leftCol  = document.createElement('div'); leftCol.className = 'ex-match-col';
+    const rightCol = document.createElement('div'); rightCol.className = 'ex-match-col';
+    grid.appendChild(leftCol);
+    grid.appendChild(rightCol);
+    card.appendChild(grid);
+    card.appendChild(fb);
+
+    function _makeItem(text, side) {
+      const el = document.createElement('button');
+      el.className = 'ex-match-item';
+      el.type = 'button';
+      el.textContent = text;
+      el.dataset.value = text;
+      el.dataset.side = side;
+
+      el.addEventListener('click', () => {
+        if (el.classList.contains('matched-correct') || el.classList.contains('matched-wrong')) return;
+
+        if (side === 'left') {
+          grid.querySelectorAll('.ex-match-item[data-side="left"]').forEach(b => b.classList.remove('selected'));
+          el.classList.add('selected');
+          selectedLeft = el;
+        } else if (selectedLeft) {
+          const correctRight = pairMap[selectedLeft.dataset.value];
+          const isCorrect    = text === correctRight;
+
+          selectedLeft.classList.remove('selected');
+          selectedLeft.classList.add(isCorrect ? 'matched-correct' : 'matched-wrong');
+          el.classList.add(isCorrect ? 'matched-correct' : 'matched-wrong');
+          selectedLeft.disabled = el.disabled = true;
+
+          if (isCorrect) { _score++; matchedPairs++; }
+          else {
+            // Mostra la risposta corretta
+            grid.querySelectorAll('.ex-match-item[data-side="right"]').forEach(b => {
+              if (b.dataset.value === correctRight) b.classList.add('matched-correct');
+            });
+          }
+          selectedLeft = null;
+          _answered++;
+
+          if (matchedPairs === pairs.length) {
+            _showFeedback(fb, true, `Abbinamento completato! ${matchedPairs}/${pairs.length} corretti.`);
+          }
+        }
+      });
+      return el;
+    }
+
+    leftItems.forEach(w => leftCol.appendChild(_makeItem(w, 'left')));
+    rightItems.forEach(w => rightCol.appendChild(_makeItem(w, 'right')));
+
+    _appendNextBtn(card);
+  }
+
+  // ── RiordinoTesto ────────────────────────────────────────────────────
+  function _renderRiordino(card, q, fb) {
+    const txt = q.data?.txt || '';
+    if (!txt) { card.appendChild(fb); _appendNextBtn(card); return; }
+
+    // Estrae parti tra {part} e {/part}
+    const partRegex = /\{part\}([\s\S]*?)\{\/part\}/g;
+    const parts = [];
+    let m;
+    while ((m = partRegex.exec(txt)) !== null) parts.push(m[1].trim());
+
+    if (parts.length < 2) {
+      const p = document.createElement('p');
+      p.style.cssText = 'color:var(--text);font-size:.9rem;margin-bottom:20px;';
+      p.textContent = txt.replace(/\{[^}]*\}/g, '').trim();
+      card.appendChild(p);
+      card.appendChild(fb);
+      _appendNextBtn(card);
+      return;
+    }
+
+    const correctOrder = [...parts];
+    const shuffled     = _shuffle([...parts]);
+
+    let draggedEl = null;
+
+    const listEl = document.createElement('div');
+    listEl.className = 'ex-reorder-list';
+    card.appendChild(listEl);
+    card.appendChild(fb);
+
+    function _buildItems(arr) {
+      listEl.innerHTML = '';
+      arr.forEach((text, i) => {
+        const item = document.createElement('div');
+        item.className = 'ex-reorder-item';
+        item.draggable = true;
+        item.dataset.idx = i;
+
+        const handle = document.createElement('span');
+        handle.className = 'ex-reorder-handle';
+        handle.textContent = '⠿';
+        handle.setAttribute('aria-hidden', 'true');
+
+        const textEl = document.createElement('span');
+        textEl.textContent = text;
+
+        item.appendChild(handle);
+        item.appendChild(textEl);
+
+        item.addEventListener('dragstart', e => {
+          draggedEl = item;
+          item.classList.add('dragging');
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('dragging');
+          draggedEl = null;
+        });
+        item.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+        item.addEventListener('drop', e => {
+          e.preventDefault();
+          if (draggedEl && draggedEl !== item) {
+            const els = [...listEl.querySelectorAll('.ex-reorder-item')];
+            const fromIdx = els.indexOf(draggedEl);
+            const toIdx   = els.indexOf(item);
+            if (fromIdx > toIdx) listEl.insertBefore(draggedEl, item);
+            else listEl.insertBefore(draggedEl, item.nextSibling);
+          }
+        });
+
+        listEl.appendChild(item);
+      });
+    }
+
+    _buildItems(shuffled);
+
+    const actions = document.createElement('div');
+    actions.className = 'ex-actions';
+    const checkBtn = document.createElement('button');
+    checkBtn.className = 'ex-btn-primary';
+    checkBtn.type = 'button';
+    checkBtn.textContent = 'Verifica ordine';
+    checkBtn.addEventListener('click', () => {
+      checkBtn.disabled = true;
+      const items = [...listEl.querySelectorAll('.ex-reorder-item')];
+      let allCorrect = true;
+      items.forEach((item, i) => {
+        const text = item.querySelector('span:last-child').textContent;
+        const ok   = text === correctOrder[i];
+        item.classList.add(ok ? 'correct' : 'wrong');
+        if (!ok) allCorrect = false;
+      });
+      _showFeedback(fb, allCorrect, allCorrect ? 'Ordine corretto!' : `Ordine corretto: ${correctOrder.join(' → ')}`);
+      if (allCorrect) _score++;
+      _answered++;
+    });
+    actions.appendChild(checkBtn);
+    _appendNextBtn(actions, true);
+    card.appendChild(actions);
+  }
+
+  // ── RispostaAperta ────────────────────────────────────────────────────
+  function _renderAperta(card, q, fb) {
+    const textarea = document.createElement('textarea');
+    textarea.className = 'ex-open-textarea';
+    textarea.placeholder = 'Scrivi la tua risposta qui…';
+    textarea.setAttribute('aria-label', 'La tua risposta');
+    if (q.data?.min) textarea.setAttribute('minlength', q.data.min);
+    if (q.data?.max) textarea.maxLength = q.data.max;
+
+    card.appendChild(textarea);
+    card.appendChild(fb);
+
+    const actions = document.createElement('div');
+    actions.className = 'ex-actions';
+    const submitBtn = document.createElement('button');
+    submitBtn.className = 'ex-btn-primary';
+    submitBtn.type = 'button';
+    submitBtn.textContent = 'Invia risposta';
+    submitBtn.addEventListener('click', () => {
+      if (!textarea.value.trim()) return;
+      submitBtn.disabled = true;
+      textarea.disabled = true;
+      _showFeedback(fb, null, 'Risposta registrata. La risposta aperta sarà valutata dal docente.');
+      _skipped++;
+      _answered++;
+    });
+    actions.appendChild(submitBtn);
+    _appendNextBtn(actions, true);
+    card.appendChild(actions);
+  }
+
+  // ── Schermata risultati ──────────────────────────────────────────────
+  function _showResults() {
+    const card = _card();
+    card.innerHTML = '';
+
+    const autoQ = _questions.filter(({ q }) => q.questionType !== 'RispostaAperta').length;
+    const pct   = autoQ > 0 ? Math.round((_score / autoQ) * 100) : 0;
+
+    const results = document.createElement('div');
+    results.className = 'ex-results';
+    results.innerHTML = `
+      <div class="ex-results-score">${pct}%</div>
+      <div class="ex-results-label">Esercizio completato${_test?.title ? ': ' + _escapeHtml(_test.title) : ''}</div>
+      <div class="ex-results-breakdown">
+        <div class="ex-results-stat">
+          <div class="ex-results-stat-n c">${_score}</div>
+          <div class="ex-results-stat-l">Corrette</div>
+        </div>
+        <div class="ex-results-stat">
+          <div class="ex-results-stat-n w">${autoQ - _score}</div>
+          <div class="ex-results-stat-l">Errate</div>
+        </div>
+        ${_skipped > 0 ? `<div class="ex-results-stat">
+          <div class="ex-results-stat-n s">${_skipped}</div>
+          <div class="ex-results-stat-l">Aperte</div>
+        </div>` : ''}
+      </div>`;
+
+    const actionsDiv = document.createElement('div');
+    actionsDiv.style.cssText = 'display:flex;gap:12px;justify-content:center;flex-wrap:wrap;';
+
+    const retryBtn = document.createElement('button');
+    retryBtn.className = 'ex-btn-secondary';
+    retryBtn.type = 'button';
+    retryBtn.textContent = '↺ Riprova';
+    retryBtn.addEventListener('click', () => {
+      _idx = _score = _skipped = _answered = 0;
+      _renderQuestion();
+    });
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'ex-btn-primary';
+    closeBtn.type = 'button';
+    closeBtn.textContent = 'Chiudi';
+    closeBtn.addEventListener('click', () => close());
+
+    actionsDiv.appendChild(retryBtn);
+    actionsDiv.appendChild(closeBtn);
+    results.appendChild(actionsDiv);
+    card.appendChild(results);
+
+    if (_progFill()) _progFill().style.width = '100%';
+    if (_progLbl())  _progLbl().textContent = `${_questions.length}/${_questions.length}`;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function _appendNextBtn(container, inline = false) {
+    const btn = document.createElement('button');
+    btn.className = inline ? 'ex-btn-secondary' : 'ex-btn-primary';
+    btn.style.cssText = inline ? 'margin-left:auto;' : 'margin-top:16px;';
+    btn.type = 'button';
+    btn.id = 'ex-next-btn';
+    btn.textContent = _idx + 1 < _questions.length ? 'Avanti →' : 'Vedi risultati →';
+    btn.addEventListener('click', () => { _idx++; _renderQuestion(); });
+    if (inline) container.appendChild(btn);
+    else {
+      const wrap = document.createElement('div');
+      wrap.className = 'ex-actions';
+      wrap.style.justifyContent = 'flex-end';
+      wrap.appendChild(btn);
+      container.appendChild(wrap);
+    }
+  }
+
+  function _showFeedback(el, correct, msg) {
+    el.className = 'ex-feedback show ' + (correct === true ? 'correct' : correct === false ? 'wrong' : '');
+    el.textContent = correct === true ? '✓ ' + (msg || 'Corretto!') : correct === false ? '✗ ' + (msg || 'Riprova.') : 'ℹ ' + (msg || '');
+  }
+
+  function _shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function _escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function _sanitizeHtml(html) {
+    // Rimuove script/on* per sicurezza, mantiene il markup degli esercizi
+    return html
+      .replace(/<script[\s\S]*?<\/script>/gi, '')
+      .replace(/\son\w+="[^"]*"/gi, '')
+      .replace(/\son\w+='[^']*'/gi, '')
+      .replace(/javascript:/gi, '');
+  }
+
+  return { open, close };
+})();
+
+// Chiudi con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const runner = document.getElementById('glv-exercise-runner');
+    if (runner && !runner.classList.contains('hidden')) ExerciseRunner.close();
+  }
+});
 
 
 function _showLockedBanner(lesson, course) {
