@@ -60,6 +60,7 @@ model Course {
   lessonProgress LessonProgress[]
   certificates   Certificate[]
   resources      CourseResource[]
+  exercises      ExerciseTest[]
 }
 
 // Lezioni appartenenti a un corso
@@ -76,6 +77,7 @@ model Lesson {
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
   resources      LessonResource[]
+  exercises      ExerciseTest[]
 }
 
 // Materiali scaricabili a livello di corso (PDF, slide, esercizi...)
@@ -218,6 +220,74 @@ model Vocabulary {
   @@index([userId, nextReview])
   @@index([userId, lang])
 }
+
+// ─── ESERCIZI AUTOCORRETTIVI ────────────────────────────────────────────────
+// Migrati dal database latin-cert.org (tabelle: test, section, quiz_list +
+// SceltaMultipla, VeroFalso, ClozeDragDrop, ClozeSceltaMultipla,
+// Completamento, Abbinamento, RiordinoTesto, RispostaAperta)
+
+// Un test = una serie di esercizi (può essere collegato a un corso o standalone)
+model ExerciseTest {
+  id          String   @id @default(cuid())
+  latinCertId Int      @unique   // IDT originale da latin-cert
+  title       String
+  description String?  @db.Text
+  isPublic    Boolean  @default(false)
+  lingua      String?             // "Latino" | "Greco Antico"
+  livello     String?             // "A1.1" | "B1" ecc.
+  metodo      String?             // "Induttivo-contestuale" ecc.
+  ordine      Int      @default(100)
+  courseId    String?             // collegato a un corso Neon (opzionale)
+  lessonId    String?             // collegato a una lezione specifica (da lezione.FK_IDT)
+  createdAt   DateTime @default(now())
+
+  course   Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
+  lesson   Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  sections ExerciseSection[]
+}
+
+// Una sezione all'interno di un test
+model ExerciseSection {
+  id          String @id @default(cuid())
+  latinCertId Int    @unique   // IDS originale
+  testId      String
+  name        String
+  timeMinutes Int    @default(5)
+  sortOrder   Int    @default(0)
+
+  test      ExerciseTest       @relation(fields: [testId], references: [id], onDelete: Cascade)
+  questions ExerciseQuestion[]
+}
+
+// Una singola domanda/attività all'interno di una sezione.
+// Il campo `data` (JSON) contiene la struttura specifica per ogni tipo.
+//
+// Tipi (questionType):
+//   SceltaMultipla   → data: [{question, correct, wrong_1, wrong_2, wrong_3?}, ...]
+//   VeroFalso        → data: [{question, correct: 0|1}, ...]
+//   ClozeDragDrop    → data: {html}  (testo con <span class="completamento">risposta</span>)
+//   ClozeSceltaMultipla → data: {html}  (span con attr incorrect/incorrect2)
+//   Completamento    → data: {html}  (span con <label>hint</label> per la risposta)
+//   Abbinamento      → data: [{w1, w2}, ...]
+//   RiordinoTesto    → data: {txt}  ({part}...{/part} markers)
+//   RispostaAperta   → data: {min?, max?}
+model ExerciseQuestion {
+  id           String  @id @default(cuid())
+  latinCertId  Int     @unique   // IDQL originale
+  sectionId    String
+  questionType String            // uniquename da quiz_type
+  sortOrder    Int     @default(0)
+  title        String? @db.Text  // titolo dell'esercizio
+  instruction  String? @db.Text  // consegna per lo studente
+  contextText  String? @db.Text  // testo di contesto (es. brano da leggere)
+  audio        String?            // filename audio (se presente)
+  image        String?            // filename immagine (se presente)
+  data         Json              // dati specifici per tipo (vedi commento sopra)
+
+  section ExerciseSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 // Audit trail di tutte le azioni admin — non cancellabile, append-only
 model AdminLog {
