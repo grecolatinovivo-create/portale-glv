@@ -214,6 +214,79 @@
 <!-- Skip link WCAG 2.4.1 — primo elemento focusabile della pagina -->
 <a href="#main-content" class="skip-link">Vai al contenuto principale</a>
 
+<!-- ══ MODALE VOCABOLARIO ════════════════════════════════ -->
+<div id="vocab-modal" class="vocab-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="vocab-modal-title">
+  <div class="vocab-modal">
+    <div class="vocab-modal-header">
+      <h2 class="vocab-modal-title" id="vocab-modal-title">Il mio Vocabolario</h2>
+      <div class="vocab-header-actions">
+        <button class="vocab-tab-btn active" data-tab="list" type="button">Parole</button>
+        <button class="vocab-tab-btn" data-tab="review" type="button">
+          Ripasso
+          <span class="vocab-due-badge hidden" id="vocab-due-badge">0</span>
+        </button>
+        <button class="vocab-modal-close" type="button" aria-label="Chiudi vocabolario" onclick="closeVocabModal()">×</button>
+      </div>
+    </div>
+
+    <!-- TAB: Lista parole -->
+    <div class="vocab-tab-content active" id="vocab-tab-list">
+      <div class="vocab-add-form" id="vocab-add-form">
+        <div class="vocab-form-row">
+          <input type="text" id="vocab-input-term" class="vocab-input" placeholder="Parola (es. amo, amas…)" aria-label="Parola in lingua originale" maxlength="120">
+          <input type="text" id="vocab-input-translation" class="vocab-input" placeholder="Traduzione" aria-label="Traduzione" maxlength="200">
+        </div>
+        <div class="vocab-form-row">
+          <input type="text" id="vocab-input-context" class="vocab-input vocab-input--wide" placeholder="Frase di contesto (opzionale)" aria-label="Frase di contesto" maxlength="400">
+          <button class="vocab-add-btn" type="button" onclick="addVocabWord()">+ Aggiungi</button>
+        </div>
+      </div>
+      <div class="vocab-list-wrap">
+        <div id="vocab-list-loading" class="vocab-empty">Caricamento…</div>
+        <div id="vocab-word-list"></div>
+        <p class="vocab-empty hidden" id="vocab-empty-msg">Nessuna parola ancora.<br>Aggiungile mentre studi!</p>
+      </div>
+    </div>
+
+    <!-- TAB: Sessione di ripasso -->
+    <div class="vocab-tab-content hidden" id="vocab-tab-review">
+      <div id="vocab-review-ready" class="hidden">
+        <p class="vocab-review-intro" id="vocab-review-count"></p>
+        <button class="vocab-start-review-btn" type="button" onclick="startReviewSession()">Inizia il ripasso →</button>
+      </div>
+      <div id="vocab-review-empty" class="vocab-empty hidden">
+        Nessuna parola da ripassare oggi.<br>Torna domani!
+      </div>
+      <div id="vocab-review-session" class="hidden">
+        <div class="review-card" id="review-card">
+          <div class="review-term" id="review-term"></div>
+          <div class="review-context" id="review-context"></div>
+          <button class="review-show-btn" id="review-show-btn" type="button" onclick="showReviewAnswer()">Mostra risposta</button>
+          <div class="review-answer hidden" id="review-answer">
+            <div class="review-translation" id="review-translation"></div>
+            <p class="review-q">Com'è andata?</p>
+            <div class="review-btns">
+              <button class="review-btn review-btn--again" type="button" data-result="again" onclick="submitReview('again')">Di nuovo</button>
+              <button class="review-btn review-btn--hard"  type="button" data-result="hard"  onclick="submitReview('hard')">Difficile</button>
+              <button class="review-btn review-btn--good"  type="button" data-result="good"  onclick="submitReview('good')">Bene</button>
+              <button class="review-btn review-btn--easy"  type="button" data-result="easy"  onclick="submitReview('easy')">Facile</button>
+            </div>
+          </div>
+        </div>
+        <div class="review-progress-wrap">
+          <div class="review-progress-bar">
+            <div class="review-progress-fill" id="review-progress-fill"></div>
+          </div>
+          <span id="review-progress-text"></span>
+        </div>
+      </div>
+      <div id="vocab-review-done" class="vocab-empty hidden">
+        Sessione completata!<br>Tutte le parole ripassate.
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ══ QUIZ ONBOARDING ════════════════════════════════════ -->
 <div id="glv-quiz" class="hidden">
   <div class="quiz-inner">
@@ -344,6 +417,16 @@
         <a href="#section-per-te">I miei corsi</a>
       </div>
       <div class="nav-actions">
+        <button class="nav-vocab-btn" id="nav-vocab-btn" type="button"
+                aria-label="Il mio vocabolario" title="Vocabolario personale"
+                onclick="openVocabModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 19V5a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M4 19a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M8 7h8M8 11h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <span class="nav-vocab-badge hidden" id="nav-vocab-badge">0</span>
+        </button>
         <span class="nav-plan-badge" id="nav-plan-badge">—</span>
         <div class="nav-profile-dropdown">
           <div class="nav-avatar" id="nav-avatar" role="button" tabindex="0"
@@ -592,7 +675,17 @@
         <section class="course-header" id="course-header">
           <div class="course-badges" id="course-badges"></div>
 
-          <h2 class="course-title" id="course-title"></h2>
+          <div class="course-title-row">
+            <h2 class="course-title" id="course-title"></h2>
+            <button class="course-vocab-btn" id="course-vocab-btn" type="button"
+                    title="Aggiungi parola al vocabolario" aria-label="Aggiungi parola al vocabolario"
+                    onclick="openAddWordModal()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Vocabolario
+            </button>
+          </div>
           <p class="course-description" id="course-description"></p>
 
           <!-- Banner upgrade tier: visibile solo se l'abbonamento non copre questo corso -->
@@ -611,10 +704,14 @@
 
             <span class="streak-badge" id="streak-badge">
               <svg class="streak-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path d="M12 2C12 2 7 8 7 13a5 5 0 0 0 10 0c0-3-2-6-2-6s-1 2-2 2c0 0 1-4-1-7Z" fill="var(--gold)"/>
-                <path d="M12 17a2 2 0 0 1-2-2c0-1.5 2-3 2-3s2 1.5 2 3a2 2 0 0 1-2 2Z" fill="var(--bg)" opacity="0.6"/>
+                <rect x="3" y="4" width="18" height="16" rx="2" stroke="var(--gold)" stroke-width="1.8" fill="none"/>
+                <path d="M3 9h18" stroke="var(--gold)" stroke-width="1.5"/>
+                <path d="M8 2v4M16 2v4" stroke="var(--gold)" stroke-width="1.8" stroke-linecap="round"/>
+                <circle cx="8" cy="14" r="1.5" fill="var(--gold)"/>
+                <circle cx="12" cy="14" r="1.5" fill="var(--gold)"/>
+                <circle cx="16" cy="14" r="1.5" fill="var(--gold)"/>
               </svg>
-              <span id="streak-text">0 giorni</span>
+              <span id="streak-text">0 questa settimana</span>
             </span>
           </div>
         </section>
@@ -1423,14 +1520,15 @@ async function openCourseView(slug, opts) {
   // ── STEP 2: FETCH IN PARALLELO — mentre la transizione è già in corso
   let course, progressData, streakData;
   try {
-    const [rCourse, rProgress, rStreak] = await Promise.all([
+    const [rCourse, rProgress, rOverview] = await Promise.all([
       fetch(`/api/courses/${slug}`),
       fetch(`/api/progress/course/${slug}`),
-      fetch('/api/progress/streak'),
+      fetch('/api/progress/overview'),
     ]);
-    course       = rCourse.ok   ? ((await rCourse.json())?.course ?? null) : null;
-    progressData = rProgress.ok ? await rProgress.json() : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
-    streakData   = rStreak.ok   ? await rStreak.json()   : { streak: 0, lastActivityDate: null };
+    course       = rCourse.ok    ? ((await rCourse.json())?.course ?? null) : null;
+    progressData = rProgress.ok  ? await rProgress.json() : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
+    // streakData ora contiene i dati settimanali (non giorni consecutivi)
+    streakData   = rOverview.ok  ? await rOverview.json() : { weeklyLessons: 0 };
   } catch (err) {
     console.error('[corsoView] Errore fetch:', err);
     if (typeof showToast === 'function') showToast('Impossibile caricare il corso. Riprova.');
@@ -1625,11 +1723,11 @@ function renderCourseHeader(course, progressData, streakData) {
   const descEl = document.getElementById('course-description');
   if (descEl) descEl.textContent = course.description || '';
 
-  // Streak
+  // Streak qualitativa — lezioni viste questa settimana (non giorni consecutivi)
   const streakText = document.getElementById('streak-text');
   if (streakText) {
-    const n = streakData?.streak ?? 0;
-    streakText.textContent = n + ' ' + (n === 1 ? 'giorno' : 'giorni');
+    const n = streakData?.weeklyLessons ?? 0;
+    streakText.textContent = n + ' questa settimana';
   }
 
   // Progresso (la barra parte da 0 — animazione avviene in openCourseView con delay)
@@ -2314,6 +2412,280 @@ window.renderLessonList = function(course, progressData) {
 };
 renderLessonList = window.renderLessonList;
 
+
+// ══ VOCABOLARIO PERSONALE ════════════════════════════════════════
+
+let _vocabWords = [];     // cache parole
+let _reviewQueue = [];    // coda ripasso corrente
+let _reviewIdx   = 0;     // indice nella coda
+
+// ── Apertura/chiusura modale ──────────────────────────────────────
+
+function openVocabModal() {
+  const modal = document.getElementById('vocab-modal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  loadVocabWords();
+  loadReviewCount();
+}
+
+function closeVocabModal() {
+  const modal = document.getElementById('vocab-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// Chiudi con Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeVocabModal();
+});
+
+// Chiudi click fuori dal modale
+document.getElementById('vocab-modal')?.addEventListener('click', e => {
+  if (e.target.id === 'vocab-modal') closeVocabModal();
+});
+
+// ── Tab switching ─────────────────────────────────────────────────
+
+document.querySelectorAll('.vocab-tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.vocab-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.vocab-tab-content').forEach(c => c.classList.add('hidden'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.getElementById('vocab-tab-' + tab)?.classList.remove('hidden');
+    if (tab === 'review') loadReviewQueue();
+  });
+});
+
+// ── Carica parole ─────────────────────────────────────────────────
+
+async function loadVocabWords() {
+  const listEl  = document.getElementById('vocab-word-list');
+  const loading = document.getElementById('vocab-list-loading');
+  const emptyEl = document.getElementById('vocab-empty-msg');
+  if (!listEl) return;
+
+  try {
+    const res  = await fetch('/api/vocabulary');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    _vocabWords = data.words || [];
+
+    loading?.classList.add('hidden');
+
+    // Badge navbar
+    const navBadge = document.getElementById('nav-vocab-badge');
+    if (navBadge) {
+      navBadge.textContent = data.dueCount || 0;
+      navBadge.classList.toggle('hidden', !data.dueCount);
+    }
+
+    if (!_vocabWords.length) {
+      emptyEl?.classList.remove('hidden');
+      listEl.innerHTML = '';
+      return;
+    }
+    emptyEl?.classList.add('hidden');
+    renderWordList(_vocabWords, listEl);
+  } catch {
+    if (loading) loading.textContent = 'Errore nel caricamento.';
+  }
+}
+
+function renderWordList(words, container) {
+  container.innerHTML = '';
+  words.forEach(w => {
+    const item = document.createElement('div');
+    item.className = 'vocab-word-item';
+    item.dataset.id = w.id;
+
+    const due = new Date(w.nextReview) <= new Date();
+    item.innerHTML = `
+      <div class="vocab-word-main">
+        <span class="vocab-term"></span>
+        <span class="vocab-arrow" aria-hidden="true">→</span>
+        <span class="vocab-translation"></span>
+        ${due ? '<span class="vocab-due-dot" title="Da ripassare oggi" aria-label="Da ripassare oggi"></span>' : ''}
+      </div>
+      ${w.context ? '<div class="vocab-context"></div>' : ''}
+      <div class="vocab-word-meta">
+        ${w.lang ? `<span class="vocab-lang-tag"></span>` : ''}
+        <span class="vocab-interval"></span>
+        <button class="vocab-delete-btn" type="button" aria-label="Elimina parola" data-id="${_esc(w.id)}">×</button>
+      </div>`;
+    // XSS-safe textContent
+    item.querySelector('.vocab-term').textContent = w.term;
+    item.querySelector('.vocab-translation').textContent = w.translation;
+    if (w.context) item.querySelector('.vocab-context').textContent = w.context;
+    if (w.lang) item.querySelector('.vocab-lang-tag').textContent = w.lang;
+    item.querySelector('.vocab-interval').textContent =
+      w.reviewCount > 0 ? 'ripasso tra ' + w.interval + ' gg' : 'non ancora ripassata';
+
+    item.querySelector('.vocab-delete-btn').addEventListener('click', () => deleteVocabWord(w.id, item));
+    container.appendChild(item);
+  });
+}
+
+async function deleteVocabWord(id, itemEl) {
+  try {
+    const res = await fetch('/api/vocabulary/' + id, { method: 'DELETE' });
+    if (!res.ok) return;
+    itemEl.remove();
+    _vocabWords = _vocabWords.filter(w => w.id !== id);
+    if (!_vocabWords.length) {
+      document.getElementById('vocab-empty-msg')?.classList.remove('hidden');
+    }
+  } catch {}
+}
+
+// ── Aggiungi parola ───────────────────────────────────────────────
+
+async function addVocabWord() {
+  const termEl  = document.getElementById('vocab-input-term');
+  const transEl = document.getElementById('vocab-input-translation');
+  const ctxEl   = document.getElementById('vocab-input-context');
+  const term    = termEl?.value.trim();
+  const trans   = transEl?.value.trim();
+  if (!term || !trans) { termEl?.focus(); return; }
+
+  // Preleva la lingua dal corso corrente (se siamo in una vista corso)
+  const lang = _corsoData?.course?.lang || null;
+
+  try {
+    const res  = await fetch('/api/vocabulary', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ term, translation: trans, context: ctxEl?.value.trim() || null, lang }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    _vocabWords.unshift(data.word);
+
+    const listEl = document.getElementById('vocab-word-list');
+    if (listEl) renderWordList(_vocabWords, listEl);
+    document.getElementById('vocab-empty-msg')?.classList.add('hidden');
+    if (termEl)  termEl.value  = '';
+    if (transEl) transEl.value = '';
+    if (ctxEl)   ctxEl.value   = '';
+    termEl?.focus();
+    showToast('Parola aggiunta al vocabolario');
+  } catch {}
+}
+
+// Shortcut: apre il modale già sulla scheda "lista" con focus sul campo termine
+function openAddWordModal() {
+  openVocabModal();
+  // Attiva tab lista
+  document.querySelector('.vocab-tab-btn[data-tab="list"]')?.click();
+  setTimeout(() => document.getElementById('vocab-input-term')?.focus(), 150);
+}
+
+// ── Ripasso ───────────────────────────────────────────────────────
+
+async function loadReviewCount() {
+  try {
+    const res  = await fetch('/api/vocabulary/review');
+    if (!res.ok) return;
+    const data = await res.json();
+    const badge = document.getElementById('vocab-due-badge');
+    if (badge) {
+      badge.textContent = data.count;
+      badge.classList.toggle('hidden', !data.count);
+    }
+    // Badge navbar
+    const navBadge = document.getElementById('nav-vocab-badge');
+    if (navBadge && data.count > 0) {
+      navBadge.textContent = data.count;
+      navBadge.classList.remove('hidden');
+    }
+  } catch {}
+}
+
+async function loadReviewQueue() {
+  const readyEl = document.getElementById('vocab-review-ready');
+  const emptyEl = document.getElementById('vocab-review-empty');
+  const sessionEl = document.getElementById('vocab-review-session');
+  const doneEl  = document.getElementById('vocab-review-done');
+  [readyEl, emptyEl, sessionEl, doneEl].forEach(el => el?.classList.add('hidden'));
+
+  try {
+    const res  = await fetch('/api/vocabulary/review');
+    if (!res.ok) return;
+    const data = await res.json();
+    _reviewQueue = data.due || [];
+    _reviewIdx   = 0;
+
+    if (!_reviewQueue.length) {
+      emptyEl?.classList.remove('hidden');
+      return;
+    }
+    const countEl = document.getElementById('vocab-review-count');
+    if (countEl) countEl.textContent = _reviewQueue.length + ' ' + (_reviewQueue.length === 1 ? 'parola' : 'parole') + ' da ripassare';
+    readyEl?.classList.remove('hidden');
+  } catch {}
+}
+
+function startReviewSession() {
+  document.getElementById('vocab-review-ready')?.classList.add('hidden');
+  document.getElementById('vocab-review-session')?.classList.remove('hidden');
+  showReviewCard();
+}
+
+function showReviewCard() {
+  if (_reviewIdx >= _reviewQueue.length) {
+    document.getElementById('vocab-review-session')?.classList.add('hidden');
+    document.getElementById('vocab-review-done')?.classList.remove('hidden');
+    // Aggiorna badge
+    loadReviewCount();
+    return;
+  }
+  const word = _reviewQueue[_reviewIdx];
+  const termEl  = document.getElementById('review-term');
+  const ctxEl   = document.getElementById('review-context');
+  const transEl = document.getElementById('review-translation');
+  const ansEl   = document.getElementById('review-answer');
+  const showBtn = document.getElementById('review-show-btn');
+
+  if (termEl)  termEl.textContent  = word.term;
+  if (ctxEl)   { ctxEl.textContent = word.context || ''; ctxEl.style.display = word.context ? '' : 'none'; }
+  if (transEl) transEl.textContent = word.translation;
+  ansEl?.classList.add('hidden');
+  showBtn?.classList.remove('hidden');
+
+  // Progresso
+  const fillEl = document.getElementById('review-progress-fill');
+  const progTxt = document.getElementById('review-progress-text');
+  const pct = Math.round((_reviewIdx / _reviewQueue.length) * 100);
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (progTxt) progTxt.textContent = _reviewIdx + '/' + _reviewQueue.length;
+}
+
+function showReviewAnswer() {
+  document.getElementById('review-answer')?.classList.remove('hidden');
+  document.getElementById('review-show-btn')?.classList.add('hidden');
+}
+
+async function submitReview(result) {
+  const word = _reviewQueue[_reviewIdx];
+  if (!word) return;
+  try {
+    await fetch('/api/vocabulary/review', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ wordId: word.id, result }),
+    });
+  } catch {}
+  _reviewIdx++;
+  showReviewCard();
+}
+
+// Chiudi modale vocabolario con Escape anche quando il focus è dentro
+document.getElementById('vocab-modal')?.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeVocabModal();
+});
 
 // ── popstate (Back/Forward browser) ──────────────────────────────
 

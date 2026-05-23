@@ -27,6 +27,7 @@ model User {
   lessonProgress       LessonProgress[]
   certificates         Certificate[]
   passwordResetTokens  PasswordResetToken[]
+  vocabulary           Vocabulary[]
 }
 
 // Corsi disponibili nel catalogo
@@ -151,6 +152,38 @@ model PasswordResetToken {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
+}
+
+// Vocabolario personale — parole aggiunte dall'utente durante lo studio
+// Sistema di ripasso a intervalli crescenti (spaced repetition leggera):
+// intervalli: 1 → 3 → 7 → 14 → 30 giorni (easeFactor 1–5)
+model Vocabulary {
+  id          String    @id @default(cuid())
+  userId      String
+  courseId    String?   // corso da cui è stata aggiunta la parola (opzionale)
+  lessonId    String?   // lezione da cui è stata aggiunta (opzionale)
+
+  // Contenuto
+  term        String    @db.Text  // parola o espressione in lingua originale
+  translation String    @db.Text  // traduzione/significato
+  context     String?   @db.Text  // frase di contesto (opzionale)
+  lang        String?              // es. 'Latino', 'Greco Antico'
+
+  // SRS (Spaced Repetition System)
+  easeFactor  Int       @default(3)   // 1–5, quanto è facile questa parola
+  interval    Int       @default(1)   // giorni fino al prossimo ripasso
+  nextReview  DateTime  @default(now()) // quando ripassare
+  reviewCount Int       @default(0)   // quante volte ripassata
+  lastResult  String?                  // 'easy' | 'good' | 'hard' | 'again'
+  lastReviewAt DateTime?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, nextReview])
+  @@index([userId, lang])
 }
 
 // Audit trail di tutte le azioni admin — non cancellabile, append-only
