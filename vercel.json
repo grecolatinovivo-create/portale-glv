@@ -14,7 +14,7 @@
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://player.vimeo.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://player.vimeo.com; connect-src 'self' https://api.vimeo.com; media-src 'self' https:"
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://player.vimeo.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: https:; frame-src https://player.vimeo.com; connect-src 'self' https://api.vimeo.com https://vimeo.com https://fresnel.vimeo.com https://f.vimeocdn.com; media-src 'self' https:; worker-src 'self' blob: https://player.vimeo.com"
         }
       ]
     },

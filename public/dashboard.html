@@ -2967,27 +2967,49 @@ function renderPlayer(lesson, course) {
   const wrap = document.getElementById('course-player-wrap');
   if (!wrap) return;
 
-  // Distruggi il player precedente
-  _destroyPlayer();
+  // ── Cleanup SINCRONO: rimuovi prima l'iframe dal DOM, poi distruggi l'SDK ──
+  // CRITICO: player.destroy() è ASINCRONO. Se chiamiamo _destroyPlayer() e poi
+  // appendiamo un nuovo iframe con lo stesso id="vimeo-player", il callback async
+  // di destroy() rimuoverebbe il NUOVO iframe. Soluzione: rimuoviamo l'elemento
+  // dal DOM prima (sincrono), poi destroy() può fare fire-and-forget in sicurezza.
+  const oldEl = document.getElementById('vimeo-player');
+  if (oldEl) oldEl.remove();
+  if (_vimeoPlayer) {
+    _vimeoPlayer.off('timeupdate');
+    _vimeoPlayer.off('ended');
+    _vimeoPlayer.destroy().catch(() => {}); // async fire-and-forget, iframe già rimosso
+    _vimeoPlayer = null;
+  }
+  if (_vimeoMsgHandler) {
+    window.removeEventListener('message', _vimeoMsgHandler);
+    _vimeoMsgHandler = null;
+  }
+  _lastWatched  = 0;
+  _totalSeconds = 0;
 
   const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
   const videoId  = _extractVimeoId(vimeoUrl);
   if (!videoId) return;
 
-  // Leggi progresso salvato per ripartire dal punto giusto
   const prog       = _lessonProgressMap(_corsoData?.progressData);
   const lessonProg = prog.get(lesson.id) || {};
-  // Se la lezione è già completata non fare seek — l'utente la rivede dall'inizio.
   const resumeAt   = lessonProg.completed ? 0 : (lessonProg.resumeAt || 0);
   const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
   const courseId   = lesson.courseId || course.id;
 
-  // Popola barra info con dati iniziali (progresso già salvato)
   const initWatched = lessonProg.watchedSeconds || lessonProg.resumeAt || 0;
   _updateMetaBar(lesson, initWatched, totalSec || lessonProg.totalSeconds || 0, lessonProg.completed || false);
 
-  // Crea l'iframe esattamente come prima (stesso id, stesso CSS) —
-  // così il player parte subito e il layout non cambia.
+  // Verifica SDK prima di creare l'iframe — il tracking è obbligatorio
+  if (typeof Vimeo === 'undefined' || typeof Vimeo.Player !== 'function') {
+    _showPlayerError(wrap, 'Sistema di tracking non disponibile. Ricarica la pagina o contatta il supporto.');
+    return;
+  }
+
+  // Crea l'iframe con src impostato immediatamente (autoplay nel click context)
+  // NON aggiungere ?api=1: l'SDK gestisce la comunicazione autonomamente.
+  // ?api=1 è il vecchio protocollo froogaloop — con l'SDK è irrilevante o confligge.
+  const src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
   const iframe = document.createElement('iframe');
   iframe.id = 'vimeo-player';
   iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
@@ -2995,37 +3017,37 @@ function renderPlayer(lesson, course) {
   iframe.setAttribute('frameborder', '0');
   iframe.title = lesson.title || 'Player lezione';
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+  iframe.src = src;
   wrap.appendChild(iframe);
 
-  _lastWatched  = 0;
   _totalSeconds = totalSec;
 
-  // Guard: se l'SDK non è disponibile, fallback al player senza tracking
-  if (typeof Vimeo === 'undefined' || typeof Vimeo.Player !== 'function') {
-    console.warn('[GLV] Vimeo SDK non disponibile — il cerchio non si aggiornerà.');
-    iframe.src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
+  // Aggancia l'SDK sull'iframe con src già impostato.
+  // new Vimeo.Player(iframeConSrc) — SENZA opzioni extra — non modifica il src,
+  // non ricrea l'iframe: legge il src esistente e installa i propri listener.
+  let player;
+  try {
+    player = new Vimeo.Player(iframe);
+  } catch (err) {
+    iframe.remove();
+    _showPlayerError(wrap, 'Impossibile inizializzare il player. Ricarica la pagina o contatta il supporto.');
+    console.error('[GLV] Vimeo SDK init error:', err);
     return;
   }
-
-  // Inizializza l'SDK sull'iframe appena creato (NON su un div).
-  // Passare l'iframe esistente + opzioni: l'SDK imposta il src corretto
-  // e fornisce player.on('timeupdate'/'ended') — niente postMessage raw.
-  const player = new Vimeo.Player(iframe, {
-    id:       parseInt(videoId, 10),
-    autoplay: true,
-    dnt:      true,
-    title:    false,
-    byline:   false,
-    portrait: false,
-  });
   _vimeoPlayer = player;
 
-  // Resume al secondo salvato (solo se la lezione non era già completata)
-  if (resumeAt > 0) {
-    player.ready().then(() => {
-      player.setCurrentTime(resumeAt).catch(() => {});
-    }).catch(() => {});
-  }
+  // Resume + gestione errore caricamento
+  player.ready()
+    .then(() => {
+      if (resumeAt > 0) player.setCurrentTime(resumeAt).catch(() => {});
+    })
+    .catch(err => {
+      // Il player non è riuscito a caricare (video privato, quota, rete)
+      iframe.remove();
+      _vimeoPlayer = null;
+      _showPlayerError(wrap, 'Impossibile caricare il video. Verifica la connessione o contatta il supporto.');
+      console.error('[GLV] Vimeo player.ready() error:', err);
+    });
 
   _startVimeoTracking(player, lesson.id, courseId, totalSec);
 }
@@ -3094,6 +3116,30 @@ function _destroyPlayer() {
   if (old) old.remove();
   _lastWatched  = 0;
   _totalSeconds = 0;
+}
+
+function _showPlayerError(wrap, message) {
+  // Rimuovi eventuali iframe rimasti
+  const old = wrap ? wrap.querySelector('#vimeo-player') : document.getElementById('vimeo-player');
+  if (old) old.remove();
+  // Crea pannello di errore nel contenitore player
+  const target = wrap || document.getElementById('course-player-wrap');
+  if (!target) return;
+  target.innerHTML = `
+    <div style="
+      position:absolute;inset:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      background:#0d0d0d;color:#fff;padding:2rem;text-align:center;gap:1rem;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <p style="font-size:1rem;max-width:400px;line-height:1.5;">${message}</p>
+      <button onclick="location.reload()" style="
+        margin-top:.5rem;padding:.6rem 1.4rem;background:#b5923a;color:#fff;
+        border:none;border-radius:6px;cursor:pointer;font-size:.9rem;font-weight:600;">
+        Ricarica la pagina
+      </button>
+    </div>`;
 }
 
 function _updateProgressBar(pct) {
