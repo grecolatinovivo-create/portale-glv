@@ -2990,7 +2990,7 @@ function renderPlayer(lesson, course) {
   // Imposta src dopo aver registrato il listener
   // NOTA: il fragment #t=Xs viene ignorato dai browser per gli iframe embedded.
   // Il seek al punto salvato avviene via postMessage setCurrentTime nell'evento 'ready'.
-  const src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
+  const src = `https://player.vimeo.com/video/${videoId}?api=1&autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
   iframe.src = src;
 }
 
