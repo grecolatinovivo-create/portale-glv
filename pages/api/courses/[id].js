@@ -79,7 +79,7 @@ export default withAuth(async function handler(req, res) {
         const subscription = await prisma.subscription.findFirst({
           where: {
             userId: req.user.userId,
-            status: { in: ['active', 'trialing'] },
+            status: 'active',
           },
         });
 

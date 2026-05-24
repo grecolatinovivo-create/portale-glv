@@ -894,7 +894,7 @@ function skipQuiz() {
 
 /* ── Tier logic ───────────────────────────────────────────── */
 function getTierLevel(sub) {
-  if (!sub || !['active','trialing'].includes(sub.status)) return 0;
+  if (!sub || sub.status !== 'active') return 0;
   const p = (sub.plan || '').toLowerCase();
   if (p.includes('accademia')) return 3;
   if (p.includes('linguae'))   return 2;

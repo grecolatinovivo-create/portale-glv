@@ -41,7 +41,7 @@ export default withAuth(async function handler(req, res) {
       prisma.user.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
       prisma.user.count({ where: { isSuspended: true } }),
       prisma.subscription.count({
-        where: { status: { in: ['active', 'trialing'] } },
+        where: { status: 'active' },
       }),
       prisma.subscription.count({
         where: { createdAt: { gte: thirtyDaysAgo } },
@@ -55,7 +55,7 @@ export default withAuth(async function handler(req, res) {
       prisma.purchase.count(),
       prisma.subscription.groupBy({
         by: ['plan'],
-        where: { status: { in: ['active', 'trialing'] } },
+        where: { status: 'active' },
         _count: { plan: true },
         orderBy: { _count: { plan: 'desc' } },
       }),

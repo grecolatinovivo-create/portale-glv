@@ -130,7 +130,7 @@ const Auth = {
     window.location.href = '/index.html';
   },
   hasActiveSubscription(user) {
-    return ['active','trialing'].includes(user?.subscription?.status);
+    return user?.subscription?.status === 'active';
   },
 };
 

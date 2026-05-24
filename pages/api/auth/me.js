@@ -21,7 +21,7 @@ export default withAuth(async function handler(req, res) {
       where: { id: req.user.userId },
       include: {
         subscriptions: {
-          where: { status: { in: ['active', 'trialing'] } },
+          where: { status: 'active' },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },

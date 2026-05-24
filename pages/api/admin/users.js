@@ -45,7 +45,7 @@ export default withAuth(async function handler(req, res) {
             fullName: true,
             createdAt: true,
             subscriptions: {
-              where: { status: { in: ['active', 'trialing'] } },
+              where: { status: 'active' },
               select: { id: true, plan: true, status: true, currentPeriodEnd: true },
               take: 1,
             },
