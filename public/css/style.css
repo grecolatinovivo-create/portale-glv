@@ -2204,6 +2204,13 @@ body.has-corso-cta { padding-bottom: 80px; }
   left: 72px;
   width: 260px;
   z-index: 450;
+  /* Altezza fissa + scroll indipendente — comportamento tipo YouTube */
+  height: calc(100vh - var(--nav-height) - 28px - 24px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Scrollbar sottile */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
   /* entra dall'esterno sinistro */
   transform: translateX(-120%);
   opacity: 0;
@@ -2212,18 +2219,24 @@ body.has-corso-cta { padding-bottom: 80px; }
   /* Safe area mobile */
   left: max(72px, env(safe-area-inset-left, 0px) + 16px);
 }
+/* Scrollbar WebKit */
+.course-sidebar::-webkit-scrollbar { width: 4px; }
+.course-sidebar::-webkit-scrollbar-track { background: transparent; }
+.course-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+.course-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 .course-sidebar.strip-visible {
   transform: translateX(0);
   opacity: 1;
 }
 
 /* ── Risorse da scaricare ─────────────────────────────────────────── */
+/* Stile gestito da .lesson-below-section */
 #lesson-resources-section {
-  margin-top: 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 10px;
-  overflow: hidden;
+  margin-top: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
 }
 .lesson-resources-header {
   display: flex;
@@ -2288,13 +2301,13 @@ body.has-corso-cta { padding-bottom: 80px; }
   flex-shrink: 0;
 }
 
-/* ── ESERCIZI IN SIDEBAR ─────────────────────────────────────────────── */
+/* ── ESERCIZI SOTTO VIDEO (ora in main area, stile gestito da .lesson-below-section) ── */
 #lesson-exercises-section {
-  margin-top: 10px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 10px;
-  overflow: hidden;
+  margin-top: 0;
+  background: none;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
 }
 .lesson-exercises-header {
   display: flex;
@@ -2770,18 +2783,15 @@ body.has-corso-cta { padding-bottom: 80px; }
 
 
 @media (max-width: 900px) {
-  /* Su mobile la pellicola scende in basso, non si sovrappone al contenuto */
+  /* Su mobile la pellicola appare in basso centrata */
   .course-sidebar {
     top: auto;
     bottom: 80px;
     left: 50%;
     width: min(90vw, 340px);
-    transform: translateX(-50%) translateY(20px);
-  .course-sidebar {
-    top: auto;
-    bottom: 80px;
-    left: 50%;
-    width: min(90vw, 340px);
+    height: auto;
+    max-height: 40vh;
+    overflow-y: auto;
     transform: translateX(-50%) translateY(20px);
     opacity: 0;
   }
@@ -2801,6 +2811,10 @@ body.has-corso-cta { padding-bottom: 80px; }
   padding: 24px;
   margin-bottom: 32px;
   transition: background 0.3s ease;
+  /* Sticky: rimane visibile con barra progresso mentre si scorre verso il video */
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 100;
 }
 
 /* Header con gradiente lingua — testo bianco su sfondo scuro */
@@ -2957,6 +2971,109 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* Player: spazio sopra rispetto alla card, stesso colonna */
 .course-player-section {
   margin-top: 20px;
+}
+
+/* ── Barra info lezione sotto il player ────────────────────────── */
+.player-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  min-height: 48px;
+}
+
+.pmb-title {
+  flex: 1;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  /* Non troncato */
+  white-space: normal;
+  word-break: break-word;
+}
+
+.pmb-duration {
+  flex-shrink: 0;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  padding: 0 8px;
+}
+
+/* ── Cerchio progresso ─────────────────────────────────────────── */
+.pmb-ring-wrap {
+  flex-shrink: 0;
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pmb-ring {
+  width: 40px;
+  height: 40px;
+  overflow: visible;
+}
+.pmb-ring-bg {
+  stroke: rgba(255,255,255,0.08);
+}
+.pmb-ring-fill {
+  stroke: var(--gold);
+  transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease;
+}
+/* Verde quando completata */
+.pmb-ring-wrap.completed .pmb-ring-fill {
+  stroke: #3db05b;
+}
+.pmb-ring-pct {
+  position: absolute;
+  font-family: 'Inter', sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+  letter-spacing: -0.3px;
+  user-select: none;
+}
+
+/* ── Sezioni sotto il player (materiali + esercizi) ────────────── */
+.lesson-below-section {
+  margin-top: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  animation: fadeInUp 0.22s ease both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lesson-below-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.lesson-below-header svg {
+  flex-shrink: 0;
+  opacity: 0.65;
 }
 
 /* ── Pellicola Kodak ────────────────────────────────────────────── */
@@ -3150,6 +3267,17 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 .film-frame-btn.film-frame--completed .film-frame-title {
   color: rgba(245,245,245,0.55);
+}
+/* Checkmark completata: overlay con sfondo verde tenue ben visibile */
+.film-frame-btn.film-frame--completed .film-thumb-overlay {
+  background: rgba(30, 90, 50, 0.55);
+}
+.film-frame-btn.film-frame--completed .film-thumb-overlay svg circle {
+  fill: rgba(61,176,91,0.35);
+}
+.film-frame-btn.film-frame--completed .film-thumb-overlay svg path {
+  stroke: #5de07a;
+  stroke-width: 2.2px;
 }
 .film-frame-btn.film-frame--selected {
   background: rgba(255,255,255,0.055);
