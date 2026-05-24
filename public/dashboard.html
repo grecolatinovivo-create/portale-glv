@@ -2972,14 +2972,15 @@ function renderPlayer(lesson, course) {
   _lastWatched  = 0;
   _totalSeconds = totalSec;
 
-  // Imposta src dopo appendChild per evitare race condition
+  // Avvia tracking PRIMA di impostare src — evita race condition se il player
+  // Vimeo è in cache e invia 'ready' prima che il listener sia registrato.
+  _startVimeoTracking(iframe, lesson.id, courseId, totalSec, resumeAt);
+
+  // Imposta src dopo aver registrato il listener
   // NOTA: il fragment #t=Xs viene ignorato dai browser per gli iframe embedded.
   // Il seek al punto salvato avviene via postMessage setCurrentTime nell'evento 'ready'.
   const src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
   iframe.src = src;
-
-  // Avvia tracking tramite postMessage — passa resumeAt per il seek iniziale
-  _startVimeoTracking(iframe, lesson.id, courseId, totalSec, resumeAt);
 }
 
 function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds, resumeAt) {
@@ -3007,7 +3008,9 @@ function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds, resumeAt)
     if (d.event === 'timeupdate') {
       _lastWatched = Math.round(d.data?.seconds || 0);
       const dur = Math.round(d.data?.duration || totalSeconds || 0);
-      if (dur > 0 && _totalSeconds === 0) _totalSeconds = dur;
+      // Aggiorna sempre _totalSeconds con il valore reale del player —
+      // corregge anche i casi in cui lesson.durationMin era errato.
+      if (dur > 0) _totalSeconds = dur;
 
       // Aggiorna cerchio progresso in tempo reale
       _updateMetaBar(null, _lastWatched, _totalSeconds || dur, false);
