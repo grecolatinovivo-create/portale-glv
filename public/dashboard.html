@@ -2946,7 +2946,10 @@ function _updateMetaBar(lesson, watchedSec, totalSec, completed) {
     // Circonferenza = 2πr = 2 × π × 15.5 ≈ 97.4
     const C = 97.4;
     const offset = C - (pct / 100) * C;
-    ringFill.style.strokeDashoffset = offset.toFixed(2);
+    // setAttribute imposta la presentation attribute SVG (accetta numeri unitless in tutti i browser);
+    // setProperty aggiorna anche l'inline style CSS così la CSS transition si attiva correttamente.
+    ringFill.setAttribute('stroke-dashoffset', offset.toFixed(2));
+    ringFill.style.setProperty('stroke-dashoffset', offset.toFixed(2));
     pctEl.textContent = `${pct}%`;
     ringWrap.setAttribute('aria-valuenow', pct);
     if (completed || pct >= 100) {
@@ -3012,7 +3015,15 @@ function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds, resumeAt)
   _vimeoMsgHandler = (e) => {
     if (!e.origin.includes('vimeo.com')) return;
     let d;
-    try { d = JSON.parse(e.data); } catch { return; }
+    // Vimeo froogaloop API manda JSON stringificato; versioni più recenti possono
+    // mandare un oggetto direttamente — gestiamo entrambi i casi.
+    if (typeof e.data === 'string') {
+      try { d = JSON.parse(e.data); } catch { return; }
+    } else if (typeof e.data === 'object' && e.data !== null) {
+      d = e.data;
+    } else {
+      return;
+    }
 
     // Player pronto: registra eventi e applica seek al punto salvato
     if (d.event === 'ready') {
