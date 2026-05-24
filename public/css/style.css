@@ -2811,10 +2811,8 @@ body.has-corso-cta { padding-bottom: 80px; }
   padding: 24px;
   margin-bottom: 32px;
   transition: background 0.3s ease;
-  /* Sticky: rimane visibile con barra progresso mentre si scorre verso il video */
-  position: sticky;
-  top: var(--nav-height);
-  z-index: 100;
+  /* position:sticky rimosso — incompatibile con genitore position:absolute + overflow-x:clip
+     (causa sfondamento del layout e sovrapposizione delle viste) */
 }
 
 /* Header con gradiente lingua — testo bianco su sfondo scuro */
