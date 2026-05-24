@@ -2904,7 +2904,7 @@ function _showLockedBanner(lesson, course) {
 // ── Player Vimeo — SDK ufficiale @vimeo/player ───────────────────
 //
 // Architettura con SDK:
-//   - renderPlayer() crea un div #vimeo-player, inizializza new Vimeo.Player()
+//   - renderPlayer() crea un iframe #vimeo-player, poi inizializza new Vimeo.Player(iframe)
 //     che crea l'iframe internamente e gestisce tutto il postMessage.
 //   - autoplay:true funziona perché chiamato da click utente (user gesture).
 //   - _startVimeoTracking() usa player.on('timeupdate'/'ended') — niente
@@ -2986,48 +2986,46 @@ function renderPlayer(lesson, course) {
   const initWatched = lessonProg.watchedSeconds || lessonProg.resumeAt || 0;
   _updateMetaBar(lesson, initWatched, totalSec || lessonProg.totalSeconds || 0, lessonProg.completed || false);
 
-  // Crea div contenitore per l'SDK Vimeo
-  // L'SDK crea internamente l'iframe con id="vimeo-player" che il CSS già stila.
-  const container = document.createElement('div');
-  container.id = 'vimeo-player';
-  container.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
-  wrap.appendChild(container);
+  // Crea l'iframe esattamente come prima (stesso id, stesso CSS) —
+  // così il player parte subito e il layout non cambia.
+  const iframe = document.createElement('iframe');
+  iframe.id = 'vimeo-player';
+  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.setAttribute('frameborder', '0');
+  iframe.title = lesson.title || 'Player lezione';
+  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+  wrap.appendChild(iframe);
 
   _lastWatched  = 0;
   _totalSeconds = totalSec;
 
-  // Guard: l'SDK deve essere caricato (script tag in testa alla pagina)
+  // Guard: se l'SDK non è disponibile, fallback al player senza tracking
   if (typeof Vimeo === 'undefined' || typeof Vimeo.Player !== 'function') {
-    console.error('[GLV] Vimeo SDK non disponibile — il player non si avvia.');
-    container.remove();
+    console.warn('[GLV] Vimeo SDK non disponibile — il cerchio non si aggiornerà.');
+    iframe.src = `https://player.vimeo.com/video/${videoId}?autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
     return;
   }
 
-  // Inizializza SDK Vimeo Player — gestisce internamente il postMessage e
-  // espone eventi JS puliti (timeupdate, ended) senza dipendere da froogaloop.
-  const player = new Vimeo.Player(container, {
+  // Inizializza l'SDK sull'iframe appena creato (NON su un div).
+  // Passare l'iframe esistente + opzioni: l'SDK imposta il src corretto
+  // e fornisce player.on('timeupdate'/'ended') — niente postMessage raw.
+  const player = new Vimeo.Player(iframe, {
     id:       parseInt(videoId, 10),
     autoplay: true,
     dnt:      true,
     title:    false,
     byline:   false,
     portrait: false,
-    responsive: false,
   });
   _vimeoPlayer = player;
 
-  // Fissa lo stile dell'iframe creato dall'SDK
-  player.ready().then(() => {
-    const sdkIframe = container.querySelector('iframe');
-    if (sdkIframe) {
-      sdkIframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
-      sdkIframe.title = lesson.title || 'Player lezione';
-    }
-    // Resume al secondo salvato (solo se non già completata)
-    if (resumeAt > 0) {
+  // Resume al secondo salvato (solo se la lezione non era già completata)
+  if (resumeAt > 0) {
+    player.ready().then(() => {
       player.setCurrentTime(resumeAt).catch(() => {});
-    }
-  }).catch(() => {});
+    }).catch(() => {});
+  }
 
   _startVimeoTracking(player, lesson.id, courseId, totalSec);
 }
