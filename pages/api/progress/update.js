@@ -45,8 +45,12 @@ export default withAuth(async function handler(req, res) {
     const wasAlreadyCompleted = existing?.completed ?? false;
     const nowCompleted = wasAlreadyCompleted || isCompleted;
 
+    // Usa il massimo tra il valore esistente e quello nuovo:
+    // evita che una sessione corta sovrascriva il progresso di una sessione lunga.
+    const watchedSecondsFinal = Math.max(existing?.watchedSeconds ?? 0, ws);
+
     const progressData = {
-      watchedSeconds: ws,
+      watchedSeconds: watchedSecondsFinal,
       totalSeconds: ts,
       resumeAt: ra,
       completed: nowCompleted,

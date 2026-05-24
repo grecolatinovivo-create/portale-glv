@@ -1397,12 +1397,20 @@ function _esc(val) {
 const VIMEO_PLACEHOLDER = 'https://player.vimeo.com/video/76979871';
 
 // Stato interno del corso aperto
-let _corsoData       = null; // { course, progressData, streak }
-let _lessonSelected  = null; // oggetto lezione attualmente selezionata
-let _vimeoPlayer     = null; // istanza SDK Vimeo.Player attiva
-let _vimeoMsgHandler = null; // legacy: rimosso ma mantenuto per sicurezza
-let _lastWatched     = 0;    // secondi guardati (aggiornati da timeupdate SDK)
-let _totalSeconds    = 0;    // durata totale lezione
+let _corsoData         = null; // { course, progressData, streak }
+let _lessonSelected    = null; // oggetto lezione attualmente selezionata
+let _vimeoPlayer       = null; // istanza SDK Vimeo.Player attiva
+let _vimeoMsgHandler   = null; // legacy: rimosso ma mantenuto per sicurezza
+let _lastWatched       = 0;    // secondi EFFETTIVAMENTE guardati (= _watchedSet.size)
+let _totalSeconds      = 0;    // durata totale lezione
+// ── Tracking tempo visto ─────────────────────────────────────────────
+// _watchedSet: Set di bucket interi (secondi) realmente guardati.
+// Deduplicato per natura: rivedere lo stesso secondo non lo conta due volte.
+// _lastTimeupdatePos: ultima posizione nota per rilevare i salti.
+// _resumePos: posizione corrente del cursore (per il resume, NON per la %).
+let _watchedSet        = new Set();
+let _lastTimeupdatePos = -1;
+let _resumePos         = 0;
 
 // ── Helpers ──────────────────────────────────────────────────────
 
@@ -2984,8 +2992,12 @@ function renderPlayer(lesson, course) {
     window.removeEventListener('message', _vimeoMsgHandler);
     _vimeoMsgHandler = null;
   }
-  _lastWatched  = 0;
-  _totalSeconds = 0;
+  // Reset completo stato tracking
+  _lastWatched       = 0;
+  _totalSeconds      = 0;
+  _watchedSet        = new Set();
+  _lastTimeupdatePos = -1;
+  _resumePos         = 0;
 
   const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
   const videoId  = _extractVimeoId(vimeoUrl);
@@ -2997,8 +3009,14 @@ function renderPlayer(lesson, course) {
   const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
   const courseId   = lesson.courseId || course.id;
 
-  const initWatched = lessonProg.watchedSeconds || lessonProg.resumeAt || 0;
-  _updateMetaBar(lesson, initWatched, totalSec || lessonProg.totalSeconds || 0, lessonProg.completed || false);
+  // Pre-popola il Set con i secondi già guardati nelle sessioni precedenti.
+  // Trattiamo i primi N secondi come già visti (approssimazione sufficiente):
+  // questo evita il doppio conteggio se l'utente rivede l'inizio del video.
+  const prevWatched = lessonProg.watchedSeconds || 0;
+  for (let i = 0; i < prevWatched; i++) _watchedSet.add(i);
+  _lastWatched = prevWatched;
+
+  _updateMetaBar(lesson, prevWatched, totalSec || lessonProg.totalSeconds || 0, lessonProg.completed || false);
 
   // Verifica SDK prima di creare l'iframe — il tracking è obbligatorio
   if (typeof Vimeo === 'undefined' || typeof Vimeo.Player !== 'function') {
@@ -3058,28 +3076,46 @@ function renderPlayer(lesson, course) {
 function _startVimeoTracking(player, lessonId, courseId, totalSeconds) {
   let lastSave = 0;
 
-  // timeupdate: aggiorna cerchio e salva progresso ogni 10 s
   player.on('timeupdate', (data) => {
-    _lastWatched = Math.round(data.seconds || 0);
-    const dur    = Math.round(data.duration || totalSeconds || 0);
-    // Aggiorna sempre _totalSeconds con il valore reale del player —
-    // corregge i casi in cui lesson.durationMin era errato o mancante.
+    const pos = data.seconds  || 0;
+    const dur = data.duration || totalSeconds || 0;
+    // Aggiorna _totalSeconds con il valore reale del player
     if (dur > 0) _totalSeconds = dur;
+
+    // ── Tracking a bucket: conta SOLO il playback reale ──────────────
+    // In playback normale il Vimeo SDK emette timeupdate ogni ~250 ms,
+    // quindi il delta tra due eventi consecutivi è ~0.25 s.
+    // Se il delta è > 0.6 s → salto in avanti (seek).
+    // Se il delta è <= 0   → riavvolgimento o seek all'indietro.
+    // In entrambi i casi NON incrementiamo il contatore.
+    const delta = pos - _lastTimeupdatePos;
+    if (_lastTimeupdatePos >= 0 && delta > 0 && delta < 0.6) {
+      // Aggiungi i bucket interi nell'intervallo visto in questo step.
+      // Il Set deduplica automaticamente: rivedere secondi già contati
+      // non aumenta il totale.
+      const fromB = Math.floor(_lastTimeupdatePos);
+      const toB   = Math.floor(pos);
+      for (let b = fromB; b <= toB; b++) _watchedSet.add(b);
+    }
+    _lastTimeupdatePos = pos;
+    _resumePos         = pos;
+    _lastWatched       = _watchedSet.size;
 
     // Aggiorna cerchio progresso in tempo reale
     _updateMetaBar(null, _lastWatched, _totalSeconds || dur, false);
 
+    // Salva sul server ogni 10 s
     const now = Date.now();
     if (now - lastSave >= 10000) {
       lastSave = now;
-      saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false);
+      saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false, pos);
     }
   });
 
-  // ended: segna cerchio verde 100% e salva completamento
+  // ended: fine video → segna cerchio verde e salva completamento
   player.on('ended', () => {
     _updateMetaBar(null, _totalSeconds || _lastWatched, _totalSeconds || _lastWatched, true);
-    saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
+    saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true, 0)
       .then(result => {
         if (!result?.lessonCompleted) return;
         // Aggiorna fotogramma → completato
@@ -3090,9 +3126,7 @@ function _startVimeoTracking(player, lessonId, courseId, totalSeconds) {
           const overlay = frame.querySelector('.film-thumb-overlay');
           if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/><path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         }
-        // Aggiorna barra progresso corso
         if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
-        // Mostra overlay "Prossima lezione"
         showNextLessonOverlay();
       }).catch(() => {});
   });
@@ -3114,8 +3148,11 @@ function _destroyPlayer() {
   // Rimuovi il container/iframe dal DOM se l'SDK non l'ha già rimosso
   const old = document.getElementById('vimeo-player');
   if (old) old.remove();
-  _lastWatched  = 0;
-  _totalSeconds = 0;
+  _lastWatched       = 0;
+  _totalSeconds      = 0;
+  _watchedSet        = new Set();
+  _lastTimeupdatePos = -1;
+  _resumePos         = 0;
 }
 
 function _showPlayerError(wrap, message) {
@@ -3161,13 +3198,17 @@ function _updateProgressBar(pct) {
 
 // ── Salvataggio progresso ─────────────────────────────────────────
 
-async function saveProgress(lessonId, courseId, watchedSeconds, totalSeconds, completed) {
+// resumeAt = posizione cursore nel video (per riprendere da dove eri).
+// watchedSeconds = secondi EFFETTIVAMENTE guardati (contatore bucket).
+// Sono due valori diversi: il cursore può essere al minuto 25 pur avendo
+// guardato solo 30 secondi reali.
+async function saveProgress(lessonId, courseId, watchedSeconds, totalSeconds, completed, resumeAt) {
   try {
     const body = {
       lessonId,
       watchedSeconds,
       totalSeconds,
-      resumeAt: watchedSeconds,
+      resumeAt: resumeAt ?? watchedSeconds,
     };
     // completed viene gestito server-side se >= 90% — non lo mandiamo esplicitamente
     // (update.js gestisce isCompleted = ts > 30 && ws >= ts * 0.9)
