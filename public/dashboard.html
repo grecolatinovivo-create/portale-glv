@@ -812,6 +812,8 @@
   </main><!-- /#main-content -->
 </div><!-- /#glv-dashboard -->
 
+<!-- SDK ufficiale Vimeo Player — necessario per eventi timeupdate/ended -->
+<script src="https://player.vimeo.com/api/player.js"></script>
 <script src="/js/app.js"></script>
 <script>
 /* ══ DASHBOARD GLV ══════════════════════════════════════════
@@ -1397,8 +1399,9 @@ const VIMEO_PLACEHOLDER = 'https://player.vimeo.com/video/76979871';
 // Stato interno del corso aperto
 let _corsoData       = null; // { course, progressData, streak }
 let _lessonSelected  = null; // oggetto lezione attualmente selezionata
-let _vimeoMsgHandler = null; // handler window.message per postMessage API
-let _lastWatched     = 0;    // secondi guardati (aggiornati da timeupdate)
+let _vimeoPlayer     = null; // istanza SDK Vimeo.Player attiva
+let _vimeoMsgHandler = null; // legacy: rimosso ma mantenuto per sicurezza
+let _lastWatched     = 0;    // secondi guardati (aggiornati da timeupdate SDK)
 let _totalSeconds    = 0;    // durata totale lezione
 
 // ── Helpers ──────────────────────────────────────────────────────
@@ -2898,15 +2901,15 @@ function _showLockedBanner(lesson, course) {
   frame.insertAdjacentElement('afterend', banner);
 }
 
-// ── Player Vimeo — iframe diretto + postMessage API ───────────────
+// ── Player Vimeo — SDK ufficiale @vimeo/player ───────────────────
 //
-// Architettura senza SDK:
-//   - renderPlayer() crea un <iframe> direttamente nel #course-player-wrap.
-//   - L'URL contiene autoplay=1 — funziona perché siamo nel contesto di un
-//     click utente (user gesture).
-//   - _startVimeoTracking() ascolta window.message per eventi timeupdate/finish
-//     senza dipendere da alcuna libreria di terze parti.
-//   - _destroyPlayer() rimuove l'iframe e il message listener — DOM pulito.
+// Architettura con SDK:
+//   - renderPlayer() crea un div #vimeo-player, inizializza new Vimeo.Player()
+//     che crea l'iframe internamente e gestisce tutto il postMessage.
+//   - autoplay:true funziona perché chiamato da click utente (user gesture).
+//   - _startVimeoTracking() usa player.on('timeupdate'/'ended') — niente
+//     froogaloop né window.message raw.
+//   - _destroyPlayer() chiama player.destroy() che rimuove iframe + listener.
 
 function _extractVimeoId(url) {
   if (!url) return null;
@@ -2983,111 +2986,112 @@ function renderPlayer(lesson, course) {
   const initWatched = lessonProg.watchedSeconds || lessonProg.resumeAt || 0;
   _updateMetaBar(lesson, initWatched, totalSec || lessonProg.totalSeconds || 0, lessonProg.completed || false);
 
-  // Crea iframe — autoplay=1 funziona perché chiamato da click utente
-  const iframe = document.createElement('iframe');
-  iframe.id = 'vimeo-player';
-  iframe.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture');
-  iframe.setAttribute('allowfullscreen', '');
-  iframe.setAttribute('frameborder', '0');
-  iframe.title = lesson.title || 'Player lezione';
-  iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
-  wrap.appendChild(iframe);
+  // Crea div contenitore per l'SDK Vimeo
+  // L'SDK crea internamente l'iframe con id="vimeo-player" che il CSS già stila.
+  const container = document.createElement('div');
+  container.id = 'vimeo-player';
+  container.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;';
+  wrap.appendChild(container);
 
   _lastWatched  = 0;
   _totalSeconds = totalSec;
 
-  // Avvia tracking PRIMA di impostare src — evita race condition se il player
-  // Vimeo è in cache e invia 'ready' prima che il listener sia registrato.
-  _startVimeoTracking(iframe, lesson.id, courseId, totalSec, resumeAt);
+  // Guard: l'SDK deve essere caricato (script tag in testa alla pagina)
+  if (typeof Vimeo === 'undefined' || typeof Vimeo.Player !== 'function') {
+    console.error('[GLV] Vimeo SDK non disponibile — il player non si avvia.');
+    container.remove();
+    return;
+  }
 
-  // Imposta src dopo aver registrato il listener
-  // NOTA: il fragment #t=Xs viene ignorato dai browser per gli iframe embedded.
-  // Il seek al punto salvato avviene via postMessage setCurrentTime nell'evento 'ready'.
-  const src = `https://player.vimeo.com/video/${videoId}?api=1&autoplay=1&dnt=1&title=0&byline=0&portrait=0`;
-  iframe.src = src;
+  // Inizializza SDK Vimeo Player — gestisce internamente il postMessage e
+  // espone eventi JS puliti (timeupdate, ended) senza dipendere da froogaloop.
+  const player = new Vimeo.Player(container, {
+    id:       parseInt(videoId, 10),
+    autoplay: true,
+    dnt:      true,
+    title:    false,
+    byline:   false,
+    portrait: false,
+    responsive: false,
+  });
+  _vimeoPlayer = player;
+
+  // Fissa lo stile dell'iframe creato dall'SDK
+  player.ready().then(() => {
+    const sdkIframe = container.querySelector('iframe');
+    if (sdkIframe) {
+      sdkIframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;';
+      sdkIframe.title = lesson.title || 'Player lezione';
+    }
+    // Resume al secondo salvato (solo se non già completata)
+    if (resumeAt > 0) {
+      player.setCurrentTime(resumeAt).catch(() => {});
+    }
+  }).catch(() => {});
+
+  _startVimeoTracking(player, lesson.id, courseId, totalSec);
 }
 
-function _startVimeoTracking(iframe, lessonId, courseId, totalSeconds, resumeAt) {
-  let lastSave    = 0;
-  let seekApplied = false;  // il seek viene inviato una sola volta all'evento ready
-  resumeAt = resumeAt || 0;
+// ── Tracking con SDK Vimeo Player ────────────────────────────────
+// Usa player.on() invece del vecchio postMessage froogaloop (?api=1).
+// timeupdate si aggiorna ~ogni 250 ms mentre il video è in play.
+function _startVimeoTracking(player, lessonId, courseId, totalSeconds) {
+  let lastSave = 0;
 
-  _vimeoMsgHandler = (e) => {
-    if (!e.origin.includes('vimeo.com')) return;
-    let d;
-    // Vimeo froogaloop API manda JSON stringificato; versioni più recenti possono
-    // mandare un oggetto direttamente — gestiamo entrambi i casi.
-    if (typeof e.data === 'string') {
-      try { d = JSON.parse(e.data); } catch { return; }
-    } else if (typeof e.data === 'object' && e.data !== null) {
-      d = e.data;
-    } else {
-      return;
+  // timeupdate: aggiorna cerchio e salva progresso ogni 10 s
+  player.on('timeupdate', (data) => {
+    _lastWatched = Math.round(data.seconds || 0);
+    const dur    = Math.round(data.duration || totalSeconds || 0);
+    // Aggiorna sempre _totalSeconds con il valore reale del player —
+    // corregge i casi in cui lesson.durationMin era errato o mancante.
+    if (dur > 0) _totalSeconds = dur;
+
+    // Aggiorna cerchio progresso in tempo reale
+    _updateMetaBar(null, _lastWatched, _totalSeconds || dur, false);
+
+    const now = Date.now();
+    if (now - lastSave >= 10000) {
+      lastSave = now;
+      saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false);
     }
+  });
 
-    // Player pronto: registra eventi e applica seek al punto salvato
-    if (d.event === 'ready') {
-      try {
-        iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'timeupdate' }), '*');
-        iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'finish'     }), '*');
-        if (resumeAt > 0 && !seekApplied) {
-          seekApplied = true;
-          iframe.contentWindow.postMessage(JSON.stringify({ method: 'setCurrentTime', value: resumeAt }), '*');
+  // ended: segna cerchio verde 100% e salva completamento
+  player.on('ended', () => {
+    _updateMetaBar(null, _totalSeconds || _lastWatched, _totalSeconds || _lastWatched, true);
+    saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
+      .then(result => {
+        if (!result?.lessonCompleted) return;
+        // Aggiorna fotogramma → completato
+        const frame = document.querySelector(`.film-frame-btn[data-lesson-id="${lessonId}"]`);
+        if (frame) {
+          frame.classList.remove('film-frame--selected');
+          frame.classList.add('film-frame--completed');
+          const overlay = frame.querySelector('.film-thumb-overlay');
+          if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/><path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         }
-      } catch {}
-    }
-
-    if (d.event === 'timeupdate') {
-      _lastWatched = Math.round(d.data?.seconds || 0);
-      const dur = Math.round(d.data?.duration || totalSeconds || 0);
-      // Aggiorna sempre _totalSeconds con il valore reale del player —
-      // corregge anche i casi in cui lesson.durationMin era errato.
-      if (dur > 0) _totalSeconds = dur;
-
-      // Aggiorna cerchio progresso in tempo reale
-      _updateMetaBar(null, _lastWatched, _totalSeconds || dur, false);
-
-      const now = Date.now();
-      if (now - lastSave >= 10000) {
-        lastSave = now;
-        saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || dur, false);
-      }
-    }
-
-    if (d.event === 'finish') {
-      // Segna cerchio come completato (verde 100%)
-      _updateMetaBar(null, _totalSeconds || _lastWatched, _totalSeconds || _lastWatched, true);
-      saveProgress(lessonId, courseId, _lastWatched, _totalSeconds || _lastWatched, true)
-        .then(result => {
-          if (!result?.lessonCompleted) return;
-          // Aggiorna fotogramma → completato
-          const frame = document.querySelector(`.film-frame-btn[data-lesson-id="${lessonId}"]`);
-          if (frame) {
-            frame.classList.remove('film-frame--selected');
-            frame.classList.add('film-frame--completed');
-            const overlay = frame.querySelector('.film-thumb-overlay');
-            if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/><path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-          }
-          // Aggiorna barra progresso
-          if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
-          // Mostra overlay "Prossima lezione"
-          showNextLessonOverlay();
-        }).catch(() => {});
-    }
-  };
-
-  window.addEventListener('message', _vimeoMsgHandler);
-  // La registrazione di timeupdate/finish e il seek vengono gestiti
-  // nell'evento 'ready' qui sopra — non serve più il listener iframe.load.
+        // Aggiorna barra progresso corso
+        if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
+        // Mostra overlay "Prossima lezione"
+        showNextLessonOverlay();
+      }).catch(() => {});
+  });
 }
 
 function _destroyPlayer() {
-  // Rimuovi message listener
+  // Distruggi l'istanza SDK Vimeo (rimuove eventi e iframe dal DOM)
+  if (_vimeoPlayer) {
+    _vimeoPlayer.off('timeupdate');
+    _vimeoPlayer.off('ended');
+    _vimeoPlayer.destroy().catch(() => {});
+    _vimeoPlayer = null;
+  }
+  // Pulizia legacy: rimuovi il listener postMessage se presente da versioni precedenti
   if (_vimeoMsgHandler) {
     window.removeEventListener('message', _vimeoMsgHandler);
     _vimeoMsgHandler = null;
   }
-  // Rimuovi iframe
+  // Rimuovi il container/iframe dal DOM se l'SDK non l'ha già rimosso
   const old = document.getElementById('vimeo-player');
   if (old) old.remove();
   _lastWatched  = 0;
