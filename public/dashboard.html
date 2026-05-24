@@ -1350,10 +1350,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     quizAnswers = { lang: user.prefLang || null, level: user.prefLevel || null, goal: user.prefGoal || null };
     await showDashboard();
 
-    // Controlla URL al caricamento — ?corso=breve-marziale
+    // Controlla URL al caricamento — ?corso=breve-marziale[&lezione=ID]
     const params = new URLSearchParams(location.search);
     if (params.has('corso')) {
-      openCourseView(params.get('corso'), { skipAnimation: true, pushState: false });
+      const lessonId = params.get('lezione') || null;
+      openCourseView(params.get('corso'), { skipAnimation: true, pushState: false,
+        preselectLessonId: lessonId });
     }
     return;
   }
@@ -1968,6 +1970,14 @@ function selectLesson(lesson, hasAccess, course) {
   renderPlayer(lesson, course);
   loadLessonResources(lesson.id);
   loadLessonExercises(lesson.id);
+
+  // Aggiorna URL con la lezione selezionata — così il link è condivisibile e
+  // il refresh riapre la lezione giusta (non solo il corso)
+  const slug = course.slug || _corsoSlug;
+  if (slug) {
+    history.replaceState({ corso: slug, lezione: lesson.id }, '',
+      '?corso=' + encodeURIComponent(slug) + '&lezione=' + encodeURIComponent(lesson.id));
+  }
 }
 
 // ── Risorse da scaricare ──────────────────────────────────────────────
@@ -3704,7 +3714,9 @@ document.getElementById('vocab-modal')?.addEventListener('keydown', e => {
 window.addEventListener('popstate', (e) => {
   const params = new URLSearchParams(location.search);
   if (params.has('corso')) {
-    openCourseView(params.get('corso'), { skipAnimation: true, pushState: false });
+    const lessonId = params.get('lezione') || null;
+    openCourseView(params.get('corso'), { skipAnimation: true, pushState: false,
+      preselectLessonId: lessonId });
   } else {
     closeCourseView({ skipAnimation: true, pushState: false });
   }
