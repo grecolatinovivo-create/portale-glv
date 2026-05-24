@@ -22,6 +22,12 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Preferenze onboarding — salvate nel DB per sincronizzare tutti i dispositivi
+  onboardingDone Boolean @default(false)  // true = quiz già compilato (anche se saltato)
+  prefLang       String? // es. "Latino" | "Greco Antico" | null = non specificato
+  prefLevel      String? // es. "beginner" | "elementary" | "intermediate" | "teacher"
+  prefGoal       String? // es. "lettura" | "esami" | "cultura" | ecc.
+
   subscriptions        Subscription[]
   purchases            Purchase[]
   lessonProgress       LessonProgress[]

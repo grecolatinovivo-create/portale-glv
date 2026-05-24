@@ -48,11 +48,16 @@ export default withAuth(async function handler(req, res) {
 
     return res.status(200).json({
       user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
+        id:             user.id,
+        email:          user.email,
+        fullName:       user.fullName,
         subscription,
-        isAdmin: user.email === ADMIN_EMAIL,
+        isAdmin:        user.email === ADMIN_EMAIL,
+        // Preferenze onboarding — lette dal DB così sono sincronizzate su tutti i dispositivi
+        onboardingDone: user.onboardingDone ?? false,
+        prefLang:       user.prefLang  ?? null,
+        prefLevel:      user.prefLevel ?? null,
+        prefGoal:       user.prefGoal  ?? null,
       },
     });
   } catch (err) {

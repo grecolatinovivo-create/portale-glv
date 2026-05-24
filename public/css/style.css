@@ -126,7 +126,8 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.65;
-  overflow-x: hidden;
+  /* overflow-x:hidden rimosso: in Chrome 120+ crea containing block per position:fixed,
+     rompendo navbar, modali e sidebar. Le animazioni sono verticali, non serve. */
   -webkit-font-smoothing: antialiased;
 }
 /* REGOLA 0 — Link inline: underline sempre + gold */
@@ -3350,10 +3351,10 @@ body.has-corso-cta { padding-bottom: 80px; }
 */
 .dash-spa-wrapper {
   position: relative;
-  /* overflow-x: clip taglia le viste animate laterali senza bloccare lo scroll verticale.
-     overflow-y: visible permette al contenuto del corso (più alto di 100vh) di estendersi. */
-  overflow-x: clip;
-  overflow-y: visible;
+  /* NOTA: overflow-x:clip e overflow-x:hidden su questo wrapper creano un nuovo
+     containing block per position:fixed in Chrome 120+ (CSS Overflow L3 spec aggiornata).
+     Questo rompe navbar, sidebar, modali e qualsiasi fixed element figlio.
+     Le animazioni translateY non causano overflow orizzontale, quindi non serve clipping. */
   min-height: calc(100vh - var(--nav-height));
 }
 
