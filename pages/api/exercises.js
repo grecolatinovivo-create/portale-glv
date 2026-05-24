@@ -5,15 +5,14 @@
  *
  * Risposta: { tests: [{ id, title, sections: [{ id, name, questions: [...] }] }] }
  */
-import prisma from '../../lib/prisma';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from './auth/[...nextauth]';
 
-export default async function handler(req, res) {
+const { prisma } = require('../../lib/prisma');
+const { withAuth } = require('../../lib/auth');
+
+module.exports = withAuth(async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const session = await getServerSession(req, res, authOptions);
-  if (!session?.user?.id) return res.status(401).json({ error: 'Non autenticato' });
+  if (!req.user) return res.status(401).json({ error: 'Non autenticato' });
 
   const { lessonId } = req.query;
   if (!lessonId) return res.status(400).json({ error: 'lessonId obbligatorio' });
@@ -59,4 +58,4 @@ export default async function handler(req, res) {
     console.error('[exercises] DB error:', err);
     return res.status(500).json({ error: 'Errore server' });
   }
-}
+});
