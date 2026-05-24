@@ -861,6 +861,11 @@ function finishQuiz() {
   quizAnswers.goal = sel ? sel.dataset.val : null;
   const dot = document.getElementById('qd-3');
   if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+  // Aggiorna subito la cache _user in memoria — impedisce che il quiz riappaia
+  // su chiamate successive ad Auth.getUser() nella stessa sessione browser.
+  if (typeof _user !== 'undefined' && _user) {
+    _user = { ..._user, onboardingDone: true, prefLang: quizAnswers.lang, prefLevel: quizAnswers.level, prefGoal: quizAnswers.goal };
+  }
   // Salva nel DB (fire-and-forget: non blocchiamo la navigazione se fallisce)
   fetch('/api/user/preferences', {
     method: 'POST',
@@ -872,6 +877,11 @@ function finishQuiz() {
 }
 
 function skipQuiz() {
+  // Aggiorna subito la cache _user in memoria — impedisce che il quiz riappaia
+  // su chiamate successive ad Auth.getUser() nella stessa sessione browser.
+  if (typeof _user !== 'undefined' && _user) {
+    _user = { ..._user, onboardingDone: true };
+  }
   // Salva nel DB che l'onboarding è stato completato (saltato), senza preferenze
   fetch('/api/user/preferences', {
     method: 'POST',
@@ -2951,7 +2961,8 @@ function renderPlayer(lesson, course) {
   // Leggi progresso salvato per ripartire dal punto giusto
   const prog       = _lessonProgressMap(_corsoData?.progressData);
   const lessonProg = prog.get(lesson.id) || {};
-  const resumeAt   = lessonProg.resumeAt || 0;
+  // Se la lezione è già completata non fare seek — l'utente la rivede dall'inizio.
+  const resumeAt   = lessonProg.completed ? 0 : (lessonProg.resumeAt || 0);
   const totalSec   = lesson.durationMin ? lesson.durationMin * 60 : 0;
   const courseId   = lesson.courseId || course.id;
 
