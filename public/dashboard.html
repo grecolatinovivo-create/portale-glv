@@ -281,8 +281,11 @@
 
       /* ══ NETFLIX MOBILE LAYOUT ══════════════════════════════════ */
 
-      /* 1. Hero saluto → nascosto su mobile (spazio per i contenuti) */
+      /* 1. Hero saluto → nascosto su mobile.
+            SENZA l'hero, il primo div partirebbe da y=0 finendo sotto la navbar fissa (64px).
+            Compensiamo con padding-top sul wrapper del dashboard. */
       .dash-hero{ display:none; }
+      #glv-dashboard{ padding-top:calc(var(--nav-height, 64px) + 8px); }
 
       /* 2. Sezioni: padding compatto */
       .dash-section{padding:0 16px;margin-bottom:24px;scroll-margin-top:60px;}
