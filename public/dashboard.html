@@ -321,9 +321,11 @@
         scroll-snap-align:start;
       }
 
-      /* 6. fan-card-header → thumbnail 16:9 (da altezza fissa a aspect-ratio) */
+      /* 6. fan-card-header → thumbnail 16:9.
+            iOS Safari ignora aspect-ratio su flex-child con height:auto —
+            uso height esplicito (60px) più aspect-ratio come hint per altri browser */
       #course-sections .fan-card-header{
-        height:auto !important;
+        height:60px !important;
         aspect-ratio:16/9;
         padding:0;
       }
@@ -410,6 +412,66 @@
 
       /* Quiz onboarding: colonna singola */
       .quiz-options{grid-template-columns:1fr;}
+
+      /* ══ STREAK / PROGRESS WIDGET: rimosso dalla dashboard mobile ══ */
+      #global-progress-widget{ display:none !important; }
+
+      /* ══ CONTINUA A GUARDARE: width con !important ══ */
+      .continua-thumb-card{ width:108px !important; }
+
+      /* ══ CORSO — HEADER COMPATTO: solo titolo ══
+         Nasconde badge, descrizione, vocabolario, barra progresso, streak.
+         L'utente vuole solo una cartina col titolo del corso. */
+      #course-header{
+        padding:10px 16px 12px !important;
+        margin-bottom:12px !important;
+        border-radius:0 !important;
+      }
+      #course-header .course-badges{ display:none !important; }
+      #course-header .course-description{ display:none !important; }
+      #course-header .course-vocab-btn{ display:none !important; }
+      #course-header .course-meta-bar{ display:none !important; }
+      #course-header .course-tier-banner{ display:none !important; }
+      #course-header .course-title-row{ margin-bottom:0 !important; }
+      #course-header .course-title{
+        font-size:.95rem !important;
+        line-height:1.3 !important;
+        margin-bottom:0 !important;
+      }
+
+      /* ══ PELLICOLA LEZIONI: bottom-sheet su mobile ══
+         Problema originale: l'elemento è position:fixed con
+         height:calc(100vh-...) e bottom:80px → su 812px di schermo
+         la pellicola partiva da y≈36px, coprendo il video.
+         Fix: la pellicola diventa un drawer a tutta larghezza, max 40vh,
+         che entra dal basso. Il contenuto della vista corso riceve
+         padding-bottom per scrollare sopra il drawer. */
+      .course-sidebar{
+        height:auto !important;
+        max-height:40vh !important;
+        bottom:0 !important;
+        top:auto !important;
+        left:0 !important;
+        right:0 !important;
+        width:100% !important;
+        border-radius:12px 12px 0 0 !important;
+        border-top:1px solid rgba(255,255,255,.1) !important;
+        background:#111 !important;
+        transform:translateY(110%) !important;
+        transition:transform 0.35s cubic-bezier(0,0,0.2,1),
+                   opacity  0.25s ease !important;
+        overflow-y:auto !important;
+        overflow-x:hidden !important;
+      }
+      .course-sidebar.strip-visible{
+        transform:translateY(0) !important;
+        opacity:1 !important;
+      }
+      /* Spazio extra in fondo al contenuto corso:
+         garantisce che il video si possa scrollare sopra il drawer */
+      .course-view-inner{
+        padding-bottom:calc(40vh + 24px) !important;
+      }
     }
 
     /* ── 390px e sotto (iPhone 14/15 standard) ─────────────── */
@@ -417,7 +479,7 @@
       .dash-section-title{font-size:.95rem;}
       /* Card ancora più strette su 390px */
       #course-sections .course-card,
-      .continua-thumb-card{ width:100px; }
+      .continua-thumb-card{ width:100px !important; }
       /* Spaziatura ancora più compatta */
       .dash-section{margin-bottom:24px;}
       .courses-row{gap:10px;}
