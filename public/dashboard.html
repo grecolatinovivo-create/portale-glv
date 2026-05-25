@@ -308,6 +308,8 @@
     /* ── Mobile-first: 640px e sotto ───────────────────────────
        Desktop NON viene toccato. Solo layout mobile-first.       */
     @media(max-width:640px){
+      /* Tab laterale pellicola: nascosta su mobile stretto */
+      .sidebar-tab{ display:none !important; }
 
       /* ══ NETFLIX MOBILE LAYOUT ══════════════════════════════════ */
 
@@ -361,7 +363,7 @@
             iOS Safari ignora aspect-ratio su flex-child con height:auto —
             uso height esplicito (60px) più aspect-ratio come hint per altri browser */
       #course-sections .fan-card-header{
-        height:60px !important;
+        height:52px !important;
         aspect-ratio:16/9;
         padding:0;
       }
@@ -456,7 +458,7 @@
       .continua-thumb-card{ width:108px !important; }
 
       /* ══ CORSO — HEADER COMPATTO: solo titolo ══
-         Nasconde badge, descrizione, vocabolario, barra progresso, streak.
+         Nasconde badge, descrizione, barra progresso, streak.
          L'utente vuole solo una cartina col titolo del corso. */
       #course-header{
         padding:10px 16px 12px !important;
@@ -465,7 +467,6 @@
       }
       #course-header .course-badges{ display:none !important; }
       #course-header .course-description{ display:none !important; }
-      #course-header .course-vocab-btn{ display:none !important; }
       #course-header .course-meta-bar{ display:none !important; }
       #course-header .course-tier-banner{ display:none !important; }
       #course-header .course-title-row{ margin-bottom:0 !important; }
@@ -547,6 +548,41 @@
       }
     }
 
+    /* ── Pellicola su tablet stretto (641–767px): stesso bottom-sheet del mobile ──
+       Necessario perché il blocco 640px non copre questo range.
+       Su questo breakpoint NON mostriamo la tab laterale (riservata a 768-1024px). */
+    @media(min-width:641px) and (max-width:767px){
+      .sidebar-tab{ display:none !important; }
+      .course-sidebar{
+        height:auto !important; max-height:50vh !important;
+        bottom:0 !important; top:auto !important;
+        left:0 !important; right:0 !important; width:100% !important;
+        border-radius:12px 12px 0 0 !important;
+        border-top:1px solid rgba(255,255,255,.1) !important;
+        background:#111 !important;
+        transform:translateY(110%) !important;
+        opacity:1 !important;
+        transition:transform 0.35s cubic-bezier(0,0,0.2,1) !important;
+        overflow-y:auto !important; overflow-x:hidden !important;
+        display:flex !important; flex-direction:column !important;
+        z-index:451 !important;
+      }
+      .course-sidebar.strip-visible{
+        transform:translateY(calc(100% - 44px)) !important;
+      }
+      .course-sidebar.strip-visible.strip-expanded{
+        transform:translateY(0) !important;
+      }
+      .course-sheet-handle{
+        display:flex !important; height:44px !important; flex-shrink:0;
+        cursor:pointer; align-items:center; justify-content:center;
+        flex-direction:column; gap:5px;
+        border-bottom:.5px solid rgba(255,255,255,.07);
+        user-select:none; -webkit-user-select:none;
+      }
+      .course-view-inner{ padding-bottom:60px !important; }
+    }
+
     /* ── 390px e sotto (iPhone 14/15 standard) ─────────────── */
     @media(max-width:390px){
       .dash-section-title{font-size:.95rem;}
@@ -584,79 +620,6 @@
 
 <!-- Skip link WCAG 2.4.1 — primo elemento focusabile della pagina -->
 <a href="#main-content" class="skip-link">Vai al contenuto principale</a>
-
-<!-- ══ MODALE VOCABOLARIO ════════════════════════════════ -->
-<div id="vocab-modal" class="vocab-modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="vocab-modal-title">
-  <div class="vocab-modal">
-    <div class="vocab-modal-header">
-      <h2 class="vocab-modal-title" id="vocab-modal-title">Il mio Vocabolario</h2>
-      <div class="vocab-header-actions">
-        <button class="vocab-tab-btn active" data-tab="list" type="button">Parole</button>
-        <button class="vocab-tab-btn" data-tab="review" type="button">
-          Ripasso
-          <span class="vocab-due-badge hidden" id="vocab-due-badge">0</span>
-        </button>
-        <button class="vocab-modal-close" type="button" aria-label="Chiudi vocabolario" onclick="closeVocabModal()">×</button>
-      </div>
-    </div>
-
-    <!-- TAB: Lista parole -->
-    <div class="vocab-tab-content active" id="vocab-tab-list">
-      <div class="vocab-add-form" id="vocab-add-form">
-        <div class="vocab-form-row">
-          <input type="text" id="vocab-input-term" class="vocab-input" placeholder="Parola (es. amo, amas…)" aria-label="Parola in lingua originale" maxlength="120">
-          <input type="text" id="vocab-input-translation" class="vocab-input" placeholder="Traduzione" aria-label="Traduzione" maxlength="200">
-        </div>
-        <div class="vocab-form-row">
-          <input type="text" id="vocab-input-context" class="vocab-input vocab-input--wide" placeholder="Frase di contesto (opzionale)" aria-label="Frase di contesto" maxlength="400">
-          <button class="vocab-add-btn" type="button" onclick="addVocabWord()">+ Aggiungi</button>
-        </div>
-      </div>
-      <div class="vocab-list-wrap">
-        <div id="vocab-list-loading" class="vocab-empty">Caricamento…</div>
-        <div id="vocab-word-list"></div>
-        <p class="vocab-empty hidden" id="vocab-empty-msg">Nessuna parola ancora.<br>Aggiungile mentre studi!</p>
-      </div>
-    </div>
-
-    <!-- TAB: Sessione di ripasso -->
-    <div class="vocab-tab-content hidden" id="vocab-tab-review">
-      <div id="vocab-review-ready" class="hidden">
-        <p class="vocab-review-intro" id="vocab-review-count"></p>
-        <button class="vocab-start-review-btn" type="button" onclick="startReviewSession()">Inizia il ripasso →</button>
-      </div>
-      <div id="vocab-review-empty" class="vocab-empty hidden">
-        Nessuna parola da ripassare oggi.<br>Torna domani!
-      </div>
-      <div id="vocab-review-session" class="hidden">
-        <div class="review-card" id="review-card">
-          <div class="review-term" id="review-term"></div>
-          <div class="review-context" id="review-context"></div>
-          <button class="review-show-btn" id="review-show-btn" type="button" onclick="showReviewAnswer()">Mostra risposta</button>
-          <div class="review-answer hidden" id="review-answer">
-            <div class="review-translation" id="review-translation"></div>
-            <p class="review-q">Com'è andata?</p>
-            <div class="review-btns">
-              <button class="review-btn review-btn--again" type="button" data-result="again" onclick="submitReview('again')">Di nuovo</button>
-              <button class="review-btn review-btn--hard"  type="button" data-result="hard"  onclick="submitReview('hard')">Difficile</button>
-              <button class="review-btn review-btn--good"  type="button" data-result="good"  onclick="submitReview('good')">Bene</button>
-              <button class="review-btn review-btn--easy"  type="button" data-result="easy"  onclick="submitReview('easy')">Facile</button>
-            </div>
-          </div>
-        </div>
-        <div class="review-progress-wrap">
-          <div class="review-progress-bar">
-            <div class="review-progress-fill" id="review-progress-fill"></div>
-          </div>
-          <span id="review-progress-text"></span>
-        </div>
-      </div>
-      <div id="vocab-review-done" class="vocab-empty hidden">
-        Sessione completata!<br>Tutte le parole ripassate.
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- ══ QUIZ ONBOARDING ════════════════════════════════════ -->
 <div id="glv-quiz" class="hidden">
@@ -784,20 +747,10 @@
         </div>
       </a>
       <div class="nav-links" id="dashNavLinks">
-        <a href="/index.html#prezzi">Abbonamento</a>
+        <a href="/index.html#prezzi" id="nav-link-abbonamento">Abbonamento</a>
         <a href="#section-per-te">I miei corsi</a>
       </div>
       <div class="nav-actions">
-        <button class="nav-vocab-btn" id="nav-vocab-btn" type="button"
-                aria-label="Il mio vocabolario" title="Vocabolario personale"
-                onclick="openVocabModal()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 19V5a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M4 19a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1v-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M8 7h8M8 11h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span class="nav-vocab-badge hidden" id="nav-vocab-badge">0</span>
-        </button>
         <span class="nav-plan-badge" id="nav-plan-badge">—</span>
         <div class="nav-profile-dropdown">
           <div class="nav-avatar" id="nav-avatar" role="button" tabindex="0"
@@ -808,6 +761,7 @@
             <div class="nav-dropdown-item" id="menu-email"
                  style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
             <button class="nav-dropdown-item" role="menuitem" onclick="openSubscriptionModal()">Gestisci abbonamento</button>
+            <button class="nav-dropdown-item" role="menuitem" onclick="openAttestatiModal()">I miei attestati</button>
             <!-- Sezione admin preview — visibile solo se iniettata da JS -->
             <div id="admin-tier-group" style="display:none">
               <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;">
@@ -1035,7 +989,7 @@
        del genitore (translateY) crei un nuovo containing block per position:fixed
        e trascini la sidebar fuori schermo durante la chiusura del corso ─────── -->
   <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
-    <!-- Handle bottom-sheet — visibile solo su mobile ≤640px -->
+    <!-- Handle bottom-sheet — visibile solo su mobile <768px -->
     <div class="course-sheet-handle" id="course-sheet-handle"
          role="button" tabindex="0"
          aria-label="Espandi lista lezioni" aria-expanded="false"
@@ -1046,6 +1000,18 @@
     </div>
     <div id="lesson-film-strip" role="list"></div>
   </aside>
+
+  <!-- Handle laterale pellicola — visibile su tablet 768-1024px -->
+  <div class="sidebar-tab" id="course-sidebar-tab"
+       role="button" tabindex="0"
+       aria-label="Mostra lista lezioni" aria-expanded="false"
+       onclick="toggleTabletSidebar()"
+       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleTabletSidebar()}">
+    <div class="sidebar-tab-bar"></div>
+    <div class="sidebar-tab-bar"></div>
+    <div class="sidebar-tab-bar"></div>
+    <span class="sidebar-tab-label">Lezioni</span>
+  </div>
 
   <!-- ══ EXERCISE RUNNER OVERLAY ══════════════════════════════════ -->
   <div id="glv-exercise-runner" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ex-runner-title">
@@ -1074,14 +1040,6 @@
 
           <div class="course-title-row">
             <h2 class="course-title" id="course-title"></h2>
-            <button class="course-vocab-btn" id="course-vocab-btn" type="button"
-                    title="Aggiungi parola al vocabolario" aria-label="Aggiungi parola al vocabolario"
-                    onclick="openAddWordModal()">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-              Vocabolario
-            </button>
           </div>
           <p class="course-description" id="course-description"></p>
 
@@ -1153,6 +1111,30 @@
                         transform="rotate(-90 18 18)"/>
               </svg>
               <span class="pmb-ring-pct" id="pmb-ring-pct">0%</span>
+            </div>
+            <!-- Pulsante info progresso + tooltip (dentro la barra per ancoraggio position:absolute) -->
+            <div class="pmb-info-wrap">
+              <button class="pmb-info-btn" id="pmb-info-btn" type="button"
+                      aria-label="Come funziona il progresso?" aria-expanded="false"
+                      onclick="toggleProgressTooltip(event)">?</button>
+              <div class="pmb-tooltip" id="pmb-tooltip" role="tooltip" aria-hidden="true">
+                <button class="pmb-tooltip-close" type="button" aria-label="Chiudi" onclick="closeProgressTooltip()">✕</button>
+                <p class="pmb-tooltip-title">Come funziona il progresso?</p>
+                <ul class="pmb-tooltip-list">
+                  <li>
+                    <span class="pmb-tooltip-icon">⏱</span>
+                    <span>La percentuale conta solo i <strong>secondi effettivamente guardati</strong>, non la posizione del cursore. Saltare avanti non aumenta il progresso.</span>
+                  </li>
+                  <li>
+                    <span class="pmb-tooltip-icon">✔</span>
+                    <span>Una lezione viene segnata come <strong>completata</strong> quando hai guardato almeno il <strong>90%</strong> del video.</span>
+                  </li>
+                  <li>
+                    <span class="pmb-tooltip-icon">🏅</span>
+                    <span>Completando tutte le lezioni del corso si sblocca l'<strong>attestato</strong> scaricabile.</span>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
@@ -1296,6 +1278,12 @@ function upgradeLabel(lang) {
   return lang === 'Didattica' ? 'Piano Accademia' : 'Piano Linguae';
 }
 
+/* ── Sanitizza titolo corso: rimuove slash, backslash e altri caratteri non-standard ── */
+function _sanitizeTitle(t) {
+  if (!t) return '';
+  return t.replace(/[^\p{L}\p{N}\s:.,;"\-]/gu, '').trim();
+}
+
 /* ── Card rendering ───────────────────────────────────────── */
 function renderLockedCard(course) {
   const base = buildCard(course, {}); // buildCard da app.js
@@ -1303,8 +1291,11 @@ function renderLockedCard(course) {
   wrap.innerHTML = base;
   const card = wrap.firstElementChild;
   card.classList.add('dash-locked');
-  card.removeAttribute('onclick');
+  // Sostituisce l'onclick di apertura corso con il popup upgrade
+  const lang = _esc(course.lang || '');
+  card.setAttribute('onclick', `showUpgradeModal('${lang}')`);
   card.style.position = 'relative';
+  card.removeAttribute('data-slug'); // evita apertura corso dal tasto tastiera
 
   const badge = document.createElement('div');
   badge.className = 'dash-locked-badge';
@@ -1430,7 +1421,7 @@ function buildContinuaCard(course) {
        data-slug="${slug}"
        onclick="openCourseView('${slug}')"
        role="button" tabindex="0"
-       aria-label="Continua: ${course.title} — ${pct}% completato"
+       aria-label="Continua: ${_sanitizeTitle(course.title)} — ${pct}% completato"
        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCourseView('${slug}')}">
     <div class="ctc-thumb" style="background:${grad};">
       <span class="ctc-play-icon" aria-hidden="true">▶</span>
@@ -1439,7 +1430,7 @@ function buildContinuaCard(course) {
       </div>
     </div>
     <div class="ctc-info">
-      <div class="ctc-title">${course.title}</div>
+      <div class="ctc-title">${_sanitizeTitle(course.title)}</div>
       <div class="ctc-meta">
         <span>${pct}% completato</span>
         <span>·</span>
@@ -1454,10 +1445,11 @@ function buildContinuaCard(course) {
 function renderContinuaRow(id, courses, tier) {
   const el = document.getElementById(id);
   if (!el) return;
-  // Filtra: in corso (>0%) e non ancora completati al 100%
+  // Filtra: in corso (>0%), non completati al 100%, e ACCESSIBILI col tier attuale.
+  // Se l'utente è downgraded a Cultura, i corsi Linguae non devono apparire qui.
   const inProg = (courses || []).filter(c => {
     const p = c.progressPercent || 0;
-    return p > 0 && p < 100;
+    return p > 0 && p < 100 && isLangUnlocked(c.lang, tier);
   });
   if (!inProg.length) {
     el.innerHTML = '';
@@ -1533,20 +1525,8 @@ function rerenderRows(tier) {
   // Sottotitolo hero
   document.getElementById('dash-subtitle').textContent = labels[tier] ?? labels[0];
 
-  // Upgrade banner
-  const banner = document.getElementById('upgrade-banner');
-  if (tier >= 3) {
-    banner.classList.add('hidden');
-  } else {
-    banner.classList.remove('hidden');
-    if (tier < 2) {
-      document.getElementById('upgrade-banner-title').textContent = 'Sblocca i corsi di lingua';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
-    } else {
-      document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli in fase di accreditamento MIM con Bonus Docenti al 100%.';
-    }
-  }
+  // Upgrade banner rimosso: sostituito da popup contestuale sui corsi bloccati
+  document.getElementById('upgrade-banner')?.classList.add('hidden');
 
   // "Scelti per te" — usa quizAnswers già popolato dal DB (non localStorage)
   const profile = { lang: quizAnswers.lang, level: quizAnswers.level, goal: quizAnswers.goal };
@@ -1683,17 +1663,11 @@ async function showDashboard() {
   };
   document.getElementById('dash-subtitle').textContent = subs[tier] ?? subs[0];
 
-  // Upgrade banner — nascosto per admin
-  if (!user.isAdmin && tier < 3) {
-    document.getElementById('upgrade-banner').classList.remove('hidden');
-    if (tier < 2) {
-      document.getElementById('upgrade-banner-title').textContent = 'Sblocca i corsi di lingua';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Passa a Linguae per accedere a Latino, Greco Antico, Egiziano ed Ebraico Biblico.';
-    } else {
-      document.getElementById('upgrade-banner-title').textContent = 'Diventa un docente delle lingue classiche';
-      document.getElementById('upgrade-banner-sub').textContent   = 'Accademia include 4 moduli in fase di accreditamento MIM con Bonus Docenti al 100%.';
-    }
-  }
+  // Link "Abbonamento" in navbar — nascosto se l'utente ha già un piano attivo
+  const navLinkAbb = document.getElementById('nav-link-abbonamento');
+  if (navLinkAbb && tier > 0) navLinkAbb.style.display = 'none';
+
+  // Upgrade banner — rimosso: sostituito da popup contestuale sui corsi bloccati
 
   // Navbar scroll effect
   window.addEventListener('scroll', () => {
@@ -1819,6 +1793,46 @@ async function openSubscriptionModal() {
           Riattiva abbonamento →
         </a>`;
     } else {
+      // Piani disponibili per l'upgrade in base al piano corrente.
+      // configKey = chiave nella risposta di /api/config/prices
+      const UPGRADE_OPTIONS = {
+        'cultura-mensile':   [
+          { planId:'linguae-mensile',   label:'Linguae',   price:'€12,90/mese', configKey:'linguae_monthly'   },
+          { planId:'accademia-mensile', label:'Accademia', price:'€19,90/mese', configKey:'accademia_monthly' },
+        ],
+        'cultura-annuale':   [
+          { planId:'linguae-annuale',   label:'Linguae',   price:'€99/anno',    configKey:'linguae_annual'    },
+          { planId:'accademia-annuale', label:'Accademia', price:'€179/anno',   configKey:'accademia_annual'  },
+        ],
+        'linguae-mensile':   [
+          { planId:'accademia-mensile', label:'Accademia', price:'€19,90/mese', configKey:'accademia_monthly' },
+        ],
+        'linguae-annuale':   [
+          { planId:'accademia-annuale', label:'Accademia', price:'€179/anno',   configKey:'accademia_annual'  },
+        ],
+      };
+      const upgrades = UPGRADE_OPTIONS[sub.plan] || [];
+
+      // Costruisce HTML per i pulsanti upgrade (se presenti)
+      let upgradeHTML = '';
+      if (upgrades.length) {
+        upgradeHTML = `
+          <div style="margin-bottom:20px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.35);margin-bottom:10px;">Cambia piano</p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              ${upgrades.map(u => `
+                <button class="sub-upgrade-btn" data-plan-id="${_esc(u.planId)}" data-config-key="${_esc(u.configKey)}"
+                  style="background:#1e1e1e;border:1px solid rgba(201,150,42,.35);color:#c9962a;padding:11px 16px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color .2s,background .2s;">
+                  <span>Passa a ${_esc(u.label)}</span>
+                  <span style="font-weight:400;color:rgba(201,150,42,.7);">${_esc(u.price)}</span>
+                </button>`).join('')}
+            </div>
+            <p style="font-size:11px;color:rgba(245,245,245,.3);line-height:1.5;margin-top:8px;">
+              Il cambio è immediato. Paghi solo la differenza proporzionale al periodo rimanente.
+            </p>
+          </div>`;
+      }
+
       // Abbonamento attivo e in rinnovo
       body.innerHTML = `
         <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:20px;border:1px solid #2a2a2a;">
@@ -1828,6 +1842,7 @@ async function openSubscriptionModal() {
             Si rinnoverà il <strong style="color:rgba(245,245,245,.85);">${_esc(dateLabel)}</strong>
           </p>
         </div>
+        ${upgradeHTML}
         <p style="color:rgba(245,245,245,.5);font-size:12px;line-height:1.6;margin-bottom:20px;">
           Annullando ora, continuerai ad avere accesso fino al ${_esc(dateLabel)}. Dopo quella data l'abbonamento non si rinnoverà.
         </p>
@@ -1835,6 +1850,63 @@ async function openSubscriptionModal() {
           style="background:transparent;border:1px solid rgba(160,26,54,.6);color:#f5a0ae;padding:11px 22px;border-radius:4px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;transition:border-color .2s;">
           Annulla abbonamento
         </button>`;
+
+      // Event listeners pulsanti upgrade (uno per ogni piano disponibile)
+      body.querySelectorAll('.sub-upgrade-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const targetPlanId = btn.dataset.planId;
+          const configKey    = btn.dataset.configKey;
+
+          // Recupera il priceId dall'API config (già usata dal frontend)
+          let priceId;
+          try {
+            const cfgRes = await fetch('/api/config/prices');
+            const cfg    = await cfgRes.json();
+            priceId = cfg[configKey] || null;
+          } catch { priceId = null; }
+
+          if (!priceId) {
+            alert('Impossibile recuperare il prezzo. Riprova o contatta il supporto.');
+            return;
+          }
+
+          if (!confirm(`Confermi il passaggio al piano ${targetPlanId.replace('-', ' ')}?\n\nPagherai solo la differenza proporzionale al periodo rimanente.`)) return;
+
+          btn.disabled = true;
+          btn.querySelector('span')?.textContent && (btn.querySelector('span').textContent = 'Elaborazione…');
+
+          try {
+            const r    = await fetch('/api/stripe/upgrade-subscription', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ priceId }),
+            });
+            const resp = await r.json();
+
+            if (r.ok && resp.ok) {
+              body.innerHTML = `
+                <p style="color:#90eaa5;font-size:14px;line-height:1.7;">
+                  ✓ Piano aggiornato con successo.<br>
+                  Il tuo accesso è stato aggiornato immediatamente.
+                </p>
+                <p style="color:rgba(245,245,245,.45);font-size:12px;margin-top:10px;">
+                  Ricarica la pagina per vedere le modifiche.
+                </p>
+                <button onclick="location.reload()"
+                  style="margin-top:16px;background:#1e1e1e;border:1px solid #3a3a3a;color:#f5f5f5;padding:10px 20px;border-radius:4px;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;">
+                  Ricarica
+                </button>`;
+            } else {
+              btn.disabled = false;
+              btn.querySelector('span') && (btn.querySelector('span').textContent = 'Passa a ' + targetPlanId.split('-')[0].charAt(0).toUpperCase() + targetPlanId.split('-')[0].slice(1));
+              alert(resp.error || 'Errore durante l\'upgrade. Riprova.');
+            }
+          } catch {
+            btn.disabled = false;
+            alert('Errore di rete. Riprova tra qualche secondo.');
+          }
+        });
+      });
 
       document.getElementById('sub-cancel-btn').addEventListener('click', async () => {
         const btn = document.getElementById('sub-cancel-btn');
@@ -1868,6 +1940,79 @@ async function openSubscriptionModal() {
   } catch {
     document.getElementById('sub-modal-body').innerHTML =
       `<p style="color:#f5a0ae;font-size:14px;">Impossibile caricare i dati. Riprova.</p>`;
+  }
+}
+
+/* ── Modal "I miei attestati" ─────────────────────────────── */
+async function openAttestatiModal() {
+  document.getElementById('profile-menu')?.classList.remove('open');
+
+  // Rimuovi eventuale modal già aperto
+  document.getElementById('attestati-modal-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'attestati-modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'attestati-modal-title');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  overlay.innerHTML = `
+    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:36px;width:100%;max-width:480px;position:relative;max-height:80vh;overflow-y:auto;">
+      <button id="attestati-modal-close" aria-label="Chiudi"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.55);font-size:22px;cursor:pointer;line-height:1;padding:4px;">×</button>
+      <h2 id="attestati-modal-title" style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:24px;">I miei attestati</h2>
+      <div id="attestati-modal-body" style="font-family:'Inter',sans-serif;">
+        <p style="color:rgba(245,245,245,.55);font-size:14px;">Caricamento…</p>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('attestati-modal-close').addEventListener('click', () => overlay.remove());
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+  });
+
+  try {
+    const res  = await fetch('/api/progress/certificates');
+    const data = await res.json();
+    const body = document.getElementById('attestati-modal-body');
+    const certs = data.certificates || [];
+
+    if (!certs.length) {
+      body.innerHTML = `
+        <p style="color:rgba(245,245,245,.6);font-size:14px;line-height:1.7;">
+          Non hai ancora nessun attestato.<br>
+          <span style="color:rgba(245,245,245,.4);font-size:13px;">
+            Completa tutte le lezioni di un corso per sbloccare il tuo attestato.
+          </span>
+        </p>`;
+      return;
+    }
+
+    const rows = certs.map(c => {
+      const dateStr = c.completedAt
+        ? new Date(c.completedAt).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' })
+        : '—';
+      return `
+        <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:#f5f5f5;margin-bottom:4px;">${_esc(c.title)}</div>
+            <div style="font-size:12px;color:rgba(245,245,245,.45);">Completato il ${_esc(dateStr)}</div>
+          </div>
+          <a href="${_esc(c.downloadUrl)}" download
+             style="flex-shrink:0;background:#a01a36;color:#fff;padding:8px 14px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.06em;white-space:nowrap;">
+            Scarica PDF
+          </a>
+        </div>`;
+    }).join('');
+
+    body.innerHTML = rows;
+  } catch {
+    document.getElementById('attestati-modal-body').innerHTML =
+      `<p style="color:#f5a0ae;font-size:14px;">Impossibile caricare gli attestati. Riprova.</p>`;
   }
 }
 
@@ -2186,11 +2331,22 @@ async function openCourseView(slug, opts) {
   // Attiva l'entrata della pellicola (slide da sinistra) dopo un tick
   requestAnimationFrame(() => {
     const strip = document.getElementById('course-lessons-section');
-    if (strip) strip.classList.add('strip-visible');
+    if (strip) {
+      strip.classList.add('strip-visible');
+      // Su tablet: aggiorna la posizione della tab laterale
+      const w = window.innerWidth;
+      if (w >= 768 && w <= 1024) _updateSidebarTab(true);
+    }
   });
 
   // FIX SCROLL — aggiorna min-height wrapper al contenuto reale del corso
   // (le viste sono position:absolute, non aggiungono altezza al flusso)
+  // Nasconde catalogView così il suo scrollHeight non gonfia il wrapper
+  const _catalogViewForScroll = document.getElementById('catalog-view');
+  if (_catalogViewForScroll) {
+    _catalogViewForScroll.style.maxHeight = '0';
+    _catalogViewForScroll.style.overflow  = 'hidden';
+  }
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const wrapper   = document.querySelector('.dash-spa-wrapper');
     const courseView = document.getElementById('course-view');
@@ -2289,6 +2445,8 @@ function closeCourseView(opts) {
         stripSection.style.opacity    = '';
       }, 420);
     }
+    // Reset tab laterale tablet
+    _updateSidebarTab(false);
     // Reset handle aria su mobile
     const sheetHandle = document.getElementById('course-sheet-handle');
     if (sheetHandle) {
@@ -2300,6 +2458,12 @@ function closeCourseView(opts) {
   // FIX SCROLL — ripristina min-height wrapper al valore default
   const wrapper = document.querySelector('.dash-spa-wrapper');
   if (wrapper) wrapper.style.minHeight = '';
+  // Ripristina catalogView (era nascosto per evitare scroll lunghissimo)
+  const _catalogViewRestore = document.getElementById('catalog-view');
+  if (_catalogViewRestore) {
+    _catalogViewRestore.style.maxHeight = '';
+    _catalogViewRestore.style.overflow  = '';
+  }
 
   // Nasconde sezione risorse ed esercizi al cambio corso
   const resSection = document.getElementById('lesson-resources-section');
@@ -2364,7 +2528,7 @@ function renderCourseHeader(course, progressData, streakData) {
 
   // Titolo e descrizione
   const titleEl = document.getElementById('course-title');
-  if (titleEl) titleEl.textContent = course.title || '';
+  if (titleEl) titleEl.textContent = _sanitizeTitle(course.title);
 
   const descEl = document.getElementById('course-description');
   if (descEl) descEl.textContent = course.description || '';
@@ -3829,7 +3993,7 @@ function _renderRiprendiCard(data) {
   // Testi (textContent per XSS safety)
   const courseEl = document.getElementById('riprendi-course-title');
   const lessonEl = document.getElementById('riprendi-lesson-title');
-  if (courseEl) courseEl.textContent = courseTitle || '';
+  if (courseEl) courseEl.textContent = _sanitizeTitle(courseTitle);
   if (lessonEl) lessonEl.textContent = completed ? '✓ Completata — ' + (lessonTitle || '') : (lessonTitle || '');
 
   // Barra progresso
@@ -4091,280 +4255,6 @@ window.renderLessonList = function(course, progressData) {
 renderLessonList = window.renderLessonList;
 
 
-// ══ VOCABOLARIO PERSONALE ════════════════════════════════════════
-
-let _vocabWords = [];     // cache parole
-let _reviewQueue = [];    // coda ripasso corrente
-let _reviewIdx   = 0;     // indice nella coda
-
-// ── Apertura/chiusura modale ──────────────────────────────────────
-
-function openVocabModal() {
-  const modal = document.getElementById('vocab-modal');
-  if (!modal) return;
-  modal.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  loadVocabWords();
-  loadReviewCount();
-}
-
-function closeVocabModal() {
-  const modal = document.getElementById('vocab-modal');
-  if (!modal) return;
-  modal.classList.add('hidden');
-  document.body.style.overflow = '';
-}
-
-// Chiudi con Escape
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeVocabModal();
-});
-
-// Chiudi click fuori dal modale
-document.getElementById('vocab-modal')?.addEventListener('click', e => {
-  if (e.target.id === 'vocab-modal') closeVocabModal();
-});
-
-// ── Tab switching ─────────────────────────────────────────────────
-
-document.querySelectorAll('.vocab-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.vocab-tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.vocab-tab-content').forEach(c => c.classList.add('hidden'));
-    btn.classList.add('active');
-    const tab = btn.dataset.tab;
-    document.getElementById('vocab-tab-' + tab)?.classList.remove('hidden');
-    if (tab === 'review') loadReviewQueue();
-  });
-});
-
-// ── Carica parole ─────────────────────────────────────────────────
-
-async function loadVocabWords() {
-  const listEl  = document.getElementById('vocab-word-list');
-  const loading = document.getElementById('vocab-list-loading');
-  const emptyEl = document.getElementById('vocab-empty-msg');
-  if (!listEl) return;
-
-  try {
-    const res  = await fetch('/api/vocabulary');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    _vocabWords = data.words || [];
-
-    loading?.classList.add('hidden');
-
-    // Badge navbar
-    const navBadge = document.getElementById('nav-vocab-badge');
-    if (navBadge) {
-      navBadge.textContent = data.dueCount || 0;
-      navBadge.classList.toggle('hidden', !data.dueCount);
-    }
-
-    if (!_vocabWords.length) {
-      emptyEl?.classList.remove('hidden');
-      listEl.innerHTML = '';
-      return;
-    }
-    emptyEl?.classList.add('hidden');
-    renderWordList(_vocabWords, listEl);
-  } catch {
-    if (loading) loading.textContent = 'Errore nel caricamento.';
-  }
-}
-
-function renderWordList(words, container) {
-  container.innerHTML = '';
-  words.forEach(w => {
-    const item = document.createElement('div');
-    item.className = 'vocab-word-item';
-    item.dataset.id = w.id;
-
-    const due = new Date(w.nextReview) <= new Date();
-    item.innerHTML = `
-      <div class="vocab-word-main">
-        <span class="vocab-term"></span>
-        <span class="vocab-arrow" aria-hidden="true">→</span>
-        <span class="vocab-translation"></span>
-        ${due ? '<span class="vocab-due-dot" title="Da ripassare oggi" aria-label="Da ripassare oggi"></span>' : ''}
-      </div>
-      ${w.context ? '<div class="vocab-context"></div>' : ''}
-      <div class="vocab-word-meta">
-        ${w.lang ? `<span class="vocab-lang-tag"></span>` : ''}
-        <span class="vocab-interval"></span>
-        <button class="vocab-delete-btn" type="button" aria-label="Elimina parola" data-id="${_esc(w.id)}">×</button>
-      </div>`;
-    // XSS-safe textContent
-    item.querySelector('.vocab-term').textContent = w.term;
-    item.querySelector('.vocab-translation').textContent = w.translation;
-    if (w.context) item.querySelector('.vocab-context').textContent = w.context;
-    if (w.lang) item.querySelector('.vocab-lang-tag').textContent = w.lang;
-    item.querySelector('.vocab-interval').textContent =
-      w.reviewCount > 0 ? 'ripasso tra ' + w.interval + ' gg' : 'non ancora ripassata';
-
-    item.querySelector('.vocab-delete-btn').addEventListener('click', () => deleteVocabWord(w.id, item));
-    container.appendChild(item);
-  });
-}
-
-async function deleteVocabWord(id, itemEl) {
-  try {
-    const res = await fetch('/api/vocabulary/' + id, { method: 'DELETE' });
-    if (!res.ok) return;
-    itemEl.remove();
-    _vocabWords = _vocabWords.filter(w => w.id !== id);
-    if (!_vocabWords.length) {
-      document.getElementById('vocab-empty-msg')?.classList.remove('hidden');
-    }
-  } catch {}
-}
-
-// ── Aggiungi parola ───────────────────────────────────────────────
-
-async function addVocabWord() {
-  const termEl  = document.getElementById('vocab-input-term');
-  const transEl = document.getElementById('vocab-input-translation');
-  const ctxEl   = document.getElementById('vocab-input-context');
-  const term    = termEl?.value.trim();
-  const trans   = transEl?.value.trim();
-  if (!term || !trans) { termEl?.focus(); return; }
-
-  // Preleva la lingua dal corso corrente (se siamo in una vista corso)
-  const lang = _corsoData?.course?.lang || null;
-
-  try {
-    const res  = await fetch('/api/vocabulary', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ term, translation: trans, context: ctxEl?.value.trim() || null, lang }),
-    });
-    if (!res.ok) return;
-    const data = await res.json();
-    _vocabWords.unshift(data.word);
-
-    const listEl = document.getElementById('vocab-word-list');
-    if (listEl) renderWordList(_vocabWords, listEl);
-    document.getElementById('vocab-empty-msg')?.classList.add('hidden');
-    if (termEl)  termEl.value  = '';
-    if (transEl) transEl.value = '';
-    if (ctxEl)   ctxEl.value   = '';
-    termEl?.focus();
-    showToast('Parola aggiunta al vocabolario');
-  } catch {}
-}
-
-// Shortcut: apre il modale già sulla scheda "lista" con focus sul campo termine
-function openAddWordModal() {
-  openVocabModal();
-  // Attiva tab lista
-  document.querySelector('.vocab-tab-btn[data-tab="list"]')?.click();
-  setTimeout(() => document.getElementById('vocab-input-term')?.focus(), 150);
-}
-
-// ── Ripasso ───────────────────────────────────────────────────────
-
-async function loadReviewCount() {
-  try {
-    const res  = await fetch('/api/vocabulary/review');
-    if (!res.ok) return;
-    const data = await res.json();
-    const badge = document.getElementById('vocab-due-badge');
-    if (badge) {
-      badge.textContent = data.count;
-      badge.classList.toggle('hidden', !data.count);
-    }
-    // Badge navbar
-    const navBadge = document.getElementById('nav-vocab-badge');
-    if (navBadge && data.count > 0) {
-      navBadge.textContent = data.count;
-      navBadge.classList.remove('hidden');
-    }
-  } catch {}
-}
-
-async function loadReviewQueue() {
-  const readyEl = document.getElementById('vocab-review-ready');
-  const emptyEl = document.getElementById('vocab-review-empty');
-  const sessionEl = document.getElementById('vocab-review-session');
-  const doneEl  = document.getElementById('vocab-review-done');
-  [readyEl, emptyEl, sessionEl, doneEl].forEach(el => el?.classList.add('hidden'));
-
-  try {
-    const res  = await fetch('/api/vocabulary/review');
-    if (!res.ok) return;
-    const data = await res.json();
-    _reviewQueue = data.due || [];
-    _reviewIdx   = 0;
-
-    if (!_reviewQueue.length) {
-      emptyEl?.classList.remove('hidden');
-      return;
-    }
-    const countEl = document.getElementById('vocab-review-count');
-    if (countEl) countEl.textContent = _reviewQueue.length + ' ' + (_reviewQueue.length === 1 ? 'parola' : 'parole') + ' da ripassare';
-    readyEl?.classList.remove('hidden');
-  } catch {}
-}
-
-function startReviewSession() {
-  document.getElementById('vocab-review-ready')?.classList.add('hidden');
-  document.getElementById('vocab-review-session')?.classList.remove('hidden');
-  showReviewCard();
-}
-
-function showReviewCard() {
-  if (_reviewIdx >= _reviewQueue.length) {
-    document.getElementById('vocab-review-session')?.classList.add('hidden');
-    document.getElementById('vocab-review-done')?.classList.remove('hidden');
-    // Aggiorna badge
-    loadReviewCount();
-    return;
-  }
-  const word = _reviewQueue[_reviewIdx];
-  const termEl  = document.getElementById('review-term');
-  const ctxEl   = document.getElementById('review-context');
-  const transEl = document.getElementById('review-translation');
-  const ansEl   = document.getElementById('review-answer');
-  const showBtn = document.getElementById('review-show-btn');
-
-  if (termEl)  termEl.textContent  = word.term;
-  if (ctxEl)   { ctxEl.textContent = word.context || ''; ctxEl.style.display = word.context ? '' : 'none'; }
-  if (transEl) transEl.textContent = word.translation;
-  ansEl?.classList.add('hidden');
-  showBtn?.classList.remove('hidden');
-
-  // Progresso
-  const fillEl = document.getElementById('review-progress-fill');
-  const progTxt = document.getElementById('review-progress-text');
-  const pct = Math.round((_reviewIdx / _reviewQueue.length) * 100);
-  if (fillEl) fillEl.style.width = pct + '%';
-  if (progTxt) progTxt.textContent = _reviewIdx + '/' + _reviewQueue.length;
-}
-
-function showReviewAnswer() {
-  document.getElementById('review-answer')?.classList.remove('hidden');
-  document.getElementById('review-show-btn')?.classList.add('hidden');
-}
-
-async function submitReview(result) {
-  const word = _reviewQueue[_reviewIdx];
-  if (!word) return;
-  try {
-    await fetch('/api/vocabulary/review', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ wordId: word.id, result }),
-    });
-  } catch {}
-  _reviewIdx++;
-  showReviewCard();
-}
-
-// Chiudi modale vocabolario con Escape anche quando il focus è dentro
-document.getElementById('vocab-modal')?.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeVocabModal();
-});
-
 // ── popstate (Back/Forward browser) ──────────────────────────────
 
 window.addEventListener('popstate', (e) => {
@@ -4381,8 +4271,35 @@ window.addEventListener('popstate', (e) => {
 // ── Bottom-sheet pellicola — toggle mobile ────────────────────────
 // Tap sull'handle: alterna stato peek ↔ espanso.
 // Funzione globale (chiamata da onclick inline nell'HTML).
+// ── Helper: aggiorna posizione tab laterale pellicola (tablet 768-1024px) ─────
+function _updateSidebarTab(isOpen) {
+  const tab = document.getElementById('course-sidebar-tab');
+  if (!tab) return;
+  if (isOpen) {
+    tab.style.left = '260px';
+    tab.setAttribute('aria-expanded', 'true');
+    tab.setAttribute('aria-label', 'Chiudi lista lezioni');
+  } else {
+    tab.style.left = '0';
+    tab.setAttribute('aria-expanded', 'false');
+    tab.setAttribute('aria-label', 'Mostra lista lezioni');
+  }
+}
+
+// ── Toggle pellicola su tablet (768–1024px) ───────────────────────
+function toggleTabletSidebar() {
+  const w = window.innerWidth;
+  if (w < 768 || w > 1024) return;
+  const strip = document.getElementById('course-lessons-section');
+  if (!strip) return;
+  const willOpen = !strip.classList.contains('strip-visible');
+  strip.classList.toggle('strip-visible', willOpen);
+  _updateSidebarTab(willOpen);
+}
+
+// ── Toggle bottom-sheet mobile (<768px) ──────────────────────────
 function toggleMobileSheet() {
-  if (window.innerWidth > 640) return;
+  if (window.innerWidth >= 768) return;
   const strip  = document.getElementById('course-lessons-section');
   const handle = document.getElementById('course-sheet-handle');
   if (!strip) return;
@@ -4392,6 +4309,106 @@ function toggleMobileSheet() {
     handle.setAttribute('aria-expanded', String(!isExpanded));
     handle.setAttribute('aria-label',
       isExpanded ? 'Espandi lista lezioni' : 'Chiudi lista lezioni');
+  }
+}
+
+// ── Popup upgrade contestuale (corsi bloccati) ────────────────────
+function showUpgradeModal(lang) {
+  // Rimuovi eventuale overlay già aperto
+  document.getElementById('upgrade-modal-overlay')?.remove();
+
+  const isDida    = lang === 'Didattica';
+  const planName  = isDida ? 'Accademia' : 'Linguae';
+  const planSlug  = isDida ? 'accademia' : 'linguae';
+  const planPrice = isDida ? '€19,90/mese' : '€12,90/mese';
+  const planIcon  = isDida ? '🏛' : '📜';
+
+  // Descrizione breve di cosa include il piano
+  const planDesc  = isDida
+    ? 'Accademia include tutti i corsi di lingua + 4 moduli didattica con accreditamento MIM e Bonus Docenti.'
+    : 'Linguae include Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico.';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'upgrade-modal-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-modal', 'true');
+  overlay.setAttribute('aria-labelledby', 'upgrade-modal-title');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2100;display:flex;align-items:center;justify-content:center;padding:20px;';
+
+  overlay.innerHTML = `
+    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:40px 36px 36px;width:100%;max-width:400px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+      <button aria-label="Chiudi"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.45);font-size:22px;cursor:pointer;line-height:1;padding:4px;transition:color .15s;"
+        onmouseenter="this.style.color='rgba(245,245,245,.9)'"
+        onmouseleave="this.style.color='rgba(245,245,245,.45)'"
+        onclick="document.getElementById('upgrade-modal-overlay').remove()">×</button>
+
+      <div style="font-size:2.2rem;margin-bottom:14px;">${planIcon}</div>
+      <h2 id="upgrade-modal-title"
+        style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:10px;">
+        Contenuto riservato
+      </h2>
+      <p style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(245,245,245,.6);line-height:1.65;margin-bottom:6px;">
+        Questo corso è incluso nel piano <strong style="color:#f5f5f5;">${planName}</strong>.
+      </p>
+      <p style="font-family:'Inter',sans-serif;font-size:13px;color:rgba(245,245,245,.45);line-height:1.6;margin-bottom:28px;">
+        ${planDesc}
+      </p>
+      <a href="/index.html#prezzi"
+        style="display:block;background:#a01a36;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;transition:background .2s;margin-bottom:10px;"
+        onmouseenter="this.style.background='#c02040'"
+        onmouseleave="this.style.background='#a01a36'">
+        Passa a ${planName} — ${planPrice} →
+      </a>
+      <button
+        style="background:none;border:none;color:rgba(245,245,245,.4);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;padding:4px 8px;"
+        onclick="document.getElementById('upgrade-modal-overlay').remove()">
+        Non ora
+      </button>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  // Chiudi cliccando fuori
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  document.addEventListener('keydown', function esc(e) {
+    if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
+  });
+}
+
+// ── Tooltip info progresso ────────────────────────────────────────
+function toggleProgressTooltip(e) {
+  e.stopPropagation();
+  const tooltip = document.getElementById('pmb-tooltip');
+  const btn     = document.getElementById('pmb-info-btn');
+  if (!tooltip) return;
+  const opening = !tooltip.classList.contains('is-open');
+  tooltip.classList.toggle('is-open', opening);
+  tooltip.setAttribute('aria-hidden', String(!opening));
+  if (btn) btn.setAttribute('aria-expanded', String(opening));
+  if (opening) {
+    // Chiudi cliccando fuori
+    setTimeout(() => {
+      document.addEventListener('click', _closeTooltipOutside, { once: true, capture: true });
+    }, 0);
+  }
+}
+function closeProgressTooltip() {
+  const tooltip = document.getElementById('pmb-tooltip');
+  const btn     = document.getElementById('pmb-info-btn');
+  if (tooltip) { tooltip.classList.remove('is-open'); tooltip.setAttribute('aria-hidden','true'); }
+  if (btn) btn.setAttribute('aria-expanded','false');
+}
+function _closeTooltipOutside(e) {
+  const tooltip = document.getElementById('pmb-tooltip');
+  const btn     = document.getElementById('pmb-info-btn');
+  if (tooltip && !tooltip.contains(e.target) && e.target !== btn) {
+    closeProgressTooltip();
+  } else if (tooltip && tooltip.classList.contains('is-open')) {
+    // L'utente ha cliccato dentro — re-registra il listener
+    setTimeout(() => {
+      document.addEventListener('click', _closeTooltipOutside, { once: true, capture: true });
+    }, 0);
   }
 }
 </script>

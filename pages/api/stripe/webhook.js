@@ -14,7 +14,17 @@ const { stripe } = require('../../../lib/stripe');
 const {
   sendSubscriptionEmail,
   sendSetPasswordEmail,
+  PLANS,
 } = require('../../../lib/resend');
+
+// Reverse-lookup: da priceId Stripe → planId leggibile (es. 'linguae-mensile')
+function planIdFromPriceId(priceId) {
+  if (!priceId) return null;
+  for (const [planId, pData] of Object.entries(PLANS)) {
+    if (process.env[pData.envKey] === priceId) return planId;
+  }
+  return null;
+}
 
 // Disabilita il bodyParser di Next.js per ottenere il raw body
 export const config = { api: { bodyParser: false } };
@@ -183,13 +193,25 @@ export default async function handler(req, res) {
         });
 
         if (existing) {
+          // Costruisce i dati da aggiornare
+          const updateData = {
+            status:            sub.status,
+            cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
+            currentPeriodEnd:  new Date(sub.current_period_end * 1000),
+          };
+
+          // Se il piano è cambiato (upgrade/downgrade), aggiorna il campo plan nel DB.
+          // Prende il priceId dal primo item della subscription e lo mappa al planId.
+          const newPriceId = sub.items?.data?.[0]?.price?.id;
+          const newPlanId  = planIdFromPriceId(newPriceId);
+          if (newPlanId && newPlanId !== existing.plan) {
+            updateData.plan = newPlanId;
+            console.log(`[webhook] Cambio piano rilevato: ${existing.plan} → ${newPlanId}`);
+          }
+
           await prisma.subscription.update({
             where: { stripeSubscriptionId: sub.id },
-            data: {
-              status:            sub.status,
-              cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
-              currentPeriodEnd:  new Date(sub.current_period_end * 1000),
-            },
+            data: updateData,
           });
         } else {
           console.warn('[webhook] customer.subscription.updated: subscription non trovata nel DB:', sub.id);

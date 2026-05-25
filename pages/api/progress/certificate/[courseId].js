@@ -49,8 +49,8 @@ export default withAuth(async function handler(req, res) {
       });
     }
 
-    // Recupera i dati dell'utente e la data di completamento
-    const [user, latestProgress] = await Promise.all([
+    // Recupera i dati dell'utente, la data di completamento e il record certificato
+    const [user, latestProgress, cert] = await Promise.all([
       prisma.user.findUnique({
         where: { id: req.user.userId },
         select: { fullName: true, email: true },
@@ -60,7 +60,17 @@ export default withAuth(async function handler(req, res) {
         orderBy: { completedAt: 'desc' },
         select: { completedAt: true },
       }),
+      prisma.certificate.findUnique({
+        where: { userId_courseId: { userId: req.user.userId, courseId: course.id } },
+        select: { certCode: true },
+      }),
     ]);
+
+    if (!cert) {
+      return res.status(404).json({
+        error: 'Attestato non ancora generato. Completa il corso per sbloccare il certificato.',
+      });
+    }
 
     // Genera il PDF
     const { generateCertificate } = require('../../../../lib/certificate');
@@ -70,6 +80,7 @@ export default withAuth(async function handler(req, res) {
       courseLang: course.lang,
       courseLevel: course.level,
       completedAt: latestProgress?.completedAt ?? new Date(),
+      certCode: cert.certCode,
     });
 
     // Invia il PDF come download
