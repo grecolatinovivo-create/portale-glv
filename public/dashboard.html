@@ -305,8 +305,16 @@
       }
 
       /* 5. Tutte le card → 108px: 3 carte su 375px (343px disponibili)
-            108×3 + 8×2 gap = 340px → mostra 3 card piene + 3px peek della 4a */
-      #course-sections .course-card,
+            108×3 + 8×2 gap = 340px → mostra 3 card piene + 3px peek della 4a.
+            height:auto CRITICO — sovrascrive il height:280px fisso di .course-card */
+      #course-sections .course-card{
+        width:108px !important;
+        height:auto !important;   /* SENZA questo: enorme spazio nero sotto il thumbnail */
+        min-height:0 !important;
+        flex-shrink:0;
+        scroll-snap-align:start;
+        border-radius:8px;
+      }
       .continua-thumb-card{
         width:108px;
         flex-shrink:0;
