@@ -1649,6 +1649,8 @@ async function showDashboard() {
   // Tier & piano
   const sub   = user.subscription || null;
   const tier  = getTierLevel(sub);
+  _currentTier = tier;
+  _currentPlan = sub?.plan || null;
   const label = sub ? (TIER_NAMES[tier] || sub.plan) : 'Nessun piano';
   if (!user.isAdmin) document.getElementById('nav-plan-badge').textContent = label;
 
@@ -1946,8 +1948,6 @@ async function openSubscriptionModal() {
 /* ── Modal "I miei attestati" ─────────────────────────────── */
 async function openAttestatiModal() {
   document.getElementById('profile-menu')?.classList.remove('open');
-
-  // Rimuovi eventuale modal già aperto
   document.getElementById('attestati-modal-overlay')?.remove();
 
   const overlay = document.createElement('div');
@@ -1955,15 +1955,29 @@ async function openAttestatiModal() {
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'attestati-modal-title');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = `
+    position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:2000;
+    display:flex;align-items:center;justify-content:center;padding:20px;`;
 
   overlay.innerHTML = `
-    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:36px;width:100%;max-width:480px;position:relative;max-height:80vh;overflow-y:auto;">
-      <button id="attestati-modal-close" aria-label="Chiudi"
-        style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.55);font-size:22px;cursor:pointer;line-height:1;padding:4px;">×</button>
-      <h2 id="attestati-modal-title" style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:24px;">I miei attestati</h2>
-      <div id="attestati-modal-body" style="font-family:'Inter',sans-serif;">
-        <p style="color:rgba(245,245,245,.55);font-size:14px;">Caricamento…</p>
+    <div style="background:#111;border:1px solid rgba(255,255,255,.1);border-radius:12px;
+                width:100%;max-width:520px;position:relative;max-height:85vh;
+                display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.7);">
+      <!-- Header -->
+      <div style="padding:24px 28px 20px;border-bottom:1px solid rgba(255,255,255,.07);flex-shrink:0;display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;background:rgba(201,150,42,.12);border:1px solid rgba(201,150,42,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">🏛</div>
+        <h2 id="attestati-modal-title" style="font-family:'Inter',sans-serif;font-size:17px;font-weight:700;color:#f5f5f5;margin:0;flex:1;">I miei attestati</h2>
+        <button id="attestati-modal-close" aria-label="Chiudi"
+          style="background:none;border:none;color:rgba(245,245,245,.4);font-size:20px;cursor:pointer;line-height:1;padding:6px;border-radius:4px;transition:color .15s;"
+          onmouseenter="this.style.color='rgba(245,245,245,.85)'"
+          onmouseleave="this.style.color='rgba(245,245,245,.4)'">×</button>
+      </div>
+      <!-- Body scrollabile -->
+      <div id="attestati-modal-body" style="font-family:'Inter',sans-serif;overflow-y:auto;padding:20px 28px 28px;flex:1;">
+        <div style="display:flex;align-items:center;gap:8px;color:rgba(245,245,245,.4);font-size:13px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Caricamento…
+        </div>
       </div>
     </div>`;
 
@@ -1976,40 +1990,96 @@ async function openAttestatiModal() {
   });
 
   try {
-    const res  = await fetch('/api/progress/certificates');
-    const data = await res.json();
-    const body = document.getElementById('attestati-modal-body');
+    const res   = await fetch('/api/progress/certificates');
+    const data  = await res.json();
+    const body  = document.getElementById('attestati-modal-body');
     const certs = data.certificates || [];
 
     if (!certs.length) {
       body.innerHTML = `
-        <p style="color:rgba(245,245,245,.6);font-size:14px;line-height:1.7;">
-          Non hai ancora nessun attestato.<br>
-          <span style="color:rgba(245,245,245,.4);font-size:13px;">
-            Completa tutte le lezioni di un corso per sbloccare il tuo attestato.
-          </span>
-        </p>`;
+        <div style="text-align:center;padding:32px 0 16px;">
+          <div style="font-size:3rem;margin-bottom:16px;opacity:.35;">🏛</div>
+          <p style="font-size:15px;font-weight:600;color:rgba(245,245,245,.75);margin-bottom:8px;">
+            Nessun attestato ancora
+          </p>
+          <p style="font-size:13px;color:rgba(245,245,245,.4);line-height:1.6;max-width:300px;margin:0 auto;">
+            Completa tutte le lezioni di un corso per ottenere il tuo attestato di completamento.
+          </p>
+        </div>`;
       return;
     }
 
-    const rows = certs.map(c => {
-      const dateStr = c.completedAt
-        ? new Date(c.completedAt).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' })
+    const cards = certs.map(c => {
+      const dateStr = c.issuedAt
+        ? new Date(c.issuedAt).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' })
         : '—';
+      const langIcon = {
+        'Latino':'🏛', 'Greco Antico':'⚡', 'Egiziano Geroglifico':'𓂀',
+        'Ebraico Biblico':'✡️', 'Corsi Brevi':'📖', 'Didattica':'🎓',
+      }[c.lang] || '📜';
+
       return `
-        <div style="background:#1e1e1e;border:1px solid #2a2a2a;border-radius:6px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-          <div>
-            <div style="font-size:14px;font-weight:600;color:#f5f5f5;margin-bottom:4px;">${_esc(c.title)}</div>
-            <div style="font-size:12px;color:rgba(245,245,245,.45);">Completato il ${_esc(dateStr)}</div>
+        <div style="background:#1a1a1a;border:1px solid rgba(255,255,255,.08);border-radius:10px;
+                    padding:18px 20px;margin-bottom:14px;position:relative;overflow:hidden;">
+          <!-- Accent bar bordeaux -->
+          <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:#a01a36;border-radius:3px 0 0 3px;"></div>
+          <div style="display:flex;align-items:flex-start;gap:14px;">
+            <!-- Icona lingua -->
+            <div style="width:44px;height:44px;background:rgba(160,26,54,.1);border:1px solid rgba(160,26,54,.2);
+                        border-radius:8px;display:flex;align-items:center;justify-content:center;
+                        font-size:20px;flex-shrink:0;margin-top:2px;">${langIcon}</div>
+            <!-- Testo -->
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:15px;font-weight:600;color:#f5f5f5;margin-bottom:4px;
+                          white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${_esc(c.title)}</div>
+              <div style="font-size:12px;color:rgba(245,245,245,.45);margin-bottom:10px;">
+                ${c.lang ? `<span>${_esc(c.lang)}</span>` : ''}
+                ${c.level ? `<span style="opacity:.6;margin:0 4px;">·</span><span>${_esc(c.level)}</span>` : ''}
+                <span style="opacity:.6;margin:0 4px;">·</span>
+                <span>Emesso il ${_esc(dateStr)}</span>
+              </div>
+              <!-- Codice attestato -->
+              <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(201,150,42,.08);
+                          border:1px solid rgba(201,150,42,.2);border-radius:4px;
+                          padding:4px 10px;margin-bottom:14px;">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#c9962a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                <span style="font-size:11px;font-family:monospace;font-weight:700;color:#c9962a;letter-spacing:.05em;">${_esc(c.certCode)}</span>
+              </div>
+              <!-- Azioni -->
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <a href="${_esc(c.downloadUrl)}"
+                   style="display:inline-flex;align-items:center;gap:6px;background:#a01a36;color:#fff;
+                          padding:9px 16px;border-radius:5px;text-decoration:none;font-size:12px;
+                          font-weight:700;letter-spacing:.04em;transition:background .2s;"
+                   onmouseenter="this.style.background='#c02040'"
+                   onmouseleave="this.style.background='#a01a36'">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Scarica PDF
+                </a>
+                <a href="${_esc(c.verifyUrl || '/verifica/' + c.certCode)}" target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;gap:6px;background:transparent;
+                          color:rgba(245,245,245,.5);padding:9px 14px;border-radius:5px;
+                          text-decoration:none;font-size:12px;font-weight:500;
+                          border:1px solid rgba(255,255,255,.12);transition:border-color .2s,color .2s;"
+                   onmouseenter="this.style.borderColor='rgba(255,255,255,.3)';this.style.color='rgba(245,245,245,.85)'"
+                   onmouseleave="this.style.borderColor='rgba(255,255,255,.12)';this.style.color='rgba(245,245,245,.5)'">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  Verifica
+                </a>
+              </div>
+            </div>
           </div>
-          <a href="${_esc(c.downloadUrl)}" download
-             style="flex-shrink:0;background:#a01a36;color:#fff;padding:8px 14px;border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.06em;white-space:nowrap;">
-            Scarica PDF
-          </a>
         </div>`;
     }).join('');
 
-    body.innerHTML = rows;
+    body.innerHTML = `
+      <p style="font-size:12px;color:rgba(245,245,245,.35);margin-bottom:16px;">
+        ${certs.length} attestato${certs.length !== 1 ? 'i' : ''} ottenuto${certs.length !== 1 ? 'i' : ''}
+      </p>
+      ${cards}`;
+
   } catch {
     document.getElementById('attestati-modal-body').innerHTML =
       `<p style="color:#f5a0ae;font-size:14px;">Impossibile caricare gli attestati. Riprova.</p>`;
@@ -4219,6 +4289,7 @@ function _buildFilteredPerTe(courses, tier) {
 
 // Cache tier per il filtro
 let _currentTier = 0;
+let _currentPlan = null; // es. 'cultura-mensile' — usato dal popup upgrade adattivo
 
 
 // ══ COLLEGAMENTO OVERVIEW + FILTER A showDashboard ═══════════════
@@ -4312,59 +4383,178 @@ function toggleMobileSheet() {
   }
 }
 
-// ── Popup upgrade contestuale (corsi bloccati) ────────────────────
-function showUpgradeModal(lang) {
+// ── Popup upgrade contestuale — ADATTIVO + DIRETTO STRIPE ────────
+async function showUpgradeModal(lang) {
   // Rimuovi eventuale overlay già aperto
   document.getElementById('upgrade-modal-overlay')?.remove();
 
-  const isDida    = lang === 'Didattica';
-  const planName  = isDida ? 'Accademia' : 'Linguae';
-  const planSlug  = isDida ? 'accademia' : 'linguae';
-  const planPrice = isDida ? '€19,90/mese' : '€12,90/mese';
-  const planIcon  = isDida ? '🏛' : '📜';
+  // ── 1. Calcola tier richiesto e piano target ───────────────────
+  const tierRequired = lang === 'Didattica' ? 3 : 2;
+  const currentPlan  = _currentPlan || '';
+  const hasActiveSub = _currentTier > 0;
 
-  // Descrizione breve di cosa include il piano
-  const planDesc  = isDida
-    ? 'Accademia include tutti i corsi di lingua + 4 moduli didattica con accreditamento MIM e Bonus Docenti.'
-    : 'Linguae include Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico.';
+  // Mantieni il ciclo di fatturazione dell'utente (mensile/annuale)
+  const isAnnual = currentPlan.includes('annuale');
 
+  // Mappa dei piani target
+  const TARGET = {
+    2: {
+      label:       'Linguae',
+      priceMon:    '€12,90/mese',
+      priceAnn:    '€99/anno',
+      savingAnn:   'Risparmi €56 rispetto al mensile',
+      configKeyMon:'linguae_monthly',
+      configKeyAnn:'linguae_annual',
+      planIdMon:   'linguae-mensile',
+      planIdAnn:   'linguae-annuale',
+      icon:        '📜',
+      features:    ['Latino', 'Greco Antico', 'Egiziano Geroglifico', 'Ebraico Biblico'],
+      desc:        'Accedi a tutti i corsi di lingua del mondo antico.',
+    },
+    3: {
+      label:       'Accademia',
+      priceMon:    '€19,90/mese',
+      priceAnn:    '€179/anno',
+      savingAnn:   'Risparmi €60 rispetto al mensile',
+      configKeyMon:'accademia_monthly',
+      configKeyAnn:'accademia_annual',
+      planIdMon:   'accademia-mensile',
+      planIdAnn:   'accademia-annuale',
+      icon:        '🏛',
+      features:    ['Tutti i corsi Linguae', 'Didattica con accred. MIM', 'Bonus Docenti', '4 moduli certificati'],
+      desc:        'Tutto di Linguae + percorsi didattici con riconoscimento ministeriale.',
+    },
+  };
+
+  const target     = TARGET[tierRequired];
+  const configKey  = isAnnual ? target.configKeyAnn : target.configKeyMon;
+  const priceLabel = isAnnual ? target.priceAnn : target.priceMon;
+  const planId     = isAnnual ? target.planIdAnn : target.planIdMon;
+  const saving     = isAnnual ? `<span style="display:inline-block;margin-top:4px;font-size:11px;color:#6fcf97;">${target.savingAnn}</span>` : '';
+
+  // Icona lingua sorgente
+  const LANG_ICONS = {
+    'Didattica':'🎓','Latino':'🏛','Greco Antico':'⚡',
+    'Egiziano Geroglifico':'𓂀','Ebraico Biblico':'✡️',
+  };
+  const langIcon = LANG_ICONS[lang] || '📜';
+
+  // Label CTA: upgrade se già abbonato, nuovo acquisto se no
+  const ctaLabel = hasActiveSub
+    ? `Passa a ${target.label} — ${priceLabel}`
+    : `Inizia con ${target.label} — ${priceLabel}`;
+  const ctaSubtext = hasActiveSub
+    ? 'Il cambio è immediato. Il credito del piano attuale viene scalato automaticamente.'
+    : 'Accesso immediato dopo il pagamento. Cancella quando vuoi.';
+
+  // Bullet features HTML
+  const featuresHtml = target.features.map(f =>
+    `<li style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:rgba(245,245,245,.7);">
+       <span style="color:#c9a84c;font-size:11px;">✦</span>${f}
+     </li>`
+  ).join('');
+
+  // ── 2. Costruisci overlay ──────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.id = 'upgrade-modal-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-modal', 'true');
   overlay.setAttribute('aria-labelledby', 'upgrade-modal-title');
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:2100;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.style.cssText = [
+    'position:fixed;inset:0;',
+    'background:rgba(0,0,0,.8);',
+    'backdrop-filter:blur(4px);',
+    '-webkit-backdrop-filter:blur(4px);',
+    'z-index:2100;',
+    'display:flex;align-items:center;justify-content:center;',
+    'padding:20px;',
+    'animation:_umFadeIn .18s ease;',
+  ].join('');
 
   overlay.innerHTML = `
-    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:12px;padding:40px 36px 36px;width:100%;max-width:400px;position:relative;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <style>
+      @keyframes _umFadeIn  { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+      @keyframes _umSpin    { to{transform:rotate(360deg)} }
+      #upgrade-modal-card   { animation:_umFadeIn .2s ease; }
+    </style>
+    <div id="upgrade-modal-card"
+      style="background:#141414;border:1px solid rgba(201,168,76,.25);
+             border-radius:14px;padding:36px 32px 28px;
+             width:100%;max-width:420px;position:relative;
+             box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 0 1px rgba(201,168,76,.08);">
+
+      <!-- Chiudi -->
       <button aria-label="Chiudi"
-        style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.45);font-size:22px;cursor:pointer;line-height:1;padding:4px;transition:color .15s;"
-        onmouseenter="this.style.color='rgba(245,245,245,.9)'"
-        onmouseleave="this.style.color='rgba(245,245,245,.45)'"
+        style="position:absolute;top:14px;right:16px;background:none;border:none;
+               color:rgba(245,245,245,.35);font-size:22px;cursor:pointer;
+               line-height:1;padding:6px;border-radius:4px;transition:color .15s;"
+        onmouseenter="this.style.color='rgba(245,245,245,.8)'"
+        onmouseleave="this.style.color='rgba(245,245,245,.35)'"
         onclick="document.getElementById('upgrade-modal-overlay').remove()">×</button>
 
-      <div style="font-size:2.2rem;margin-bottom:14px;">${planIcon}</div>
+      <!-- Icona corso + badge piano -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="font-size:2rem;line-height:1;">${langIcon}</div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;
+                      color:#c9a84c;text-transform:uppercase;margin-bottom:3px;">
+            Piano ${target.label}
+          </div>
+          <div style="font-size:13px;color:rgba(245,245,245,.5);">
+            Questo contenuto non è incluso nel tuo piano attuale
+          </div>
+        </div>
+      </div>
+
+      <!-- Titolo -->
       <h2 id="upgrade-modal-title"
-        style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:10px;">
-        Contenuto riservato
+        style="font-size:20px;font-weight:700;color:#f5f5f5;
+               margin-bottom:8px;line-height:1.3;">
+        Sblocca ${lang === 'Didattica' ? 'la Didattica' : 'i corsi di ' + lang}
       </h2>
-      <p style="font-family:'Inter',sans-serif;font-size:14px;color:rgba(245,245,245,.6);line-height:1.65;margin-bottom:6px;">
-        Questo corso è incluso nel piano <strong style="color:#f5f5f5;">${planName}</strong>.
+      <p style="font-size:13px;color:rgba(245,245,245,.5);line-height:1.6;margin-bottom:18px;">
+        ${target.desc}
       </p>
-      <p style="font-family:'Inter',sans-serif;font-size:13px;color:rgba(245,245,245,.45);line-height:1.6;margin-bottom:28px;">
-        ${planDesc}
-      </p>
-      <a href="/index.html#prezzi"
-        style="display:block;background:#a01a36;color:#fff;padding:14px 28px;border-radius:6px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;transition:background .2s;margin-bottom:10px;"
-        onmouseenter="this.style.background='#c02040'"
-        onmouseleave="this.style.background='#a01a36'">
-        Passa a ${planName} — ${planPrice} →
-      </a>
-      <button
-        style="background:none;border:none;color:rgba(245,245,245,.4);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;padding:4px 8px;"
-        onclick="document.getElementById('upgrade-modal-overlay').remove()">
-        Non ora
+
+      <!-- Feature list -->
+      <ul style="list-style:none;margin:0 0 22px;padding:0;
+                 border:1px solid rgba(255,255,255,.07);border-radius:8px;
+                 padding:12px 16px;background:rgba(255,255,255,.03);">
+        ${featuresHtml}
+      </ul>
+
+      <!-- CTA principale -->
+      <button id="upgrade-modal-cta"
+        style="display:block;width:100%;background:#a01a36;color:#fff;
+               padding:15px 24px;border:none;border-radius:8px;cursor:pointer;
+               font-family:inherit;font-weight:700;font-size:14px;
+               letter-spacing:.3px;transition:background .2s,transform .1s;
+               margin-bottom:8px;"
+        onmouseenter="if(!this.disabled)this.style.background='#c02040'"
+        onmouseleave="if(!this.disabled)this.style.background='#a01a36'"
+        onmousedown="this.style.transform='scale(.98)'"
+        onmouseup="this.style.transform='scale(1)'"
+        onclick="_handleUpgradeClick(this,'${configKey}','${planId}',${hasActiveSub})">
+        ${ctaLabel} →
       </button>
+      ${saving}
+      <p style="font-size:11px;color:rgba(245,245,245,.3);
+                margin:8px 0 16px;line-height:1.5;text-align:center;">
+        ${ctaSubtext}
+      </p>
+
+      <!-- Non ora -->
+      <div style="text-align:center;">
+        <button
+          style="background:none;border:none;color:rgba(245,245,245,.3);
+                 font-family:inherit;font-size:12px;cursor:pointer;padding:4px 8px;
+                 transition:color .15s;"
+          onmouseenter="this.style.color='rgba(245,245,245,.6)'"
+          onmouseleave="this.style.color='rgba(245,245,245,.3)'"
+          onclick="document.getElementById('upgrade-modal-overlay').remove()">
+          Non ora
+        </button>
+      </div>
     </div>`;
 
   document.body.appendChild(overlay);
@@ -4374,6 +4564,73 @@ function showUpgradeModal(lang) {
   document.addEventListener('keydown', function esc(e) {
     if (e.key === 'Escape') { overlay.remove(); document.removeEventListener('keydown', esc); }
   });
+}
+
+// ── Handler CTA upgrade (estratto per evitare inline async) ───────
+async function _handleUpgradeClick(btn, configKey, planId, hasActiveSub) {
+  // Stato loading
+  const originalText = btn.textContent;
+  btn.disabled = true;
+  btn.style.opacity = '.7';
+  btn.style.cursor  = 'wait';
+  btn.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:_umSpin .6s linear infinite;vertical-align:middle;margin-right:8px;"></span>Caricamento…`;
+
+  try {
+    // 1. Recupera il priceId da /api/config/prices
+    const priceRes = await fetch('/api/config/prices');
+    if (!priceRes.ok) throw new Error('Errore configurazione prezzi');
+    const prices = await priceRes.json();
+    const priceId = prices[configKey];
+
+    if (!priceId || !priceId.startsWith('price_')) {
+      throw new Error('Piano non configurato. Contatta il supporto.');
+    }
+
+    if (hasActiveSub) {
+      // ── UPGRADE: utente già abbonato → cambia piano con prorating ──
+      const upRes = await fetch('/api/stripe/upgrade-subscription', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ priceId }),
+      });
+      const upData = await upRes.json();
+      if (!upRes.ok) throw new Error(upData.error || 'Errore durante l\'upgrade');
+
+      // Successo: mostra feedback e ricarica
+      btn.style.background = '#1a7a4a';
+      btn.style.opacity    = '1';
+      btn.innerHTML = '✓ Piano aggiornato! Ricarico…';
+      setTimeout(() => { window.location.reload(); }, 1500);
+
+    } else {
+      // ── NUOVO ACQUISTO: redirect a Stripe Checkout ──────────────
+      const chRes = await fetch('/api/stripe/checkout', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ type: 'subscription', priceId }),
+      });
+      const chData = await chRes.json();
+      if (!chRes.ok) throw new Error(chData.error || 'Errore durante il checkout');
+      if (!chData.url) throw new Error('URL di pagamento non ricevuto');
+
+      // Redirect immediato a Stripe
+      window.location.href = chData.url;
+    }
+
+  } catch (err) {
+    console.error('[upgradeModal]', err);
+    // Mostra errore nel bottone, poi ripristina
+    btn.style.background = '#7b1a1a';
+    btn.style.opacity    = '1';
+    btn.innerHTML = '⚠ ' + (err.message || 'Errore. Riprova.');
+    setTimeout(() => {
+      btn.disabled         = false;
+      btn.style.opacity    = '1';
+      btn.style.cursor     = 'pointer';
+      btn.style.background = '#a01a36';
+      btn.textContent      = originalText;
+    }, 3000);
+  }
 }
 
 // ── Tooltip info progresso ────────────────────────────────────────
