@@ -162,6 +162,29 @@
       font-family:var(--font-body);font-size:.72rem;font-weight:600;color:var(--gold-lt);
     }
 
+    /* ── "Continua a guardare" — stile Netflix ───────────────────── */
+    /* Barra rossa sotto ogni thumbnail */
+    #row-continua .fan-card-progress { height:4px; }
+    #row-continua .fan-card-progress-bar {
+      background: linear-gradient(90deg,#c0000c,#e50914) !important;
+    }
+    /* Badge percentuale sovrimpresso in basso a destra del header */
+    .continua-pct-badge {
+      position:absolute;bottom:18px;right:8px;
+      font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;
+      color:#fff;background:rgba(0,0,0,.55);
+      padding:.1rem .42rem;border-radius:3px;
+      pointer-events:none;letter-spacing:.03em;
+    }
+    /* "▶ Riprendi" nel footer della card */
+    .continua-resume-hint {
+      margin-left:auto;
+      font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;
+      color:var(--gold-lt);letter-spacing:.02em;
+    }
+    /* Card leggermente più larga per dare respiro */
+    .continua-card { width:228px; }
+
     /* Footer */
     .dash-footer{
       padding:40px 48px;border-top:1px solid var(--border);
@@ -947,6 +970,74 @@ function renderRow(id, courses, tier) {
   ).join('');
 }
 
+/* ── Card "Continua a guardare" — stile Netflix ───────────────
+   Struttura identica a buildCard ma con:
+   · barra di avanzamento ROSSA (via CSS su #row-continua)
+   · badge percentuale sovrimpresso sull'header
+   · "▶ Riprendi" nel footer
+   Usa LANG_GRADIENTS, LANG_DOT_COLORS e getLevelLabel da app.js. */
+function buildContinuaCard(course) {
+  const slug     = course.slug || course.id;
+  const grad     = (typeof LANG_GRADIENTS !== 'undefined' ? LANG_GRADIENTS[course.lang] : null)
+                   || 'linear-gradient(155deg,#1a1a2e,#0d0d1a)';
+  const pct      = course.progressPercent || 0;
+  const dot      = (typeof LANG_DOT_COLORS !== 'undefined' ? LANG_DOT_COLORS[course.lang] : null)
+                   || '#555555';
+  const levelLbl = typeof getLevelLabel === 'function' ? getLevelLabel(course.level) : (course.level || '');
+  const newBadge = course.isNew ? '<span class="fan-card-badge-new">NUOVO</span>' : '';
+  const metaText = course.hours
+    ? `${course.hours} ore · Attestato incluso`
+    : (course.teacher || '');
+
+  return `
+  <div class="course-card continua-card"
+       data-slug="${slug}"
+       data-lingua="${(course.lang||'').toLowerCase()}"
+       data-livello="${(course.level||'').toLowerCase()}"
+       onclick="openCourseView('${slug}')"
+       role="button" tabindex="0"
+       aria-label="Continua: ${course.title} — ${pct}% completato"
+       onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCourseView('${slug}')}">
+    <div class="fan-card-header" style="background:${grad};">
+      ${newBadge}
+      <div class="fan-card-level">${course.lang === 'Corsi Brevi' ? course.lang : `${course.lang} · ${course.level}`}</div>
+      <div class="fan-card-lang">${levelLbl}</div>
+      <span class="continua-pct-badge" aria-hidden="true">${pct}%</span>
+      <div class="fan-card-progress">
+        <div class="fan-card-progress-bar" style="width:${pct}%"></div>
+      </div>
+    </div>
+    <div class="fan-card-body">
+      <div class="fan-card-title card-title">${course.title}</div>
+      <div class="fan-card-meta">${metaText}</div>
+    </div>
+    <div class="fan-card-footer">
+      <div class="fan-card-dot" style="background:${dot};"></div>
+      <span class="fan-card-status">${course.lang}</span>
+      <span class="continua-resume-hint" aria-hidden="true">▶ Riprendi</span>
+    </div>
+  </div>`;
+}
+
+/* Renderizza la riga "Continua" con buildContinuaCard.
+   Mostra solo i corsi con progressPercent > 0 e < 100. */
+function renderContinuaRow(id, courses, tier) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Filtra: in corso (>0%) e non ancora completati al 100%
+  const inProg = (courses || []).filter(c => {
+    const p = c.progressPercent || 0;
+    return p > 0 && p < 100;
+  });
+  if (!inProg.length) {
+    el.innerHTML = '';
+    return;
+  }
+  // Ordina per percentuale discendente (i più vicini al termine in cima)
+  const sorted = inProg.slice().sort((a, b) => (b.progressPercent||0) - (a.progressPercent||0));
+  el.innerHTML = sorted.map(c => buildContinuaCard(c)).join('');
+}
+
 /* ── "Scelti per te" ──────────────────────────────────────── */
 function buildPerTeRow(all, profile, tier) {
   const { lang, level, goal } = profile;
@@ -981,11 +1072,12 @@ function reorderSections(tier) {
 
   // Cultura (tier 1): Corsi Brevi in cima tra i contenuti di lingua
   // Linguae/Accademia: ordine lingua standard, Corsi Brevi dopo le lingue
+  // "Continua" SEMPRE prima — è la cosa più importante per l'utente attivo
   const order = tier <= 1
-    ? ['section-per-te','section-continua','section-brevi',
+    ? ['section-continua','section-per-te','section-brevi',
        'section-latino','section-greco','section-egiziano','section-ebraico',
        'section-didattica']
-    : ['section-per-te','section-continua',
+    : ['section-continua','section-per-te',
        'section-latino','section-greco','section-egiziano','section-ebraico',
        'section-brevi','section-didattica'];
 
@@ -1030,12 +1122,12 @@ function rerenderRows(tier) {
   const profile = { lang: quizAnswers.lang, level: quizAnswers.level, goal: quizAnswers.goal };
   document.getElementById('row-per-te').innerHTML = buildPerTeRow(courses, profile, tier);
 
-  // "Continua"
-  const inProgress = courses.filter(c => (c.progressPercent || 0) > 0);
+  // "Continua a guardare" — Netflix-style
+  const inProgress = courses.filter(c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100);
   const secContinua = document.getElementById('section-continua');
   if (inProgress.length) {
     secContinua?.classList.remove('hidden');
-    renderRow('row-continua', inProgress, tier);
+    renderContinuaRow('row-continua', inProgress, tier);
   } else {
     secContinua?.classList.add('hidden');
   }
@@ -3457,7 +3549,7 @@ function _applyFilter() {
   const byLang = lg => filtered.filter(c => c.lang === lg);
 
   renderRow('row-per-te',    _buildFilteredPerTe(filtered, tier), tier);
-  renderRow('row-continua',  filtered.filter(c => (c.progressPercent || 0) > 0), tier);
+  renderContinuaRow('row-continua', filtered.filter(c => (c.progressPercent || 0) > 0), tier);
   renderRow('row-latino',    byLang('Latino'),               tier);
   renderRow('row-greco',     byLang('Greco Antico'),         tier);
   renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
@@ -3466,7 +3558,7 @@ function _applyFilter() {
   renderRow('row-didattica', byLang('Didattica'),            tier);
 
   // Mostra/nascondi sezione "Continua"
-  const inProg = filtered.filter(c => (c.progressPercent || 0) > 0);
+  const inProg = filtered.filter(c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100);
   const secC = document.getElementById('section-continua');
   if (secC) secC.classList.toggle('hidden', !inProg.length);
 

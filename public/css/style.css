@@ -2132,21 +2132,20 @@ body.has-corso-cta { padding-bottom: 80px; }
 /* ── Mini-card identiche alle fan-card, scalate al 32% ────────── */
 /*
   Ogni .corner-mini-card è una fan-card vera (stesse classi CSS)
-  scalata con transform: scale(0.32). Le tre carte si sovrappongono
-  in un ventaglio. transform-origin: bottom right perché il punto
-  fisso del mazzetto è l'angolo in basso a destra.
+  scalate con transform: scale(0.45). Le tre carte si sovrappongono
+  in un ventaglio. transform-origin: bottom center.
 */
 /*
   Il ventaglio riproduce la disposizione della home page:
   transform-origin al centro-basso (come 50% 115% in index.html),
   rotazioni: -11° -4° +3°, le stesse della sezione catalog-preview.
-  A scale(0.32) ogni carta diventa ~64×84px.
+  A scale(0.45) ogni carta diventa ~90×118px.
   Le carte sono centrate orizzontalmente nel container.
 */
 .corner-mini-stack {
   position: relative;
-  width: 88px;   /* abbastanza largo per il fan spread */
-  height: 90px;
+  width: 120px;   /* aumentato da 88px — scala 0.45 invece di 0.32 */
+  height: 122px;
 }
 
 .corner-mini-card {
@@ -2166,19 +2165,19 @@ body.has-corso-cta { padding-bottom: 80px; }
   transform-origin: 50% 100%;  /* centro del bordo inferiore — uguale a home */
 }
 
-/* Le tre carte a ventaglio — rotazioni identiche a home */
+/* Le tre carte a ventaglio — rotazioni identiche a home, scala aumentata a 0.45 */
 .corner-mini-card--1 {
-  transform: scale(0.32) rotate(-11deg);
+  transform: scale(0.45) rotate(-11deg);
   z-index: 1;
   opacity: 0.65;
 }
 .corner-mini-card--2 {
-  transform: scale(0.32) rotate(-4deg);
+  transform: scale(0.45) rotate(-4deg);
   z-index: 2;
   opacity: 0.85;
 }
 .corner-mini-card--3 {
-  transform: scale(0.32) rotate(3deg);
+  transform: scale(0.45) rotate(3deg);
   z-index: 3;
 }
 
