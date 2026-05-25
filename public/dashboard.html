@@ -249,6 +249,9 @@
       font-weight:600;
     }
 
+    /* Handle bottom-sheet pellicola — nascosto su desktop */
+    .course-sheet-handle{ display:none; }
+
     /* Footer */
     .dash-footer{
       padding:40px 48px;border-top:1px solid var(--border);
@@ -440,15 +443,16 @@
       }
 
       /* ══ PELLICOLA LEZIONI: bottom-sheet su mobile ══
-         Problema originale: l'elemento è position:fixed con
-         height:calc(100vh-...) e bottom:80px → su 812px di schermo
-         la pellicola partiva da y≈36px, coprendo il video.
-         Fix: la pellicola diventa un drawer a tutta larghezza, max 40vh,
-         che entra dal basso. Il contenuto della vista corso riceve
-         padding-bottom per scrollare sopra il drawer. */
+         3 stati:
+         1. Nessuna classe          → completamente nascosta sotto lo schermo
+         2. .strip-visible          → PEEK: solo la maniglia (44px) emerge dal fondo
+         3. .strip-visible.strip-expanded → ESPANSA: foglio pieno (max 45vh)
+
+         Root cause del bug originale: l'elemento era position:fixed con
+         height:calc(100vh-...) e bottom:80px → su 812px copriva tutto il video. */
       .course-sidebar{
         height:auto !important;
-        max-height:40vh !important;
+        max-height:45vh !important;
         bottom:0 !important;
         top:auto !important;
         left:0 !important;
@@ -457,20 +461,56 @@
         border-radius:12px 12px 0 0 !important;
         border-top:1px solid rgba(255,255,255,.1) !important;
         background:#111 !important;
-        transform:translateY(110%) !important;
-        transition:transform 0.35s cubic-bezier(0,0,0.2,1),
-                   opacity  0.25s ease !important;
+        transform:translateY(110%) !important;    /* nascosta di default */
+        opacity:1 !important;
+        transition:transform 0.35s cubic-bezier(0,0,0.2,1) !important;
         overflow-y:auto !important;
         overflow-x:hidden !important;
+        display:flex !important;
+        flex-direction:column !important;
       }
+      /* Peek: solo l'handle (44px) spunta dal bordo inferiore */
       .course-sidebar.strip-visible{
-        transform:translateY(0) !important;
-        opacity:1 !important;
+        transform:translateY(calc(100% - 44px)) !important;
       }
-      /* Spazio extra in fondo al contenuto corso:
-         garantisce che il video si possa scrollare sopra il drawer */
+      /* Espansa: foglio completo */
+      .course-sidebar.strip-visible.strip-expanded{
+        transform:translateY(0) !important;
+      }
+
+      /* Handle — barra cliccabile in cima al drawer */
+      .course-sheet-handle{
+        display:flex !important;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        height:44px;
+        flex-shrink:0;
+        cursor:pointer;
+        user-select:none;
+        -webkit-user-select:none;
+        border-bottom:.5px solid rgba(255,255,255,.07);
+        gap:5px;
+      }
+      .course-sheet-handle:active{ background:rgba(255,255,255,.04); }
+      .sheet-handle-bar{
+        width:32px; height:4px; border-radius:2px;
+        background:rgba(255,255,255,.22);
+      }
+      .sheet-handle-label{
+        font-size:.7rem; color:rgba(255,255,255,.5);
+        font-family:'Inter',sans-serif; letter-spacing:.02em;
+      }
+      /* Film-strip scroll nell'area sotto l'handle */
+      #lesson-film-strip{
+        overflow-y:auto;
+        flex:1;
+      }
+
+      /* Spazio in fondo al contenuto corso: il video si può scrollare
+         sopra il drawer anche quando è espanso (45vh) */
       .course-view-inner{
-        padding-bottom:calc(40vh + 24px) !important;
+        padding-bottom:calc(45vh + 16px) !important;
       }
     }
 
@@ -962,6 +1002,15 @@
        del genitore (translateY) crei un nuovo containing block per position:fixed
        e trascini la sidebar fuori schermo durante la chiusura del corso ─────── -->
   <aside class="course-sidebar" id="course-lessons-section" aria-label="Lezioni del corso">
+    <!-- Handle bottom-sheet — visibile solo su mobile ≤640px -->
+    <div class="course-sheet-handle" id="course-sheet-handle"
+         role="button" tabindex="0"
+         aria-label="Espandi lista lezioni" aria-expanded="false"
+         onclick="toggleMobileSheet()"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleMobileSheet()}">
+      <div class="sheet-handle-bar"></div>
+      <span class="sheet-handle-label" id="sheet-handle-label">Lezioni</span>
+    </div>
     <div id="lesson-film-strip" role="list"></div>
   </aside>
 
@@ -2173,17 +2222,23 @@ function closeCourseView(opts) {
     if (noAnim) {
       stripSection.style.transition = 'none';
       stripSection.style.opacity    = '';
-      stripSection.classList.remove('strip-visible');
+      stripSection.classList.remove('strip-visible', 'strip-expanded');
       requestAnimationFrame(() => { stripSection.style.transition = ''; });
     } else {
       stripSection.style.opacity    = '1';   // rimane visibile durante lo slide
       stripSection.style.transition = 'transform 0.38s cubic-bezier(0.4, 0, 1, 1)';
-      stripSection.classList.remove('strip-visible');
-      // Dopo l'animazione ripristina gli stili inline: torna allo stato hidden (opacity:0, translateX(-120%))
+      stripSection.classList.remove('strip-visible', 'strip-expanded');
+      // Dopo l'animazione ripristina gli stili inline: torna allo stato hidden
       setTimeout(() => {
         stripSection.style.transition = '';
         stripSection.style.opacity    = '';
       }, 420);
+    }
+    // Reset handle aria su mobile
+    const sheetHandle = document.getElementById('course-sheet-handle');
+    if (sheetHandle) {
+      sheetHandle.setAttribute('aria-expanded', 'false');
+      sheetHandle.setAttribute('aria-label', 'Espandi lista lezioni');
     }
   }
 
@@ -2291,6 +2346,12 @@ function renderLessonList(course, progressData) {
   const hasAccess = course.hasAccess;
   const map       = _lessonProgressMap(progressData);
   const lessons   = course.lessons || [];
+
+  // Aggiorna il label dell'handle mobile con il numero di lezioni
+  const handleLabel = document.getElementById('sheet-handle-label');
+  if (handleLabel) {
+    handleLabel.textContent = 'Lezioni' + (lessons.length ? ' (' + lessons.length + ')' : '');
+  }
   const langKey   = (course.lang || '').toLowerCase();
   const gradient  = GLV_LANG_GRADIENTS[langKey] || 'linear-gradient(155deg,#252525,#111)';
 
@@ -4261,6 +4322,23 @@ window.addEventListener('popstate', (e) => {
     closeCourseView({ skipAnimation: true, pushState: false });
   }
 });
+
+// ── Bottom-sheet pellicola — toggle mobile ────────────────────────
+// Tap sull'handle: alterna stato peek ↔ espanso.
+// Funzione globale (chiamata da onclick inline nell'HTML).
+function toggleMobileSheet() {
+  if (window.innerWidth > 640) return;
+  const strip  = document.getElementById('course-lessons-section');
+  const handle = document.getElementById('course-sheet-handle');
+  if (!strip) return;
+  const isExpanded = strip.classList.contains('strip-expanded');
+  strip.classList.toggle('strip-expanded', !isExpanded);
+  if (handle) {
+    handle.setAttribute('aria-expanded', String(!isExpanded));
+    handle.setAttribute('aria-label',
+      isExpanded ? 'Espandi lista lezioni' : 'Chiudi lista lezioni');
+  }
+}
 </script>
 </body>
 </html>
