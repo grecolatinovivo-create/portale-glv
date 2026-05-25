@@ -1883,9 +1883,10 @@ body.has-corso-cta { padding-bottom: 80px; }
   /* Bottoni full-width su schermi piccoli */
   .landing-hero-actions .btn { width: 100%; justify-content: center; }
 
-  /* Corsi row — previene overflow orizzontale */
-  .courses-row { padding-left: 16px; padding-right: 16px; }
-  .section-row { padding-left: 16px !important; padding-right: 16px !important; }
+  /* Corsi row — il padding orizzontale è già fornito dalla .dash-section (20px lato).
+     Azzerato qui per evitare double-indent. Il padding-right è gestito inline. */
+  .courses-row { padding-left: 0; padding-right: 16px; }
+  .section-row { padding-left: 0 !important; padding-right: 16px !important; }
 
   /* Tabelle responsive — avvolte in scroll orizzontale */
   .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }

@@ -196,19 +196,121 @@
     .dash-footer-links a{font-size:.8rem;color:var(--text-muted);transition:color .2s;}
     .dash-footer-links a:hover{color:var(--text);}
 
-    /* Responsive */
+    /* ── Responsive — tablet e mobile ─────────────────────────── */
     @media(max-width:768px){
       .dash-nav{padding:0 20px;}
-      .dash-hero{padding:88px 20px 32px;}
-      .dash-section{padding:0 20px;}
+      .dash-hero{padding:88px 20px 24px;}
+      .dash-section{padding:0 20px;margin-bottom:32px;}
       .upgrade-banner{padding:0 20px;}
-      .upgrade-banner-inner{flex-direction:column;align-items:flex-start;}
+      .upgrade-banner-inner{flex-direction:column;align-items:flex-start;gap:12px;}
+      .upgrade-banner-btn{width:100%;text-align:center;min-height:48px;display:flex;align-items:center;justify-content:center;}
       .dash-footer{padding:32px 20px;}
       .quiz-options{grid-template-columns:1fr 1fr;}
     }
-    @media(max-width:480px){
+
+    /* ── Mobile-first: 640px e sotto ───────────────────────────
+       Desktop NON viene toccato. Solo layout mobile-first.       */
+    @media(max-width:640px){
+
+      /* Hero: meno spazio sopra e sotto */
+      .dash-hero{padding-top:80px;padding-bottom:16px;}
+      .dash-subtitle{font-size:.88rem;}
+
+      /* Sezioni: margine più stretto */
+      .dash-section{padding:0 16px;margin-bottom:28px;scroll-margin-top:60px;}
+      .dash-section-header{margin-bottom:12px;flex-wrap:wrap;gap:8px;}
+      .dash-section-title{font-size:1.15rem;}
+      .dash-section-badge{font-size:.65rem;padding:2px 8px;}
+
+      /* Sezione "Continua a guardare": badge più compatto */
+      .continua-pct-badge{font-size:.62rem;padding:.08rem .35rem;}
+      .continua-card{width:200px;}
+      .continua-resume-hint{display:none;} /* nascosto su mobile: risparmia spazio */
+
+      /* Card corsi: larghezza ottimizzata per 1.5 card visibili su 375px */
+      #course-sections .course-card{width:192px;}
+
+      /* Courses-row: padding minimo, no double-indent.
+         La section ha già padding:0 16px — la row non aggiunge altro. */
+      .courses-row{
+        padding-left:0 !important;
+        padding-right:16px !important; /* respiro a destra per il peek */
+        padding-bottom:16px;
+        gap:12px;
+        /* snap per scorrimento preciso */
+        scroll-snap-type:x mandatory;
+        -webkit-overflow-scrolling:touch;
+      }
+      .courses-row .course-card,
+      .courses-row .continua-card{
+        scroll-snap-align:start;
+        flex-shrink:0;
+      }
+
+      /* Filter chips: scroll orizzontale senza wrap — nessuna riga extra */
+      .course-filter-chips{
+        flex-wrap:nowrap !important;
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:6px;
+        scrollbar-width:none;
+        gap:8px;
+      }
+      .course-filter-chips::-webkit-scrollbar{display:none;}
+      /* Tap target minimo 44px */
+      .filter-chip{
+        flex-shrink:0;
+        min-height:44px;
+        padding:0 14px;
+        display:flex;align-items:center;
+        font-size:.82rem;
+        white-space:nowrap;
+      }
+
+      /* Barra ricerca: full-width */
+      .course-search-input{max-width:100%;}
+      .course-filter-bar{padding:0 16px;margin-bottom:20px;}
+
+      /* Riprendi card: più compatta su mobile */
+      .riprendi-card{padding:16px 18px;min-height:76px;gap:12px;}
+      .riprendi-body{padding-left:6px;}
+      .riprendi-lesson{font-size:.9rem;}
+      .riprendi-cta{font-size:1.1rem;}
+
+      /* Upgrade banner: button full-width già impostato a 768px */
+      .upgrade-banner-inner{padding:16px 18px;}
+
+      /* Footer dashboard */
+      .dash-footer{
+        padding:24px 16px;flex-direction:column;
+        align-items:flex-start;gap:12px;margin-top:24px;
+      }
+      .dash-footer-links{flex-wrap:wrap;gap:12px 20px;}
+
+      /* Corner deck (mazzetto bottom-right) più vicino al bordo */
+      .catalog-corner-deck{right:16px;bottom:16px;}
+
+      /* Overlay "prossima lezione": full-screen su mobile */
+      .nlo-inner{padding:20px 20px;max-width:100%;}
+      .nlo-actions{gap:8px;}
+      .nlo-btn-next{padding:12px 18px;font-size:.85rem;min-height:48px;}
+      /* Dismiss button: tap target 44px */
+      .nlo-btn-dismiss{width:44px;height:44px;}
+
+      /* Quiz onboarding: colonna singola */
       .quiz-options{grid-template-columns:1fr;}
-      .dash-greeting{font-size:1.7rem;}
+    }
+
+    /* ── 390px e sotto (iPhone 14/15 standard) ─────────────── */
+    @media(max-width:390px){
+      .dash-greeting{font-size:1.6rem;}
+      .dash-section-title{font-size:1.05rem;}
+      /* Card ancora più strette per mostrare 1.4 card */
+      #course-sections .course-card{width:180px;}
+      .continua-card{width:180px;}
+      /* Spaziatura ancora più compatta */
+      .dash-section{margin-bottom:24px;}
+      .courses-row{gap:10px;}
     }
 
     /* ── ADMIN PREVIEW (nel dropdown) ────────────────────── */
