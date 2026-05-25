@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Il mio Portale — GrecoLatinoVivo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +14,7 @@
         integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer">
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css?v=20260525b">
   <style>
     :root {
       --dark:#0a0a0a; --dark-2:#111111; --dark-3:#1a1a1a;
@@ -162,28 +165,89 @@
       font-family:var(--font-body);font-size:.72rem;font-weight:600;color:var(--gold-lt);
     }
 
-    /* ── "Continua a guardare" — stile Netflix ───────────────────── */
-    /* Barra rossa sotto ogni thumbnail */
-    #row-continua .fan-card-progress { height:4px; }
-    #row-continua .fan-card-progress-bar {
-      background: linear-gradient(90deg,#c0000c,#e50914) !important;
+    /* ── "Continua a guardare" — card stile Netflix con thumbnail ── */
+    .continua-thumb-card {
+      width: 260px;
+      flex-shrink: 0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--dark-3);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+      scroll-snap-align: start;
+      border: 1px solid rgba(255,255,255,.06);
     }
-    /* Badge percentuale sovrimpresso in basso a destra del header */
-    .continua-pct-badge {
-      position:absolute;bottom:18px;right:8px;
-      font-family:'Inter',sans-serif;font-size:.65rem;font-weight:700;
-      color:#fff;background:rgba(0,0,0,.55);
-      padding:.1rem .42rem;border-radius:3px;
-      pointer-events:none;letter-spacing:.03em;
+    .continua-thumb-card:hover {
+      transform: translateY(-3px) scale(1.01);
+      box-shadow: 0 8px 28px rgba(0,0,0,.55);
     }
-    /* "▶ Riprendi" nel footer della card */
-    .continua-resume-hint {
-      margin-left:auto;
-      font-family:'Inter',sans-serif;font-size:.68rem;font-weight:600;
-      color:var(--gold-lt);letter-spacing:.02em;
+    /* Area thumbnail: gradient di fallback, sostituito da immagine Vimeo */
+    .ctc-thumb {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background-size: cover;
+      background-position: center;
+      position: relative;
     }
-    /* Card leggermente più larga per dare respiro */
-    .continua-card { width:228px; }
+    /* Overlay scuro in basso per garantire leggibilità sul gradient */
+    .ctc-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.35) 100%);
+      pointer-events: none;
+    }
+    /* Barra rossa di progresso — incollata al bordo inferiore della thumbnail */
+    .ctc-progress-wrap {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 4px;
+      background: rgba(255,255,255,.18);
+      z-index: 2;
+    }
+    .ctc-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg,#c0000c,#e50914);
+      transition: width .6s ease;
+    }
+    /* Icona play centrata — visibile finché non arriva la thumbnail */
+    .ctc-play-icon {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-55%);
+      font-size: 1.8rem;
+      color: rgba(255,255,255,.55);
+      z-index: 1;
+      pointer-events: none;
+      transition: opacity .3s;
+    }
+    .ctc-thumb.ctc-has-thumb .ctc-play-icon { opacity: 0; }
+    /* Info sotto la thumbnail */
+    .ctc-info {
+      padding: 10px 12px 12px;
+    }
+    .ctc-title {
+      font-family:'Inter',sans-serif;
+      font-size:.9rem;
+      font-weight:600;
+      color:#f5f5f5;
+      line-height:1.35;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      margin-bottom:4px;
+    }
+    .ctc-meta {
+      font-family:'Inter',sans-serif;
+      font-size:.72rem;
+      color:rgba(245,245,245,.5);
+      display:flex;align-items:center;gap:6px;
+    }
+    .ctc-resume {
+      color:var(--gold-lt);
+      font-weight:600;
+    }
 
     /* Footer */
     .dash-footer{
@@ -212,40 +276,79 @@
        Desktop NON viene toccato. Solo layout mobile-first.       */
     @media(max-width:640px){
 
-      /* Hero: meno spazio sopra e sotto */
-      .dash-hero{padding-top:80px;padding-bottom:16px;}
-      .dash-subtitle{font-size:.88rem;}
+      /* ══ NETFLIX MOBILE LAYOUT ══════════════════════════════════ */
 
-      /* Sezioni: margine più stretto */
-      .dash-section{padding:0 16px;margin-bottom:28px;scroll-margin-top:60px;}
-      .dash-section-header{margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-      .dash-section-title{font-size:1.15rem;}
-      .dash-section-badge{font-size:.65rem;padding:2px 8px;}
+      /* 1. Hero saluto → nascosto su mobile (spazio per i contenuti) */
+      .dash-hero{ display:none; }
 
-      /* Sezione "Continua a guardare": badge più compatto */
-      .continua-pct-badge{font-size:.62rem;padding:.08rem .35rem;}
-      .continua-card{width:200px;}
-      .continua-resume-hint{display:none;} /* nascosto su mobile: risparmia spazio */
+      /* 2. Sezioni: padding compatto */
+      .dash-section{padding:0 16px;margin-bottom:24px;scroll-margin-top:60px;}
+      .dash-section-header{margin-bottom:10px;flex-wrap:wrap;gap:6px;}
+      .dash-section-title{font-size:1rem;}
+      .dash-section-badge{font-size:.6rem;padding:2px 7px;}
+      .dash-section-subtitle{display:none;} /* nasconde sottotitolo sezione */
 
-      /* Card corsi: larghezza ottimizzata per 1.5 card visibili su 375px */
-      #course-sections .course-card{width:192px;}
+      /* 3. Upgrade banner e riprendi card compatti */
+      .upgrade-banner-inner{padding:14px 16px;}
+      .riprendi-card{padding:14px 16px;min-height:72px;gap:10px;}
+      .riprendi-body{padding-left:4px;}
+      .riprendi-lesson{font-size:.88rem;}
 
-      /* Courses-row: padding minimo, no double-indent.
-         La section ha già padding:0 16px — la row non aggiunge altro. */
+      /* 4. Courses-row: no double-indent, gap stretto per card piccole */
       .courses-row{
         padding-left:0 !important;
-        padding-right:16px !important; /* respiro a destra per il peek */
-        padding-bottom:16px;
-        gap:12px;
-        /* snap per scorrimento preciso */
+        padding-right:16px !important;
+        padding-bottom:12px;
+        gap:8px;
         scroll-snap-type:x mandatory;
         -webkit-overflow-scrolling:touch;
       }
-      .courses-row .course-card,
-      .courses-row .continua-card{
-        scroll-snap-align:start;
+
+      /* 5. Tutte le card → 108px: 3 carte su 375px (343px disponibili)
+            108×3 + 8×2 gap = 340px → mostra 3 card piene + 3px peek della 4a */
+      #course-sections .course-card,
+      .continua-thumb-card{
+        width:108px;
         flex-shrink:0;
+        scroll-snap-align:start;
       }
+
+      /* 6. fan-card-header → thumbnail 16:9 (da altezza fissa a aspect-ratio) */
+      #course-sections .fan-card-header{
+        height:auto !important;
+        aspect-ratio:16/9;
+        padding:0;
+      }
+      /* 7. Nasconde testo nell'header: solo immagine/gradiente */
+      #course-sections .fan-card-level,
+      #course-sections .fan-card-lang,
+      #course-sections .fan-card-badge-new{
+        display:none;
+      }
+      /* 8. Mantieni progress bar nell'header */
+      #course-sections .fan-card-progress{
+        position:absolute;bottom:0;left:0;right:0;height:3px;
+      }
+      /* 9. Body: solo titolo, compatto */
+      #course-sections .fan-card-body{
+        padding:5px 6px 4px;
+        flex:none;
+      }
+      #course-sections .fan-card-title{
+        font-size:.7rem;
+        line-height:1.3;
+        -webkit-line-clamp:2;
+        margin-bottom:0;
+      }
+      #course-sections .fan-card-meta{ display:none; }
+      /* 10. Footer card → nascosto su mobile */
+      #course-sections .fan-card-footer{ display:none; }
+
+      /* 11. Continua-thumb-card: font piccolo per 108px */
+      .ctc-title{font-size:.7rem;-webkit-line-clamp:2;}
+      .ctc-meta{font-size:.62rem;}
+      .ctc-info{padding:5px 6px 6px;}
+      .ctc-play-icon{font-size:1.2rem;}
 
       /* Filter chips: scroll orizzontale senza wrap — nessuna riga extra */
       .course-filter-chips{
@@ -303,11 +406,10 @@
 
     /* ── 390px e sotto (iPhone 14/15 standard) ─────────────── */
     @media(max-width:390px){
-      .dash-greeting{font-size:1.6rem;}
-      .dash-section-title{font-size:1.05rem;}
-      /* Card ancora più strette per mostrare 1.4 card */
-      #course-sections .course-card{width:180px;}
-      .continua-card{width:180px;}
+      .dash-section-title{font-size:.95rem;}
+      /* Card ancora più strette su 390px */
+      #course-sections .course-card,
+      .continua-thumb-card{ width:100px; }
       /* Spaziatura ancora più compatta */
       .dash-section{margin-bottom:24px;}
       .courses-row{gap:10px;}
@@ -1070,6 +1172,8 @@ function renderRow(id, courses, tier) {
   el.innerHTML = courses.map(c =>
     isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
   ).join('');
+  // Carica thumbnail Vimeo per tutte le fan-card-header su mobile
+  setTimeout(_loadAllDashboardThumbnails, 0);
 }
 
 /* ── Card "Continua a guardare" — stile Netflix ───────────────
@@ -1077,46 +1181,118 @@ function renderRow(id, courses, tier) {
    · barra di avanzamento ROSSA (via CSS su #row-continua)
    · badge percentuale sovrimpresso sull'header
    · "▶ Riprendi" nel footer
-   Usa LANG_GRADIENTS, LANG_DOT_COLORS e getLevelLabel da app.js. */
+   Usa GLV_LANG_GRADIENTS per il fallback cromatico.
+   La thumbnail reale viene caricata in async da Vimeo dopo il render. */
+
+/* Cache thumbnail Vimeo in memoria per evitare fetch doppie */
+const _vimeoThumbCache = {};
+
+/* Carica thumbnail Vimeo in modo asincrono (best-effort, no auth).
+   Usa l'API pubblica v2 di Vimeo. Imposta backgroundImage sull'elemento
+   passato — funziona sia per .ctc-thumb che per .fan-card-header. */
+function _loadVimeoThumb(videoId, thumbEl) {
+  if (!videoId || !thumbEl) return;
+
+  // Se la thumbnail è già in cache, applicala subito
+  if (_vimeoThumbCache[videoId]) {
+    _applyThumb(_vimeoThumbCache[videoId], thumbEl);
+    return;
+  }
+
+  fetch(`https://vimeo.com/api/v2/video/${videoId}.json`)
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      const url = data && data[0] && (data[0].thumbnail_large || data[0].thumbnail_medium);
+      if (url) {
+        _vimeoThumbCache[videoId] = url;
+        _applyThumb(url, thumbEl);
+      }
+    })
+    .catch(() => {}); // fallback silenzioso: resta il gradient
+}
+
+function _applyThumb(url, el) {
+  const img = new Image();
+  img.onload = () => {
+    // Sostituisce il gradient con la vera thumbnail
+    el.style.background = '';
+    el.style.backgroundColor = '#111';
+    el.style.backgroundImage = `url('${url}')`;
+    el.style.backgroundSize  = 'cover';
+    el.style.backgroundPosition = 'center';
+    el.classList.add('ctc-has-thumb');
+  };
+  img.src = url;
+}
+
+/* Carica thumbnail per TUTTE le fan-card-header nel course-sections.
+   Chiamato dopo ogni renderRow / renderContinuaRow. Solo su mobile (≤640px). */
+function _loadAllDashboardThumbnails() {
+  if (window.innerWidth > 640) return; // solo mobile
+  if (!_allCourses || !_allCourses.length) return;
+
+  // Mappa slug → videoId per lookup O(1)
+  const vidBySlug = {};
+  for (const c of _allCourses) {
+    if (c.firstVimeoUrl && c.slug) {
+      const m = c.firstVimeoUrl.match(/vimeo\.com\/(\d+)/);
+      if (m) vidBySlug[c.slug] = m[1];
+    }
+  }
+
+  // Tutte le course-card nella dashboard (fan-card-header e ctc-thumb)
+  const view = document.getElementById('dashboard-view') || document;
+  view.querySelectorAll('#course-sections .course-card').forEach(card => {
+    const slug = card.dataset.slug;
+    if (!slug || !vidBySlug[slug]) return;
+    const header = card.querySelector('.fan-card-header');
+    if (header) _loadVimeoThumb(vidBySlug[slug], header);
+  });
+}
+
 function buildContinuaCard(course) {
-  const slug     = course.slug || course.id;
-  const grad     = (typeof LANG_GRADIENTS !== 'undefined' ? LANG_GRADIENTS[course.lang] : null)
-                   || 'linear-gradient(155deg,#1a1a2e,#0d0d1a)';
-  const pct      = course.progressPercent || 0;
-  const dot      = (typeof LANG_DOT_COLORS !== 'undefined' ? LANG_DOT_COLORS[course.lang] : null)
-                   || '#555555';
-  const levelLbl = typeof getLevelLabel === 'function' ? getLevelLabel(course.level) : (course.level || '');
-  const newBadge = course.isNew ? '<span class="fan-card-badge-new">NUOVO</span>' : '';
-  const metaText = course.hours
-    ? `${course.hours} ore · Attestato incluso`
-    : (course.teacher || '');
+  const slug   = course.slug || course.id;
+  const grad   = GLV_LANG_GRADIENTS[(course.lang||'').toLowerCase()]
+                 || 'linear-gradient(155deg,#1a1a2e,#0d0d1a)';
+  const pct    = course.progressPercent || 0;
+  const cardId = 'ctc-' + slug.replace(/[^a-z0-9]/gi, '-');
+
+  // Estrae il video ID Vimeo dalla URL della prima lezione (es. "https://vimeo.com/861030827" → "861030827")
+  let vimeoId = null;
+  if (course.firstVimeoUrl) {
+    const m = course.firstVimeoUrl.match(/vimeo\.com\/(\d+)/);
+    if (m) vimeoId = m[1];
+  }
+
+  // Pianifica il caricamento async della thumbnail dopo che il DOM è aggiornato
+  if (vimeoId) {
+    setTimeout(() => {
+      const card = document.getElementById(cardId);
+      if (card) _loadVimeoThumb(vimeoId, card.querySelector('.ctc-thumb'));
+    }, 0);
+  }
 
   return `
-  <div class="course-card continua-card"
+  <div class="continua-thumb-card"
+       id="${cardId}"
        data-slug="${slug}"
-       data-lingua="${(course.lang||'').toLowerCase()}"
-       data-livello="${(course.level||'').toLowerCase()}"
        onclick="openCourseView('${slug}')"
        role="button" tabindex="0"
        aria-label="Continua: ${course.title} — ${pct}% completato"
        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openCourseView('${slug}')}">
-    <div class="fan-card-header" style="background:${grad};">
-      ${newBadge}
-      <div class="fan-card-level">${course.lang === 'Corsi Brevi' ? course.lang : `${course.lang} · ${course.level}`}</div>
-      <div class="fan-card-lang">${levelLbl}</div>
-      <span class="continua-pct-badge" aria-hidden="true">${pct}%</span>
-      <div class="fan-card-progress">
-        <div class="fan-card-progress-bar" style="width:${pct}%"></div>
+    <div class="ctc-thumb" style="background:${grad};">
+      <span class="ctc-play-icon" aria-hidden="true">▶</span>
+      <div class="ctc-progress-wrap">
+        <div class="ctc-progress-bar" style="width:${pct}%"></div>
       </div>
     </div>
-    <div class="fan-card-body">
-      <div class="fan-card-title card-title">${course.title}</div>
-      <div class="fan-card-meta">${metaText}</div>
-    </div>
-    <div class="fan-card-footer">
-      <div class="fan-card-dot" style="background:${dot};"></div>
-      <span class="fan-card-status">${course.lang}</span>
-      <span class="continua-resume-hint" aria-hidden="true">▶ Riprendi</span>
+    <div class="ctc-info">
+      <div class="ctc-title">${course.title}</div>
+      <div class="ctc-meta">
+        <span>${pct}% completato</span>
+        <span>·</span>
+        <span class="ctc-resume">▶ Riprendi</span>
+      </div>
     </div>
   </div>`;
 }

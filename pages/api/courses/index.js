@@ -33,6 +33,21 @@ export default withAuth(async function handler(req, res) {
       },
     });
 
+    // Recupera la prima lezione con vimeoUrl per ogni corso (per thumbnail Netflix)
+    const courseIds = courses.map(c => c.id);
+    const firstLessonsRaw = await prisma.lesson.findMany({
+      where: { courseId: { in: courseIds }, vimeoUrl: { not: null } },
+      orderBy: { sortOrder: 'asc' },
+      select: { courseId: true, vimeoUrl: true },
+    });
+    // Tieni solo la prima lezione trovata per ogni corso
+    const firstVimeoUrlByCourse = {};
+    for (const l of firstLessonsRaw) {
+      if (!firstVimeoUrlByCourse[l.courseId]) {
+        firstVimeoUrlByCourse[l.courseId] = l.vimeoUrl;
+      }
+    }
+
     // Calcola isExpiringSoon lato server (< 14 giorni dall'accesso abbonato)
     const enriched = courses.map(c => {
       let isExpiringSoon = false;
@@ -49,6 +64,7 @@ export default withAuth(async function handler(req, res) {
         lessonCount: c._count.lessons,
         isExpiringSoon,
         isExpired,
+        firstVimeoUrl: firstVimeoUrlByCourse[c.id] || null,
         _count: undefined,
       };
     });
