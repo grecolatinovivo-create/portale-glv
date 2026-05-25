@@ -252,6 +252,36 @@
     /* Handle bottom-sheet pellicola — nascosto su desktop */
     .course-sheet-handle{ display:none; }
 
+    /* ── Skeleton loading card ──────────────────────────────── */
+    @keyframes skel-shine{
+      to{ background-position:200% center; }
+    }
+    .skeleton-card{
+      flex-shrink:0; border-radius:8px; overflow:hidden;
+      width:190px; background:var(--dark-3);
+    }
+    .skeleton-thumb{
+      height:108px;
+      background:linear-gradient(90deg,#1c1c1c 25%,#2a2a2a 50%,#1c1c1c 75%);
+      background-size:200% 100%;
+      animation:skel-shine 1.6s linear infinite;
+    }
+    .skeleton-body{ padding:8px 10px 10px; }
+    .skeleton-line{
+      height:9px; border-radius:4px; margin-bottom:6px;
+      background:linear-gradient(90deg,#1c1c1c 25%,#2a2a2a 50%,#1c1c1c 75%);
+      background-size:200% 100%;
+      animation:skel-shine 1.6s linear infinite;
+    }
+    .skeleton-line--short{ width:55%; margin-bottom:0; }
+    @media(max-width:640px){
+      .skeleton-card{ width:108px; }
+      .skeleton-thumb{ height:60px; }
+    }
+    @media(prefers-reduced-motion:reduce){
+      .skeleton-thumb,.skeleton-line{ animation:none; }
+    }
+
     /* Footer */
     .dash-footer{
       padding:40px 48px;border-top:1px solid var(--border);
@@ -510,10 +540,10 @@
         flex:1;
       }
 
-      /* Spazio in fondo al contenuto corso: il video si può scrollare
-         sopra il drawer anche quando è espanso (45vh) */
+      /* Il bottom-sheet è position:fixed → non influenza il document flow.
+         Basta 60px per non finire sotto la maniglia (44px handle + 16px aria). */
       .course-view-inner{
-        padding-bottom:calc(45vh + 16px) !important;
+        padding-bottom:60px !important;
       }
     }
 
@@ -1603,6 +1633,25 @@ function injectAdminPanel(currentTier) {
   });
 }
 
+/* ── Skeleton cards — placeholder durante il fetch corsi ───── */
+function _injectSkeletons() {
+  const skelCard = `
+    <div class="skeleton-card" aria-hidden="true">
+      <div class="skeleton-thumb"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line skeleton-line--short"></div>
+      </div>
+    </div>`;
+  const skelRow = skelCard.repeat(5); // 5 placeholder per riga
+  const rows = ['row-per-te','row-latino','row-greco',
+                'row-egiziano','row-ebraico','row-brevi','row-didattica'];
+  rows.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = skelRow;
+  });
+}
+
 /* ── Show dashboard ───────────────────────────────────────── */
 async function showDashboard() {
   document.getElementById('glv-quiz').classList.add('hidden');
@@ -1650,6 +1699,9 @@ async function showDashboard() {
   window.addEventListener('scroll', () => {
     document.getElementById('dash-nav').classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
+
+  // Mostra skeleton nelle righe mentre i corsi caricano
+  _injectSkeletons();
 
   // Corsi — carica e metti in cache globale
   try { _allCourses = await Courses.getAll(); } catch { _allCourses = []; }
