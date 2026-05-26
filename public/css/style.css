@@ -4346,3 +4346,168 @@ body.has-corso-cta { padding-bottom: 80px; }
   .ai-panel { transition: none !important; }
   .ai-typing-dots span { animation: none !important; opacity: 1 !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   AI PANEL — Raffinamento v2 (UX + Neuro spec)
+══════════════════════════════════════════════════════════════════ */
+
+/* ── Bubble utente: oro invece di rosso (rosso = errore/brand) ─── */
+.ai-msg--user {
+  background: rgba(201,150,42,.15) !important;
+  border: 1px solid rgba(201,150,42,.2);
+}
+
+/* ── Label Magistro nelle risposte AI ───────────────────────────── */
+.ai-msg--ai .ai-msg-label {
+  color: var(--gold);
+  letter-spacing: .07em;
+}
+
+/* ── Close button interno al pannello ───────────────────────────── */
+.ai-close-btn {
+  margin-left: auto;
+  width: 26px; height: 26px;
+  background: transparent;
+  border: none; border-radius: 6px;
+  color: rgba(245,245,245,.35);
+  font-size: .9rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.ai-close-btn:hover { background: rgba(255,255,255,.07); color: rgba(245,245,245,.8); }
+
+/* Tab bar ridisegnata per ospitare il close button */
+.ai-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  flex-shrink: 0;
+  padding-right: 8px;
+}
+
+/* ── Chip domande suggerite ─────────────────────────────────────── */
+.ai-chips-wrap {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 14px;
+}
+.ai-chips-label {
+  font-family: 'Inter', sans-serif;
+  font-size: .65rem; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: rgba(245,245,245,.35);
+  margin-bottom: 2px;
+}
+.ai-suggested-chip {
+  padding: 8px 10px;
+  background: rgba(201,150,42,.07);
+  border: 1px solid rgba(201,150,42,.18);
+  border-radius: 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: .75rem; color: rgba(245,245,245,.7);
+  cursor: pointer; text-align: left; width: 100%;
+  transition: background .15s, border-color .15s, color .15s;
+  line-height: 1.4;
+}
+.ai-suggested-chip:hover {
+  background: rgba(201,150,42,.14);
+  border-color: rgba(201,150,42,.38);
+  color: rgba(245,245,245,.92);
+}
+.ai-chips-wrap.ai-chips--hidden { display: none; }
+
+/* ── Dot indicatore "lezione attiva" sul toggle tab ────────────── */
+.ai-panel-tab {
+  position: fixed; /* già impostato — aggiungiamo il dot */
+}
+.ai-ready-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #3db05b;
+  border: 1.5px solid #141414; /* stesso sfondo del pannello */
+  opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+  animation: ai-dot-pulse 2.2s ease-in-out infinite;
+}
+.ai-panel-tab.ai-has-lesson .ai-ready-dot { opacity: 1; }
+@keyframes ai-dot-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(61,176,91,.5); }
+  50%       { box-shadow: 0 0 0 4px rgba(61,176,91,0); }
+}
+
+/* Il toggle deve avere position:relative per il dot assoluto */
+.ai-panel-tab { position: fixed !important; }
+
+/* ── FAB dot indicatore (mobile) ────────────────────────────────── */
+.ai-fab {
+  position: relative;
+}
+.ai-fab .ai-ready-dot {
+  top: 3px; right: 3px;
+  border-color: var(--bg, #0a0a0a);
+}
+
+/* ── Quiz opzioni — stagger fade-in ─────────────────────────────── */
+.ai-quiz-opt {
+  opacity: 0;
+  animation: ai-opt-appear .3s ease forwards;
+}
+@keyframes ai-opt-appear {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Risposta corretta: micro-bounce ──────────────────────────────── */
+.ai-quiz-opt--correct {
+  animation: ai-correct-bounce .35s cubic-bezier(.36,.07,.19,.97) both !important;
+}
+@keyframes ai-correct-bounce {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.03); }
+  60%  { transform: scale(.98); }
+  100% { transform: scale(1); }
+}
+
+/* ── Score finale ───────────────────────────────────────────────── */
+.ai-quiz-score {
+  background: rgba(201,150,42,.08);
+  border: 1px solid rgba(201,150,42,.2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+.ai-quiz-score-main {
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem; font-weight: 700;
+  color: var(--gold-lt);
+  margin-bottom: 4px;
+}
+.ai-quiz-score-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: .75rem;
+  color: rgba(245,245,245,.55);
+  line-height: 1.5;
+}
+.ai-quiz-score-counter {
+  font-size: 1.6rem; font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  color: var(--gold);
+  display: block; margin-bottom: 6px;
+}
+
+/* ── Context bar con dot lingua ─────────────────────────────────── */
+.ai-lang-dot {
+  display: inline-block;
+  width: 7px; height: 7px; border-radius: 50%;
+  margin-right: 6px; flex-shrink: 0;
+  vertical-align: middle;
+  position: relative; top: -1px;
+}
+
+/* ── Reduce motion — override delle nuove animazioni ───────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ai-quiz-opt { animation: none !important; opacity: 1 !important; }
+  .ai-ready-dot { animation: none !important; }
+  .ai-quiz-opt--correct { animation: none !important; }
+}
