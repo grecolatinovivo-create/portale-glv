@@ -17,9 +17,11 @@ import { withAuth } from '../../../lib/auth.js';
 import { prisma }   from '../../../lib/prisma.js';
 import { put }      from '@vercel/blob';
 
-const IMAGEN_MODEL    = 'imagen-3.0-fast-generate-001';
-const IMAGEN_ENDPOINT = (key) =>
-  `https://generativelanguage.googleapis.com/v1beta/models/${IMAGEN_MODEL}:predict?key=${key}`;
+// gemini-2.0-flash-exp-image-generation: funziona con standard Gemini API key,
+// a differenza di imagen-3.0-fast che richiede accesso Imagen separato.
+const GEMINI_IMG_MODEL    = 'gemini-2.0-flash-preview-image-generation';
+const GEMINI_IMG_ENDPOINT = (key) =>
+  `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMG_MODEL}:generateContent?key=${key}`;
 
 /* ── Helper: slug per nomi file Blob ────────────────────────────── */
 function slugify(str) {
@@ -50,24 +52,27 @@ function buildImagePrompt(term, semanticField, contextSentences, lang) {
   );
 }
 
-/* ── Genera immagine con Imagen 3 Fast ──────────────────────────── */
+/* ── Genera immagine con Gemini 2.0 Flash (image generation) ──── */
 async function generateImage(apiKey, prompt) {
-  const response = await fetch(IMAGEN_ENDPOINT(apiKey), {
+  const response = await fetch(GEMINI_IMG_ENDPOINT(apiKey), {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({
-      instances:  [{ prompt }],
-      parameters: { sampleCount: 1, aspectRatio: '1:1' }
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { responseModalities: ['IMAGE'] }
     })
   });
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Imagen API ${response.status}: ${errText.substring(0, 200)}`);
+    throw new Error(`Gemini image-gen ${response.status}: ${errText.substring(0, 300)}`);
   }
 
   const data = await response.json();
-  return data?.predictions?.[0]?.bytesBase64Encoded || null;
+  // La risposta ha parts con inlineData invece di predictions
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  const imgPart = parts.find(p => p.inlineData?.mimeType?.startsWith('image/'));
+  return imgPart?.inlineData?.data || null;
 }
 
 /* ── Handler ─────────────────────────────────────────────────────── */
