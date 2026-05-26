@@ -878,32 +878,37 @@
 
     /* ── FASE 1: Incontro ── */
     .vocab-encounter {
-      padding: 16px;
+      padding: 0;
     }
     .vocab-word-counter {
       font-family: 'Inter', sans-serif;
       font-size: .72rem;
       color: rgba(255,255,255,.35);
       text-align: center;
-      margin-bottom: 16px;
+      padding: 16px 16px 12px;
       letter-spacing: .04em;
     }
     .vocab-card {
       background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      border-radius: 0;
       overflow: hidden;
     }
     .vocab-card-image {
       width: 100%;
+      max-width: 100%;
       aspect-ratio: 2 / 1;
       height: auto;
-      object-fit: contain;
+      object-fit: cover;
       display: block;
       background: #f5f0e8;
+      margin: 0;
+      padding: 0;
     }
     .vocab-card-image-placeholder {
       width: 100%;
+      max-width: 100%;
       aspect-ratio: 2 / 1;
       height: auto;
       background: linear-gradient(135deg, rgba(201,150,42,.08), rgba(201,150,42,.03));
