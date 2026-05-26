@@ -17,9 +17,9 @@ import { withAuth } from '../../../lib/auth.js';
 import { prisma }   from '../../../lib/prisma.js';
 import { put }      from '@vercel/blob';
 
-// gemini-2.0-flash-exp-image-generation: funziona con standard Gemini API key,
-// a differenza di imagen-3.0-fast che richiede accesso Imagen separato.
-const GEMINI_IMG_MODEL    = 'gemini-2.0-flash-preview-image-generation';
+// Nano Banana (gemini-2.5-flash-image): modello stabile per image generation
+// via standard Gemini API key — stessa key usata per il testo.
+const GEMINI_IMG_MODEL    = 'gemini-2.5-flash-image';
 const GEMINI_IMG_ENDPOINT = (key) =>
   `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMG_MODEL}:generateContent?key=${key}`;
 

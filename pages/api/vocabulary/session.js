@@ -28,7 +28,7 @@ import { prisma }   from '../../../lib/prisma.js';
 import { put }      from '@vercel/blob';
 
 /* ── Costanti ────────────────────────────────────────────────────── */
-const GEMINI_IMG_MODEL = 'gemini-2.0-flash-preview-image-generation';
+const GEMINI_IMG_MODEL = 'gemini-2.5-flash-image'; // Nano Banana — stabile
 const GEMINI_MODEL     = 'gemini-2.0-flash';
 
 const GEMINI_IMG_ENDPOINT = (key) =>
