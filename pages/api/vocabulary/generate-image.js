@@ -43,14 +43,15 @@ function buildImagePrompt(term, semanticField, contextSentences, lang) {
     : semanticField || term;
 
   return (
-    `Simple, clean educational illustration for a children's Latin primer (like an old Italian sussidiario). ` +
-    `Subject: a single clear object or figure from ${culture} daily life representing the word "${term}" ` +
-    `as used in context: "${ctx}". ` +
-    `Style: flat, minimal illustration with soft warm colors, slightly textured paper feel, ` +
-    `uncluttered composition, generous white space. ` +
-    `Absolutely NO text, NO letters, NO labels, NO watermarks, NO captions anywhere in the image. ` +
-    `One single subject centered on a plain cream or white background. ` +
-    `The image must be immediately readable at a glance — like a visual dictionary entry.`
+    `Children's book illustration style, like a 1950s Italian elementary school primer (sussidiario). ` +
+    `Draw: one single object or character from ${culture} daily life that represents "${term}" ` +
+    `(context: "${ctx}"). ` +
+    `Style: hand-drawn line art with flat watercolor fills, warm muted palette, ` +
+    `simple shapes, like Lele Luzzati or old Einaudi children's books. ` +
+    `Plain white or cream background, no scenery, no decorations, no text. ` +
+    `NOT photorealistic. NOT a photograph. NOT a sculpture. NOT a museum piece. ` +
+    `NO text, NO letters, NO numbers, NO labels anywhere. ` +
+    `Just one clear, simple illustration of the concept, centered, with generous white space around it.`
   );
 }
 
