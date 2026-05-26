@@ -32,3 +32,13 @@ yarn-error.log*
 
 # Vercel
 .vercel
+
+# Cartella con file di migrazione da latin-cert (FTP dump, assets pesanti)
+latin-cert-files/
+www.latin-cert.org/
+
+# File di lavoro locale — non servono in repository
+corsi_brevi_vimeo copia.xlsx
+lezioni_per_corso.md
+scan_links.py
+ROLLBACK_QUERIES.sql
