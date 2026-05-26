@@ -736,21 +736,108 @@
     .vocab-modal-close:hover { background: rgba(255,255,255,.14); color: #fff; }
 
     /* Progress bar fasi */
+    /* Progress bar esercizi (sostituisce le 3 pip fase fissa) */
     .vocab-phase-bar {
-      display: flex;
-      gap: 4px;
       padding: 0 20px 14px;
       flex-shrink: 0;
     }
-    .vocab-phase-pip {
-      flex: 1;
+    .vocab-progress-track {
       height: 3px;
       border-radius: 2px;
       background: rgba(255,255,255,.1);
-      transition: background .3s;
+      position: relative;
+      overflow: hidden;
     }
-    .vocab-phase-pip.active   { background: rgba(201,150,42,.8); }
-    .vocab-phase-pip.done     { background: rgba(201,150,42,.35); }
+    .vocab-progress-fill {
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      background: rgba(201,150,42,.8);
+      border-radius: 2px;
+      transition: width .4s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* Badge ripasso cross-capitolo */
+    .vocab-review-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      color: rgba(201,150,42,.85);
+      background: rgba(201,150,42,.1);
+      border: 1px solid rgba(201,150,42,.2);
+      border-radius: 20px;
+      padding: 3px 10px 3px 7px;
+      margin-bottom: 14px;
+      letter-spacing: .02em;
+    }
+
+    /* Recognition — livello 2 */
+    .vocab-recognition {
+      padding: 20px;
+    }
+    .vocab-recognition-prompt {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1rem;
+      color: rgba(255,255,255,.55);
+      line-height: 1.7;
+      border-left: 2px solid rgba(201,150,42,.25);
+      padding-left: 12px;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+    .vocab-recognition-question {
+      font-family: 'Inter', sans-serif;
+      font-size: .78rem;
+      color: rgba(255,255,255,.35);
+      text-align: center;
+      margin-bottom: 14px;
+      letter-spacing: .04em;
+    }
+    .vocab-recognition-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .vocab-recognition-option {
+      background: rgba(255,255,255,.04);
+      border: 1.5px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 14px 12px;
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1.25rem;
+      color: rgba(255,255,255,.85);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .vocab-recognition-option:hover:not([disabled]) {
+      border-color: rgba(201,150,42,.45);
+      background: rgba(201,150,42,.06);
+      transform: translateY(-1px);
+    }
+    .vocab-recognition-option[disabled] { cursor: default; }
+    .vocab-recognition-option.correct {
+      border-color: #3db05b;
+      background: rgba(61,176,91,.1);
+      color: #3db05b;
+    }
+    .vocab-recognition-option.wrong {
+      border-color: rgba(220,60,60,.5);
+      background: rgba(220,60,60,.07);
+      color: rgba(220,60,60,.75);
+    }
+    .vocab-recognition-feedback {
+      text-align: center;
+      font-family: 'Inter', sans-serif;
+      font-size: .82rem;
+      margin-top: 14px;
+      min-height: 20px;
+    }
+    .vocab-recognition-feedback.ok  { color: #3db05b; }
+    .vocab-recognition-feedback.err { color: rgba(220,60,60,.8); }
 
     /* Body scrollabile */
     .vocab-modal-body {
@@ -1704,24 +1791,24 @@
 
   </div><!-- /.dash-spa-wrapper -->
 
-  <!-- ══ LESSICO DELLA LEZIONE — Modal acquisizione 3 fasi ════════ -->
+  <!-- ══ LESSICO DELLA LEZIONE — Modal acquisizione adattiva ══════ -->
   <div id="vocab-modal-overlay" role="dialog" aria-modal="true"
        aria-label="Acquisizione lessicale" aria-hidden="true">
     <div id="vocab-modal-card">
 
       <!-- Header -->
       <div class="vocab-modal-header">
-        <span class="vocab-modal-phase-label" id="vocab-phase-label">Fase 1</span>
-        <span class="vocab-modal-title" id="vocab-modal-title">Incontro con le parole</span>
+        <span class="vocab-modal-phase-label" id="vocab-phase-label">Carico…</span>
+        <span class="vocab-modal-title" id="vocab-modal-title">Lessico della lezione</span>
         <button class="vocab-modal-close" id="vocab-modal-close"
                 type="button" aria-label="Chiudi">✕</button>
       </div>
 
-      <!-- Progress bar fasi -->
+      <!-- Progress bar esercizi -->
       <div class="vocab-phase-bar" aria-hidden="true">
-        <div class="vocab-phase-pip active" id="vocab-pip-1"></div>
-        <div class="vocab-phase-pip"        id="vocab-pip-2"></div>
-        <div class="vocab-phase-pip"        id="vocab-pip-3"></div>
+        <div class="vocab-progress-track">
+          <div class="vocab-progress-fill" id="vocab-progress-fill" style="width:0%"></div>
+        </div>
       </div>
 
       <!-- Body (contenuto dinamico) -->
@@ -5986,29 +6073,31 @@ function _closeTooltipOutside(e) {
 (function() {
   'use strict';
 
-  /* ── Stato interno ─────────────────────────────────────────────── */
-  const _vocab = {
+  /* ── Stato adattivo ─────────────────────────────────────────────── */
+  const _va = {
     lessonId:     null,
-    words:        [],      // [{term, meaning, notes, imageUrl, contextSentence}]
-    textFragment: null,
+    queue:        [],      // array di exercise items da adaptive-session
+    queueIdx:     0,       // esercizio corrente
+    results:      [],      // [{term, level, correct}]
+    courseLang:   '',
     lessonTitle:  '',
     courseTitle:  '',
-    courseLang:   '',
-    phase:        1,       // 1=Incontro 2=Lettura 3=Cloze 4=Risultato
-    wordIdx:      0,       // indice parola corrente in fase 1
-    wordsSeen:    new Set(),
-    clozeItems:   [],      // [{term, sentence, blankSentence, options, correctIdx, answered, correct}]
-    clozeCorrect: 0,
-    loading:      false,
+    textFragment: null,
     open:         false,
-    saveStatus:   'idle',  // 'idle'|'saving'|'done'|'error'
+    loading:      false,
+    answered:     false,   // ha risposto all'esercizio corrente?
   };
+
+  // Retrocompatibilità: le funzioni che usano _vocab restano raggiungibili
+  // ma il nuovo codice usa _va
+  const _vocab = _va;
 
   /* ── Helpers DOM ───────────────────────────────────────────────── */
   const el  = id => document.getElementById(id);
   const esc = s  => {
+    if (s === null || s === undefined) return '';
     const d = document.createElement('div');
-    d.textContent = s;
+    d.textContent = String(s);
     return d.innerHTML;
   };
 
@@ -6026,7 +6115,7 @@ function _closeTooltipOutside(e) {
   function openVocabModal() {
     const overlay = el('vocab-modal-overlay');
     if (!overlay) return;
-    _vocab.open = true;
+    _va.open = true;
     overlay.classList.add('vocab-modal--visible');
     overlay.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
@@ -6035,32 +6124,27 @@ function _closeTooltipOutside(e) {
   function closeVocabModal() {
     const overlay = el('vocab-modal-overlay');
     if (!overlay) return;
-    _vocab.open = false;
+    _va.open = false;
     overlay.classList.remove('vocab-modal--visible');
     overlay.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
   }
 
-  /* ── Aggiorna header (fase + titolo) ───────────────────────────── */
-  function updateHeader(phase) {
-    const labels = { 1: 'Fase 1 · Incontro', 2: 'Fase 2 · Lettura', 3: 'Fase 3 · Output', 4: 'Completato' };
-    const titles = { 1: 'Incontro con le parole', 2: 'Lettura del testo', 3: 'Prova a richiamare', 4: 'Sessione completata' };
-    const phaseEl = el('vocab-phase-label');
-    const titleEl = el('vocab-modal-title');
-    if (phaseEl) phaseEl.textContent = labels[phase] || '';
-    if (titleEl) titleEl.textContent = titles[phase] || '';
+  /* ── Aggiorna header e progress bar ───────────────────────────────── */
+  function updateProgress() {
+    const total    = _va.queue.length;
+    const current  = Math.min(_va.queueIdx + 1, total);
+    const phaseLbl = el('vocab-phase-label');
+    const titleLbl = el('vocab-modal-title');
+    const fill     = el('vocab-progress-fill');
+    const pct      = total > 0 ? Math.round((current / total) * 100) : 0;
 
-    // Aggiorna le pip
-    [1, 2, 3].forEach(p => {
-      const pip = el(`vocab-pip-${p}`);
-      if (!pip) return;
-      pip.className = 'vocab-phase-pip';
-      if (p < phase || phase === 4) pip.classList.add('done');
-      else if (p === phase) pip.classList.add('active');
-    });
+    if (phaseLbl) phaseLbl.textContent = total > 0 ? `${current} di ${total}` : '…';
+    if (titleLbl) titleLbl.textContent = _va.lessonTitle || 'Lessico della lezione';
+    if (fill)     fill.style.width = `${pct}%`;
   }
 
-  /* ── Mostra loading ────────────────────────────────────────────── */
+  /* ── Loading message nel body ──────────────────────────────────────── */
   function showLoading(msg) {
     const body = el('vocab-modal-body');
     if (!body) return;
@@ -6071,425 +6155,401 @@ function _closeTooltipOutside(e) {
       </div>`;
   }
 
-  /* ═══════════════════════════════════════════════════════════════
-     FASE 1 — Incontro
-  ═══════════════════════════════════════════════════════════════ */
-  function renderPhase1() {
-    _vocab.phase  = 1;
-    _vocab.wordIdx = 0;
-    updateHeader(1);
-
-    const footer = el('vocab-modal-footer');
-    const prev   = el('vocab-btn-prev');
-    const next   = el('vocab-btn-next');
-    if (prev) prev.style.display = 'inline-flex';
-    if (next) next.textContent = 'Avanti →';
-    renderWordCard(_vocab.wordIdx);
+  /* ── Utilità lingua ────────────────────────────────────────────────── */
+  function _isGreek(lang) {
+    return lang && lang.toLowerCase().includes('grec');
+  }
+  function _langEmoji(lang, term) {
+    if (_isGreek(lang)) return '🏛️';
+    const t = (term || '').toLowerCase();
+    if (/villa|domus|casa/.test(t))    return '🏛️';
+    if (/toga|vestis|vestim/.test(t))  return '👘';
+    if (/aqua|flumen|mare/.test(t))    return '🌊';
+    if (/pater|mater|fili/.test(t))    return '👨‍👩‍👧';
+    if (/miles|bellum|arma/.test(t))   return '⚔️';
+    if (/liber|scribit|legit/.test(t)) return '📜';
+    if (/deus|templu|sacrum/.test(t))  return '🏺';
+    if (/via|iter/.test(t))            return '🛤️';
+    if (/forum|curia|senatus/.test(t)) return '🏟️';
+    return '📖';
   }
 
-  function renderWordCard(idx) {
-    const body  = el('vocab-modal-body');
-    const prev  = el('vocab-btn-prev');
-    const next  = el('vocab-btn-next');
+  /* ── Ottieni la prima frase di contesto disponibile ──────────────── */
+  function getContextSentence(item) {
+    if (Array.isArray(item.contextSentences) && item.contextSentences.length > 0) {
+      return item.contextSentences[0];
+    }
+    return item.contextSentence || null;
+  }
+
+  /* ── Badge ripasso cross-capitolo ────────────────────────────────── */
+  function reviewBadgeHtml(item) {
+    if (!item.isReview) return '';
+    const title = item.sourceLessonTitle || 'Lezione precedente';
+    return `<div class="vocab-review-badge">♻ Ripasso · ${esc(title)}</div>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LIVELLO 1 — Encounter: immagine + termine + contesto
+  ═══════════════════════════════════════════════════════════════ */
+  function renderEncounter(item) {
+    const body = el('vocab-modal-body');
     if (!body) return;
 
-    const words = _vocab.words;
-    if (!words.length) return;
-    idx = Math.max(0, Math.min(idx, words.length - 1));
-    _vocab.wordIdx = idx;
-    _vocab.wordsSeen.add(idx);
-
-    const word = words[idx];
-    const isLast = idx === words.length - 1;
-
-    // Aggiorna navigazione footer
-    if (prev) prev.style.display = idx > 0 ? 'inline-flex' : 'none';
-    if (next) next.textContent   = isLast ? 'Continua con la lettura →' : `Prossima (${idx + 1}/${words.length})`;
-
-    // Immagine o placeholder emoji
-    const imgHtml = word.imageUrl
-      ? `<img class="vocab-card-image" src="${esc(word.imageUrl)}"
-              alt="${esc(word.term)}" loading="lazy"
+    const sentence  = getContextSentence(item);
+    const imgHtml   = item.imageUrl
+      ? `<img class="vocab-card-image" src="${esc(item.imageUrl)}"
+              alt="${esc(item.term)}" loading="lazy"
               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
       : '';
-    const placeholderEmoji = _langEmoji(_vocab.courseLang, word.term);
-    const placeholderHtml = `
-      <div class="vocab-card-image-placeholder" style="${word.imageUrl ? 'display:none' : ''}">
-        ${placeholderEmoji}
+    const emoji     = _langEmoji(_va.courseLang, item.term);
+    const placeHtml = `
+      <div class="vocab-card-image-placeholder" style="${item.imageUrl ? 'display:none' : ''}">
+        ${emoji}
       </div>`;
 
-    // Frase di contesto
-    const sentenceHtml = word.contextSentence
-      ? `<div class="vocab-card-sentence">${esc(word.contextSentence)}</div>`
+    const sentenceHtml = sentence
+      ? `<div class="vocab-card-sentence">${esc(sentence)}</div>`
       : '';
-
-    // Note opzionali
-    const notesHtml = word.notes
-      ? `<div class="vocab-card-notes">ℹ ${esc(word.notes)}</div>`
-      : '';
-
-    // Dots di navigazione
-    const dotsHtml = words.length > 1
-      ? `<div class="vocab-nav-dots" aria-hidden="true">
-          ${words.map((_, i) => `
-            <div class="vocab-nav-dot ${i === idx ? 'active' : _vocab.wordsSeen.has(i) ? 'seen' : ''}"></div>
-          `).join('')}
-        </div>`
+    const notesHtml = item.grammarNote
+      ? `<div class="vocab-card-notes">ℹ ${esc(item.grammarNote)}</div>`
       : '';
 
     body.innerHTML = `
       <div class="vocab-encounter">
-        <div class="vocab-word-counter">${idx + 1} di ${words.length} parole</div>
+        ${reviewBadgeHtml(item)}
         <div class="vocab-card">
           ${imgHtml}
-          ${placeholderHtml}
+          ${placeHtml}
           <div class="vocab-card-body">
-            <div class="vocab-card-term">${esc(word.term)}</div>
-            <div class="vocab-card-meaning">${esc(word.meaning)}</div>
+            <div class="vocab-card-term">${esc(item.term)}</div>
             ${sentenceHtml}
             ${notesHtml}
           </div>
         </div>
-        ${dotsHtml}
       </div>`;
-  }
 
-  /* ═══════════════════════════════════════════════════════════════
-     FASE 2 — Lettura con evidenziazione
-  ═══════════════════════════════════════════════════════════════ */
-  function renderPhase2() {
-    _vocab.phase = 2;
-    updateHeader(2);
-
+    // Footer: solo "Avanti" → registra come "visto"
     const next = el('vocab-btn-next');
     const prev = el('vocab-btn-prev');
-    if (next) next.textContent = 'Procedi con gli esercizi →';
     if (prev) prev.style.display = 'none';
+    if (next) {
+      next.textContent = 'Ho capito →';
+      next.disabled    = false;
+      next.style.display = 'inline-flex';
+    }
+    _va.answered = true; // Encounter non richiede risposta esplicita
+  }
 
+  /* ═══════════════════════════════════════════════════════════════════
+     LIVELLO 2 — Recognition: scegli il termine corretto tra 4 opzioni
+  ═══════════════════════════════════════════════════════════════ */
+  function renderRecognition(item) {
     const body = el('vocab-modal-body');
     if (!body) return;
 
-    // Se non c'è textFragment, salta alla fase 3
-    if (!_vocab.textFragment) {
-      renderPhase3();
-      return;
-    }
+    const sentence  = getContextSentence(item);
+    // Mostra la frase con un blank al posto del termine
+    const displaySentence = sentence
+      ? sentence.replace(new RegExp(item.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '______')
+      : null;
 
-    // Evidenzia i termini del vocabolario nel testo
-    let highlighted = esc(_vocab.textFragment);
-    const sortedWords = [..._vocab.words].sort((a, b) => b.term.length - a.term.length);
-    sortedWords.forEach(word => {
-      // Matching sulla radice (case-insensitive, evita doppia evidenziazione)
-      const safeRoot = word.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const re = new RegExp(`(${safeRoot})`, 'gi');
-      highlighted = highlighted.replace(re, (match) => {
-        return `<mark tabindex="0" aria-label="${esc(word.term)}: ${esc(word.meaning)}">`
-             + `${match}`
-             + `<span class="vocab-tooltip"><span class="vocab-tooltip-meaning">${esc(word.meaning)}</span></span>`
-             + `</mark>`;
-      });
+    // Opzioni: termine corretto + distrattori, mescolati
+    const distractors = Array.isArray(item.distractors)
+      ? item.distractors.filter(d => d && d !== '—' && d !== '——' && d !== '…' && d !== '· · ·')
+      : [];
+    const allOptions  = shuffle([item.term, ...distractors.slice(0, 3)]);
+
+    const optionsHtml = allOptions.map((opt, i) =>
+      `<button class="vocab-recognition-option" id="ropt-${i}"
+               type="button" onclick="_vocabRecognitionAnswer(${JSON.stringify(opt)}, ${JSON.stringify(item.term)})">
+         ${esc(opt)}
+       </button>`
+    ).join('');
+
+    const promptHtml = displaySentence
+      ? `<div class="vocab-recognition-prompt">${esc(displaySentence)}</div>`
+      : '';
+
+    body.innerHTML = `
+      <div class="vocab-recognition">
+        ${reviewBadgeHtml(item)}
+        ${promptHtml}
+        <p class="vocab-recognition-question">Qual è la parola mancante?</p>
+        <div class="vocab-recognition-grid">
+          ${optionsHtml}
+        </div>
+        <div class="vocab-recognition-feedback" id="recognition-feedback"></div>
+      </div>`;
+
+    // Footer: disabilitato finché non risponde
+    const next = el('vocab-btn-next');
+    const prev = el('vocab-btn-prev');
+    if (prev) prev.style.display = 'none';
+    if (next) {
+      next.textContent   = 'Avanti →';
+      next.disabled      = true;
+      next.style.display = 'inline-flex';
+    }
+    _va.answered = false;
+  }
+
+  /* Risposta recognition — definita in window per l'onclick inline */
+  window._vocabRecognitionAnswer = function(chosen, correct) {
+    if (_va.answered) return;
+    _va.answered = true;
+
+    const isCorrect = chosen === correct;
+
+    // Visualizza feedback sulle opzioni
+    document.querySelectorAll('.vocab-recognition-option').forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent.trim() === correct) {
+        btn.classList.add('correct');
+      } else if (btn.textContent.trim() === chosen && !isCorrect) {
+        btn.classList.add('wrong');
+      }
     });
 
-    // Pillole vocabolario
-    const pillsHtml = _vocab.words.map(w =>
-      `<span class="vocab-reading-pill"><strong>${esc(w.term)}</strong> · ${esc(w.meaning)}</span>`
+    const fb = el('recognition-feedback');
+    if (fb) {
+      fb.className  = 'vocab-recognition-feedback ' + (isCorrect ? 'ok' : 'err');
+      fb.textContent = isCorrect ? '✓ Esatto!' : `✗ Era: ${correct}`;
+    }
+
+    // Registra risposta nel SRS
+    const item = _va.queue[_va.queueIdx];
+    if (item) recordAnswer(item, isCorrect);
+
+    // Sblocca Avanti
+    const next = el('vocab-btn-next');
+    if (next) next.disabled = false;
+  };
+
+  /* ═══════════════════════════════════════════════════════════════════
+     LIVELLO 3 — Cloze: frase con blank, scegli il termine dalla bank
+  ═══════════════════════════════════════════════════════════════ */
+  function renderCloze(item) {
+    const body = el('vocab-modal-body');
+    if (!body) return;
+
+    const sentence = getContextSentence(item);
+
+    // Sostituisci la prima occorrenza del termine con il blank
+    let blankSentence = sentence
+      ? sentence.replace(
+          new RegExp(item.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+          `<span class="vocab-cloze-blank" id="cloze-blank">________</span>`
+        )
+      : `<span class="vocab-cloze-blank" id="cloze-blank">________</span>`;
+
+    // Word bank: termine corretto + distrattori mescolati
+    const distractors = Array.isArray(item.distractors)
+      ? item.distractors.filter(d => d && d !== '—' && d !== '——' && d !== '…' && d !== '· · ·')
+      : [];
+    const bankWords = shuffle([item.term, ...distractors.slice(0, 3)]);
+
+    const bankHtml = bankWords.map((w, i) =>
+      `<button class="vocab-cloze-option" id="copt-${i}"
+               type="button" onclick="_vocabClozeAnswer(${JSON.stringify(w)}, ${JSON.stringify(item.term)})">
+         ${esc(w)}
+       </button>`
     ).join('');
 
     body.innerHTML = `
-      <div class="vocab-reading">
-        <p class="vocab-reading-intro">
-          Le parole della lezione sono evidenziate nel testo.<br>
-          Tocca o passa sopra per rivedere il significato.
-        </p>
-        <div class="vocab-reading-text" lang="${_isGreek(_vocab.courseLang) ? 'el' : 'la'}">
-          ${highlighted}
-        </div>
-        <div class="vocab-reading-wordlist" aria-label="Parole chiave">
-          ${pillsHtml}
+      <div class="vocab-cloze">
+        ${reviewBadgeHtml(item)}
+        <p class="vocab-cloze-intro">Completa la frase con la parola giusta:</p>
+        <div class="vocab-cloze-item">
+          <div class="vocab-cloze-sentence">${blankSentence}</div>
+          <div class="vocab-cloze-bank">${bankHtml}</div>
+          <div class="vocab-cloze-feedback" id="cloze-feedback"></div>
         </div>
       </div>`;
-  }
 
-  /* ═══════════════════════════════════════════════════════════════
-     FASE 3 — Cloze (Output)
-  ═══════════════════════════════════════════════════════════════ */
-  function buildClozeItems() {
-    const words = _vocab.words;
-    if (!words.length) return [];
-
-    // Usa max 6 parole per la fase cloze
-    const selected = words.slice(0, Math.min(6, words.length));
-
-    return selected.map(word => {
-      // Frase base: usa contextSentence o costruisce dal significato
-      // Gestisce anche null/undefined/'null' (edge case API)
-      const rawSentence  = word.contextSentence;
-      const baseSentence = (rawSentence && rawSentence !== 'null')
-        ? rawSentence
-        : `${word.term}: ${word.meaning}.`;
-
-      // Blanking: sostituisce il termine (o la sua radice)
-      const blankSentence = baseSentence.replace(
-        new RegExp(word.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
-        '___'
-      );
-
-      // Distrattori: prende i termini delle altre parole (max 3)
-      const distractors = [];
-      for (const w of words) {
-        if (w.term !== word.term && !distractors.includes(w.term)) {
-          distractors.push(w.term);
-          if (distractors.length >= 3) break;
-        }
-      }
-      // Se vocabolario piccolo (< 4 parole), aggiungi placeholder neutri
-      const neutralFallbacks = ['…', '——', '· · ·'];
-      let fbIdx = 0;
-      while (distractors.length < 3) {
-        distractors.push(neutralFallbacks[fbIdx++ % neutralFallbacks.length]);
-      }
-
-      const allOptions = shuffle([word.term, ...distractors.slice(0, 3)]);
-
-      return {
-        term:          word.term,
-        sentence:      baseSentence,
-        blankSentence,
-        options:       allOptions,
-        correctIdx:    allOptions.indexOf(word.term),
-        answered:      false,
-        correct:       false,
-      };
-    });
-  }
-
-  function renderPhase3() {
-    _vocab.phase = 3;
-    updateHeader(3);
-    _vocab.clozeItems   = buildClozeItems();
-    _vocab.clozeCorrect = 0;
-
+    // Footer: Avanti disabilitato
     const next = el('vocab-btn-next');
     const prev = el('vocab-btn-prev');
-    if (next) {
-      next.textContent   = 'Vedi il risultato →';
-      next.style.display = 'inline-flex'; // visibile ma disabilitato
-      next.disabled      = true;          // si abilita quando tutte le domande sono risposte
-    }
     if (prev) prev.style.display = 'none';
-
-    renderClozeItems();
+    if (next) {
+      next.textContent   = 'Avanti →';
+      next.disabled      = true;
+      next.style.display = 'inline-flex';
+    }
+    _va.answered = false;
   }
 
-  function renderClozeItems() {
-    const body = el('vocab-modal-body');
-    if (!body) return;
+  /* Risposta cloze — window per onclick inline */
+  window._vocabClozeAnswer = function(chosen, correct) {
+    if (_va.answered) return;
+    _va.answered = true;
 
-    if (!_vocab.clozeItems.length) {
-      // Niente cloze (vocabolario troppo piccolo), vai al risultato
-      renderPhase4();
-      return;
+    const isCorrect = chosen === correct;
+
+    // Aggiorna blank con la parola scelta
+    const blank = el('cloze-blank');
+    if (blank) {
+      blank.textContent = chosen;
+      blank.style.color = isCorrect ? '#3db05b' : 'rgba(220,60,60,.8)';
+      blank.style.borderBottom = `2px solid ${isCorrect ? '#3db05b' : 'rgba(220,60,60,.7)'}`;
     }
 
-    const itemsHtml = _vocab.clozeItems.map((item, itemIdx) => {
-      // Mostra la frase con ___ visibile
-      const sentenceDisplay = esc(item.blankSentence).replace('___',
-        `<span class="vocab-cloze-blank" id="cloze-blank-${itemIdx}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`
-      );
-
-      const optionsHtml = item.options.map((opt, optIdx) =>
-        `<button class="vocab-cloze-option"
-                 type="button"
-                 data-item="${itemIdx}"
-                 data-opt="${optIdx}"
-                 id="cloze-opt-${itemIdx}-${optIdx}"
-                 onclick="_vocabClozeAnswer(${itemIdx},${optIdx})">
-           ${esc(opt)}
-         </button>`
-      ).join('');
-
-      return `
-        <div class="vocab-cloze-item" id="cloze-item-${itemIdx}">
-          <div class="vocab-cloze-sentence">${sentenceDisplay}</div>
-          <div class="vocab-cloze-bank">${optionsHtml}</div>
-          <div class="vocab-cloze-feedback" id="cloze-fb-${itemIdx}"></div>
-        </div>`;
-    }).join('');
-
-    body.innerHTML = `
-      <div class="vocab-cloze">
-        <p class="vocab-cloze-intro">
-          Scegli la parola corretta per completare ogni frase.
-        </p>
-        ${itemsHtml}
-      </div>`;
-  }
-
-  /* Risposta a una domanda cloze
-   * NOTA: definita qui (non dentro listener DOMContentLoaded) per evitare
-   * race condition con onclick="" nel HTML generato dinamicamente. */
-  window._vocabClozeAnswer = function(itemIdx, optIdx) {
-    const item = _vocab.clozeItems[itemIdx];
-    if (!item || item.answered) return;
-
-    item.answered = true;
-    item.correct  = optIdx === item.correctIdx;
-    if (item.correct) _vocab.clozeCorrect++;
-
-    // Feedback visivo
-    const itemEl  = el(`cloze-item-${itemIdx}`);
-    const blankEl = el(`cloze-blank-${itemIdx}`);
-    const fbEl    = el(`cloze-fb-${itemIdx}`);
-
-    if (itemEl)  itemEl.classList.add(item.correct ? 'correct-answer' : 'wrong-answer');
-    if (blankEl) blankEl.textContent = item.options[item.correct ? optIdx : item.correctIdx];
-
-    if (fbEl) {
-      if (item.correct) {
-        fbEl.className  = 'vocab-cloze-feedback ok';
-        fbEl.textContent = '✓ Esatto';
-      } else {
-        fbEl.className  = 'vocab-cloze-feedback err';
-        fbEl.textContent = `✗ La risposta corretta era: ${item.options[item.correctIdx]}`;
-      }
-    }
-
-    // Disabilita tutti i bottoni di questo item
-    item.options.forEach((_, i) => {
-      const btn = el(`cloze-opt-${itemIdx}-${i}`);
-      if (btn) {
-        btn.disabled = true;
-        if (i === item.correctIdx) btn.classList.add('correct');
-        else if (i === optIdx && !item.correct) btn.classList.add('wrong');
-      }
+    // Disabilita tutti i bottoni e colora il corretto
+    document.querySelectorAll('.vocab-cloze-option').forEach(btn => {
+      btn.disabled = true;
+      if (btn.textContent.trim() === correct)         btn.classList.add('correct');
+      else if (btn.textContent.trim() === chosen && !isCorrect) btn.classList.add('wrong');
     });
 
-    // Abilita il bottone solo quando tutte le domande sono risposte
-    const allAnswered = _vocab.clozeItems.every(i => i.answered);
-    const nextBtn = el('vocab-btn-next');
-    if (allAnswered && nextBtn) {
-      nextBtn.disabled = false;
+    const fb = el('cloze-feedback');
+    if (fb) {
+      fb.className  = 'vocab-cloze-feedback ' + (isCorrect ? 'ok' : 'err');
+      fb.textContent = isCorrect ? '✓ Corretto!' : `✗ Era: ${correct}`;
     }
+
+    // Registra risposta nel SRS
+    const item = _va.queue[_va.queueIdx];
+    if (item) recordAnswer(item, isCorrect);
+
+    // Sblocca Avanti
+    const next = el('vocab-btn-next');
+    if (next) next.disabled = false;
   };
 
-  /* ═══════════════════════════════════════════════════════════════
-     FASE 4 — Risultato + salvataggio SRS
+  /* ── Registra risposta nel SRS via /api/vocabulary/answer ─────────── */
+  async function recordAnswer(item, correct) {
+    try {
+      await fetch('/api/vocabulary/answer', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          term:            item.term,
+          lessonId:        item.sourceLesson || _va.lessonId,
+          correct:         correct,
+          exerciseLevel:   item.level,
+          vocabularyId:    item.vocabularyId || null,
+          contextSentence: getContextSentence(item) || null,
+          lang:            _va.courseLang || null,
+        })
+      });
+      // Aggiorna vocabularyId dal server per esercizi futuri della stessa sessione
+      // (non bloccante — best effort)
+    } catch (e) {
+      console.warn('[vocab/answer]', e.message);
+    }
+
+    // Aggiorna risultati locali per il riepilogo finale
+    _va.results.push({
+      term:    item.term,
+      level:   item.level,
+      correct: item.level === 1 ? true : correct, // encounter = sempre "visto"
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     RIEPILOGO FINALE
   ═══════════════════════════════════════════════════════════════ */
-  function renderPhase4() {
-    _vocab.phase = 4;
-    updateHeader(4);
-    _vocab.saveStatus = 'idle';
+  function renderSummary() {
+    const body = el('vocab-modal-body');
+    if (!body) return;
+
+    const total     = _va.results.length;
+    const answered  = _va.results.filter(r => r.level > 1);
+    const correct   = answered.filter(r => r.correct).length;
+    const pct       = answered.length > 0 ? Math.round((correct / answered.length) * 100) : 100;
+    const reviews   = _va.results.filter(r => _va.queue.find(q => q.term === r.term && q.isReview));
+
+    const message = pct === 100 && answered.length > 0
+      ? 'Perfetto — tutte le parole richiamate correttamente.'
+      : pct >= 70
+      ? `Ben ${correct} su ${answered.length} richiamate.`
+      : answered.length === 0
+      ? `Hai incontrato ${total} parole nuove. Torneranno nel prossimo ripasso.`
+      : `Continua a leggere — le parole si acquisiranno con l'esposizione ripetuta.`;
+
+    const reviewNote = reviews.length > 0
+      ? `<div class="vocab-result-srs-note">♻ ${reviews.length} parole da capitoli precedenti incluse nel ripasso.</div>`
+      : '';
+
+    const phaseLabel = el('vocab-phase-label');
+    const fill       = el('vocab-progress-fill');
+    if (phaseLabel) phaseLabel.textContent = 'Completato';
+    if (fill)       fill.style.width = '100%';
 
     const next = el('vocab-btn-next');
     const prev = el('vocab-btn-prev');
-    if (next) { next.style.display = 'none'; }
-    if (prev) { prev.style.display = 'none'; }
-
-    const total   = _vocab.clozeItems.length;
-    const correct = _vocab.clozeCorrect;
-    const pct     = total > 0 ? Math.round((correct / total) * 100) : 100;
-
-    const message = pct === 100
-      ? 'Perfetto — tutte le parole riconosciute.'
-      : pct >= 60
-      ? `Bene. ${correct} su ${total} richiamate correttamente.`
-      : `Continua a leggere — le parole si acquisiranno con l\'esposizione ripetuta.`;
-
-    const srsNote = total > 0
-      ? `Salva nel tuo vocabolario per ripassarle con intervalli crescenti: domani, fra 3 giorni, fra 7 giorni.`
-      : `Hai esplorato ${_vocab.words.length} parole di questa lezione.`;
-
-    const body = el('vocab-modal-body');
-    if (!body) return;
+    if (next) next.style.display = 'none';
+    if (prev) prev.style.display = 'none';
 
     body.innerHTML = `
       <div class="vocab-result">
-        <div class="vocab-result-score">${pct}%</div>
-        <div class="vocab-result-label">Richiamate correttamente</div>
+        ${answered.length > 0
+          ? `<div class="vocab-result-score">${pct}%</div>
+             <div class="vocab-result-label">Richiamate correttamente</div>`
+          : `<div class="vocab-result-score" style="font-size:2.5rem">📖</div>
+             <div class="vocab-result-label">${total} parole esplorate</div>`
+        }
         <div class="vocab-result-message">${esc(message)}</div>
-        <div class="vocab-result-srs-note">${esc(srsNote)}</div>
-        <button class="vocab-result-btn-save" id="vocab-save-btn"
-                type="button" onclick="_vocabSaveToSRS()">
-          Salva nel vocabolario (${_vocab.words.length} parole)
-        </button>
-        <div class="vocab-result-save-status" id="vocab-save-status"></div>
+        ${reviewNote}
+        <div class="vocab-result-srs-note">Le parole saranno riproposte automaticamente con intervalli crescenti (sistema SRS).</div>
       </div>`;
   }
 
-  /* Salva le parole nel vocabolario personale (SRS)
-   * NOTA: definita qui (non dentro listener) per evitare race condition. */
-  window._vocabSaveToSRS = async function() {
-    if (_vocab.saveStatus === 'saving' || _vocab.saveStatus === 'done') return;
-    _vocab.saveStatus = 'saving';
-
-    const btn    = el('vocab-save-btn');
-    const status = el('vocab-save-status');
-    if (btn)    btn.disabled    = true;
-    if (status) status.textContent = 'Salvataggio in corso…';
-
-    let saved = 0, errors = 0;
-
-    for (const word of _vocab.words) {
-      try {
-        const r = await fetch('/api/vocabulary', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            term:        word.term,
-            translation: word.meaning,
-            context:     word.contextSentence || '',
-            lang:        _vocab.courseLang,
-            lessonId:    _vocab.lessonId,
-          })
-        });
-        if (r.ok) saved++;
-        else {
-          const err = await r.json().catch(() => ({}));
-          // 409-like: parola già presente — non è un errore per l'utente
-          if (r.status !== 409) errors++;
-        }
-      } catch (_) {
-        errors++;
-      }
+  /* ═══════════════════════════════════════════════════════════════════
+     Avanza nella coda
+  ═══════════════════════════════════════════════════════════════ */
+  function advanceQueue() {
+    if (_va.queueIdx < _va.queue.length - 1) {
+      _va.queueIdx++;
+      _va.answered = false;
+      updateProgress();
+      renderCurrentExercise();
+    } else {
+      renderSummary();
     }
+  }
 
-    _vocab.saveStatus = errors === 0 ? 'done' : 'error';
+  /* ── Renderizza l'esercizio corrente ────────────────────────────── */
+  function renderCurrentExercise() {
+    const item = _va.queue[_va.queueIdx];
+    if (!item) { renderSummary(); return; }
 
-    if (btn) {
-      btn.textContent = errors === 0 ? '✓ Salvato' : '⚠ Salvato con qualche problema';
-      btn.style.opacity = '.5';
+    switch (item.level) {
+      case 1:  renderEncounter(item);   break;
+      case 2:  renderRecognition(item); break;
+      case 3:  renderCloze(item);       break;
+      default: renderEncounter(item);
     }
-    if (status) {
-      status.textContent = errors === 0
-        ? `${saved} parole aggiunte al tuo vocabolario.`
-        : `${saved} parole salvate, ${errors} già presenti o non disponibili.`;
-    }
-  };
+  }
 
-  /* ═══════════════════════════════════════════════════════════════
-     Caricamento dati + avvio sessione
+  /* ═══════════════════════════════════════════════════════════════════
+     Caricamento sessione adattiva + avvio
   ═══════════════════════════════════════════════════════════════ */
   async function startVocabSession(lessonId) {
-    _vocab.lessonId    = lessonId;
-    _vocab.phase       = 1;
-    _vocab.wordIdx     = 0;
-    _vocab.wordsSeen   = new Set();
-    _vocab.clozeItems  = [];
-    _vocab.clozeCorrect = 0;
-    _vocab.saveStatus  = 'idle';
+    _va.lessonId  = lessonId;
+    _va.queue     = [];
+    _va.queueIdx  = 0;
+    _va.results   = [];
+    _va.answered  = false;
 
     openVocabModal();
-    updateHeader(1);
-    showLoading('Carico le parole della lezione…');
+    showLoading('Preparo la sessione adattiva…');
 
-    // Nascondi pulsante "Vedi risultato" finché non si risponde
+    // Reset progress bar
+    const fill     = el('vocab-progress-fill');
+    const phLbl    = el('vocab-phase-label');
+    const titleLbl = el('vocab-modal-title');
+    if (fill)     fill.style.width = '0%';
+    if (phLbl)    phLbl.textContent = '…';
+    if (titleLbl) titleLbl.textContent = 'Lessico della lezione';
+
     const next = el('vocab-btn-next');
     const prev = el('vocab-btn-prev');
-    if (next) { next.textContent = 'Avanti →'; next.style.display = 'inline-flex'; next.disabled = false; }
+    if (next) { next.textContent = 'Avanti →'; next.style.display = 'inline-flex'; next.disabled = true; }
     if (prev) { prev.style.display = 'none'; }
 
     try {
-      const res = await fetch(`/api/vocabulary/session?lessonId=${encodeURIComponent(lessonId)}`);
+      const res = await fetch(`/api/vocabulary/adaptive-session?lessonId=${encodeURIComponent(lessonId)}`);
 
       if (res.status === 403) {
         el('vocab-modal-body').innerHTML = `
@@ -6504,7 +6564,7 @@ function _closeTooltipOutside(e) {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
 
-      if (!data.hasVocab || !data.words || data.words.length === 0) {
+      if (!data.queue || data.queue.length === 0) {
         el('vocab-modal-body').innerHTML = `
           <div class="vocab-loading">
             <div style="font-size:1.5rem;margin-bottom:8px">📖</div>
@@ -6514,16 +6574,18 @@ function _closeTooltipOutside(e) {
         return;
       }
 
-      _vocab.words        = data.words;
-      _vocab.textFragment = data.textFragment;
-      _vocab.lessonTitle  = data.lessonTitle;
-      _vocab.courseTitle  = data.courseTitle;
-      _vocab.courseLang   = data.courseLang;
+      _va.queue       = data.queue;
+      _va.queueIdx    = 0;
+      _va.lessonTitle = data.lessonTitle  || '';
+      _va.courseTitle = data.courseTitle  || '';
+      _va.courseLang  = data.courseLang   || '';
+      _va.textFragment = data.textFragment || null;
 
-      renderPhase1();
+      updateProgress();
+      renderCurrentExercise();
 
     } catch (e) {
-      console.error('[vocab session]', e);
+      console.error('[vocab adaptive-session]', e);
       el('vocab-modal-body').innerHTML = `
         <div class="vocab-loading">
           <div class="vocab-loading-text">Errore nel caricamento del vocabolario. Riprova tra qualche istante.</div>
@@ -6532,43 +6594,30 @@ function _closeTooltipOutside(e) {
     }
   }
 
-  /* ═══════════════════════════════════════════════════════════════
-     Navigazione inter-fase (bottoni footer)
+  /* ═══════════════════════════════════════════════════════════════════
+     Navigazione footer (Avanti)
   ═══════════════════════════════════════════════════════════════ */
   function handleNext() {
-    if (_vocab.phase === 1) {
-      if (_vocab.wordIdx < _vocab.words.length - 1) {
-        renderWordCard(_vocab.wordIdx + 1);
-      } else {
-        renderPhase2();
+    if (!_va.answered) {
+      // Scuote il modal se si cerca di andare avanti senza rispondere
+      const card = el('vocab-modal-card');
+      if (card) {
+        card.style.transform = 'translateX(4px)';
+        setTimeout(() => { card.style.transform = ''; }, 80);
+        setTimeout(() => { card.style.transform = 'translateX(-4px)'; }, 160);
+        setTimeout(() => { card.style.transform = ''; }, 240);
       }
-    } else if (_vocab.phase === 2) {
-      renderPhase3();
-    } else if (_vocab.phase === 3) {
-      // Consenti di andare avanti solo se tutte le domande sono risposte
-      const allAnswered = !_vocab.clozeItems.length || _vocab.clozeItems.every(i => i.answered);
-      if (!allAnswered) {
-        // Anima lievemente il modal per segnalare che si deve rispondere prima
-        const card = el('vocab-modal-card');
-        if (card) {
-          card.style.transform = 'translateX(4px)';
-          setTimeout(() => { card.style.transform = ''; }, 80);
-          setTimeout(() => { card.style.transform = 'translateX(-4px)'; }, 160);
-          setTimeout(() => { card.style.transform = ''; }, 240);
-        }
-        return;
-      }
-      renderPhase4();
+      return;
     }
+    advanceQueue();
   }
 
   function handlePrev() {
-    if (_vocab.phase === 1 && _vocab.wordIdx > 0) {
-      renderWordCard(_vocab.wordIdx - 1);
-    }
+    // Nella sessione adattiva non si torna indietro
+    // (il SRS è già stato aggiornato)
   }
 
-  /* ═══════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════════
      Aggiornamento trigger section dalla lezione
   ═══════════════════════════════════════════════════════════════ */
   window.updateVocabContext = function(lesson) {
@@ -6576,42 +6625,22 @@ function _closeTooltipOutside(e) {
     const subLabel = el('vocab-trigger-sub');
     if (!section) return;
 
-    // Mostra solo se la lezione ha vocabolario configurato
     if (lesson && lesson.hasAiContext) {
       section.style.display = 'block';
       if (subLabel) {
-        // Conta le parole nel keyVocabulary se disponibile, altrimenti generico
         const count = lesson.vocabCount || null;
         subLabel.textContent = count
-          ? `${count} parole da esplorare · Incontro, lettura, produzione`
-          : 'Incontro con le parole · Lettura · Esercizi di produzione';
+          ? `${count} parole da acquisire · SRS adattivo cross-capitolo`
+          : 'Esercizi adattativi · SRS cross-capitolo';
       }
+      // Sincronizza lessonId per il trigger button
+      _va.lessonId = lesson.id || _va.lessonId;
     } else {
       section.style.display = 'none';
     }
   };
 
-  /* ─── Utilità lingua ─── */
-  function _isGreek(lang) {
-    return lang && lang.toLowerCase().includes('grec');
-  }
-  function _langEmoji(lang, term) {
-    if (_isGreek(lang)) return '🏛️';
-    // Tenta emoji semantico basato sulla parola
-    const t = term.toLowerCase();
-    if (/villa|domus|casa/.test(t))    return '🏛️';
-    if (/toga|vestis|vestim/.test(t))  return '👘';
-    if (/aqua|flumen|mare/.test(t))    return '🌊';
-    if (/pater|mater|fili/.test(t))    return '👨‍👩‍👧';
-    if (/miles|bellum|arma/.test(t))   return '⚔️';
-    if (/liber|scribit|legit/.test(t)) return '📜';
-    if (/deus|templu|sacrum/.test(t))  return '🏺';
-    if (/via|iter|iter/.test(t))       return '🛤️';
-    if (/forum|curia|senatus/.test(t)) return '🏟️';
-    return '📖';
-  }
-
-  /* ═══════════════════════════════════════════════════════════════
+  /* ═══════════════════════════════════════════════════════════════════
      Init: event listeners
   ═══════════════════════════════════════════════════════════════ */
   document.addEventListener('DOMContentLoaded', function() {
@@ -6619,7 +6648,7 @@ function _closeTooltipOutside(e) {
     const triggerBtn = el('vocab-trigger-btn');
     if (triggerBtn) {
       triggerBtn.addEventListener('click', function() {
-        if (_vocab.lessonId) startVocabSession(_vocab.lessonId);
+        if (_va.lessonId) startVocabSession(_va.lessonId);
       });
     }
 
@@ -6645,23 +6674,18 @@ function _closeTooltipOutside(e) {
 
     // ESC chiude
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && _vocab.open) closeVocabModal();
+      if (e.key === 'Escape' && _va.open) closeVocabModal();
     });
   });
 
-  /* ═══════════════════════════════════════════════════════════════
-     Aggancia updateVocabContext a selectLesson
+  /* ═══════════════════════════════════════════════════════════════════
+     Patch selectLesson — nascondi trigger lessico se lezione non accessibile
   ═══════════════════════════════════════════════════════════════ */
-  // Patcha la funzione selectLesson per aggiornare il contesto vocab
-  // (si esegue dopo il DOMContentLoaded per essere sicuri che selectLesson esista)
-  // updateVocabContext viene già chiamata da updateAiContext (che è chiamata da selectLesson).
-  // Questo listener gestisce solo il caso "lezione non accessibile" → nasconde il trigger.
   window.addEventListener('load', function() {
     const _origSelectLesson = window.selectLesson;
     if (typeof _origSelectLesson === 'function') {
       window.selectLesson = function(lesson, hasAccess, course) {
         _origSelectLesson.call(this, lesson, hasAccess, course);
-        // Se la lezione non è accessibile, nascondi il trigger lessico
         if (!hasAccess) {
           const section = el('lesson-vocab-section');
           if (section) section.style.display = 'none';
