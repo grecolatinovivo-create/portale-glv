@@ -309,7 +309,7 @@ function buildImagePrompt(word, lang) {
   return (
     `"${sentence}" — illustra questa frase come scena semplice, ` +
     `nello stile di un sussidiario italiano degli anni '50 disegnato su un foglio a quadretti. ` +
-    `Formato orizzontale 2:1 (panoramico). ` +
+    `Formato orizzontale 16:9 (widescreen).` +
     `Tratto a matita con acquerelli leggeri, colori caldi e spenti, linea pulita, ` +
     `come Lele Luzzati o Bruno Munari. Sfondo di carta a quadretti. ` +
     `Una sola scena centrale, semplice e chiara, spazio bianco generoso ai lati. ` +

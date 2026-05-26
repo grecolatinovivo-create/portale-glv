@@ -6314,9 +6314,6 @@ function _closeTooltipOutside(e) {
       ? `<div class="vocab-card-sentence">${highlightedSentence}</div>`
       : `<div class="vocab-card-sentence" style="color:rgba(201,150,42,.6)">${esc(item.term)}</div>`;
 
-    const notesHtml = item.grammarNote
-      ? `<div class="vocab-card-notes">ℹ ${esc(item.grammarNote)}</div>`
-      : '';
 
     body.innerHTML = `
       <div class="vocab-encounter">
@@ -6326,7 +6323,6 @@ function _closeTooltipOutside(e) {
           ${placeHtml}
           <div class="vocab-card-body">
             ${sentenceHtml}
-            ${notesHtml}
           </div>
         </div>
       </div>`;
