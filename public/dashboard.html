@@ -691,8 +691,8 @@
       background: #111;
       border: 1px solid rgba(255,255,255,.1);
       border-radius: 16px;
-      width: min(600px, 92vw);
-      aspect-ratio: 16 / 9;
+      width: min(640px, 92vw);
+      height: calc(min(640px, 92vw) * 9 / 16);
       display: flex;
       flex-direction: column;
       overflow: hidden;
@@ -1238,7 +1238,7 @@
       #vocab-modal-card {
         border-radius: 12px 12px 0 0;
         width: 100vw;
-        aspect-ratio: 16 / 9;
+        height: calc(100vw * 9 / 16);
         max-height: 92dvh;
         margin-top: auto;
         align-self: flex-end;
