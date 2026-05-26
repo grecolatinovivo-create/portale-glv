@@ -302,24 +302,20 @@ Rispondi SOLO con un JSON array valido: [{"term":"...","contextSentence":"...","
 
 /* ── Prompt immagine: usa contextSentence invece di meaning ───────── */
 function buildImagePrompt(word, lang) {
-  const isGreek  = lang && lang.toLowerCase().includes('grec');
-  const langCtx  = isGreek ? 'ancient Greek' : 'ancient Roman';
-  const notes    = word.notes ? ` (${word.notes})` : '';
-
-  // Il significato viene inferito dalla frase di contesto, non da una glossa
-  // Usiamo `meaning` solo se presente (backward compat con vocab inserito manualmente)
-  // ma mai come etichetta visibile
-  const conceptHint = word.meaning
-    ? `"${word.term}" (${word.meaning})`       // admin ha inserito il significato → usalo per il prompt
-    : `"${word.term}" as in: "${(word.contextSentence || '').substring(0, 100)}"`; // auto-generato
+  const isGreek = lang && lang.toLowerCase().includes('grec');
+  const culture = isGreek ? 'ancient Greek' : 'ancient Roman';
+  const ctx     = word.meaning
+    ? `${word.term} (${word.meaning})`
+    : `"${word.term}" as in: "${(word.contextSentence || word.term).substring(0, 120)}"`;
 
   return (
-    `Educational illustration for a ${langCtx} language lesson. ` +
-    `Word: ${conceptHint}${notes}. ` +
-    `Style: photorealistic, warm tones, museum-quality, clean white background, ` +
-    `no text overlay, no watermarks. ` +
-    `Subject: realistic single object or scene from ancient ${isGreek ? 'Greece' : 'Rome'} ` +
-    `that clearly represents this concept.`
+    `Simple, clean educational illustration for a children's Latin primer (like an old Italian sussidiario). ` +
+    `Subject: a single clear object or figure from ${culture} daily life representing the word ${ctx}. ` +
+    `Style: flat, minimal illustration with soft warm colors, slightly textured paper feel, ` +
+    `uncluttered composition, generous white space. ` +
+    `Absolutely NO text, NO letters, NO labels, NO watermarks, NO captions anywhere in the image. ` +
+    `One single subject centered on a plain cream or white background. ` +
+    `The image must be immediately readable at a glance — like a visual dictionary entry.`
   );
 }
 

@@ -36,19 +36,21 @@ function slugify(str) {
 
 /* ── Prompt immagine per termini latini/greci ────────────────────── */
 function buildImagePrompt(term, semanticField, contextSentences, lang) {
-  const isGreek  = lang && lang.toLowerCase().includes('grec');
-  const langCtx  = isGreek ? 'ancient Greek' : 'ancient Roman';
-  const ctx      = Array.isArray(contextSentences) && contextSentences.length > 0
+  const isGreek = lang && lang.toLowerCase().includes('grec');
+  const culture = isGreek ? 'ancient Greek' : 'ancient Roman';
+  const ctx     = Array.isArray(contextSentences) && contextSentences.length > 0
     ? contextSentences[0].substring(0, 120)
-    : semanticField || '';
+    : semanticField || term;
 
   return (
-    `Educational illustration for a ${langCtx} language lesson. ` +
-    `Word: "${term}" as in: "${ctx}". ` +
-    `Style: photorealistic, warm tones, museum-quality, clean white background, ` +
-    `no text overlay, no watermarks. ` +
-    `Subject: realistic single object or scene from ancient ${isGreek ? 'Greece' : 'Rome'} ` +
-    `that clearly represents this concept.`
+    `Simple, clean educational illustration for a children's Latin primer (like an old Italian sussidiario). ` +
+    `Subject: a single clear object or figure from ${culture} daily life representing the word "${term}" ` +
+    `as used in context: "${ctx}". ` +
+    `Style: flat, minimal illustration with soft warm colors, slightly textured paper feel, ` +
+    `uncluttered composition, generous white space. ` +
+    `Absolutely NO text, NO letters, NO labels, NO watermarks, NO captions anywhere in the image. ` +
+    `One single subject centered on a plain cream or white background. ` +
+    `The image must be immediately readable at a glance — like a visual dictionary entry.`
   );
 }
 

@@ -842,8 +842,10 @@
     /* Body scrollabile */
     .vocab-modal-body {
       flex: 1;
-      overflow-y: auto;
+      overflow: hidden;
       padding: 0;
+      position: relative;
+      min-height: 340px;
     }
 
     /* Footer con bottoni navigazione */
@@ -878,7 +880,11 @@
 
     /* ── FASE 1: Incontro ── */
     .vocab-encounter {
-      padding: 20px;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      min-height: 340px;
+      overflow: hidden;
     }
     .vocab-word-counter {
       font-family: 'Inter', sans-serif;
@@ -889,29 +895,29 @@
       letter-spacing: .04em;
     }
     .vocab-card {
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px;
+      position: relative;
+      width: 100%;
+      height: 100%;
       overflow: hidden;
     }
     .vocab-card-image {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      aspect-ratio: 1;
-      max-height: 260px;
+      height: 100%;
       object-fit: cover;
       display: block;
-      background: rgba(255,255,255,.04);
     }
     .vocab-card-image-placeholder {
+      position: absolute;
+      inset: 0;
       width: 100%;
-      aspect-ratio: 1;
-      max-height: 260px;
-      background: linear-gradient(135deg, rgba(201,150,42,.08), rgba(201,150,42,.03));
+      height: 100%;
+      background: linear-gradient(135deg, #1a150a, #0e0b06);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 64px;
-      position: relative;
+      font-size: 88px;
     }
     .vocab-img-loading {
       position: absolute;
@@ -925,8 +931,13 @@
       from { transform: rotate(0deg); }
       to   { transform: rotate(360deg); }
     }
+    /* Overlay frase sul fondo dell'immagine */
     .vocab-card-body {
-      padding: 20px 20px 16px;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 48px 24px 20px;
+      background: linear-gradient(transparent, rgba(0,0,0,.82) 40%);
+      z-index: 2;
     }
     .vocab-card-term {
       font-family: 'EB Garamond', 'Garamond', serif;
@@ -944,12 +955,21 @@
     }
     .vocab-card-sentence {
       font-family: 'EB Garamond', 'Garamond', serif;
-      font-size: .95rem;
-      color: rgba(255,255,255,.45);
+      font-size: 1.2rem;
+      color: rgba(255,255,255,.9);
       line-height: 1.6;
-      border-left: 2px solid rgba(201,150,42,.25);
-      padding-left: 12px;
       font-style: italic;
+    }
+    .vocab-term-highlight {
+      color: #c9962a;
+      font-weight: 700;
+      font-style: normal;
+    }
+    .vocab-card-notes {
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      color: rgba(255,255,255,.4);
+      margin-top: 8px;
     }
     .vocab-card-notes {
       font-family: 'Inter', sans-serif;
@@ -6277,7 +6297,16 @@ function _closeTooltipOutside(e) {
     const sentence = getContextSentence(item);
     const emoji    = _langEmoji(_va.courseLang, item.term);
 
-    // Se imageUrl già in cache: mostra subito; altrimenti placeholder + lazy gen
+    // Frase con il termine evidenziato in oro
+    const highlightedSentence = sentence
+      ? _replaceTermInSentence(
+          sentence, item,
+          `<span class="vocab-term-highlight">${esc(item.term)}</span>`,
+          'i'
+        ) || esc(sentence)
+      : null;
+
+    // Immagine o placeholder con lazy gen
     const imgHtml   = item.imageUrl
       ? `<img id="vocab-encounter-img" class="vocab-card-image" src="${esc(item.imageUrl)}"
               alt="${esc(item.term)}" loading="lazy"
@@ -6290,9 +6319,10 @@ function _closeTooltipOutside(e) {
         ${emoji}
       </div>`;
 
-    const sentenceHtml = sentence
-      ? `<div class="vocab-card-sentence">${esc(sentence)}</div>`
-      : '';
+    const sentenceHtml = highlightedSentence
+      ? `<div class="vocab-card-sentence">${highlightedSentence}</div>`
+      : `<div class="vocab-card-sentence" style="color:rgba(201,150,42,.6)">${esc(item.term)}</div>`;
+
     const notesHtml = item.grammarNote
       ? `<div class="vocab-card-notes">ℹ ${esc(item.grammarNote)}</div>`
       : '';
@@ -6304,7 +6334,6 @@ function _closeTooltipOutside(e) {
           ${imgHtml}
           ${placeHtml}
           <div class="vocab-card-body">
-            <div class="vocab-card-term">${esc(item.term)}</div>
             ${sentenceHtml}
             ${notesHtml}
           </div>
@@ -6833,6 +6862,14 @@ function _closeTooltipOutside(e) {
       }
       return;
     }
+
+    // Per gli encounter (livello 1): registra come "visto" nel SRS
+    // (recognition e cloze chiamano recordAnswer() già nel loro handler di risposta)
+    const item = _va.queue[_va.queueIdx];
+    if (item && item.level === 1) {
+      recordAnswer(item, true); // encounter = sempre corretto
+    }
+
     advanceQueue();
   }
 
