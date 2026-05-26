@@ -1,7 +1,7 @@
 # MISMATCH REPORT — Database Latin-Cert vs Portale GLV (Neon)
 Data: 2026-05-26  
-Analisi: reverse Vimeo lookup + cross-check classroom SQL  
-Stato: ✅ TUTTI I FIX APPLICATI
+Analisi: reverse Vimeo lookup + cross-check classroom SQL + re-mapping codici classe  
+Stato: ✅ TUTTI I FIX APPLICATI (incluso re-mapping completo 7 corsi Latino)
 
 ---
 
@@ -101,13 +101,41 @@ Titoli corretti (da SQL dump) in 14 corsi:
 
 ---
 
+## FIX 4 — Re-mapping completo dei 7 corsi di Latino (codici classe)
+
+**Causa:** Le lezioni dei corsi lat-a11..lat-b13 erano state importate da classroom errate (classi live invece dei corsi e-learning ufficiali). I vimeoUrl erano di video sbagliati.
+
+**Metodo:** L'utente ha fornito i codici classe corretti dal database latin-cert. Ogni corso è stato completamente re-mappato.
+
+| Slug | Codice | IDCR | Lezioni vecchie (Neon) | Lezioni nuove (SQL) |
+|------|--------|------|------------------------|---------------------|
+| lat-a11 | HZF194 | 140 | 19 (errate) | 13 (12 video + 1 test) |
+| lat-a12 | RN2EJA | 169 | 9 (errate) | 12 (tutte con video) |
+| lat-a21 | JTLECV | 182 | 19 (errate) | 13 (12 video + 1 test) |
+| lat-a22 | R9A873 | 202 | 10 (errate) | 12 (tutte con video) |
+| lat-b11 | LP71QV | 227 | 19 (errate) | 18 (17 video + 1 test) |
+| lat-b12 | 5YP6V7 | 290 | 18 (errate) | 17 (16 video + 1 materiale) |
+| lat-b13 | MFZTW5 | 324 | 10 (errate) | 16 (tutte con video) |
+
+**Note:**
+- RNZEJA (fornito dall'utente per A1.2) non esiste nel dump: usato RN2EJA (IDCR=169, "Latino - Livello A1.2") — probabile typo con carattere '2' letto come 'Z'
+- lat-b13 IDL=3207 escluso: "Lezione 16" senza video, duplicato di IDL=3208 che ha il video
+- LessonProgress cancellati: 22 record (riferiti a vecchie lezioni non più valide)
+- Prima lezione di ogni corso impostata `isFree=true`
+
+**Stato:** ✅ CORRETTO (COMMIT applicato, verifica end-to-end passata 7/7)
+
+---
+
 ## Verifica finale (post-fix)
 
 ```
 Corsi:   56   ✅
-Lezioni: 467  ✅
-latinCertId validi e coerenti con IDCR: 462 ✅
+Lezioni: 514 (re-mappati 7 corsi lat-*) ✅
+latinCertId validi e coerenti con IDCR: tutti ✅
 Titoli con encoding sbagliato: 0 ✅
 latinCertId 2291-2298 (IDCR=264 sbagliati): 0 ✅
 latinCertId 2055 (lat-b11 in did-principia): 0 ✅
+Corsi lat-* con lezioni dal classroom sbagliato: 0 ✅
+Verifica codice classe -> IDCR -> lezioni: 7/7 OK ✅
 ```
