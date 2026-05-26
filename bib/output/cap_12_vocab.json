@@ -1,0 +1,82 @@
+[
+  {
+    "term": "annus",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Ūnus annus duodecim mēnsēs vel trecentōs sexāgintā quinque diēs habet."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Substantivum, m."
+  },
+  {
+    "term": "mēnsis",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Annus in duodecim mēnsēs dīviditur, quibus haec sunt nōmina:"
+    ],
+    "difficulty": 1,
+    "grammarNote": "Substantivum, m."
+  },
+  {
+    "term": "diēs",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Ūnus annus duodecim mēnsēs vel trecentōs sexāgintā quinque diēs habet."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Substantivum, m."
+  },
+  {
+    "term": "saeculum",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Saeculum est centum annī."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Substantivum, n."
+  },
+  {
+    "term": "Iānuārius",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Iānuārius, mēnsis prīmus;"
+    ],
+    "difficulty": 1,
+    "grammarNote": "Adiectivum"
+  },
+  {
+    "term": "Februārius",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Februārius, secundus;"
+    ],
+    "difficulty": 1,
+    "grammarNote": "Adiectivum"
+  },
+  {
+    "term": "Mārtius",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Mārtius, tertius;"
+    ],
+    "difficulty": 1,
+    "grammarNote": "Adiectivum"
+  },
+  {
+    "term": "nox",
+    "forms": [],
+    "semanticField": "tempus",
+    "contextSentences": [
+      "Nox est tempus a vesperō ad māne."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Substantivum, f."
+  }
+]

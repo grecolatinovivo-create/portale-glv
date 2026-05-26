@@ -1,0 +1,82 @@
+[
+  {
+    "term": "syllaba",
+    "forms": [],
+    "semanticField": "linguistica",
+    "contextSentences": [
+      "Consonantēs br, gr, cr, tr, quae initium syllabae facere solent (ut li-brī), interdum dīviduntur: nig-rōs, pat-rem."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "vōcālis",
+    "forms": [],
+    "semanticField": "linguistica",
+    "contextSentences": [
+      "Vōcālis -ō ultima interdum fit brevis: vo-lõ, nē-mo."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "versus",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Singulī versūs dīviduntur in pedēs, qui bīnās aut ternās syllabās continent."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "pēs",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Singulī versūs dīviduntur in pedēs, qui bīnās aut ternās syllabās continent."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "trochaeus",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Pedēs frequentissimī sunt trochaeī, iambī, dactylī, spondēī."
+    ],
+    "difficulty": 4,
+    "grammarNote": null
+  },
+  {
+    "term": "dactylus",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Pedēs frequentissimī sunt trochaeī, iambī, dactylī, spondēī."
+    ],
+    "difficulty": 4,
+    "grammarNote": null
+  },
+  {
+    "term": "hexameter",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Hic versus hexameter vocatur a numerō pedum, nam sex Graecē dicitur hex."
+    ],
+    "difficulty": 4,
+    "grammarNote": null
+  },
+  {
+    "term": "pentameter",
+    "forms": [],
+    "semanticField": "poesia",
+    "contextSentences": [
+      "Ita versus tõtus ex quinque pedibus constat et vocatur pentameter: quinque enim Graecē dīcitur pente."
+    ],
+    "difficulty": 4,
+    "grammarNote": null
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "term": "lacrimae",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Dē oculīs Lydiae lacrimae lābuntur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom. Pl."
+  },
+  {
+    "term": "patriam",
+    "forms": [],
+    "semanticField": "luoghi",
+    "contextSentences": [
+      "In patriam nostram īmus, ubi multi amīcī nōs opperiuntur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Acc. Sg."
+  },
+  {
+    "term": "gubernātor",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Mēdus gubernātōrem interrogat: \"Quam in partem nāvigāmus?\""
+    ],
+    "difficulty": 3,
+    "grammarNote": "Nom. Sg."
+  },
+  {
+    "term": "tempestās",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Defende nõs ā tempestāte!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "Acc. Sg."
+  },
+  {
+    "term": "Neptūnus",
+    "forms": [],
+    "semanticField": "mitologia",
+    "contextSentences": [
+      "Nauta Neptūnum, deum maris, verētur."
+    ],
+    "difficulty": 4,
+    "grammarNote": "Acc. Sg."
+  },
+  {
+    "term": "fulgur",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Statim sequitur tonitrus cum imbre, et simul magnus ventus flāre incipit."
+    ],
+    "difficulty": 4,
+    "grammarNote": "Nom. Sg."
+  },
+  {
+    "term": "mercēs",
+    "forms": [],
+    "semanticField": "economia",
+    "contextSentences": [
+      "Nauta multum aquae ē nāve hauriunt, sed nāvis nimis gravis est propter mercēs."
+    ],
+    "difficulty": 4,
+    "grammarNote": "Acc. Pl."
+  },
+  {
+    "term": "flūctibus",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Mare tempestāte turbātur, ac nāvis, quae et hominēs et mercēs multās vehit, flūctibus iactātur et vix gubernārī potest."
+    ],
+    "difficulty": 4,
+    "grammarNote": "Abl. Pl."
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "term": "fabulam",
+    "forms": [],
+    "semanticField": "narrazione",
+    "contextSentences": [
+      "Quam fabulam mē tibi nārrāre vīs?"
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "lupō",
+    "forms": [],
+    "semanticField": "animali",
+    "contextSentences": [
+      "Fabulamne de lupō et agnō qui forte ad eundem rīvum vēnērunt?"
+    ],
+    "difficulty": 2,
+    "grammarNote": "ablative singular"
+  },
+  {
+    "term": "rīvum",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Fabulamne de lupō et agnō qui forte ad eundem rīvum vēnērunt?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "mōnstrō",
+    "forms": [],
+    "semanticField": "creature mitologiche",
+    "contextSentences": [
+      "Nārrā mihi fabulam de aliquō ferōcī mōnstrō, cui caput bēstiae et corpus hominis est et quod hominēs vīvōs vorat!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "dative singular"
+  },
+  {
+    "term": "terribile",
+    "forms": [],
+    "semanticField": "qualità",
+    "contextSentences": [
+      "In īnsulā Crētā ōlim vīvēbat mōnstrum terribile, nōmine Mīnōtaurus, cui caput taurī, corpus virī erat."
+    ],
+    "difficulty": 4,
+    "grammarNote": "adjective"
+  },
+  {
+    "term": "labyrinthō",
+    "forms": [],
+    "semanticField": "architettura",
+    "contextSentences": [
+      "Mīnōtaurus in magnō labyrinthō habitabat."
+    ],
+    "difficulty": 5,
+    "grammarNote": "ablative singular"
+  },
+  {
+    "term": "aedificium",
+    "forms": [],
+    "semanticField": "architettura",
+    "contextSentences": [
+      "Est magnum aedificium quod frequentibus mūrīs in plūrimās partēs dīviditur."
+    ],
+    "difficulty": 3,
+    "grammarNote": "neuter"
+  },
+  {
+    "term": "vēla",
+    "forms": [],
+    "semanticField": "nautica",
+    "contextSentences": [
+      "Nāvis quā Athēniēnsēs illūc vehēbantur vēla ātra gerēbat, nam eō colōre significātur mors."
+    ],
+    "difficulty": 4,
+    "grammarNote": "plural"
+  }
+]

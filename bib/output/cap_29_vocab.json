@@ -1,0 +1,82 @@
+[
+  {
+    "term": "vīnum",
+    "forms": [],
+    "semanticField": "cibus",
+    "contextSentences": [
+      "multō melius esse vīnō Albānō!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "null"
+  },
+  {
+    "term": "acerbum",
+    "forms": [],
+    "semanticField": "sapor",
+    "contextSentences": [
+      "nec vērō tuum vīnum nimis acerbum esse censeō..."
+    ],
+    "difficulty": 2,
+    "grammarNote": "adj. 1st/2nd decl."
+  },
+  {
+    "term": "industrius",
+    "forms": [],
+    "semanticField": "studium",
+    "contextSentences": [
+      "Te laudābō sī mihi pārueris et industrius fueris."
+    ],
+    "difficulty": 2,
+    "grammarNote": "adj. 1st/2nd decl."
+  },
+  {
+    "term": "verberābō",
+    "forms": [],
+    "semanticField": "poena",
+    "contextSentences": [
+      "Sī prāvē scripseris et male recitāveris nec attentë audīveris, të verberābō!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "fut. act. ind."
+  },
+  {
+    "term": "laudātus",
+    "forms": [],
+    "semanticField": "laus",
+    "contextSentences": [
+      "Pater gaudēbit sī filius ā magistrō laudātus erit (= sī magister filium laudāverit)."
+    ],
+    "difficulty": 2,
+    "grammarNote": "ppp"
+  },
+  {
+    "term": "hospitēs",
+    "forms": [],
+    "semanticField": "domus",
+    "contextSentences": [
+      "Cum hospitēs veniunt, Iūlius in - lavātur."
+    ],
+    "difficulty": 1,
+    "grammarNote": "m. pl."
+  },
+  {
+    "term": "convīvae",
+    "forms": [],
+    "semanticField": "domus",
+    "contextSentences": [
+      "Orontēs vīnum merum - [=bibit], cēterī convīvae aquam vīnō -."
+    ],
+    "difficulty": 2,
+    "grammarNote": "m. pl."
+  },
+  {
+    "term": "pōcula",
+    "forms": [],
+    "semanticField": "cibus",
+    "contextSentences": [
+      "In mēnsā sunt - et pōcula ex - facta."
+    ],
+    "difficulty": 1,
+    "grammarNote": "n. pl."
+  }
+]

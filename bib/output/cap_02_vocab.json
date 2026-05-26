@@ -1,0 +1,181 @@
+[
+  {
+    "term": "servus",
+    "forms": [
+      "servī",
+      "servōrum"
+    ],
+    "semanticField": "persona schiava",
+    "contextSentences": [
+      "Mēdus servus Graecus est.",
+      "Iūlius dominus servī (Dāvī) est.",
+      "Numerus servōrum est magnus."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "ancilla",
+    "forms": [
+      "ancillae",
+      "ancillārum"
+    ],
+    "semanticField": "persona schiava (femminile)",
+    "contextSentences": [
+      "Dēlia est ancilla Graeca.",
+      "Aemilia domina ancillae (Syrae) est.",
+      "Aemilia domina ancillārum (Syrae et Dēliae) est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo femminile, genetivo singolare -ae, plurale -ārum."
+  },
+  {
+    "term": "numerus",
+    "forms": [
+      "numerī"
+    ],
+    "semanticField": "quantità, numero",
+    "contextSentences": [
+      "Centum est magnus numerus.",
+      "Numerus servōrum est magnus.",
+      "Numerus līberōrum parvus est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī."
+  },
+  {
+    "term": "oppidum",
+    "forms": [
+      "oppidī",
+      "oppida",
+      "oppidōrum"
+    ],
+    "semanticField": "città, centro abitato",
+    "contextSentences": [
+      "Sparta oppidum Graecum est.",
+      "In Graeciā et in Italiā magnus numerus oppidōrum est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo neutro, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "fluvius",
+    "forms": [
+      "fluviī",
+      "fluviorum"
+    ],
+    "semanticField": "fiume",
+    "contextSentences": [
+      "In Galliā est magnus numerus fluviōrum.",
+      "Fluviī Galliae magnī sunt.",
+      "In Africā ūnus fluvius magnus est: Nīlus."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "īnsula",
+    "forms": [
+      "īnsulae",
+      "īnsulārum"
+    ],
+    "semanticField": "isola",
+    "contextSentences": [
+      "Suntne magnae īnsulae Graecae?",
+      "Crēta et Euboea duae īnsulae magnae sunt.",
+      "cēterae īnsulae Graecae sunt parvae."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo femminile, genetivo singolare -ae, plurale -ārum."
+  },
+  {
+    "term": "dominus",
+    "forms": [
+      "dominī",
+      "dominōrum"
+    ],
+    "semanticField": "padrone",
+    "contextSentences": [
+      "Cornēlius dominus Rōmānus est.",
+      "Iūlius et Cornēlius duo dominī Rōmānī sunt.",
+      "Iūlius dominus servī est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "liber",
+    "forms": [
+      "librī",
+      "librōrum"
+    ],
+    "semanticField": "libro",
+    "contextSentences": [
+      "Ecce duo librī Latīnī: liber antiquus et liber novus.",
+      "LINGVA LATINA est prīmus liber tuus Latīnus.",
+      "Titulus librī tuī est 'LINGVA LATINA'."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "titulus",
+    "forms": [
+      "titulī",
+      "titulōrum"
+    ],
+    "semanticField": "titolo",
+    "contextSentences": [
+      "Titulus librī tuī est 'LINGVA LATINA'.",
+      "'IMPERIVM ROMANVM' est titulus capitulī prīmī.",
+      "Titulus capitulī secundī est 'FAMILIA ROMANA'."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo maschile, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "capitulum",
+    "forms": [
+      "capitulī",
+      "capitulōrum"
+    ],
+    "semanticField": "capitolo",
+    "contextSentences": [
+      "In LINGVA LATINA sunt multae pāginae et multa capitula.",
+      "'IMPERIVM ROMANVM' est titulus capitulī prīmī.",
+      "Titulus capitulī secundī est 'FAMILIA ROMANA'."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo neutro, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "vocabulum",
+    "forms": [
+      "vocābulī",
+      "vocābulōrum"
+    ],
+    "semanticField": "parola, termine",
+    "contextSentences": [
+      "In pāginā prīmā capitulī secundī multa vocabula nova sunt.",
+      "Numerus vocabulōrum Latīnōrum magnus est!",
+      "'Servus' est vocabulum masculinum."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Sostantivo neutro, genetivo singolare -ī, plurale -ōrum."
+  },
+  {
+    "term": "familia",
+    "forms": [
+      "familiae",
+      "familiārum"
+    ],
+    "semanticField": "famiglia",
+    "contextSentences": [
+      "In familiā Iūliī magnus numerus servōrum, parvus numerus līberōrum est.",
+      "Familia mea magna est.",
+      "Aemilia domina ancillārum est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Sostantivo femminile, genetivo singolare -ae, plurale -ārum."
+  }
+]

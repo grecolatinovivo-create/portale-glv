@@ -1,0 +1,82 @@
+[
+  {
+    "term": "pergere",
+    "forms": [],
+    "semanticField": "azione",
+    "contextSentences": [
+      "Nōlī pergere!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "infinitivo presente"
+  },
+  {
+    "term": "occurrit",
+    "forms": [],
+    "semanticField": "azione",
+    "contextSentences": [
+      "dominae in ōstiō occurrit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, 3a sing."
+  },
+  {
+    "term": "nūbibus",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "ecce caelum nūbibus ātrīs operītur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "abl. plurale"
+  },
+  {
+    "term": "impluvium",
+    "forms": [],
+    "semanticField": "casa",
+    "contextSentences": [
+      "silentēs imbrem in impluvium cadentem aspiciunt."
+    ],
+    "difficulty": 4,
+    "grammarNote": "sostantivo neutro"
+  },
+  {
+    "term": "nautīs",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "miserīs nautīs, quorum officium est nāvigāre"
+    ],
+    "difficulty": 2,
+    "grammarNote": "dat./abl. plurale"
+  },
+  {
+    "term": "turbidum",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "sīve mare tranquillum sīve turbidum est."
+    ],
+    "difficulty": 3,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "aliēnīs",
+    "forms": [],
+    "semanticField": "luogo",
+    "contextSentences": [
+      "rēs necessäriäs ex terrīs aliēnīs in Italiam advehere cōnantur."
+    ],
+    "difficulty": 3,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "proficiscar",
+    "forms": [],
+    "semanticField": "azione",
+    "contextSentences": [
+      "Rōmam proficiscar"
+    ],
+    "difficulty": 4,
+    "grammarNote": "verbo deponente"
+  }
+]

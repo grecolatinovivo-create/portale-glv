@@ -1,0 +1,82 @@
+[
+  {
+    "term": "fretum",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Interim Mēdus et Lydia ventō secundō per mare Infe- rum nāvigāre pergunt ad fretum Siculum (id est fretum angustum quō Sicilia ab Italia disiungitur)."
+    ],
+    "difficulty": 2,
+    "grammarNote": "neutro, II declinazione"
+  },
+  {
+    "term": "mercēs",
+    "forms": [],
+    "semanticField": "commercio",
+    "contextSentences": [
+      "Gaudent omnēs qui ea nāve vehuntur praeter mercātōrem cuius mercēs necesse fuit ē nāve ēicere."
+    ],
+    "difficulty": 3,
+    "grammarNote": "femminile, III declinazione"
+  },
+  {
+    "term": "tempestās",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Ut tempestās mare tranquil- lum turbāvit, ita verba Lydiae animum Mēdī turbāvē- runt."
+    ],
+    "difficulty": 2,
+    "grammarNote": "femminile, I declinazione"
+  },
+  {
+    "term": "pallēs",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Lydia amīcum suum colorem mūtāvisse animadvertit et \"Quid pallēs?\" inquit, \"Utrum aegrōtās an territus es?\""
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, II coniugazione"
+  },
+  {
+    "term": "Bethlehem",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In oppido Bethlehem nātus est in Iūdaeā, patriā Iūdaeō- rum, quae inter Syriam et Aegyptum sita est."
+    ],
+    "difficulty": 4,
+    "grammarNote": "null"
+  },
+  {
+    "term": "discipulus",
+    "forms": [],
+    "semanticField": "religione",
+    "contextSentences": [
+      "Postea Christus ipse plānē dēmōnstrā- vit sē esse filium Dei, nam discipulos docēbat, quōrum magna turba eum sequēbātur, aegrōs sānābat..."
+    ],
+    "difficulty": 2,
+    "grammarNote": "maschile, II declinazione"
+  },
+  {
+    "term": "caecī",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Qui medicus verbīs sõlīs potest facere ut ho- minēs caecī videant, surdī audiant, mūtī loquantur, claudī ambulent?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "aggettivo, I classe"
+  },
+  {
+    "term": "immortālis",
+    "forms": [],
+    "semanticField": "religione",
+    "contextSentences": [
+      "Immortālis est filius Deī sīcut pater eius, Deus vīvus."
+    ],
+    "difficulty": 4,
+    "grammarNote": "aggettivo, II classe"
+  }
+]

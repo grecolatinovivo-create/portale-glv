@@ -1,0 +1,82 @@
+[
+  {
+    "term": "mālum",
+    "forms": [],
+    "semanticField": "cibo",
+    "contextSentences": [
+      "Ecce mālum tuum, Mārce."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "pirum",
+    "forms": [],
+    "semanticField": "cibo",
+    "contextSentences": [
+      "Iūlius filiīs nōn māla, sed etiam pira dat."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "taberna",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Ecce taberna Romāna, in quā gemmae et margarītae multae sunt."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "tabernārius",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Quī tabernam habet tabernārius est."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "gemma",
+    "forms": [],
+    "semanticField": "oggetti",
+    "contextSentences": [
+      "Gemmae et margarītae sunt õrnāmenta."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "margarīta",
+    "forms": [],
+    "semanticField": "oggetti",
+    "contextSentences": [
+      "Ecce taberna Romāna, in quā gemmae et margarītae multae sunt."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "ōrnāmentum",
+    "forms": [],
+    "semanticField": "oggetti",
+    "contextSentences": [
+      "Gemmae et margarītae sunt õrnāmenta."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "pecūniōsus",
+    "forms": [],
+    "semanticField": "denaro",
+    "contextSentences": [
+      "Aemilia, cuius vir pecūniōsus est, multa õrnāmenta ab eō accipit."
+    ],
+    "difficulty": 4,
+    "grammarNote": null
+  }
+]

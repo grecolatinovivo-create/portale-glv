@@ -1,0 +1,82 @@
+[
+  {
+    "term": "falx",
+    "forms": [],
+    "semanticField": "instrumentum",
+    "contextSentences": [
+      "Falx est înstrūmentum quō agricola metit."
+    ],
+    "difficulty": 1,
+    "grammarNote": "null"
+  },
+  {
+    "term": "arātrum",
+    "forms": [],
+    "semanticField": "instrumentum",
+    "contextSentences": [
+      "Qui arat arātrō ūtitur; quī metit falce ūtitur; quī serit manū suā ūtitur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "null"
+  },
+  {
+    "term": "Saturnus",
+    "forms": [],
+    "semanticField": "deus",
+    "contextSentences": [
+      "Deus agricolārum est Saturnus, qui õlim rex caelī fuit, sed a filiō suō Iove è caelo pulsus in Italiam venit,"
+    ],
+    "difficulty": 2,
+    "grammarNote": "null"
+  },
+  {
+    "term": "fertilis",
+    "forms": [],
+    "semanticField": "terra",
+    "contextSentences": [
+      "Ager qui multum frümentī aliāsve frügēs ferre potest, fertilis esse dicitur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "adj. 3rd decl."
+  },
+  {
+    "term": "pābulum",
+    "forms": [],
+    "semanticField": "cibus",
+    "contextSentences": [
+      "nam herba est pecoris pābulum, et facilius est pecus pāscere quam agros colere."
+    ],
+    "difficulty": 3,
+    "grammarNote": "null"
+  },
+  {
+    "term": "vīnea",
+    "forms": [],
+    "semanticField": "ager",
+    "contextSentences": [
+      "Iī agrī in quibus vītēs crēscunt vīneae dīcuntur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "null"
+  },
+  {
+    "term": "ūvae",
+    "forms": [],
+    "semanticField": "fructus",
+    "contextSentences": [
+      "Frūgēs vīneārum sunt ūvae, quae mēnse Septembrī mātūrae sunt."
+    ],
+    "difficulty": 2,
+    "grammarNote": "null"
+  },
+  {
+    "term": "colōnus",
+    "forms": [],
+    "semanticField": "labor",
+    "contextSentences": [
+      "Colõnus est agricola quī nōn suōs, sed aliēnōs agrōs prō do"
+    ],
+    "difficulty": 3,
+    "grammarNote": "null"
+  }
+]

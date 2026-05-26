@@ -1,0 +1,122 @@
+[
+  {
+    "term": "dēlectātur",
+    "forms": [
+      "dēlectō",
+      "dēlectāre",
+      "dēlectāvī",
+      "dēlectātum"
+    ],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Lȳdia verbīs Mēdī dēlectātur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "-ātur: passivo"
+  },
+  {
+    "term": "salūtat",
+    "forms": [
+      "salūtō",
+      "salūtāre",
+      "salūtāvī",
+      "salūtātum"
+    ],
+    "semanticField": "interazione sociale",
+    "contextSentences": [
+      "Lȳdia verbīs Mēdī dēlectātur eumque salūtat."
+    ],
+    "difficulty": 1,
+    "grammarNote": "-at: attivo"
+  },
+  {
+    "term": "habitat",
+    "forms": [
+      "habitō",
+      "habitāre",
+      "habitāvī",
+      "habitātum"
+    ],
+    "semanticField": "luogo",
+    "contextSentences": [
+      "Lȳdia Rōmae habitat."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "portat",
+    "forms": [
+      "portō",
+      "portāre",
+      "portāvī",
+      "portātum"
+    ],
+    "semanticField": "azioni",
+    "contextSentences": [
+      "Servus saccum portat."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "portātur",
+    "forms": [
+      "portō",
+      "portāre",
+      "portāvī",
+      "portātum"
+    ],
+    "semanticField": "azioni",
+    "contextSentences": [
+      "Saccus portātur ā servō."
+    ],
+    "difficulty": 2,
+    "grammarNote": "-tur: passivo"
+  },
+  {
+    "term": "vidētur",
+    "forms": [
+      "videō",
+      "vidēre",
+      "vīdī",
+      "vīsum"
+    ],
+    "semanticField": "percezione",
+    "contextSentences": [
+      "Iūlia puerōs nõn videt neque ab iīs vidētur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "-ētur: passivo"
+  },
+  {
+    "term": "vehĭtur",
+    "forms": [
+      "vehō",
+      "vehere",
+      "vexī",
+      "vectum"
+    ],
+    "semanticField": "movimento",
+    "contextSentences": [
+      "Cornēlius equō vehitur."
+    ],
+    "difficulty": 3,
+    "grammarNote": "-itur: passivo"
+  },
+  {
+    "term": "lacrimat",
+    "forms": [
+      "lacrimō",
+      "lacrimāre",
+      "lacrimāvī",
+      "lacrimātum"
+    ],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Puella lacrimat: in oculīs eius sunt lacrimae."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "term": "bēstiae",
+    "forms": [],
+    "semanticField": "animali",
+    "contextSentences": [
+      "Equus et asinus, leō et lupus, canis et ovis bēstiae sunt."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Nom. pl."
+  },
+  {
+    "term": "fera",
+    "forms": [],
+    "semanticField": "animali",
+    "contextSentences": [
+      "Leō et lupus sunt bestiae ferae, quae aliās bēstiās capiunt et edunt."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Adj."
+  },
+  {
+    "term": "pāstor",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Nōn bēstia, sed homō est pāstor; leōnēs autem nōn sõlum aliās bēstiās, sed etiam pāstōrēs ipsōs!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom."
+  },
+  {
+    "term": "avis",
+    "forms": [],
+    "semanticField": "animali",
+    "contextSentences": [
+      "Aliae bēstiae sunt avēs, aliae piscēs."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom."
+  },
+  {
+    "term": "āla",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Avis duās ālās habet."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom."
+  },
+  {
+    "term": "natat",
+    "forms": [],
+    "semanticField": "movimento",
+    "contextSentences": [
+      "Piscēs in aquā natant."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Verbo"
+  },
+  {
+    "term": "deus",
+    "forms": [],
+    "semanticField": "religione",
+    "contextSentences": [
+      "Mercurius nõn homō, sed deus est."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom."
+  },
+  {
+    "term": "flūmen",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Padus magnum flūmen est."
+    ],
+    "difficulty": 3,
+    "grammarNote": "Nom."
+  }
+]

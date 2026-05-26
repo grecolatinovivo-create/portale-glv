@@ -4572,7 +4572,72 @@ function renderPlayer(lesson, course) {
   _lastTimeupdatePos = -1;
   _resumePos         = 0;
 
-  const vimeoUrl = lesson.vimeoUrl || VIMEO_PLACEHOLDER;
+  // ── Lezione senza video (es. capitoli Familia Romana) ──────────────────
+  if (!lesson.vimeoUrl) {
+    // Nascondi il player wrap e mostra una scheda capitolo
+    wrap.style.display = 'none';
+    const metaBar = document.getElementById('player-meta-bar');
+    if (metaBar) metaBar.style.display = 'none';
+
+    let textCard = document.getElementById('fr-text-card');
+    if (!textCard) {
+      textCard = document.createElement('div');
+      textCard.id = 'fr-text-card';
+      textCard.style.cssText = [
+        'background:rgba(255,255,255,.04)',
+        'border:1px solid rgba(255,255,255,.1)',
+        'border-radius:14px',
+        'padding:40px 32px',
+        'text-align:center',
+        'margin-bottom:24px',
+      ].join(';');
+      wrap.parentNode.insertBefore(textCard, wrap);
+    }
+    // Estrai numero romano dal titolo (es. "Cap. 7 — Capitulum Septimum")
+    const chapMatch = lesson.title.match(/Cap\.\s*(\d+)\s*[—-]\s*(.+)/);
+    const chapNum   = chapMatch ? chapMatch[1] : '';
+    const chapName  = chapMatch ? chapMatch[2] : lesson.title;
+
+    textCard.innerHTML = `
+      <div style="font-size:.75rem;color:rgba(201,150,42,.7);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">
+        Lingua Latina per se Illustrata
+      </div>
+      <div style="font-family:'EB Garamond','Garamond',serif;font-size:2rem;color:#f0e6c8;margin-bottom:4px">
+        Capitulum ${chapNum ? 'Cap. ' + chapNum : ''}
+      </div>
+      <div style="font-family:'EB Garamond','Garamond',serif;font-size:1.25rem;color:rgba(240,230,200,.7);margin-bottom:28px;font-style:italic">
+        ${chapName}
+      </div>
+      <p style="font-size:.85rem;color:rgba(255,255,255,.5);max-width:380px;margin:0 auto 28px;line-height:1.6">
+        Questo capitolo non contiene un video. Usa il lessico adattivo per acquisire
+        i termini chiave del capitolo con il metodo CI&nbsp;/ LLPSI.
+      </p>
+      <button
+        style="background:rgba(201,150,42,.15);border:1.5px solid rgba(201,150,42,.5);color:rgba(201,150,42,.95);
+               font-size:.9rem;padding:12px 28px;border-radius:10px;cursor:pointer;font-family:inherit;
+               transition:background .2s"
+        onmouseover="this.style.background='rgba(201,150,42,.25)'"
+        onmouseout="this.style.background='rgba(201,150,42,.15)'"
+        onclick="startVocabSession('${lesson.id}')"
+      >
+        📖 Inizia il lessico del capitolo
+      </button>`;
+    textCard.style.display = 'block';
+
+    // Aggiorna titolo nella sidebar
+    const pmb = document.getElementById('pmb-title');
+    if (pmb) pmb.textContent = lesson.title;
+    return;
+  }
+
+  // ── Lezione con video: ripristina player wrap se era nascosto ───────────
+  wrap.style.display = '';
+  const metaBarRestore = document.getElementById('player-meta-bar');
+  if (metaBarRestore) metaBarRestore.style.display = '';
+  const oldCard = document.getElementById('fr-text-card');
+  if (oldCard) oldCard.style.display = 'none';
+
+  const vimeoUrl = lesson.vimeoUrl;
   const videoId  = _extractVimeoId(vimeoUrl);
   if (!videoId) return;
 

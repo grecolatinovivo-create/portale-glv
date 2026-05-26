@@ -1,0 +1,82 @@
+[
+  {
+    "term": "coniūnctiō",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Coniūnctiō quid est?"
+    ],
+    "difficulty": 2,
+    "grammarNote": "pars ōrātiōnis"
+  },
+  {
+    "term": "praepositiō",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Pars ōrātiōnis quae praeposita aliīs partibus ōrāti-õnis significationem earum aut complet aut mūtat aut minuit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "cum acc. vel abl."
+  },
+  {
+    "term": "cōpulātīvās",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Dā cōpulātīvās!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "coniunctionum speciēs"
+  },
+  {
+    "term": "disiūnctīvās",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Dā disiūnctīvās!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "coniunctionum speciēs"
+  },
+  {
+    "term": "explētīvās",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Dā explētīvās!"
+    ],
+    "difficulty": 4,
+    "grammarNote": "coniunctionum speciēs"
+  },
+  {
+    "term": "causālēs",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Dā causālēs!"
+    ],
+    "difficulty": 4,
+    "grammarNote": "coniunctionum speciēs"
+  },
+  {
+    "term": "ratiōnālēs",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Dā ratiōnālēs!"
+    ],
+    "difficulty": 4,
+    "grammarNote": "coniunctionum speciēs"
+  },
+  {
+    "term": "interiectiō",
+    "forms": [],
+    "semanticField": "grammatica",
+    "contextSentences": [
+      "Interiectiō quid est?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "mentis affectum"
+  }
+]

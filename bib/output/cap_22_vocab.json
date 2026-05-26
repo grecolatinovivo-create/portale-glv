@@ -1,0 +1,82 @@
+[
+  {
+    "term": "velle",
+    "forms": [],
+    "semanticField": "volere",
+    "contextSentences": [
+      "Nōn modo posse, sed etiam velle opus est: quod nõn vīs, nõn potes."
+    ],
+    "difficulty": 1,
+    "grammarNote": "infinitivo"
+  },
+  {
+    "term": "scindit",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Hoc dīcēns Iūlius epistulam magistrī scindit."
+    ],
+    "difficulty": 2,
+    "grammarNote": "3a sing."
+  },
+  {
+    "term": "pāritūrum",
+    "forms": [],
+    "semanticField": "scuola",
+    "contextSentences": [
+      "Marcus dīcit 'sẽ posthāc bonum discipulum futūrum esse, semper magistrō pāritūrum esse nec umquam in lūdō dormītūrum esse.'"
+    ],
+    "difficulty": 3,
+    "grammarNote": "fut.part."
+  },
+  {
+    "term": "laudātum",
+    "forms": [],
+    "semanticField": "scuola",
+    "contextSentences": [
+      "Iūlius dīcit 'Sextum ā magistrō laudātum īrī.'"
+    ],
+    "difficulty": 3,
+    "grammarNote": "supino"
+  },
+  {
+    "term": "tremēns",
+    "forms": [],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Mārcus - et tremēns - patris legentis aspicit."
+    ],
+    "difficulty": 2,
+    "grammarNote": "part.pres."
+  },
+  {
+    "term": "aegrotus",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Puer aegrotus iterum iterumque super lectum sẽ convertit nec dormire potest sīve in latere dextrõ cubat sīve in latere sinistrō."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "strepitū",
+    "forms": [],
+    "semanticField": "ambiente",
+    "contextSentences": [
+      "At subitō silentium clāmôre et strepitū māximō rumpitur, nam Marcus in cubiculō suō, quod iūxtā cubiculum Quinti est, magnā vōce clāmat et forem manibus pedibusque percutit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "ablativo"
+  },
+  {
+    "term": "percutit",
+    "forms": [],
+    "semanticField": "azione",
+    "contextSentences": [
+      "Quintus, qui tantum strepitum mīrātur, Syram vocat; quae continuō accurrit."
+    ],
+    "difficulty": 2,
+    "grammarNote": "3a sing."
+  }
+]

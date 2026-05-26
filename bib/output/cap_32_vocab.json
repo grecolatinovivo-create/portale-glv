@@ -1,0 +1,82 @@
+[
+  {
+    "term": "litterae",
+    "forms": [],
+    "semanticField": "communication",
+    "contextSentences": [
+      "Ecce litterae novissimae, quas Aemilia prīdiē kalendās Iūniās ā fratre accēpit et posterō die in conviviō recitāvit:"
+    ],
+    "difficulty": 1,
+    "grammarNote": "plural noun"
+  },
+  {
+    "term": "tabellārius",
+    "forms": [],
+    "semanticField": "work",
+    "contextSentences": [
+      "Quam tardus est iste tabellārius!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "noun"
+  },
+  {
+    "term": "Alpēs",
+    "forms": [],
+    "semanticField": "geography",
+    "contextSentences": [
+      "sed tamen celer tabellarius idem iter quindecim ferē diēbus conficere potest, ut 55 tabellāriī pūblicī quibus ūtitur dux noster."
+    ],
+    "difficulty": 3,
+    "grammarNote": "proper noun"
+  },
+  {
+    "term": "Dānuvium",
+    "forms": [],
+    "semanticField": "geography",
+    "contextSentences": [
+      "Cum Dānuvium flūmen aspicio, quod praeter castra nostra fluit, dē Tiberī cōgitō atque de Rōmā."
+    ],
+    "difficulty": 3,
+    "grammarNote": "proper noun"
+  },
+  {
+    "term": "castra",
+    "forms": [],
+    "semanticField": "military",
+    "contextSentences": [
+      "Cum Dānuvium flūmen aspicio, quod praeter castra nostra fluit, dē Tiberī cōgitō atque de Rōmā."
+    ],
+    "difficulty": 2,
+    "grammarNote": "plural noun"
+  },
+  {
+    "term": "officium",
+    "forms": [],
+    "semanticField": "duty",
+    "contextSentences": [
+      "Ego vērō, etsi cupidus sum patriae videndae, officium meum praestābō sīcut cēterī mīlitēs Rōmānī, quō-"
+    ],
+    "difficulty": 2,
+    "grammarNote": "noun"
+  },
+  {
+    "term": "legiōnēs",
+    "forms": [],
+    "semanticField": "military",
+    "contextSentences": [
+      "Nē hoc fiat, 85 legiōnēs Rōmānae hic sunt ac tamdiū remanēbunt quamdiū hostis armātus seu citrā seu ultrā Dānuvium flūmen reliquus erit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "plural noun"
+  },
+  {
+    "term": "ōtium",
+    "forms": [],
+    "semanticField": "time",
+    "contextSentences": [
+      "Sī mihi tantum esset ōtiī quantum est tibi, in epistulīs scriben- dīs non minus dīligēns essem quam tū."
+    ],
+    "difficulty": 3,
+    "grammarNote": "noun"
+  }
+]

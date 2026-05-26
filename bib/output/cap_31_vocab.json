@@ -1,0 +1,82 @@
+[
+  {
+    "term": "gratiam referre",
+    "forms": [],
+    "semanticField": "relazioni sociali",
+    "contextSentences": [
+      "Facile est gratias agere prō beneficiīs, nec vērō quidquam difficilius esse videtur quam beneficiorum meminisse."
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbum compositum"
+  },
+  {
+    "term": "beneficium",
+    "forms": [],
+    "semanticField": "relazioni sociali",
+    "contextSentences": [
+      "Numquam beneficii oblītus sum, semper pecūniam acceptam reddidi."
+    ],
+    "difficulty": 2,
+    "grammarNote": "null"
+  },
+  {
+    "term": "redimere",
+    "forms": [],
+    "semanticField": "schiavitù",
+    "contextSentences": [
+      "Miror unde pecūniam sūmpseris ut aliōs redimerēs, cum të ipse redimere nõn possīs."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbum"
+  },
+  {
+    "term": "servitūs",
+    "forms": [],
+    "semanticField": "schiavitù",
+    "contextSentences": [
+      "Sed quoniam omnēs mē quasi servum scelestum contemnitis, nārrābō võbīs breviter quomodo amīcum ē servitūte redēmerim atque ipse ob eam gratiam servus factus sim:"
+    ],
+    "difficulty": 3,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "mūtuam",
+    "forms": [],
+    "semanticField": "denaro",
+    "contextSentences": [
+      "Cum autem tantum pecūniae non habērem, necesse fuit pecūniam mūtuam sūmere."
+    ],
+    "difficulty": 3,
+    "grammarNote": "adiectivum"
+  },
+  {
+    "term": "pīrātae",
+    "forms": [],
+    "semanticField": "criminalità",
+    "contextSentences": [
+      "Cum homo līber Athēnīs viverem, ā quodam amīcō epistulam accēpī quā ille mihi nūntiāvit 'sē ā pīrātīs captum esse' ac mē per amīcitiam nostram ōrāvit ut sē ē servitūte redimerem magnum pretium solvendō."
+    ],
+    "difficulty": 3,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "praedōnēs",
+    "forms": [],
+    "semanticField": "criminalità",
+    "contextSentences": [
+      "Tum praedōnibus quasi servīs suīs imperāvit ut tacērent neu somnum suum turbārent — ita Caesar praedōnēs contemnēbat, cum in eōrum potestāte esset."
+    ],
+    "difficulty": 4,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "talentum",
+    "forms": [],
+    "semanticField": "denaro",
+    "contextSentences": [
+      "Scīsne quantum pīrātae ā Iūliō Caesare captō postulāverint? Viginti talenta postulāvērunt, id est prope quingenta mīlia sēstertium."
+    ],
+    "difficulty": 5,
+    "grammarNote": "substantivum"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "term": "praenōmina",
+    "forms": [],
+    "semanticField": "nōmina",
+    "contextSentences": [
+      "et 'Quīntus' praenōmina sunt filiōrum."
+    ],
+    "difficulty": 1,
+    "grammarNote": "pl. n."
+  },
+  {
+    "term": "avunculus",
+    "forms": [],
+    "semanticField": "familia",
+    "contextSentences": [
+      "Aemilius avunculus vester est, id est frāter mātris."
+    ],
+    "difficulty": 1,
+    "grammarNote": "m."
+  },
+  {
+    "term": "mīles",
+    "forms": [],
+    "semanticField": "exercitus",
+    "contextSentences": [
+      "Aemilius mīles est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "m."
+  },
+  {
+    "term": "scūtum",
+    "forms": [],
+    "semanticField": "arma",
+    "contextSentences": [
+      "Mīles est vir quī scūtum et gladium et pīlum fert."
+    ],
+    "difficulty": 2,
+    "grammarNote": "n."
+  },
+  {
+    "term": "gladius",
+    "forms": [],
+    "semanticField": "arma",
+    "contextSentences": [
+      "Mīles est vir quī scūtum et gladium et pīlum fert."
+    ],
+    "difficulty": 1,
+    "grammarNote": "m."
+  },
+  {
+    "term": "pīlum",
+    "forms": [],
+    "semanticField": "arma",
+    "contextSentences": [
+      "Mīles est vir quī scūtum et gladium et pīlum fert."
+    ],
+    "difficulty": 2,
+    "grammarNote": "n."
+  },
+  {
+    "term": "eques",
+    "forms": [],
+    "semanticField": "exercitus",
+    "contextSentences": [
+      "Eques est mīles quī ex equō pugnat; quī pedibus pugnat pedes est."
+    ],
+    "difficulty": 3,
+    "grammarNote": "m."
+  },
+  {
+    "term": "prōvincia",
+    "forms": [],
+    "semanticField": "geographia",
+    "contextSentences": [
+      "Gallia autem prōvincia Rōmāna est, ut Hispānia, Syria, Aegyptus."
+    ],
+    "difficulty": 2,
+    "grammarNote": "f."
+  }
+]

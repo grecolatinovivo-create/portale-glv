@@ -1,0 +1,122 @@
+[
+  {
+    "term": "hortō",
+    "forms": [
+      "hortus"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In hortō Iūliī."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus singulāris"
+  },
+  {
+    "term": "hortīs",
+    "forms": [
+      "hortus"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In hortis Italiae."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus plūrālis"
+  },
+  {
+    "term": "vīllā",
+    "forms": [
+      "villa"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In vīllā Iūliī."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus singulāris"
+  },
+  {
+    "term": "vīllīs",
+    "forms": [
+      "villa"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In vīllīs Romānīs."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus plūrālis"
+  },
+  {
+    "term": "oppidō",
+    "forms": [
+      "oppidum"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In oppidō Tūsculō."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus singulāris"
+  },
+  {
+    "term": "oppidīs",
+    "forms": [
+      "oppidum"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "In oppidīs Graecis."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablātīvus plūrālis"
+  },
+  {
+    "term": "vocā",
+    "forms": [
+      "vocare"
+    ],
+    "semanticField": "comunicazione",
+    "contextSentences": [
+      "Dāvum vocā, serve!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "imperātīvus singulāris"
+  },
+  {
+    "term": "vocat",
+    "forms": [
+      "vocare"
+    ],
+    "semanticField": "comunicazione",
+    "contextSentences": [
+      "Servus Dāvum vocat."
+    ],
+    "difficulty": 2,
+    "grammarNote": "indicātīvus singulāris"
+  },
+  {
+    "term": "vocāte",
+    "forms": [
+      "vocare"
+    ],
+    "semanticField": "comunicazione",
+    "contextSentences": [
+      "Iūliam vocāte, puerī!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "imperātīvus plūrālis"
+  },
+  {
+    "term": "vocant",
+    "forms": [
+      "vocare"
+    ],
+    "semanticField": "comunicazione",
+    "contextSentences": [
+      "Puerī Iūliam vocant."
+    ],
+    "difficulty": 2,
+    "grammarNote": "indicātīvus plūrālis"
+  }
+]

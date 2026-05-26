@@ -1,0 +1,98 @@
+[
+  {
+    "term": "bracchium",
+    "forms": [
+      "bracchium"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Corpus hūmānum quattuor membra habet: duo bracchia et duo crūra."
+    ],
+    "difficulty": 1,
+    "grammarNote": "seconda declinazione"
+  },
+  {
+    "term": "crūs",
+    "forms": [
+      "crūs"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Bracchium membrum est et crūs membrum est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "terza declinazione"
+  },
+  {
+    "term": "cerebrum",
+    "forms": [
+      "cerebrum"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Post frontem est cerebrum."
+    ],
+    "difficulty": 2,
+    "grammarNote": "seconda declinazione"
+  },
+  {
+    "term": "labrum",
+    "forms": [
+      "labrum"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Ōs est inter duo labra."
+    ],
+    "difficulty": 2,
+    "grammarNote": "seconda declinazione"
+  },
+  {
+    "term": "pulmōnēs",
+    "forms": [
+      "pulmōnēs"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "In pectore cor et pulmōnēs sunt."
+    ],
+    "difficulty": 3,
+    "grammarNote": "terza declinazione"
+  },
+  {
+    "term": "iecur",
+    "forms": [
+      "iecur"
+    ],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Infrā pulmōnēs est iecur et venter."
+    ],
+    "difficulty": 4,
+    "grammarNote": "terza declinazione"
+  },
+  {
+    "term": "aeger",
+    "forms": [
+      "aeger"
+    ],
+    "semanticField": "salute",
+    "contextSentences": [
+      "Homō qui ventrem malum habet cibum sūmere nõn potest, neque is sānus, sed aeger est."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo 1 classe"
+  },
+  {
+    "term": "arcessere",
+    "forms": [
+      "arcessere"
+    ],
+    "semanticField": "azioni",
+    "contextSentences": [
+      "I ad oppidum, Syre, atque medicum arcesse!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "terza coniugazione"
+  }
+]

@@ -1,0 +1,98 @@
+[
+  {
+    "term": "baculum",
+    "forms": [
+      "baculum"
+    ],
+    "semanticField": "oggetti",
+    "contextSentences": [
+      "Ecce baculum in mēnsā."
+    ],
+    "difficulty": 1,
+    "grammarNote": "second declension neuter"
+  },
+  {
+    "term": "sacculus",
+    "forms": [
+      "sacculum"
+    ],
+    "semanticField": "oggetti",
+    "contextSentences": [
+      "Sūme sacculum tuum et discēde!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "second declension masculine"
+  },
+  {
+    "term": "imperat",
+    "forms": [
+      "imperat"
+    ],
+    "semanticField": "verbi",
+    "contextSentences": [
+      "Iūlius imperat."
+    ],
+    "difficulty": 2,
+    "grammarNote": "present tense"
+  },
+  {
+    "term": "pāret",
+    "forms": [
+      "pāret"
+    ],
+    "semanticField": "verbi",
+    "contextSentences": [
+      "Dāvus pāret; Mēdus nōn pāret."
+    ],
+    "difficulty": 2,
+    "grammarNote": "present tense"
+  },
+  {
+    "term": "pecūnia",
+    "forms": [
+      "pecūnia"
+    ],
+    "semanticField": "denaro",
+    "contextSentences": [
+      "Ubi est pecūnia mea, Mēde?"
+    ],
+    "difficulty": 2,
+    "grammarNote": "first declension"
+  },
+  {
+    "term": "hortus",
+    "forms": [
+      "hortus"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Ecce villa et hortus Iūliī."
+    ],
+    "difficulty": 1,
+    "grammarNote": "second declension"
+  },
+  {
+    "term": "līberī",
+    "forms": [
+      "līberī"
+    ],
+    "semanticField": "famiglia",
+    "contextSentences": [
+      "Pater et māter et trēs līberī in vīllā habitant."
+    ],
+    "difficulty": 2,
+    "grammarNote": "plural only"
+  },
+  {
+    "term": "ōstium",
+    "forms": [
+      "ōstium"
+    ],
+    "semanticField": "casa",
+    "contextSentences": [
+      "In vīllā sunt duo ōstia."
+    ],
+    "difficulty": 2,
+    "grammarNote": "second declension neuter"
+  }
+]

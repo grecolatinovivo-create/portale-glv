@@ -1,0 +1,82 @@
+[
+  {
+    "term": "õrnāmentum",
+    "forms": [],
+    "semanticField": "gioiello",
+    "contextSentences": [
+      "Örnāmentum cuius pretium est HS C est ānulus."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "ānulus",
+    "forms": [],
+    "semanticField": "gioiello",
+    "contextSentences": [
+      "Örnāmentum cuius pretium est HS C est ānulus."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "fluvius",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Fluvius oppidō aquam dat."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "oppidum",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Fluvius oppidō aquam dat."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "margarītae",
+    "forms": [],
+    "semanticField": "gioiello",
+    "contextSentences": [
+      "Örnāmenta quibus feminae dēlectantur sunt margarītae et gemmae."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "gemmae",
+    "forms": [],
+    "semanticField": "gioiello",
+    "contextSentences": [
+      "Örnāmenta quibus feminae dēlectantur sunt margarītae et gemmae."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "tabernārius",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Est tabernārius quī õrnāmenta vēndit."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "digitus",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Digitus in quō ānulus põnitur est digitus quārtus."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  }
+]

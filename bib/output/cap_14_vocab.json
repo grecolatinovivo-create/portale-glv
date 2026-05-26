@@ -1,0 +1,82 @@
+[
+  {
+    "term": "doleō",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "Sedēre non possum, quod mihi dolet..."
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbo"
+  },
+  {
+    "term": "tacēte",
+    "forms": [],
+    "semanticField": "comando",
+    "contextSentences": [
+      "Tacēte! Eam corporis partem nomināre non convenit!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "imperativo"
+  },
+  {
+    "term": "aeger",
+    "forms": [],
+    "semanticField": "salute",
+    "contextSentences": [
+      "Quintus dīcit 'sē aegrum esse."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "mālum",
+    "forms": [],
+    "semanticField": "cibo",
+    "contextSentences": [
+      "Redde mihi mālum meum, Tite!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "sostantivo"
+  },
+  {
+    "term": "īrātus",
+    "forms": [],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Marcus īrātus Titum pulsare incipit, sed magister"
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "improbī",
+    "forms": [],
+    "semanticField": "comportamento",
+    "contextSentences": [
+      "O improbī discipulī! Dormītis! Quod recitō nōn audītis!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "lectulō",
+    "forms": [],
+    "semanticField": "casa",
+    "contextSentences": [
+      "In lectulō dormīre licet, hic in lūdō nõn licet dormire!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "sostantivo"
+  },
+  {
+    "term": "verberō",
+    "forms": [],
+    "semanticField": "punizione",
+    "contextSentences": [
+      "Võs verberō, quod aliō modō vōs excitāre nõn possum."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo"
+  }
+]

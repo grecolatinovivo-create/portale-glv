@@ -1,0 +1,82 @@
+[
+  {
+    "term": "fortūna",
+    "forms": [],
+    "semanticField": "sorte",
+    "contextSentences": [
+      "Varia quidem est hominum fortūna, sed homo prūdēns bonam et malam fortūnam aequō animō fert nec alterius fortūnae invidet."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom.Sg."
+  },
+  {
+    "term": "gubernātor",
+    "forms": [],
+    "semanticField": "lavoro",
+    "contextSentences": [
+      "Dum gubernātor loquitur, altera nāvis procul in marī apparet."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom.Sg."
+  },
+  {
+    "term": "praedōnēs",
+    "forms": [],
+    "semanticField": "crimine",
+    "contextSentences": [
+      "Certē nāvis praedõnum est."
+    ],
+    "difficulty": 3,
+    "grammarNote": "Nom.Pl."
+  },
+  {
+    "term": "vēla",
+    "forms": [],
+    "semanticField": "nautica",
+    "contextSentences": [
+      "Omnia vēla date, nautae!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "Acc.Pl."
+  },
+  {
+    "term": "rēmīs",
+    "forms": [],
+    "semanticField": "nautica",
+    "contextSentences": [
+      "Mox rēmīs vēlīsque vehitur nāvis quam vēlōcissimē potest, sed tamen altera nāvis, cuius rēmī quasi ālae ingentēs sūrsum deorsum moventur, magis magisque appropinquat."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Abl.Pl."
+  },
+  {
+    "term": "fidicen",
+    "forms": [],
+    "semanticField": "arte",
+    "contextSentences": [
+      "Orpheus, fidicen-, tam pulchrē canēbat ut ferae [= prope venīrent] ac fluvii - consisterent."
+    ],
+    "difficulty": 4,
+    "grammarNote": "Nom.Sg."
+  },
+  {
+    "term": "hospitēs",
+    "forms": [],
+    "semanticField": "società",
+    "contextSentences": [
+      "Hospitēs sunt amīcī quōrum alter alterum 5 semper bene recipit domum suam, etiam si inexspectātus venit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "Nom.Pl."
+  },
+  {
+    "term": "cēna",
+    "forms": [],
+    "semanticField": "cibo",
+    "contextSentences": [
+      "Hodiē autem hospitēs Jūliī exspectātī veniunt, nam Iūlius eōs vocāvit ad cēnam."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nom.Sg."
+  }
+]

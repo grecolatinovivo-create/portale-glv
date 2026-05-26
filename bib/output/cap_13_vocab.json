@@ -1,0 +1,82 @@
+[
+  {
+    "term": "gallus",
+    "forms": [],
+    "semanticField": "animalia",
+    "contextSentences": [
+      "Ecce gallus canit: \"Cucurrū! Cucucurrū!\""
+    ],
+    "difficulty": 1,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "oculōs",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "Marcus oculōs nõn aperit neque se movet."
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusativus pluralis"
+  },
+  {
+    "term": "cubiculum",
+    "forms": [],
+    "semanticField": "domus",
+    "contextSentences": [
+      "Dāvus cubiculum intrāns interrogat: \"Quomodo sẽ habet pēs tuus hodie?\""
+    ],
+    "difficulty": 2,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "pēs",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "Quintus respondet: \"Pēs male së habet, nec pēs tantum, sed etiam caput et bracchium dolet.\""
+    ],
+    "difficulty": 1,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "aquam",
+    "forms": [],
+    "semanticField": "elementa",
+    "contextSentences": [
+      "Dā mihi aquam, Dāve!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusativus"
+  },
+  {
+    "term": "dormit",
+    "forms": [],
+    "semanticField": "actio",
+    "contextSentences": [
+      "Marcus adhūc dormit."
+    ],
+    "difficulty": 1,
+    "grammarNote": "verbum"
+  },
+  {
+    "term": "manūs",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "Affer mihi aquam ad manūs!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusativus pluralis"
+  },
+  {
+    "term": "toga",
+    "forms": [],
+    "semanticField": "vestimenta",
+    "contextSentences": [
+      "Dā mihi tunicam et togam!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "substantivum"
+  }
+]

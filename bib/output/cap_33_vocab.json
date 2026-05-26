@@ -1,0 +1,82 @@
+[
+  {
+    "term": "bracchium",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "nōn modo fīliō, sed etiam frātrī meō bracchium vulnerātum est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusativus"
+  },
+  {
+    "term": "scalpellō",
+    "forms": [],
+    "semanticField": "instrumentum",
+    "contextSentences": [
+      "Medicus bracchium eius scalpellō suō acūtō secuit!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "ablativus"
+  },
+  {
+    "term": "sanguinem",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "sed misellō puerō sanguinem mīsit!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "accusativus"
+  },
+  {
+    "term": "certāvisset",
+    "forms": [],
+    "semanticField": "ludus",
+    "contextSentences": [
+      "cum certāvisset cum quibusdam puerīs quī eum laeserant."
+    ],
+    "difficulty": 3,
+    "grammarNote": "perfectum coniunctivi"
+  },
+  {
+    "term": "gladiātōrēs",
+    "forms": [],
+    "semanticField": "ludus",
+    "contextSentences": [
+      "plūs trecenti gladiātōrēs certābant."
+    ],
+    "difficulty": 3,
+    "grammarNote": "nominativus pluralis"
+  },
+  {
+    "term": "rētia",
+    "forms": [],
+    "semanticField": "instrumentum",
+    "contextSentences": [
+      "aliī rētia gerēbant."
+    ],
+    "difficulty": 3,
+    "grammarNote": "accusativus pluralis"
+  },
+  {
+    "term": "aurīga",
+    "forms": [],
+    "semanticField": "negotium",
+    "contextSentences": [
+      "cum ille aurīga cui plērīque spectātōrēs favebant ex currū lāpsus equīs prōcurrentibus occīsus esset."
+    ],
+    "difficulty": 4,
+    "grammarNote": "nominativus"
+  },
+  {
+    "term": "comoediam",
+    "forms": [],
+    "semanticField": "ludus",
+    "contextSentences": [
+      "Nūper spectāvī comoediam Plautī dē Amphitryone, duce Graecorum, cuius uxor Alcmēna ab ipso Iove amābātur."
+    ],
+    "difficulty": 4,
+    "grammarNote": "accusativus"
+  }
+]

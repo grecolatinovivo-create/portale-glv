@@ -1,0 +1,135 @@
+[
+  {
+    "term": "Rōma",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Rōma in Italiā est.",
+      "Estne Rōma in Gallia?"
+    ],
+    "difficulty": 1,
+    "grammarNote": "Nominativo singolare"
+  },
+  {
+    "term": "Italia",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Rōma in Italiā est.",
+      "Italia in Eurōpā est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Nominativo singolare"
+  },
+  {
+    "term": "est",
+    "forms": [
+      "sunt"
+    ],
+    "semanticField": "verbo",
+    "contextSentences": [
+      "Rōma in Italiā est.",
+      "Italia in Eurōpā est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "verbo sum, indicativo presente"
+  },
+  {
+    "term": "in",
+    "forms": [],
+    "semanticField": "preposizione",
+    "contextSentences": [
+      "Rōma in Italiā est.",
+      "Italia in Eurōpā est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "preposizione + ablativo"
+  },
+  {
+    "term": "Eurōpā",
+    "forms": [],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Italia in Eurōpā est.",
+      "Graecia in Eurōpā est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Ablativo singolare"
+  },
+  {
+    "term": "nōn",
+    "forms": [],
+    "semanticField": "avverbio",
+    "contextSentences": [
+      "Aegyptus in Eurōpā nōn est,",
+      "Gallia nōn in Africā est,"
+    ],
+    "difficulty": 1,
+    "grammarNote": "avverbio di negazione"
+  },
+  {
+    "term": "fluvius",
+    "forms": [
+      "fluviī"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Nīlus fluvius est.",
+      "Rhēnus fluvius est."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nominativo singolare"
+  },
+  {
+    "term": "magnus",
+    "forms": [
+      "magna"
+    ],
+    "semanticField": "aggettivo",
+    "contextSentences": [
+      "Nīlus fluvius magnus est.",
+      "Rhēnus nōn est fluvius parvus, sed fluvius magnus."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo, nominativo singolare"
+  },
+  {
+    "term": "parvus",
+    "forms": [
+      "parva"
+    ],
+    "semanticField": "aggettivo",
+    "contextSentences": [
+      "Tiberis fluvius parvus est.",
+      "Melita est insula parva."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo, nominativo singolare"
+  },
+  {
+    "term": "insula",
+    "forms": [
+      "insulae"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Corsica īnsula est.",
+      "Corsica et Sardinia et Sicilia īnsulae sunt."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nominativo singolare"
+  },
+  {
+    "term": "oppidum",
+    "forms": [
+      "oppida"
+    ],
+    "semanticField": "geografia",
+    "contextSentences": [
+      "Brundisium oppidum est.",
+      "Brundisium et Tūsculum oppida sunt."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Nominativo singolare"
+  }
+]

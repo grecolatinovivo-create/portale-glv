@@ -1,0 +1,82 @@
+[
+  {
+    "term": "assem",
+    "forms": [],
+    "semanticField": "pecunia",
+    "contextSentences": [
+      "Ecce tibi assem dō."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "dēnārium",
+    "forms": [],
+    "semanticField": "pecunia",
+    "contextSentences": [
+      "Diodorus assem dat Sextō, et dēnārium in sacculō repōnit."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "largus",
+    "forms": [],
+    "semanticField": "mores",
+    "contextSentences": [
+      "Largus nõn es, magister."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "partīrī",
+    "forms": [],
+    "semanticField": "actio",
+    "contextSentences": [
+      "Sī tū sex assēs cum frātre tuō partīris, quot sunt tibi?"
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbum deponens"
+  },
+  {
+    "term": "flūctibus",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Flūctibus iactor ac mergor!"
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "mergitur",
+    "forms": [],
+    "semanticField": "actio",
+    "contextSentences": [
+      "Flūctibus iactor ac mergor!"
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "Neptūnus",
+    "forms": [],
+    "semanticField": "mythologia",
+    "contextSentences": [
+      "Servā mē, Neptūne, qui prope ades, quamquam nec vidēris nec audīris ab hominibus."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "sēstertiī",
+    "forms": [],
+    "semanticField": "pecunia",
+    "contextSentences": [
+      "Ūnus est IV sēstertiī, ūnus sēstertius IV ."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  }
+]

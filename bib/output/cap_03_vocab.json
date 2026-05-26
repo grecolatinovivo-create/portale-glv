@@ -1,0 +1,117 @@
+[
+  {
+    "term": "plōrat",
+    "forms": [
+      "plōrat",
+      "plōrant"
+    ],
+    "semanticField": "Sentimenti/Emozioni",
+    "contextSentences": [
+      "Mārcus plōrat, quia māter eum verberat.",
+      "Puella quae plōrat nōn est laeta."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Verbo, terza persona singolare, indicativo presente."
+  },
+  {
+    "term": "verberat",
+    "forms": [
+      "verberat",
+      "verberant"
+    ],
+    "semanticField": "Azione/Violenza",
+    "contextSentences": [
+      "Mārcus plōrat, quia māter eum verberat.",
+      "Aemilia puerum verberat."
+    ],
+    "difficulty": 2,
+    "grammarNote": "Verbo, terza persona singolare, indicativo presente."
+  },
+  {
+    "term": "improbus",
+    "forms": [
+      "improbus",
+      "improba",
+      "improbum"
+    ],
+    "semanticField": "Carattere/Comportamento",
+    "contextSentences": [
+      "Mārcus plōrat, quia puer improbus est.",
+      "Puer quī puellam pulsat improbus est!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "Aggettivo, nominativo singolare maschile."
+  },
+  {
+    "term": "pulsat",
+    "forms": [
+      "pulsat",
+      "pulsant"
+    ],
+    "semanticField": "Azione/Violenza",
+    "contextSentences": [
+      "Mārcus parvam puellam pulsat!",
+      "Puer quī parvam puellam pulsat improbus est!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "Verbo, terza persona singolare, indicativo presente."
+  },
+  {
+    "term": "rīdet",
+    "forms": [
+      "rīdet",
+      "rīsērunt"
+    ],
+    "semanticField": "Sentimenti/Emozioni",
+    "contextSentences": [
+      "Quintus laetus est et rīdet.",
+      "Puer quī rīdet est Marcus."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Verbo, terza persona singolare, indicativo presente."
+  },
+  {
+    "term": "probus",
+    "forms": [
+      "probus",
+      "proba",
+      "probum"
+    ],
+    "semanticField": "Carattere/Comportamento",
+    "contextSentences": [
+      "Puer probus nōn pulsat puellam.",
+      "Iūlia est puella proba!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "Aggettivo, nominativo singolare maschile."
+  },
+  {
+    "term": "laetus",
+    "forms": [
+      "laetus",
+      "laeta",
+      "laetum"
+    ],
+    "semanticField": "Sentimenti/Emozioni",
+    "contextSentences": [
+      "Quintus laetus est et rīdet.",
+      "Puella quae cantat laeta est."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Aggettivo, nominativo singolare maschile."
+  },
+  {
+    "term": "audit",
+    "forms": [
+      "audit",
+      "audiunt"
+    ],
+    "semanticField": "Percezione sensoriale",
+    "contextSentences": [
+      "Aemilia Quintum nōn audit, quia Mārcus plōrat.",
+      "Iūlius Quintum nōn audit."
+    ],
+    "difficulty": 1,
+    "grammarNote": "Verbo, terza persona singolare, indicativo presente."
+  }
+]

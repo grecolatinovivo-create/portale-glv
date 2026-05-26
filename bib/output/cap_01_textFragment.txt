@@ -1,0 +1,159 @@
+1 Rōma in Italiā est. Italia in Eurōpā est. Graecia in Eu-
+ropā est. Italia et Graecia in Eurōpā sunt. Hispania
+quoque in Eurōpā est. Hispania et Italia et Graecia in
+Europā sunt.
+5 Aegyptus in Eurōpā nōn est, Aegyptus in Africā est.
+Gallia nōn in Africā est, Gallia est in Eurōpā. Syria nōn
+est in Eurōpā, sed in Asia. Arabia quoque in Asia est.
+Syria et Arabia in Asia sunt. Germania nōn in Asia, sed
+in Eurōpā est. Britannia quoque in Eurōpā est. Germa-
+10 nia et Britannia sunt in Eurōpā.
+Estne Gallia in Eurōpā? Gallia in Eurōpā est. Estne
+Rōma in Gallia? Rōma in Gallia nōn est. Ubi est Rōma?
+Rōma est in Italia. Ubi est Italia? Italia in Eurōpā est.
+Ubi sunt Gallia et Hispania? Gallia et Hispania in Eu-
+15 rōpā sunt.
+Estne Nīlus in Eurōpā? Nīlus in Eurōpā nōn est. Ubi
+est Nīlus? Nīlus in Africā est. Rhēnus ubi est? Rhēnus
+est in Germānia. Nīlus fluvius est. Rhēnus fluvius est.
+
+Nīlus et Rhēnus fluviī sunt. Dānuvius quoque fluvius
+20 est. Rhēnus et Dānuvius sunt fluviī in Germāniā. Tibe-
+ris fluvius in Italia est.
+Nīlus fluvius magnus est. Tiberis nōn est fluvius
+magnus, Tiberis fluvius parvus est. Rhēnus nōn est flu-
+vius parvus, sed fluvius magnus. Nīlus et Rhēnus nōn
+25 fluviī parvī, sed fluviī magnī sunt. Dānuvius quoque
+fluvius magnus est.
+Corsica însula est. Corsica et Sardinia et Sicilia însu-
+lae sunt. Britannia quoque însula est. Italia însula nōn
+est. Sicilia însula magna est. Melita est insula parva.
+30 Britannia nōn însula parva, sed însula magna est. Sicilia
+et Sardinia nōn insulae parvae, sed insulae magnae
+sunt.
+Brundisium oppidum est. Brundisium et Tūsculum
+oppida sunt. Sparta quoque oppidum est. Brundisium
+35 est oppidum magnum. Tūsculum oppidum parvum est.
+Delphi quoque oppidum parvum est. Tūsculum et
+Delphī nōn oppida magna, sed oppida parva sunt.
+Ubi est Sparta? Sparta est in Graeciā. Sparta est
+oppidum Graecum. Sparta et Delphī oppida Graeca
+40 sunt. Tūsculum nōn oppidum Graecum, sed oppidum
+Rōmānum est. Tūsculum et Brundisium sunt oppida
+Rōmāna. Sardinia însula Rōmāna est. Crēta, Rhodus,
+Naxus, Samos, Chios, Lesbos, Lēmnos, Euboea sunt
+insulae Graecae. In Graeciā multae însulae sunt. In Ita-
+45 liā et in Graeciā sunt multa oppida. In Galliā et in Ger-
+
+50
+māniā multi sunt fluvii. Suntne multi fluvii et multa
+oppida in Arabiā? In Arabiā nōn multi, sed paucī fluviī
+sunt et pauca oppida.
+Num Crēta oppidum est? Crēta oppidum nōn est!
+Quid est Crēta? Crēta īnsula est. Num Sparta īnsula est?
+Sparta nōn est īnsula! Quid est Sparta? Sparta oppidum
+est. Rhēnus quid est? Rhēnus est magnus fluvius. Num
+ōceanus Atlanticus parvus est? Nōn parvus, sed magnus
+55 est ōceanus.
+Ubi est imperium Rōmānum? Imperium Rōmānum
+est in Europā, in Asiā, in Āfricā. Hispānia et Syria et
+Aegyptus prōvinciae Rōmānae sunt. Germānia nōn est
+prōvincia Rōmāna: Germānia in imperiō Rōmānō nōn
+est. Sed Gallia et Britannia sunt prōvinciae Rōmānae.
+60 In imperiō Rōmānō multae sunt prōvinciae. Magnum
+est imperium Rōmānum!
+65
+I et II numerī sunt. III quoque numerus est. I, II, III
+numerī Rōmānī sunt. I et II sunt parvī numerī. CIO
+magnus numerus est.
+A et B litterae sunt. c quoque littera est. A, B, C sunt
+trēs litterae. A est littera prīma (1), в littera secunda (II),
+
+5 c littera tertia (III). г littera Graeca est. c est littera
+Latīna. Cet D litterae Latinae sunt. r et a sunt litterae
+Graecae.
+Fluvius et oppidum vocabula Latīna sunt. Ubi quoque
+vocabulum Latīnum est. In vocabulō ubi sunt trēs litte-
+rae. In capitulō prīmō mīlle vocabula sunt.
+10 In vocabulō insula sex litterae et trēs syllabae sunt:
+syllaba prīma in-, secunda -su-, tertia -la. In vocabulō
+non sunt trēs litterae et ūna syllaba.
+Quid est III? III numerus Romānus est. r quid est? г
+littera Graeca est. Num c littera Graeca est? Nōn littera
+15 Graeca, sed littera Latīna est c. Estne в littera prīma? B
+nōn littera prīma, sed secunda est. Quid est nōn? Nōn
+est vocabulum Latīnum. Nōn, sed, magnus, numerus vo-
+cābula Latīna sunt. Vocabulum quoque vocabulum Latī-
+num est!
+
+SOLO_GRAMMATICA
+
+Exempla: littera, litterae; prōvincia, prōvinciae.
+A littera Latīna est. A et B litterae Latīnae sunt. Gallia est
+provincia Rōmāna. Gallia et Hispānia prōvinciae Romānae
+sunt.
+100 [C] Brundisium oppidum magnum est.
+
+Brundisium et Sparta oppida magna sunt.
+'Oppidum' singulāris est. 'Oppida' plūrālis est. Singulāris:
+-um. Plūrālis: -a.
+Exempla: vocabulum, vocabula; exemplum, exempla.
+105 Littera est vocabulum Latīnum, nōn Graecum. Littera et
+numerus nōn vocabula Graeca, sed Latīna sunt.
+
+5 -, sed magnum est. Est- Brundisium in Graeciā? Brun-
+disium - est in Graeciā, - in Italia. - est Sparta? Sparta est
+in Graeciā: Sparta oppidum est. Delphi - oppidum Grae-
+cum est. Euboea, Naxus, Lesbos, Chios - Graecae sunt. In
+Graeciā sunt - īnsulae.
+10 Quid est III? III - est. - est A? A littera est. A, B, C
+Latīnae sunt. - r littera Latīna est? r - littera -, sed littera
+est. Īnsula - Latīnum est.
+
+1 Iūlius vir Romānus est. Aemilia fēmina Romāna est.
+Marcus est puer Romānus. Quintus quoque puer Rō-
+mānus est. Iūlia est puella Rōmāna.
+
+Marcus et Quintus nõn virī, sed puerī sunt. Virī sunt
+5 Iūlius et Mēdus et Dāvus. Aemilia et Dēlia et Syra sunt
+feminae. Estne fēmina Iūlia? Nōn fēmina, sed parva
+puella est Iūlia.
+
+Iūlius, Aemilia, Marcus, Quintus, Iūlia, Syra, Dā-
+vus, Dēlia Mēdusque sunt familia Rōmāna. Iūlius pater
+10 est. Aemilia est māter. Iūlius pater Mārcī et Quīntī est.
+Iūlius pater Iūliae quoque est. Aemilia est māter Mārcī
+et Quīnti et Iūliae. Marcus filius Iūliī est. Marcus filius
+Aemiliae est. Quintus quoque filius Iūliī et Aemiliae
+est. Iūlia est filia Iūliī et Aemiliae.
+
+15 Quis est Marcus? Marcus puer Romānus est. Quis
+pater Mārcī est? Iūlius pater Mārci est. Quae est mater
+
+5 Mārcī? Māter Mārcī est Aemilia. Quae est Iūlia? Iūlia
+est puella Rōmāna. Quae māter Iūliae est? Aemilia mā-
+ter Iūliae est. Pater Iūliae est Iūlius. Iūlia filia Iūliī est.
+Qui sunt filiī Jūliī? Filii Iūliī sunt Marcus et Quintus. 20
+Marcus, Quintus Iūliaque sunt trēs līberī. Līberī sunt
+filiī filiaeque. Marcus et Quintus et Iūlia sunt līberī Jūliī
+et Aemiliae. In familia Iūliī sunt trēs līberī: duo filii et
+ūna filia.
+Estne Mēdus filius Iūliī? Mēdus filius Iūliī nōn est, II
+Mēdus est servus Iūliī. Iūlius dominus Mēdī est. Iūlius
+dominus servī est. Dāvus quoque servus est. Mēdus et
+Dāvus duo servi sunt. Iūlius est dominus Mēdī et Dāvī.
+Iūlius dominus servõrum est et pater liberōrum.
+Estne Dēlia filia Aemiliae? Dēlia nōn est filia Aemi- 30
+liae, Dēlia ancilla Aemiliae est. Aemilia domina Dēliae
+est. Aemilia domina ancillae est. Syra quoque ancilla
+est. Dēlia et Syra duae ancillae sunt. Aemilia domina
+ancillārum est.
+Cuius servus est Dāvus? Dāvus servus Iūliī est. Cuius 35
+ancilla est Syra? Syra est ancilla Aemiliae.
+Quot līberi sunt in familia? In familia Iūliī sunt trēs
+līberi. Quot filii et quot filiae? Duo filii et ūna filia.
+Quot servi sunt in familiā? In familia sunt centum servi.
+In familiā Iūliī sunt multi servī, paucī līberī. Iūlius est 40
+dominus multorum servōrum.
+'Duo' et 'trēs' numeri sunt. 'Centum' quoque nume-
+rus est. Numerus servõrum est centum. Numerus lībe-

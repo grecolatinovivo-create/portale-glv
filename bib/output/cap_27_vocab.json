@@ -1,0 +1,82 @@
+[
+  {
+    "term": "imperavit",
+    "forms": [],
+    "semanticField": "comando",
+    "contextSentences": [
+      "Dominus imperavit ut servus tenērētur et verberārētur, deinde ut vincīrētur et inclūderētur."
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbo, 3a sing."
+  },
+  {
+    "term": "servārer",
+    "forms": [],
+    "semanticField": "salvezza",
+    "contextSentences": [
+      "Neptūnus cūrāvit ut ego ē perīculõ servārer nēve in mare mergerer."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, congiuntivo"
+  },
+  {
+    "term": "mergerer",
+    "forms": [],
+    "semanticField": "pericolo",
+    "contextSentences": [
+      "Neptūnus cūrāvit ut ego ē perīculõ servārer nēve in mare mergerer."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, congiuntivo"
+  },
+  {
+    "term": "proficiscerētur",
+    "forms": [],
+    "semanticField": "viaggio",
+    "contextSentences": [
+      "In Italiā Mēdus dominō sevērō."
+    ],
+    "difficulty": 4,
+    "grammarNote": "verbo, congiuntivo"
+  },
+  {
+    "term": "praedōnibus",
+    "forms": [],
+    "semanticField": "pericolo",
+    "contextSentences": [
+      "Multa perīcula nautīs maritimi nāvēs persequuntur; nūllum mare est ā praedōnibus."
+    ],
+    "difficulty": 3,
+    "grammarNote": "sostantivo, abl.pl."
+  },
+  {
+    "term": "efficiebat",
+    "forms": [],
+    "semanticField": "miracolo",
+    "contextSentences": [
+      "Ille verbīs sōlīs efficiebat ut hominēs vidērent, audīrent, loquerentur, ambulārent."
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, imperfetto"
+  },
+  {
+    "term": "dēterrentur",
+    "forms": [],
+    "semanticField": "navigazione",
+    "contextSentences": [
+      "Nec tamen üllīs perīculīs ā nāvigandō dēterrentur nautae."
+    ],
+    "difficulty": 4,
+    "grammarNote": "verbo, passivo"
+  },
+  {
+    "term": "queritur",
+    "forms": [],
+    "semanticField": "lamento",
+    "contextSentences": [
+      "Mercator ad gubernātōrem accēdēns multīs cum lacrimīs queritur: \"Heu, mē miserum!\""
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbo, deponente"
+  }
+]

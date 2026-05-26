@@ -1,0 +1,82 @@
+[
+  {
+    "term": "dēbilis",
+    "forms": [],
+    "semanticField": "character",
+    "contextSentences": [
+      "Sicut Paris, rēgis Priamī filius dēbilis, quī ā servō rēgis fidō in quodam monte prope urbem Trōiam expositus..."
+    ],
+    "difficulty": 2,
+    "grammarNote": "adjective"
+  },
+  {
+    "term": "imperāverat",
+    "forms": [],
+    "semanticField": "command",
+    "contextSentences": [
+      "nam rēx eī imperāverat ut Paridem interficeret, et quidquid dominus imperavit, servō faciendum est."
+    ],
+    "difficulty": 3,
+    "grammarNote": "pluperfect subjunctive"
+  },
+  {
+    "term": "abdūxit",
+    "forms": [],
+    "semanticField": "action",
+    "contextSentences": [
+      "namque ita Paridem servāvit eum quī posteā Helenam, fēminam omnium pulcherrimam, ā marītō Menelāō abdūxit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "perfect indicative"
+  },
+  {
+    "term": "cēnsēs",
+    "forms": [],
+    "semanticField": "opinion",
+    "contextSentences": [
+      "Num tantam iniūriam laudandam esse cēnsēs?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "present indicative"
+  },
+  {
+    "term": "pōculum",
+    "forms": [],
+    "semanticField": "drinking",
+    "contextSentences": [
+      "Hic pōculum tollit Orontēs et exclāmat: \"Vīvat fortissimus quisque!\""
+    ],
+    "difficulty": 2,
+    "grammarNote": "noun"
+  },
+  {
+    "term": "nōnāgēsimum",
+    "forms": [],
+    "semanticField": "age",
+    "contextSentences": [
+      "Nestor, dux Graecōrum senex, quī ad nōnāgēsimum annum vixit."
+    ],
+    "difficulty": 4,
+    "grammarNote": "ordinal number"
+  },
+  {
+    "term": "exhauriāmus",
+    "forms": [],
+    "semanticField": "drinking",
+    "contextSentences": [
+      "Pōcula funditus exhauriāmus!"
+    ],
+    "difficulty": 4,
+    "grammarNote": "hortatory subjunctive"
+  },
+  {
+    "term": "rūsticus",
+    "forms": [],
+    "semanticField": "character",
+    "contextSentences": [
+      "et tū tam rūsticus quam Paris, quī inter rudēs pāstōrēs ēducātus erat!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "adjective"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "term": "Mīnōs",
+    "forms": [],
+    "semanticField": "nōmen proprium",
+    "contextSentences": [
+      "Nõnne rëx Mīnōs Thēseum cum Ariadnā fu- gientem persecutus est?"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "labyrinthus",
+    "forms": [],
+    "semanticField": "aedificium",
+    "contextSentences": [
+      "Tum rex īrātus cēpit Daedalum, qui filum confēcerat et Ariadnae dederat, eumque in labyrinthum inclūdī iussit ūnā cum eius Icarō fīliō"
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "Daedalus",
+    "forms": [],
+    "semanticField": "nōmen proprium",
+    "contextSentences": [
+      "Tum rex īrātus cēpit Daedalum, qui filum confēcerat et Ariadnae dederat, eumque in labyrinthum inclūdī iussit ūnā cum eius Icarō fīliō"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "Icarus",
+    "forms": [],
+    "semanticField": "nōmen proprium",
+    "contextSentences": [
+      "Tum rex īrātus cēpit Daedalum, qui filum confēcerat et Ariadnae dederat, eumque in labyrinthum inclūdī iussit ūnā cum eius Icarō fīliō"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "ālae",
+    "forms": [],
+    "semanticField": "corpus",
+    "contextSentences": [
+      "Ego quidem studiōsus sum volandī inquit Icarus, sed ālae necessariae sunt ad volandum."
+    ],
+    "difficulty": 2,
+    "grammarNote": "pl. tantum"
+  },
+  {
+    "term": "cõnsilium",
+    "forms": [],
+    "semanticField": "mēns",
+    "contextSentences": [
+      "Icarus autem, qui consilium patris ignōrābat, humī cōnsēdit et Fessus sum inquit ambulando in hōc carcere, quem ipse nõbīs aedificāvistī, pater."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "aquila",
+    "forms": [],
+    "semanticField": "animal",
+    "contextSentences": [
+      "Intuēre illam aquilam quae in magnum orbem circum carcerem nostrum volat!"
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  },
+  {
+    "term": "nātūra",
+    "forms": [],
+    "semanticField": "rēs",
+    "contextSentences": [
+      "Avēs nātūrā volāre possunt, hominēs non item."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  }
+]

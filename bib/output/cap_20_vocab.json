@@ -1,0 +1,82 @@
+[
+  {
+    "term": "lūdus",
+    "forms": [],
+    "semanticField": "istruzione",
+    "contextSentences": [
+      "Pater dicit 'tē in lūdō dormīvisse'!"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "discipulī",
+    "forms": [],
+    "semanticField": "istruzione",
+    "contextSentences": [
+      "Malī discipulī fuistis!"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "magister",
+    "forms": [],
+    "semanticField": "istruzione",
+    "contextSentences": [
+      "Nõnne pūnītī estis ā magistrō?"
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "tabella",
+    "forms": [],
+    "semanticField": "scrittura",
+    "contextSentences": [
+      "Tabellam võbīs ostendam."
+    ],
+    "difficulty": 1,
+    "grammarNote": null
+  },
+  {
+    "term": "mentitur",
+    "forms": [],
+    "semanticField": "menzogna",
+    "contextSentences": [
+      "Marcus mentitur; nam id quod Marcus 'sē ipsum scripsisse' dīcit, à Sextō scriptum est."
+    ],
+    "difficulty": 2,
+    "grammarNote": null
+  },
+  {
+    "term": "dubitāre",
+    "forms": [],
+    "semanticField": "dubbio",
+    "contextSentences": [
+      "Iūlius, quī Mārcum discipulum pigerrimum esse scit, iam de verbīs eius dubitāre incipit."
+    ],
+    "difficulty": 2,
+    "grammarNote": "infinito presente"
+  },
+  {
+    "term": "industrium",
+    "forms": [],
+    "semanticField": "qualità",
+    "contextSentences": [
+      "Iam Iūlius, quī Sextum discipulum industrium ac prūdentem esse scit, Mārcō nōn crēdit."
+    ],
+    "difficulty": 3,
+    "grammarNote": "agg. 2 cl."
+  },
+  {
+    "term": "fulgur",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Tum fulgur caelum illūstrāvit; caelum obscūrum fulgure clārissimō illūstrātum est."
+    ],
+    "difficulty": 3,
+    "grammarNote": null
+  }
+]

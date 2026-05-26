@@ -1,0 +1,82 @@
+[
+  {
+    "term": "dēlectātur",
+    "forms": [],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Tum Aemilia, quae verbis Iūliī dēlectātur, “Õ Iūlī” inquit, “mī optime vir!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbo deponente"
+  },
+  {
+    "term": "miser",
+    "forms": [],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Ego miserrimus eram omnium adulēscentium, quod tū numquam mē salūtābās, cum mē vidēbās, quamquam ego semper tē salūtābam, cum të vidēbam."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "salūtābās",
+    "forms": [],
+    "semanticField": "interazione sociale",
+    "contextSentences": [
+      "Ego miserrimus eram omnium adulēscentium, quod tū numquam mē salūtābās, cum mē vidēbās, quamquam ego semper tē salūtābam, cum të vidēbam."
+    ],
+    "difficulty": 2,
+    "grammarNote": "verbo"
+  },
+  {
+    "term": "flōrēs",
+    "forms": [],
+    "semanticField": "natura",
+    "contextSentences": [
+      "Neque epistulās, quās cotīdiē tibi scrībēbam, legēbās, neque flōrēs, quōs tibi multōs mittēbam, accipiēbās, sed omnēs ad mē remittēbās!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "sostantivo"
+  },
+  {
+    "term": "dignus",
+    "forms": [],
+    "semanticField": "valore",
+    "contextSentences": [
+      "Ille vir pessimus tē dignus nōn erat!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "beāta",
+    "forms": [],
+    "semanticField": "emozioni",
+    "contextSentences": [
+      "Fēmina beāta sum, quod marītum bonum habeō, et quia nōs trēs līberōs habēmus et cum magnā familia in hāc vīllā magnifică habitāmus, quae familiā nostrā digna est."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  },
+  {
+    "term": "ōsculāns",
+    "forms": [],
+    "semanticField": "azioni",
+    "contextSentences": [
+      "Iūlius iterum Aemiliam ōsculāns \"Tù ā mē amābāris\" 130 inquit, \"quod pulcherrima eräs omnium virginum Rō- mānārum, prope tam pulchra quam ipsa Venus!\""
+    ],
+    "difficulty": 3,
+    "grammarNote": "participio"
+  },
+  {
+    "term": "gracilis",
+    "forms": [],
+    "semanticField": "corpo",
+    "contextSentences": [
+      "At minus gracilis es quam tunc: eō enim tempore gracilior eräs quam hoc signum Veneris."
+    ],
+    "difficulty": 2,
+    "grammarNote": "aggettivo"
+  }
+]

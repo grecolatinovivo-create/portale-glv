@@ -1,0 +1,82 @@
+[
+  {
+    "term": "iānitor",
+    "forms": [],
+    "semanticField": "domus",
+    "contextSentences": [
+      "Admitte mē sub tēctum, iāni- tor — amābō tē!"
+    ],
+    "difficulty": 1,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "catēna",
+    "forms": [],
+    "semanticField": "instrumentum",
+    "contextSentences": [
+      "Canis ipse catēnam suam rūpit."
+    ],
+    "difficulty": 2,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "rumpere",
+    "forms": [],
+    "semanticField": "actio",
+    "contextSentences": [
+      "Num canis catēnam ferream rumpere potest?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbum"
+  },
+  {
+    "term": "pallium",
+    "forms": [],
+    "semanticField": "vestimentum",
+    "contextSentences": [
+      "vidēsne pallium meum novum, quod nūper magnō pre- tiō ēmī, scissum esse ā cane tuō?"
+    ],
+    "difficulty": 3,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "tabellārius",
+    "forms": [],
+    "semanticField": "officium",
+    "contextSentences": [
+      "Stultē rogitās, iānitor, nam iam tibi dīxī 'tabellārium mē esse'."
+    ],
+    "difficulty": 2,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "epistula",
+    "forms": [],
+    "semanticField": "litterae",
+    "contextSentences": [
+      "Epistulam afferō ad Lū- cium Iūlium Balbum."
+    ],
+    "difficulty": 1,
+    "grammarNote": "substantivum"
+  },
+  {
+    "term": "vincī",
+    "forms": [],
+    "semanticField": "actio",
+    "contextSentences": [
+      "Prius vincī canem et sine mē intrāre!"
+    ],
+    "difficulty": 3,
+    "grammarNote": "verbum"
+  },
+  {
+    "term": "ātrium",
+    "forms": [],
+    "semanticField": "domus",
+    "contextSentences": [
+      "Cane vīnctō, tabellārius tandem intrat epistulamque ostendit iänitōrī; quī statim epistulam prehendit et in ātrium ad dominum suum fert."
+    ],
+    "difficulty": 2,
+    "grammarNote": "substantivum"
+  }
+]

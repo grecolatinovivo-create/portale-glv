@@ -1,0 +1,82 @@
+[
+  {
+    "term": "tabulam",
+    "forms": [],
+    "semanticField": "schola",
+    "contextSentences": [
+      "Sūme tabulam tuam et scrībe H litteram deciēs!”"
+    ],
+    "difficulty": 1,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "magister",
+    "forms": [],
+    "semanticField": "schola",
+    "contextSentences": [
+      "Tum magister eum v sexiēs scrībere iubet, et Mārcus, quī eandem litteram totiēs scrībere nōn vult, v v v v scrībit."
+    ],
+    "difficulty": 1,
+    "grammarNote": "nominative singular"
+  },
+  {
+    "term": "vocabulum",
+    "forms": [],
+    "semanticField": "lingua",
+    "contextSentences": [
+      "Deinde magister eum tōtum vocabulum NASVM quinquies scrībere iubet, et Mārcus scrībit NASVM NASVM NASVM NASV NASV."
+    ],
+    "difficulty": 2,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "stilum",
+    "forms": [],
+    "semanticField": "schola",
+    "contextSentences": [
+      "cum Mārcus stilum dūrum in partem corporis eius mollissimam premit!"
+    ],
+    "difficulty": 2,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "sententiam",
+    "forms": [],
+    "semanticField": "lingua",
+    "contextSentences": [
+      "Iam tōtam sententiam rēctē scrībe!”"
+    ],
+    "difficulty": 2,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "epistulās",
+    "forms": [],
+    "semanticField": "scriptura",
+    "contextSentences": [
+      "Cum pater tuus abest, oportet tē epistulās ad eum scribere."
+    ],
+    "difficulty": 2,
+    "grammarNote": "accusative plural"
+  },
+  {
+    "term": "calamum",
+    "forms": [],
+    "semanticField": "scriptura",
+    "contextSentences": [
+      "Magister calamum et chartam prōmit et ipse scribere incipit; is enim calamō in chartā scrībit, nōn stilō in cērā ut discipulī."
+    ],
+    "difficulty": 3,
+    "grammarNote": "accusative singular"
+  },
+  {
+    "term": "chartam",
+    "forms": [],
+    "semanticField": "scriptura",
+    "contextSentences": [
+      "Magister calamum et chartam prōmit et ipse scribere incipit; is enim calamō in chartā scrībit, nōn stilō in cērā ut discipulī."
+    ],
+    "difficulty": 3,
+    "grammarNote": "accusative singular"
+  }
+]
