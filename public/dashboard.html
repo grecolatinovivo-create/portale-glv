@@ -842,10 +842,8 @@
     /* Body scrollabile */
     .vocab-modal-body {
       flex: 1;
-      overflow: hidden;
+      overflow-y: auto;
       padding: 0;
-      position: relative;
-      min-height: 340px;
     }
 
     /* Footer con bottoni navigazione */
@@ -880,11 +878,7 @@
 
     /* ── FASE 1: Incontro ── */
     .vocab-encounter {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      min-height: 340px;
-      overflow: hidden;
+      padding: 16px;
     }
     .vocab-word-counter {
       font-family: 'Inter', sans-serif;
@@ -895,29 +889,26 @@
       letter-spacing: .04em;
     }
     .vocab-card {
-      position: relative;
-      width: 100%;
-      height: 100%;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
       overflow: hidden;
     }
     .vocab-card-image {
-      position: absolute;
-      inset: 0;
       width: 100%;
-      height: 100%;
+      height: 260px;
       object-fit: cover;
       display: block;
     }
     .vocab-card-image-placeholder {
-      position: absolute;
-      inset: 0;
       width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, #1a150a, #0e0b06);
+      height: 260px;
+      background: linear-gradient(135deg, rgba(201,150,42,.08), rgba(201,150,42,.03));
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 88px;
+      font-size: 72px;
+      position: relative;
     }
     .vocab-img-loading {
       position: absolute;
@@ -931,13 +922,8 @@
       from { transform: rotate(0deg); }
       to   { transform: rotate(360deg); }
     }
-    /* Overlay frase sul fondo dell'immagine */
     .vocab-card-body {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      padding: 48px 24px 20px;
-      background: linear-gradient(transparent, rgba(0,0,0,.82) 40%);
-      z-index: 2;
+      padding: 16px 20px 18px;
     }
     .vocab-card-term {
       font-family: 'EB Garamond', 'Garamond', serif;
