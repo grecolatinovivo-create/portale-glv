@@ -1177,65 +1177,70 @@
 
   <!-- Toggle tab (desktop/tablet) — incollato al bordo destro dello schermo -->
   <button class="ai-panel-tab" id="ai-panel-tab"
-          type="button" aria-label="Apri Tutor AI"
+          type="button" aria-label="Apri il Magistro AI"
           aria-expanded="false" aria-controls="ai-panel">
     <div class="ai-panel-tab-bar"></div>
     <div class="ai-panel-tab-bar"></div>
     <div class="ai-panel-tab-bar"></div>
-    <div class="ai-panel-tab-label">AI</div>
+    <div class="ai-panel-tab-label">Magistro</div>
+    <span class="ai-ready-dot" aria-label="Lezione attiva, Magistro pronto"></span>
   </button>
 
   <!-- FAB (mobile) -->
   <button class="ai-fab" id="ai-fab"
-          type="button" aria-label="Apri Tutor AI"
+          type="button" aria-label="Apri il Magistro AI"
           aria-expanded="false" aria-controls="ai-panel">
-    ✨
+    <span aria-hidden="true">✦</span>
+    <span class="ai-ready-dot" aria-label="Lezione attiva"></span>
   </button>
 
   <!-- Pannello principale -->
   <aside class="ai-panel" id="ai-panel"
-         role="complementary" aria-label="Assistente AI"
+         role="complementary" aria-label="Magistro AI — assistente di studio"
          aria-hidden="true">
 
-    <!-- Tab bar interna -->
+    <!-- Tab bar interna + close button -->
     <div class="ai-tabs" role="tablist">
       <button class="ai-tab-btn ai-tab-btn--active"
               id="ai-tab-tutor-btn" role="tab"
               aria-selected="true" aria-controls="ai-tab-tutor"
               data-aitab="tutor" type="button">
-        ✨ Tutor
+        💬 Magistro
       </button>
       <button class="ai-tab-btn"
               id="ai-tab-quiz-btn" role="tab"
               aria-selected="false" aria-controls="ai-tab-quiz"
               data-aitab="quiz" type="button">
-        🎯 Quiz
+        ✦ Esercitati
       </button>
+      <button class="ai-close-btn" id="ai-close-btn"
+              type="button" aria-label="Chiudi pannello Magistro">×</button>
     </div>
 
-    <!-- Context bar: lezione corrente -->
+    <!-- Context bar: lezione corrente con dot lingua -->
     <div class="ai-context-bar" id="ai-context-bar"
          aria-live="polite" aria-atomic="true">
+      <span class="ai-lang-dot" id="ai-lang-dot" style="background:#666;" aria-hidden="true"></span>
       Seleziona una lezione per iniziare
     </div>
 
-    <!-- ─── TAB TUTOR ──────────────────────────────────────────── -->
+    <!-- ─── TAB MAGISTRO (chat) ──────────────────────────────── -->
     <div class="ai-tab-content ai-tab-content--active"
          id="ai-tab-tutor" role="tabpanel" aria-labelledby="ai-tab-tutor-btn">
 
-      <div class="ai-messages" id="ai-messages" aria-live="polite" aria-label="Conversazione con il tutor AI">
-        <!-- Messaggio di benvenuto iniziale -->
+      <div class="ai-messages" id="ai-messages" aria-live="polite" aria-label="Conversazione con il Magistro">
+        <!-- Messaggio di benvenuto — aggiornato da JS via updateWelcome() -->
         <div class="ai-welcome" id="ai-welcome-msg">
-          <div class="ai-welcome-icon">🏛️</div>
-          <strong>Ciao! Sono il tuo tutor AI.</strong>
-          <span>Seleziona una lezione e fai le tue domande su grammatica, vocaboli, testi o qualsiasi altro aspetto del corso.</span>
+          <div class="ai-welcome-icon" aria-hidden="true">🏛️</div>
+          <strong>Ciao. Sono il Magistro.</strong>
+          <span>Seleziona una lezione e ti aiuterò ad approfondire ciò che hai visto.</span>
         </div>
       </div>
 
       <div class="ai-input-wrap">
         <textarea class="ai-input" id="ai-input"
-                  placeholder="Fai una domanda sulla lezione…"
-                  rows="1" aria-label="Scrivi un messaggio al tutor AI"
+                  placeholder="Cosa non ti è chiaro? Cosa ti ha incuriosito?"
+                  rows="1" aria-label="Scrivi un messaggio al Magistro"
                   maxlength="1000"></textarea>
         <button class="ai-send-btn" id="ai-send-btn"
                 type="button" aria-label="Invia messaggio">
@@ -1247,22 +1252,25 @@
       </div>
     </div><!-- /#ai-tab-tutor -->
 
-    <!-- ─── TAB QUIZ ───────────────────────────────────────────── -->
+    <!-- ─── TAB ESERCITATI (quiz) ────────────────────────────── -->
     <div class="ai-tab-content"
          id="ai-tab-quiz" role="tabpanel" aria-labelledby="ai-tab-quiz-btn">
 
       <div class="ai-quiz-area" id="ai-quiz-area">
         <div class="ai-quiz-empty" id="ai-quiz-empty">
-          <div class="ai-quiz-empty-icon">🎯</div>
-          <strong>Quiz generativo</strong>
-          <span>L'AI creerà domande personalizzate basate sul contenuto della lezione che stai seguendo.</span>
+          <div class="ai-quiz-empty-icon" aria-hidden="true">📋</div>
+          <strong>Metti alla prova ciò che sai</strong>
+          <span>4 domande · circa 2 minuti</span>
           <button class="ai-generate-btn" id="ai-generate-quiz-btn"
                   type="button" disabled>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M5 3l14 9-14 9V3z" fill="currentColor"/>
             </svg>
             Seleziona prima una lezione
           </button>
+          <p class="ai-quiz-testing-note" style="font-size:.7rem;color:rgba(245,245,245,.35);margin-top:10px;line-height:1.5;text-align:center;padding:0 8px;">
+            Rispondere a domande migliora<br>la memorizzazione del 200%
+          </p>
         </div>
         <!-- Le domande vengono iniettate qui via JS -->
       </div>
@@ -4816,7 +4824,7 @@ function _closeTooltipOutside(e) {
     const fab     = el('ai-fab');
     const backdrop = el('ai-backdrop');
     if (panel)   { panel.classList.add('ai-panel--visible'); panel.setAttribute('aria-hidden','false'); }
-    if (tab)     { tab.classList.add('ai-tab--open'); tab.setAttribute('aria-expanded','true'); tab.setAttribute('aria-label','Chiudi Tutor AI'); }
+    if (tab)     { tab.classList.add('ai-tab--open'); tab.setAttribute('aria-expanded','true'); tab.setAttribute('aria-label','Chiudi il Magistro AI'); }
     if (fab)     { fab.setAttribute('aria-expanded','true'); }
     if (backdrop){ backdrop.classList.add('ai-backdrop--visible'); }
   }
@@ -4829,7 +4837,7 @@ function _closeTooltipOutside(e) {
     const fab     = el('ai-fab');
     const backdrop = el('ai-backdrop');
     if (panel)   { panel.classList.remove('ai-panel--visible'); panel.setAttribute('aria-hidden','true'); }
-    if (tab)     { tab.classList.remove('ai-tab--open'); tab.setAttribute('aria-expanded','false'); tab.setAttribute('aria-label','Apri Tutor AI'); }
+    if (tab)     { tab.classList.remove('ai-tab--open'); tab.setAttribute('aria-expanded','false'); tab.setAttribute('aria-label','Apri il Magistro AI'); }
     if (fab)     { fab.setAttribute('aria-expanded','false'); }
     if (backdrop){ backdrop.classList.remove('ai-backdrop--visible'); }
   }
@@ -4849,36 +4857,132 @@ function _closeTooltipOutside(e) {
     });
   }
 
-  /* ── Aggiorna context bar con lezione corrente ─────────────────── */
+  /* ── Colore dot per lingua corso ───────────────────────────────── */
+  const LANG_COLORS = {
+    latino:    '#a01a36',
+    greco:     '#3949ab',
+    egiziano:  '#e65100',
+    ebraico:   '#2e7d32',
+    didattica: '#7b1fa2',
+    default:   '#c9962a'
+  };
+  function _langColor(courseTitle) {
+    if (!courseTitle) return LANG_COLORS.default;
+    const t = courseTitle.toLowerCase();
+    if (t.includes('latin'))   return LANG_COLORS.latino;
+    if (t.includes('grec'))    return LANG_COLORS.greco;
+    if (t.includes('egiz'))    return LANG_COLORS.egiziano;
+    if (t.includes('ebrai'))   return LANG_COLORS.ebraico;
+    if (t.includes('didatt'))  return LANG_COLORS.didattica;
+    return LANG_COLORS.default;
+  }
+
+  /* ── Chip suggerite per lingua ──────────────────────────────────── */
+  const CHIPS = {
+    latino: [
+      'Qual è la radice etimologica di questa parola?',
+      'Come si costruisce questa proposizione?',
+      'Dammi un parallelo con Cicerone o Virgilio'
+    ],
+    greco: [
+      'Qual è il paradigma di questo verbo?',
+      'Spiega l\'uso di questo costrutto nel greco omerico',
+      'Come si pronunciava questa parola in greco antico?'
+    ],
+    default: [
+      'Cosa non mi è chiaro di questa lezione',
+      'Spiega questo concetto con un esempio',
+      'Collegami questo a qualcosa che conosco già'
+    ]
+  };
+  function _getChips(courseTitle) {
+    if (!courseTitle) return CHIPS.default;
+    const t = courseTitle.toLowerCase();
+    if (t.includes('latin')) return CHIPS.latino;
+    if (t.includes('grec'))  return CHIPS.greco;
+    return CHIPS.default;
+  }
+
+  /* ── Aggiorna context bar + welcome + dot indicatore toggle ─────── */
   window.updateAiContext = function(lesson, course) {
     if (!lesson) return;
     _ai.lessonId    = lesson.id;
     _ai.lessonTitle = lesson.title || 'Lezione';
     _ai.courseTitle = (course && (course.title || course.name)) || '';
 
-    const bar = el('ai-context-bar');
+    /* Context bar con dot colorato per lingua */
+    const bar    = el('ai-context-bar');
+    const dot    = el('ai-lang-dot');
+    const color  = _langColor(_ai.courseTitle);
+    if (dot) dot.style.background = color;
     if (bar) {
+      const langDotHtml = `<span class="ai-lang-dot" id="ai-lang-dot" style="background:${color};" aria-hidden="true"></span>`;
       bar.innerHTML = _ai.courseTitle
-        ? `<strong>${_ai.courseTitle}</strong> — ${_ai.lessonTitle}`
-        : `<strong>${_ai.lessonTitle}</strong>`;
+        ? `${langDotHtml}<strong>${escapeHtml(_ai.courseTitle)}</strong> · ${escapeHtml(_ai.lessonTitle)}`
+        : `${langDotHtml}<strong>${escapeHtml(_ai.lessonTitle)}</strong>`;
     }
+
+    /* Aggiorna welcome con chip contestuali */
+    _updateWelcome(_ai.lessonTitle, _ai.courseTitle);
 
     /* Abilita pulsante genera quiz */
     const genBtn = el('ai-generate-quiz-btn');
     if (genBtn) {
       genBtn.disabled = false;
       genBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg> Genera quiz su questa lezione`;
+        <path d="M5 3l14 9-14 9V3z" fill="currentColor"/>
+      </svg> Inizia l'esercitazione`;
+    }
+
+    /* Dot verde sul toggle: segnala che il Magistro è pronto */
+    if (!_ai.open) {
+      const toggleTab = el('ai-panel-tab');
+      const fab       = el('ai-fab');
+      if (toggleTab) toggleTab.classList.add('ai-has-lesson');
+      if (fab)       fab.classList.add('ai-has-lesson');
     }
   };
+
+  /* ── Welcome dinamico con chip suggerite ───────────────────────── */
+  function _updateWelcome(lessonTitle, courseTitle) {
+    const welcomeEl = el('ai-welcome-msg');
+    if (!welcomeEl) return;
+
+    const chips = _getChips(courseTitle);
+    const chipsHtml = chips.map(c =>
+      `<button class="ai-suggested-chip" type="button">${escapeHtml(c)}</button>`
+    ).join('');
+
+    welcomeEl.innerHTML = `
+      <div class="ai-welcome-icon" aria-hidden="true">🏛️</div>
+      <strong>Ciao. Sono il Magistro.</strong>
+      <span>Cosa vuoi approfondire su questa lezione?</span>
+      <div class="ai-chips-wrap" id="ai-chips-wrap">
+        <div class="ai-chips-label">Suggerimenti</div>
+        ${chipsHtml}
+      </div>
+    `;
+
+    /* Aggancia i listener ai chip */
+    welcomeEl.querySelectorAll('.ai-suggested-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        const input = el('ai-input');
+        if (input) {
+          input.value = this.textContent;
+          input.style.height = 'auto';
+          input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+          input.focus();
+        }
+      });
+    });
+  }
 
   /* ── Chat: aggiungi messaggio ──────────────────────────────────── */
   function appendMessage(role, text) {
     const container = el('ai-messages');
     if (!container) return;
 
-    /* Rimuove il messaggio di benvenuto al primo messaggio */
+    /* Rimuove il messaggio di benvenuto (con chip) al primo messaggio */
     const welcome = el('ai-welcome-msg');
     if (welcome) welcome.remove();
 
@@ -4886,13 +4990,16 @@ function _closeTooltipOutside(e) {
     div.className = role === 'user' ? 'ai-msg ai-msg--user' : 'ai-msg ai-msg--ai';
 
     if (role === 'assistant') {
-      div.innerHTML = `<div class="ai-msg-label">Tutor AI</div>${escapeHtml(text).replace(/\n/g,'<br>')}`;
+      div.innerHTML = `<div class="ai-msg-label">✦ Magistro</div>${escapeHtml(text).replace(/\n/g,'<br>')}`;
     } else {
       div.textContent = text;
     }
 
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
+
+    /* Salva conversazione in sessionStorage */
+    _saveHistory();
     return div;
   }
 
@@ -4902,7 +5009,8 @@ function _closeTooltipOutside(e) {
     const div = document.createElement('div');
     div.className = 'ai-msg ai-msg--typing';
     div.id = 'ai-typing-indicator';
-    div.innerHTML = `<div class="ai-typing-dots"><span></span><span></span><span></span></div>`;
+    div.setAttribute('aria-label', 'Il Magistro sta elaborando…');
+    div.innerHTML = `<div class="ai-typing-dots" aria-hidden="true"><span></span><span></span><span></span></div>`;
     container.appendChild(div);
     container.scrollTop = container.scrollHeight;
     return div;
@@ -4914,12 +5022,45 @@ function _closeTooltipOutside(e) {
   }
 
   function escapeHtml(s) {
-    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  /* ── SessionStorage — conversazione ─────────────────────────────── */
+  function _saveHistory() {
+    try {
+      sessionStorage.setItem('ai_history_' + (_ai.lessonId || 'x'), JSON.stringify(_ai.chatHistory));
+    } catch(e) {}
+  }
+  function _restoreHistory() {
+    try {
+      const raw = sessionStorage.getItem('ai_history_' + (_ai.lessonId || 'x'));
+      if (!raw) return;
+      const h = JSON.parse(raw);
+      if (!Array.isArray(h) || !h.length) return;
+      _ai.chatHistory = h;
+      /* Ripristina la UI */
+      const welcome = el('ai-welcome-msg');
+      if (welcome) welcome.remove();
+      h.forEach(msg => {
+        const container = el('ai-messages');
+        if (!container) return;
+        const div = document.createElement('div');
+        div.className = msg.role === 'user' ? 'ai-msg ai-msg--user' : 'ai-msg ai-msg--ai';
+        if (msg.role === 'assistant') {
+          div.innerHTML = `<div class="ai-msg-label">✦ Magistro</div>${escapeHtml(msg.content).replace(/\n/g,'<br>')}`;
+        } else {
+          div.textContent = msg.content;
+        }
+        container.appendChild(div);
+      });
+      const container = el('ai-messages');
+      if (container) container.scrollTop = container.scrollHeight;
+    } catch(e) {}
   }
 
   /* ── Chat: invia messaggio ─────────────────────────────────────── */
   async function sendMessage() {
-    const input = el('ai-input');
+    const input   = el('ai-input');
     const sendBtn = el('ai-send-btn');
     if (!input || _ai.busy) return;
 
@@ -4934,7 +5075,7 @@ function _closeTooltipOutside(e) {
     appendMessage('user', text);
     _ai.chatHistory.push({ role: 'user', content: text });
 
-    const typingEl = appendTyping();
+    appendTyping();
 
     try {
       const res = await fetch('/api/ai/chat', {
@@ -4942,23 +5083,22 @@ function _closeTooltipOutside(e) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: text,
-          lessonId: _ai.lessonId,
+          lessonId:   _ai.lessonId,
           lessonTitle: _ai.lessonTitle,
           courseTitle: _ai.courseTitle,
-          history: _ai.chatHistory.slice(-8)  /* ultimi 8 turni di contesto */
+          history: _ai.chatHistory.slice(-8)
         })
       });
 
       removeTyping();
 
-      if (res.ok) {
-        const data = await res.json();
-        const reply = data.reply || 'Mi dispiace, non ho ricevuto una risposta valida.';
-        appendMessage('assistant', reply);
-        _ai.chatHistory.push({ role: 'assistant', content: reply });
-      } else {
-        appendMessage('assistant', 'Errore nella risposta. Riprova tra qualche secondo.');
-      }
+      const reply = res.ok
+        ? ((await res.json()).reply || 'Non ho ricevuto una risposta valida.')
+        : 'Errore nella risposta. Riprova tra qualche secondo.';
+
+      appendMessage('assistant', reply);
+      _ai.chatHistory.push({ role: 'assistant', content: reply });
+
     } catch(e) {
       removeTyping();
       appendMessage('assistant', 'Impossibile raggiungere il server. Controlla la connessione.');
@@ -4966,7 +5106,7 @@ function _closeTooltipOutside(e) {
 
     _ai.busy = false;
     if (sendBtn) sendBtn.disabled = false;
-    if (input) input.focus();
+    if (input)   input.focus();
   }
 
   /* ── Quiz: genera domande ──────────────────────────────────────── */
@@ -4976,16 +5116,16 @@ function _closeTooltipOutside(e) {
 
     const genBtn  = el('ai-generate-quiz-btn');
     const quizArea = el('ai-quiz-area');
-    if (!quizArea) return;
+    if (!quizArea) { _ai.busy = false; return; }
 
-    if (genBtn) { genBtn.disabled = true; genBtn.textContent = 'Generando…'; }
+    if (genBtn) { genBtn.disabled = true; genBtn.textContent = 'Preparando le domande…'; }
 
     try {
       const res = await fetch('/api/ai/quiz', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          lessonId: _ai.lessonId,
+          lessonId:    _ai.lessonId,
           lessonTitle: _ai.lessonTitle,
           courseTitle: _ai.courseTitle,
           count: 4
@@ -4996,7 +5136,7 @@ function _closeTooltipOutside(e) {
         const data = await res.json();
         renderQuiz(data.questions || []);
       } else {
-        showQuizError('Errore nella generazione del quiz. Riprova.');
+        showQuizError('Errore nella generazione. Riprova.');
       }
     } catch(e) {
       showQuizError('Impossibile raggiungere il server.');
@@ -5007,27 +5147,30 @@ function _closeTooltipOutside(e) {
 
   function showQuizError(msg) {
     const genBtn = el('ai-generate-quiz-btn');
-    if (genBtn) { genBtn.disabled = false; genBtn.textContent = '⚠ ' + msg; }
+    if (genBtn) {
+      genBtn.disabled = false;
+      genBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 3l14 9-14 9V3z" fill="currentColor"/>
+      </svg> Riprova`;
+    }
   }
 
   function renderQuiz(questions) {
     const area = el('ai-quiz-area');
     if (!area) return;
 
-    if (!questions.length) {
-      showQuizError('Nessuna domanda ricevuta. Riprova.');
-      return;
-    }
+    if (!questions.length) { showQuizError('Nessuna domanda ricevuta. Riprova.'); return; }
 
     _ai.quizTotal    = questions.length;
     _ai.quizAnswered = 0;
     _ai.quizCorrect  = 0;
 
-    area.innerHTML = '';  /* svuota l'area */
+    area.innerHTML = '';
 
     questions.forEach((q, idx) => {
       const block = document.createElement('div');
       block.className = 'ai-quiz-question';
+      block.style.opacity = '0'; /* stagger animato */
       block.innerHTML = `
         <div class="ai-quiz-q-num">Domanda ${idx+1} di ${questions.length}</div>
         <div class="ai-quiz-q-text">${escapeHtml(q.question)}</div>
@@ -5035,59 +5178,123 @@ function _closeTooltipOutside(e) {
       `;
       area.appendChild(block);
 
+      /* Stagger: ogni blocco domanda appare con delay crescente */
+      setTimeout(() => {
+        block.style.transition = 'opacity .35s ease, transform .35s ease';
+        block.style.transform  = 'translateY(8px)';
+        requestAnimationFrame(() => {
+          block.style.opacity   = '1';
+          block.style.transform = 'translateY(0)';
+        });
+      }, idx * 120);
+
       const optsEl = block.querySelector(`#ai-quiz-opts-${idx}`);
       q.options.forEach((opt, oi) => {
         const btn = document.createElement('button');
-        btn.type = 'button';
+        btn.type      = 'button';
         btn.className = 'ai-quiz-opt';
         btn.textContent = opt;
-        btn.addEventListener('click', () => answerQuiz(block, q, oi, idx));
+        /* Stagger interno: ogni opzione +70ms */
+        btn.style.animationDelay = (idx * 120 + oi * 70) + 'ms';
+        btn.addEventListener('click', () => answerQuiz(block, q, oi));
         optsEl.appendChild(btn);
       });
     });
 
-    /* Pulsante "Nuovo quiz" in fondo */
+    /* Pulsante "Nuovo set" in fondo */
     const newBtn = document.createElement('button');
-    newBtn.type = 'button';
+    newBtn.type      = 'button';
     newBtn.className = 'ai-generate-btn';
-    newBtn.id = 'ai-generate-quiz-btn';
-    newBtn.innerHTML = '🔄 Nuovo quiz';
+    newBtn.id        = 'ai-generate-quiz-btn';
+    newBtn.style.marginTop = '8px';
+    newBtn.innerHTML = '↺ Nuovo set di domande';
     newBtn.addEventListener('click', generateQuiz);
     area.appendChild(newBtn);
   }
 
-  function answerQuiz(block, question, chosenIdx, qIdx) {
-    /* Blocca tutti i pulsanti della domanda */
+  function answerQuiz(block, question, chosenIdx) {
     const opts = block.querySelectorAll('.ai-quiz-opt');
-    opts.forEach((btn, i) => {
-      btn.disabled = true;
-      if (i === question.correctIndex) btn.classList.add('ai-quiz-opt--correct');
-      else if (i === chosenIdx) btn.classList.add('ai-quiz-opt--wrong');
-    });
+    const correct = question.correctIndex;
 
-    _ai.quizAnswered++;
-    if (chosenIdx === question.correctIndex) _ai.quizCorrect++;
+    /* 1. Highlight immediato risposta scelta */
+    if (opts[chosenIdx]) opts[chosenIdx].style.opacity = '.7';
 
-    /* Spiegazione */
-    if (question.explanation) {
-      const exp = document.createElement('div');
-      exp.className = 'ai-quiz-explanation';
-      exp.textContent = question.explanation;
-      block.appendChild(exp);
+    /* 2. 300ms pause (desirable difficulty — il cervello elabora) */
+    setTimeout(() => {
+      opts.forEach((btn, i) => {
+        btn.disabled = true;
+        btn.style.opacity = '1';
+        if (i === correct)    btn.classList.add('ai-quiz-opt--correct');
+        else if (i === chosenIdx) btn.classList.add('ai-quiz-opt--wrong');
+      });
+
+      _ai.quizAnswered++;
+      if (chosenIdx === correct) _ai.quizCorrect++;
+
+      /* 3. Spiegazione sempre presente (anche risposta corretta) */
+      if (question.explanation) {
+        setTimeout(() => {
+          const exp = document.createElement('div');
+          exp.className   = 'ai-quiz-explanation';
+          exp.textContent = question.explanation;
+          block.appendChild(exp);
+        }, 120);
+      }
+
+      /* 4. Score finale con counter animato */
+      if (_ai.quizAnswered === _ai.quizTotal) {
+        setTimeout(() => _showFinalScore(), 400);
+      }
+    }, 300);
+  }
+
+  function _showFinalScore() {
+    const area   = el('ai-quiz-area');
+    const newBtn = el('ai-generate-quiz-btn');
+    if (!area) return;
+
+    const pct  = Math.round((_ai.quizCorrect / _ai.quizTotal) * 100);
+    let main, sub;
+    if (pct === 100) {
+      main = '🏛️ Perfetto. Hai padroneggiato questa lezione.';
+      sub  = 'Passa alla lezione successiva quando sei pronto.';
+    } else if (pct >= 75) {
+      main = '📚 Ottimo. Un punto ancora da consolidare.';
+      sub  = 'Riascolta quella parte e ripeti l\'esercitazione.';
+    } else if (pct >= 50) {
+      main = '📖 Buon tentativo. Vale la pena riascoltare la lezione.';
+      sub  = 'Riprova dopo aver rivisto il materiale.';
+    } else {
+      main = '💪 Buon tentativo. Questa lezione merita una seconda visione.';
+      sub  = 'Riascolta con calma e torna qui.';
     }
 
-    /* Score finale */
-    if (_ai.quizAnswered === _ai.quizTotal) {
-      const area = el('ai-quiz-area');
-      const score = document.createElement('div');
-      score.className = 'ai-quiz-score';
-      const pct = Math.round((_ai.quizCorrect / _ai.quizTotal) * 100);
-      const emoji = pct >= 80 ? '🏆' : pct >= 50 ? '📚' : '💪';
-      score.textContent = `${emoji} ${_ai.quizCorrect}/${_ai.quizTotal} risposte corrette (${pct}%)`;
-      /* Inserisce prima del pulsante "Nuovo quiz" */
-      const newBtn = el('ai-generate-quiz-btn');
-      if (newBtn) area.insertBefore(score, newBtn);
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'ai-quiz-score';
+    scoreEl.innerHTML = `
+      <span class="ai-quiz-score-counter" id="ai-score-counter" aria-live="polite">0/${_ai.quizTotal}</span>
+      <div class="ai-quiz-score-main">${main}</div>
+      <div class="ai-quiz-score-sub">${sub}</div>
+    `;
+    if (newBtn) area.insertBefore(scoreEl, newBtn);
+    else area.appendChild(scoreEl);
+
+    /* Counter animato */
+    const counterEl = el('ai-score-counter');
+    if (counterEl) _animateCounter(counterEl, 0, _ai.quizCorrect, _ai.quizTotal, 700);
+
+    area.scrollTop = area.scrollHeight;
+  }
+
+  function _animateCounter(el, from, to, total, duration) {
+    const start = performance.now();
+    function step(now) {
+      const t    = Math.min((now - start) / duration, 1);
+      const ease = t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      el.textContent = Math.round(from + (to - from) * ease) + '/' + total;
+      if (t < 1) requestAnimationFrame(step);
     }
+    requestAnimationFrame(step);
   }
 
   /* ── Auto-resize textarea ──────────────────────────────────────── */
@@ -5109,38 +5316,51 @@ function _closeTooltipOutside(e) {
   /* ── Init ──────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function() {
 
-    /* Toggle principale */
-    const tab     = el('ai-panel-tab');
-    const fab     = el('ai-fab');
+    const tab      = el('ai-panel-tab');
+    const fab      = el('ai-fab');
     const backdrop = el('ai-backdrop');
+    const closeBtn = el('ai-close-btn');
 
     if (tab)      tab.addEventListener('click', toggleAiPanel);
     if (fab)      fab.addEventListener('click', toggleAiPanel);
     if (backdrop) backdrop.addEventListener('click', closeAiPanel);
+    if (closeBtn) closeBtn.addEventListener('click', closeAiPanel);
 
-    /* Escape chiude il pannello */
-    document.addEventListener('keydown', function(e) {
+    document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && _ai.open) closeAiPanel();
     });
 
-    /* Switch tab interne */
     document.querySelectorAll('.ai-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchAiTab(btn.dataset.aitab));
     });
 
-    /* Invio chat */
     const sendBtn = el('ai-send-btn');
     if (sendBtn) sendBtn.addEventListener('click', sendMessage);
 
-    /* Genera quiz (pulsante iniziale — quello dentro #ai-quiz-empty) */
     const genBtn = el('ai-generate-quiz-btn');
-    if (genBtn) genBtn.addEventListener('click', generateQuiz);
+    if (genBtn)  genBtn.addEventListener('click', generateQuiz);
 
     autoResizeInput();
-
-    /* Mostra il tab toggle solo nella vista corso */
     _watchCourseView();
   });
+
+  /* ── Override openAiPanel: focus input + rimuovi dot ────────────── */
+  const _origOpenAiPanel = openAiPanel;
+  openAiPanel = function() {
+    _origOpenAiPanel();
+    /* Rimuovi dot "hai lezione pronta" — utente ha aperto */
+    const tab = el('ai-panel-tab');
+    const fab = el('ai-fab');
+    if (tab) tab.classList.remove('ai-has-lesson');
+    if (fab) fab.classList.remove('ai-has-lesson');
+    /* Focus sull'input dopo l'animazione di apertura */
+    setTimeout(() => {
+      const input = el('ai-input');
+      if (input && _ai.activeTab === 'tutor') input.focus();
+    }, 450);
+    /* Ripristina conversazione da sessionStorage */
+    if (_ai.lessonId) _restoreHistory();
+  };
 
   /* Mostra/nasconde i controlli AI usando la classe .ai-in-course sul #glv-dashboard.
      Il CSS gestisce poi la visibilità corretta per breakpoint: tab su desktop/tablet,
