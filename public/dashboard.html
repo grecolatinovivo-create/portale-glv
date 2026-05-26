@@ -911,6 +911,19 @@
       align-items: center;
       justify-content: center;
       font-size: 64px;
+      position: relative;
+    }
+    .vocab-img-loading {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      font-size: 18px;
+      opacity: 0.5;
+      animation: vocab-spin 1.4s linear infinite;
+    }
+    @keyframes vocab-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
     }
     .vocab-card-body {
       padding: 20px 20px 16px;
@@ -6261,15 +6274,19 @@ function _closeTooltipOutside(e) {
     const body = el('vocab-modal-body');
     if (!body) return;
 
-    const sentence  = getContextSentence(item);
+    const sentence = getContextSentence(item);
+    const emoji    = _langEmoji(_va.courseLang, item.term);
+
+    // Se imageUrl già in cache: mostra subito; altrimenti placeholder + lazy gen
     const imgHtml   = item.imageUrl
-      ? `<img class="vocab-card-image" src="${esc(item.imageUrl)}"
+      ? `<img id="vocab-encounter-img" class="vocab-card-image" src="${esc(item.imageUrl)}"
               alt="${esc(item.term)}" loading="lazy"
-              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+              onerror="this.style.display='none';document.getElementById('vocab-encounter-placeholder').style.display='flex'">`
       : '';
-    const emoji     = _langEmoji(_va.courseLang, item.term);
     const placeHtml = `
-      <div class="vocab-card-image-placeholder" style="${item.imageUrl ? 'display:none' : ''}">
+      <div id="vocab-encounter-placeholder" class="vocab-card-image-placeholder"
+           style="${item.imageUrl ? 'display:none' : ''}">
+        ${item.imageUrl ? '' : '<span class="vocab-img-loading">⏳</span>'}
         ${emoji}
       </div>`;
 
@@ -6304,6 +6321,64 @@ function _closeTooltipOutside(e) {
       next.style.display = 'inline-flex';
     }
     _va.answered = true; // Encounter non richiede risposta esplicita
+
+    // ── Generazione lazy dell'immagine (se assente) ───────────────
+    if (!item.imageUrl && item.sourceLesson) {
+      _vocabGenerateImageLazy(item);
+    }
+  }
+
+  /**
+   * Chiama /api/vocabulary/generate-image in background.
+   * Quando arriva la risposta, swappa il placeholder con l'immagine reale
+   * e aggiorna item.imageUrl in queue per le sessioni future della stessa pagina.
+   */
+  async function _vocabGenerateImageLazy(item) {
+    try {
+      const res = await fetch('/api/vocabulary/generate-image', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          lessonId:         item.sourceLesson,
+          term:             item.term,
+          semanticField:    item.semanticField   || null,
+          contextSentences: item.contextSentences || [],
+          grammarNote:      item.grammarNote      || null,
+        })
+      });
+
+      if (!res.ok) return; // silenzioso: il placeholder rimane
+
+      const data = await res.json();
+      if (!data.imageUrl) return;
+
+      // Aggiorna item in queue (evita rigenerazione nella stessa sessione)
+      item.imageUrl = data.imageUrl;
+
+      // Swappa placeholder con immagine reale se il card è ancora visibile
+      const placeholder = document.getElementById('vocab-encounter-placeholder');
+      const cardEl      = placeholder?.closest('.vocab-card');
+      if (!placeholder || !cardEl) return;
+
+      const img = document.createElement('img');
+      img.id        = 'vocab-encounter-img';
+      img.className = 'vocab-card-image';
+      img.src       = data.imageUrl;
+      img.alt       = item.term;
+      img.loading   = 'lazy';
+      img.onerror   = function() {
+        this.style.display = 'none';
+        placeholder.style.display = 'flex';
+      };
+
+      // Animazione fade-in
+      img.style.opacity = '0';
+      img.style.transition = 'opacity 0.4s ease';
+      cardEl.insertBefore(img, placeholder);
+      placeholder.style.display = 'none';
+      requestAnimationFrame(() => { img.style.opacity = '1'; });
+
+    } catch (_) { /* silenzioso */ }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
