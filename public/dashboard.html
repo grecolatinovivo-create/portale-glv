@@ -614,6 +614,527 @@
       }
       #dashNavLinks.open{display:flex;}
     }
+
+    /* ══════════════════════════════════════════════════════════
+       LESSICO DELLA LEZIONE — Sezione trigger + Modal 3 fasi
+       ══════════════════════════════════════════════════════════ */
+
+    /* ── Trigger section sotto il player ── */
+    #lesson-vocab-section {
+      display: none;
+      margin: 10px 0 4px;
+    }
+    .vocab-trigger-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, rgba(201,150,42,.08) 0%, rgba(201,150,42,.03) 100%);
+      border: 1px solid rgba(201,150,42,.25);
+      border-radius: 8px;
+      color: rgba(255,255,255,.9);
+      font-family: 'Inter', sans-serif;
+      font-size: .82rem;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+      text-align: left;
+    }
+    .vocab-trigger-btn:hover {
+      background: linear-gradient(135deg, rgba(201,150,42,.15) 0%, rgba(201,150,42,.07) 100%);
+      border-color: rgba(201,150,42,.45);
+    }
+    .vocab-trigger-icon {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: rgba(201,150,42,.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .vocab-trigger-text { flex: 1; }
+    .vocab-trigger-title {
+      font-weight: 600;
+      color: rgba(201,150,42,.95);
+      display: block;
+      margin-bottom: 1px;
+    }
+    .vocab-trigger-sub {
+      color: rgba(255,255,255,.45);
+      font-size: .75rem;
+    }
+    .vocab-trigger-arrow {
+      color: rgba(201,150,42,.5);
+      font-size: 16px;
+    }
+
+    /* ── Modal overlay fullscreen ── */
+    #vocab-modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 600;
+      background: rgba(0,0,0,.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+    #vocab-modal-overlay.vocab-modal--visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #vocab-modal-card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 600px;
+      max-height: calc(100dvh - 32px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,.6);
+    }
+
+    /* Header modale */
+    .vocab-modal-header {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .vocab-modal-phase-label {
+      font-family: 'Inter', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: rgba(201,150,42,.8);
+    }
+    .vocab-modal-title {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1rem;
+      color: rgba(255,255,255,.85);
+      flex: 1;
+    }
+    .vocab-modal-close {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.07);
+      border: none; cursor: pointer;
+      color: rgba(255,255,255,.5);
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .15s;
+    }
+    .vocab-modal-close:hover { background: rgba(255,255,255,.14); color: #fff; }
+
+    /* Progress bar fasi */
+    .vocab-phase-bar {
+      display: flex;
+      gap: 4px;
+      padding: 0 20px 14px;
+      flex-shrink: 0;
+    }
+    .vocab-phase-pip {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(255,255,255,.1);
+      transition: background .3s;
+    }
+    .vocab-phase-pip.active   { background: rgba(201,150,42,.8); }
+    .vocab-phase-pip.done     { background: rgba(201,150,42,.35); }
+
+    /* Body scrollabile */
+    .vocab-modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+
+    /* Footer con bottoni navigazione */
+    .vocab-modal-footer {
+      padding: 14px 20px 16px;
+      border-top: 1px solid rgba(255,255,255,.07);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-shrink: 0;
+    }
+    .vocab-btn {
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-family: 'Inter', sans-serif;
+      font-size: .82rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity .15s, transform .1s;
+    }
+    .vocab-btn:hover { opacity: .85; transform: translateY(-1px); }
+    .vocab-btn-secondary {
+      background: rgba(255,255,255,.08);
+      color: rgba(255,255,255,.7);
+    }
+    .vocab-btn-primary {
+      background: linear-gradient(135deg, #c9962a, #e8b84b);
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* ── FASE 1: Incontro ── */
+    .vocab-encounter {
+      padding: 20px;
+    }
+    .vocab-word-counter {
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      color: rgba(255,255,255,.35);
+      text-align: center;
+      margin-bottom: 16px;
+      letter-spacing: .04em;
+    }
+    .vocab-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .vocab-card-image {
+      width: 100%;
+      aspect-ratio: 1;
+      max-height: 260px;
+      object-fit: cover;
+      display: block;
+      background: rgba(255,255,255,.04);
+    }
+    .vocab-card-image-placeholder {
+      width: 100%;
+      aspect-ratio: 1;
+      max-height: 260px;
+      background: linear-gradient(135deg, rgba(201,150,42,.08), rgba(201,150,42,.03));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+    }
+    .vocab-card-body {
+      padding: 20px 20px 16px;
+    }
+    .vocab-card-term {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: rgba(255,255,255,.95);
+      margin-bottom: 4px;
+      line-height: 1.15;
+    }
+    .vocab-card-meaning {
+      font-family: 'Inter', sans-serif;
+      font-size: .9rem;
+      color: rgba(201,150,42,.85);
+      margin-bottom: 12px;
+    }
+    .vocab-card-sentence {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: .95rem;
+      color: rgba(255,255,255,.45);
+      line-height: 1.6;
+      border-left: 2px solid rgba(201,150,42,.25);
+      padding-left: 12px;
+      font-style: italic;
+    }
+    .vocab-card-notes {
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      color: rgba(255,255,255,.3);
+      margin-top: 10px;
+    }
+
+    /* Navigation dots fase 1 */
+    .vocab-nav-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+    .vocab-nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.15);
+      transition: background .2s, transform .2s;
+    }
+    .vocab-nav-dot.active {
+      background: rgba(201,150,42,.8);
+      transform: scale(1.25);
+    }
+    .vocab-nav-dot.seen {
+      background: rgba(201,150,42,.3);
+    }
+
+    /* ── FASE 2: Lettura con evidenziazione ── */
+    .vocab-reading {
+      padding: 20px;
+    }
+    .vocab-reading-intro {
+      font-family: 'Inter', sans-serif;
+      font-size: .78rem;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .vocab-reading-text {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1.05rem;
+      line-height: 1.85;
+      color: rgba(255,255,255,.8);
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .vocab-reading-text mark {
+      background: rgba(201,150,42,.22);
+      color: rgba(201,150,42,.95);
+      border-radius: 3px;
+      padding: 1px 3px;
+      cursor: pointer;
+      position: relative;
+      text-decoration: none;
+      font-style: normal;
+    }
+    .vocab-reading-text mark:hover {
+      background: rgba(201,150,42,.38);
+    }
+    /* Tooltip hover su parola evidenziata */
+    .vocab-tooltip {
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      border: 1px solid rgba(201,150,42,.35);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      color: rgba(255,255,255,.85);
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      display: none;
+    }
+    .vocab-tooltip-meaning {
+      color: rgba(201,150,42,.85);
+      font-weight: 600;
+    }
+    mark:hover .vocab-tooltip { display: block; }
+    .vocab-reading-wordlist {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .vocab-reading-pill {
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(201,150,42,.2);
+      font-family: 'Inter', sans-serif;
+      font-size: .72rem;
+      color: rgba(201,150,42,.7);
+      background: rgba(201,150,42,.06);
+    }
+    .vocab-reading-pill strong {
+      color: rgba(201,150,42,.95);
+    }
+
+    /* ── FASE 3: Output (Cloze) ── */
+    .vocab-cloze {
+      padding: 20px;
+    }
+    .vocab-cloze-intro {
+      font-family: 'Inter', sans-serif;
+      font-size: .78rem;
+      color: rgba(255,255,255,.35);
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .vocab-cloze-item {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: border-color .2s;
+    }
+    .vocab-cloze-item.correct-answer {
+      border-color: rgba(61,176,91,.4);
+      background: rgba(61,176,91,.04);
+    }
+    .vocab-cloze-item.wrong-answer {
+      border-color: rgba(220,60,60,.3);
+      background: rgba(220,60,60,.03);
+    }
+    .vocab-cloze-sentence {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,.8);
+      margin-bottom: 10px;
+    }
+    .vocab-cloze-blank {
+      display: inline-block;
+      min-width: 80px;
+      border-bottom: 2px solid rgba(201,150,42,.5);
+      padding: 0 6px 1px;
+      text-align: center;
+      color: rgba(201,150,42,.8);
+      font-weight: 600;
+      cursor: default;
+    }
+    .vocab-cloze-bank {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .vocab-cloze-option {
+      padding: 5px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: .9rem;
+      color: rgba(255,255,255,.7);
+      cursor: pointer;
+      transition: background .15s, border-color .15s, opacity .15s;
+    }
+    .vocab-cloze-option:hover:not([disabled]) {
+      background: rgba(201,150,42,.12);
+      border-color: rgba(201,150,42,.35);
+      color: rgba(201,150,42,.9);
+    }
+    .vocab-cloze-option[disabled] { opacity: .35; cursor: default; }
+    .vocab-cloze-option.correct {
+      background: rgba(61,176,91,.15);
+      border-color: rgba(61,176,91,.4);
+      color: #3db05b;
+    }
+    .vocab-cloze-option.wrong {
+      background: rgba(220,60,60,.1);
+      border-color: rgba(220,60,60,.3);
+      color: rgba(220,60,60,.7);
+    }
+    .vocab-cloze-feedback {
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+    .vocab-cloze-feedback.ok  { color: #3db05b; }
+    .vocab-cloze-feedback.err { color: rgba(220,60,60,.8); }
+
+    /* ── Schermata risultato finale ── */
+    .vocab-result {
+      padding: 32px 24px;
+      text-align: center;
+    }
+    .vocab-result-score {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 600;
+      color: rgba(201,150,42,.95);
+      line-height: 1;
+    }
+    .vocab-result-label {
+      font-family: 'Inter', sans-serif;
+      font-size: .8rem;
+      color: rgba(255,255,255,.35);
+      margin-top: 4px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .vocab-result-message {
+      font-family: 'EB Garamond', 'Garamond', serif;
+      font-size: 1.05rem;
+      color: rgba(255,255,255,.65);
+      margin-top: 18px;
+      line-height: 1.6;
+    }
+    .vocab-result-srs-note {
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      color: rgba(255,255,255,.25);
+      margin-top: 14px;
+    }
+    .vocab-result-btn-save {
+      margin-top: 20px;
+      padding: 10px 24px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #c9962a, #e8b84b);
+      color: #000;
+      font-family: 'Inter', sans-serif;
+      font-size: .82rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .vocab-result-btn-save:hover { opacity: .85; transform: translateY(-1px); }
+    .vocab-result-btn-save:disabled { opacity: .4; cursor: default; }
+    .vocab-result-save-status {
+      font-family: 'Inter', sans-serif;
+      font-size: .75rem;
+      color: rgba(255,255,255,.35);
+      margin-top: 8px;
+      min-height: 16px;
+    }
+
+    /* ── Loading state ── */
+    .vocab-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+      gap: 14px;
+    }
+    .vocab-loading-spinner {
+      width: 32px; height: 32px;
+      border: 2.5px solid rgba(201,150,42,.15);
+      border-top-color: rgba(201,150,42,.7);
+      border-radius: 50%;
+      animation: _vocabSpin .8s linear infinite;
+    }
+    @keyframes _vocabSpin { to { transform: rotate(360deg); } }
+    .vocab-loading-text {
+      font-family: 'Inter', sans-serif;
+      font-size: .8rem;
+      color: rgba(255,255,255,.3);
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 480px) {
+      #vocab-modal-card {
+        border-radius: 12px 12px 0 0;
+        max-height: 92dvh;
+        margin-top: auto;
+        align-self: flex-end;
+      }
+      #vocab-modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .vocab-card-term { font-size: 1.7rem; }
+      .vocab-cloze-sentence { font-size: .95rem; }
+    }
   </style>
 </head>
 <body>
@@ -1165,10 +1686,62 @@
           <ul id="lesson-exercises-list" class="lesson-exercises-list"></ul>
         </div>
 
+        <!-- ── Acquisizione lessicale ─────────────────────────────── -->
+        <div id="lesson-vocab-section" aria-live="polite">
+          <button class="vocab-trigger-btn" id="vocab-trigger-btn"
+                  type="button" aria-label="Esplora il lessico della lezione">
+            <span class="vocab-trigger-icon" aria-hidden="true">📖</span>
+            <span class="vocab-trigger-text">
+              <span class="vocab-trigger-title">Lessico della lezione</span>
+              <span class="vocab-trigger-sub" id="vocab-trigger-sub">Caricamento…</span>
+            </span>
+            <span class="vocab-trigger-arrow" aria-hidden="true">›</span>
+          </button>
+        </div>
+
     </div><!-- /.course-view-inner -->
   </div><!-- /#course-view -->
 
   </div><!-- /.dash-spa-wrapper -->
+
+  <!-- ══ LESSICO DELLA LEZIONE — Modal acquisizione 3 fasi ════════ -->
+  <div id="vocab-modal-overlay" role="dialog" aria-modal="true"
+       aria-label="Acquisizione lessicale" aria-hidden="true">
+    <div id="vocab-modal-card">
+
+      <!-- Header -->
+      <div class="vocab-modal-header">
+        <span class="vocab-modal-phase-label" id="vocab-phase-label">Fase 1</span>
+        <span class="vocab-modal-title" id="vocab-modal-title">Incontro con le parole</span>
+        <button class="vocab-modal-close" id="vocab-modal-close"
+                type="button" aria-label="Chiudi">✕</button>
+      </div>
+
+      <!-- Progress bar fasi -->
+      <div class="vocab-phase-bar" aria-hidden="true">
+        <div class="vocab-phase-pip active" id="vocab-pip-1"></div>
+        <div class="vocab-phase-pip"        id="vocab-pip-2"></div>
+        <div class="vocab-phase-pip"        id="vocab-pip-3"></div>
+      </div>
+
+      <!-- Body (contenuto dinamico) -->
+      <div class="vocab-modal-body" id="vocab-modal-body">
+        <div class="vocab-loading">
+          <div class="vocab-loading-spinner"></div>
+          <div class="vocab-loading-text">Carico le parole della lezione…</div>
+        </div>
+      </div>
+
+      <!-- Footer navigazione -->
+      <div class="vocab-modal-footer" id="vocab-modal-footer">
+        <button class="vocab-btn vocab-btn-secondary" id="vocab-btn-prev"
+                type="button" style="display:none">← Indietro</button>
+        <button class="vocab-btn vocab-btn-primary" id="vocab-btn-next"
+                type="button">Avanti →</button>
+      </div>
+
+    </div><!-- /#vocab-modal-card -->
+  </div><!-- /#vocab-modal-overlay -->
 
   <!-- ══ AI PANEL — Tutor + Quiz ══════════════════════════════════ -->
 
@@ -4512,7 +5085,7 @@ async function showUpgradeModal(lang) {
   document.getElementById('upgrade-modal-overlay')?.remove();
 
   // ── 1. Calcola tier richiesto e piano target ───────────────────
-  const tierRequired = lang === 'Didattica' ? 3 : 2;
+  const tierRequired = lang === 'Didattica' ? 3 : 2; // 'AI' → 2, 'Didattica' → 3
   const currentPlan  = _currentPlan || '';
   const hasActiveSub = _currentTier > 0;
 
@@ -4531,8 +5104,12 @@ async function showUpgradeModal(lang) {
       planIdMon:   'linguae-mensile',
       planIdAnn:   'linguae-annuale',
       icon:        '📜',
-      features:    ['Latino', 'Greco Antico', 'Egiziano Geroglifico', 'Ebraico Biblico'],
-      desc:        'Accedi a tutti i corsi di lingua del mondo antico.',
+      features:    lang === 'AI'
+        ? ['Tutor Magistro AI contestuale alla lezione', 'Esercizi generativi sulla lezione', 'Analisi filologica personalizzata', 'Tutti i corsi Latino e Greco Antico']
+        : ['Latino', 'Greco Antico', 'Egiziano Geroglifico', 'Ebraico Biblico'],
+      desc: lang === 'AI'
+        ? 'Il Magistro è il tutor AI di GrecoLatinoVivo. Risponde da filologo classico, analizza i testi della tua lezione e genera esercizi contestuali. Disponibile dal piano Linguae.'
+        : 'Accedi a tutti i corsi di lingua del mondo antico.',
     },
     3: {
       label:       'Accademia',
@@ -4555,10 +5132,10 @@ async function showUpgradeModal(lang) {
   const planId     = isAnnual ? target.planIdAnn : target.planIdMon;
   const saving     = isAnnual ? `<span style="display:inline-block;margin-top:4px;font-size:11px;color:#6fcf97;">${target.savingAnn}</span>` : '';
 
-  // Icona lingua sorgente
+  // Icona lingua sorgente (AI ha icona e titolo dedicati)
   const LANG_ICONS = {
     'Didattica':'🎓','Latino':'🏛','Greco Antico':'⚡',
-    'Egiziano Geroglifico':'𓂀','Ebraico Biblico':'✡️',
+    'Egiziano Geroglifico':'𓂀','Ebraico Biblico':'✡️','AI':'✦',
   };
   const langIcon = LANG_ICONS[lang] || '📜';
 
@@ -4633,7 +5210,7 @@ async function showUpgradeModal(lang) {
       <h2 id="upgrade-modal-title"
         style="font-size:20px;font-weight:700;color:#f5f5f5;
                margin-bottom:8px;line-height:1.3;">
-        Sblocca ${lang === 'Didattica' ? 'la Didattica' : 'i corsi di ' + lang}
+        ${lang === 'AI' ? 'Sblocca il Magistro AI' : lang === 'Didattica' ? 'Sblocca la Didattica' : 'Sblocca i corsi di ' + lang}
       </h2>
       <p style="font-size:13px;color:rgba(245,245,245,.5);line-height:1.6;margin-bottom:18px;">
         ${target.desc}
@@ -4943,6 +5520,11 @@ function _closeTooltipOutside(e) {
       if (toggleTab) toggleTab.classList.add('ai-has-lesson');
       if (fab)       fab.classList.add('ai-has-lesson');
     }
+
+    /* Sincronizza anche il lessonId del modulo Lessico */
+    if (typeof window.updateVocabContext === 'function') {
+      window.updateVocabContext(lesson);
+    }
   };
 
   /* ── Welcome dinamico con chip suggerite ───────────────────────── */
@@ -5065,6 +5647,7 @@ function _closeTooltipOutside(e) {
     const input   = el('ai-input');
     const sendBtn = el('ai-send-btn');
     if (!input || _ai.busy) return;
+    if (!_aiTierOk()) { closeAiPanel(); showUpgradeModal('AI'); return; }
 
     const text = input.value.trim();
     if (!text) return;
@@ -5114,6 +5697,7 @@ function _closeTooltipOutside(e) {
   /* ── Quiz: genera domande ──────────────────────────────────────── */
   async function generateQuiz() {
     if (_ai.busy || !_ai.lessonId) return;
+    if (!_aiTierOk()) { showUpgradeModal('AI'); return; }
     _ai.busy = true;
 
     const genBtn  = el('ai-generate-quiz-btn');
@@ -5346,9 +5930,19 @@ function _closeTooltipOutside(e) {
     _watchCourseView();
   });
 
-  /* ── Override openAiPanel: focus input + rimuovi dot ────────────── */
+  /* ── Gate AI: Linguae (tier≥2) o Admin — Cultura NON ha accesso ── */
+  function _aiTierOk() {
+    const effective = (_adminTierActive !== null) ? _adminTierActive : _currentTier;
+    return effective >= 2;
+  }
+
+  /* ── Override openAiPanel: gate tier + focus input + rimuovi dot ── */
   const _origOpenAiPanel = openAiPanel;
   openAiPanel = function() {
+    if (!_aiTierOk()) {
+      showUpgradeModal('AI');
+      return;
+    }
     _origOpenAiPanel();
     /* Rimuovi dot "hai lezione pronta" — utente ha aperto */
     const tab = el('ai-panel-tab');
@@ -5386,5 +5980,698 @@ function _closeTooltipOutside(e) {
 })();
 </script>
 <!-- ══ /AI PANEL JS ════════════════════════════════════════════════ -->
+
+<!-- ══ LESSICO DELLA LEZIONE JS ═══════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  /* ── Stato interno ─────────────────────────────────────────────── */
+  const _vocab = {
+    lessonId:     null,
+    words:        [],      // [{term, meaning, notes, imageUrl, contextSentence}]
+    textFragment: null,
+    lessonTitle:  '',
+    courseTitle:  '',
+    courseLang:   '',
+    phase:        1,       // 1=Incontro 2=Lettura 3=Cloze 4=Risultato
+    wordIdx:      0,       // indice parola corrente in fase 1
+    wordsSeen:    new Set(),
+    clozeItems:   [],      // [{term, sentence, blankSentence, options, correctIdx, answered, correct}]
+    clozeCorrect: 0,
+    loading:      false,
+    open:         false,
+    saveStatus:   'idle',  // 'idle'|'saving'|'done'|'error'
+  };
+
+  /* ── Helpers DOM ───────────────────────────────────────────────── */
+  const el  = id => document.getElementById(id);
+  const esc = s  => {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  };
+
+  /* ── Fisher-Yates shuffle ──────────────────────────────────────── */
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  /* ── Apri / chiudi modal ─────────────────────────────────────────*/
+  function openVocabModal() {
+    const overlay = el('vocab-modal-overlay');
+    if (!overlay) return;
+    _vocab.open = true;
+    overlay.classList.add('vocab-modal--visible');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeVocabModal() {
+    const overlay = el('vocab-modal-overlay');
+    if (!overlay) return;
+    _vocab.open = false;
+    overlay.classList.remove('vocab-modal--visible');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Aggiorna header (fase + titolo) ───────────────────────────── */
+  function updateHeader(phase) {
+    const labels = { 1: 'Fase 1 · Incontro', 2: 'Fase 2 · Lettura', 3: 'Fase 3 · Output', 4: 'Completato' };
+    const titles = { 1: 'Incontro con le parole', 2: 'Lettura del testo', 3: 'Prova a richiamare', 4: 'Sessione completata' };
+    const phaseEl = el('vocab-phase-label');
+    const titleEl = el('vocab-modal-title');
+    if (phaseEl) phaseEl.textContent = labels[phase] || '';
+    if (titleEl) titleEl.textContent = titles[phase] || '';
+
+    // Aggiorna le pip
+    [1, 2, 3].forEach(p => {
+      const pip = el(`vocab-pip-${p}`);
+      if (!pip) return;
+      pip.className = 'vocab-phase-pip';
+      if (p < phase || phase === 4) pip.classList.add('done');
+      else if (p === phase) pip.classList.add('active');
+    });
+  }
+
+  /* ── Mostra loading ────────────────────────────────────────────── */
+  function showLoading(msg) {
+    const body = el('vocab-modal-body');
+    if (!body) return;
+    body.innerHTML = `
+      <div class="vocab-loading">
+        <div class="vocab-loading-spinner"></div>
+        <div class="vocab-loading-text">${esc(msg || 'Carico…')}</div>
+      </div>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FASE 1 — Incontro
+  ═══════════════════════════════════════════════════════════════ */
+  function renderPhase1() {
+    _vocab.phase  = 1;
+    _vocab.wordIdx = 0;
+    updateHeader(1);
+
+    const footer = el('vocab-modal-footer');
+    const prev   = el('vocab-btn-prev');
+    const next   = el('vocab-btn-next');
+    if (prev) prev.style.display = 'inline-flex';
+    if (next) next.textContent = 'Avanti →';
+    renderWordCard(_vocab.wordIdx);
+  }
+
+  function renderWordCard(idx) {
+    const body  = el('vocab-modal-body');
+    const prev  = el('vocab-btn-prev');
+    const next  = el('vocab-btn-next');
+    if (!body) return;
+
+    const words = _vocab.words;
+    if (!words.length) return;
+    idx = Math.max(0, Math.min(idx, words.length - 1));
+    _vocab.wordIdx = idx;
+    _vocab.wordsSeen.add(idx);
+
+    const word = words[idx];
+    const isLast = idx === words.length - 1;
+
+    // Aggiorna navigazione footer
+    if (prev) prev.style.display = idx > 0 ? 'inline-flex' : 'none';
+    if (next) next.textContent   = isLast ? 'Continua con la lettura →' : `Prossima (${idx + 1}/${words.length})`;
+
+    // Immagine o placeholder emoji
+    const imgHtml = word.imageUrl
+      ? `<img class="vocab-card-image" src="${esc(word.imageUrl)}"
+              alt="${esc(word.term)}" loading="lazy"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+    const placeholderEmoji = _langEmoji(_vocab.courseLang, word.term);
+    const placeholderHtml = `
+      <div class="vocab-card-image-placeholder" style="${word.imageUrl ? 'display:none' : ''}">
+        ${placeholderEmoji}
+      </div>`;
+
+    // Frase di contesto
+    const sentenceHtml = word.contextSentence
+      ? `<div class="vocab-card-sentence">${esc(word.contextSentence)}</div>`
+      : '';
+
+    // Note opzionali
+    const notesHtml = word.notes
+      ? `<div class="vocab-card-notes">ℹ ${esc(word.notes)}</div>`
+      : '';
+
+    // Dots di navigazione
+    const dotsHtml = words.length > 1
+      ? `<div class="vocab-nav-dots" aria-hidden="true">
+          ${words.map((_, i) => `
+            <div class="vocab-nav-dot ${i === idx ? 'active' : _vocab.wordsSeen.has(i) ? 'seen' : ''}"></div>
+          `).join('')}
+        </div>`
+      : '';
+
+    body.innerHTML = `
+      <div class="vocab-encounter">
+        <div class="vocab-word-counter">${idx + 1} di ${words.length} parole</div>
+        <div class="vocab-card">
+          ${imgHtml}
+          ${placeholderHtml}
+          <div class="vocab-card-body">
+            <div class="vocab-card-term">${esc(word.term)}</div>
+            <div class="vocab-card-meaning">${esc(word.meaning)}</div>
+            ${sentenceHtml}
+            ${notesHtml}
+          </div>
+        </div>
+        ${dotsHtml}
+      </div>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FASE 2 — Lettura con evidenziazione
+  ═══════════════════════════════════════════════════════════════ */
+  function renderPhase2() {
+    _vocab.phase = 2;
+    updateHeader(2);
+
+    const next = el('vocab-btn-next');
+    const prev = el('vocab-btn-prev');
+    if (next) next.textContent = 'Procedi con gli esercizi →';
+    if (prev) prev.style.display = 'none';
+
+    const body = el('vocab-modal-body');
+    if (!body) return;
+
+    // Se non c'è textFragment, salta alla fase 3
+    if (!_vocab.textFragment) {
+      renderPhase3();
+      return;
+    }
+
+    // Evidenzia i termini del vocabolario nel testo
+    let highlighted = esc(_vocab.textFragment);
+    const sortedWords = [..._vocab.words].sort((a, b) => b.term.length - a.term.length);
+    sortedWords.forEach(word => {
+      // Matching sulla radice (case-insensitive, evita doppia evidenziazione)
+      const safeRoot = word.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const re = new RegExp(`(${safeRoot})`, 'gi');
+      highlighted = highlighted.replace(re, (match) => {
+        return `<mark tabindex="0" aria-label="${esc(word.term)}: ${esc(word.meaning)}">`
+             + `${match}`
+             + `<span class="vocab-tooltip"><span class="vocab-tooltip-meaning">${esc(word.meaning)}</span></span>`
+             + `</mark>`;
+      });
+    });
+
+    // Pillole vocabolario
+    const pillsHtml = _vocab.words.map(w =>
+      `<span class="vocab-reading-pill"><strong>${esc(w.term)}</strong> · ${esc(w.meaning)}</span>`
+    ).join('');
+
+    body.innerHTML = `
+      <div class="vocab-reading">
+        <p class="vocab-reading-intro">
+          Le parole della lezione sono evidenziate nel testo.<br>
+          Tocca o passa sopra per rivedere il significato.
+        </p>
+        <div class="vocab-reading-text" lang="${_isGreek(_vocab.courseLang) ? 'el' : 'la'}">
+          ${highlighted}
+        </div>
+        <div class="vocab-reading-wordlist" aria-label="Parole chiave">
+          ${pillsHtml}
+        </div>
+      </div>`;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     FASE 3 — Cloze (Output)
+  ═══════════════════════════════════════════════════════════════ */
+  function buildClozeItems() {
+    const words = _vocab.words;
+    if (!words.length) return [];
+
+    // Usa max 6 parole per la fase cloze
+    const selected = words.slice(0, Math.min(6, words.length));
+
+    return selected.map(word => {
+      // Frase base: usa contextSentence o costruisce dal significato
+      // Gestisce anche null/undefined/'null' (edge case API)
+      const rawSentence  = word.contextSentence;
+      const baseSentence = (rawSentence && rawSentence !== 'null')
+        ? rawSentence
+        : `${word.term}: ${word.meaning}.`;
+
+      // Blanking: sostituisce il termine (o la sua radice)
+      const blankSentence = baseSentence.replace(
+        new RegExp(word.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
+        '___'
+      );
+
+      // Distrattori: prende i termini delle altre parole (max 3)
+      const distractors = [];
+      for (const w of words) {
+        if (w.term !== word.term && !distractors.includes(w.term)) {
+          distractors.push(w.term);
+          if (distractors.length >= 3) break;
+        }
+      }
+      // Se vocabolario piccolo (< 4 parole), aggiungi placeholder neutri
+      const neutralFallbacks = ['…', '——', '· · ·'];
+      let fbIdx = 0;
+      while (distractors.length < 3) {
+        distractors.push(neutralFallbacks[fbIdx++ % neutralFallbacks.length]);
+      }
+
+      const allOptions = shuffle([word.term, ...distractors.slice(0, 3)]);
+
+      return {
+        term:          word.term,
+        sentence:      baseSentence,
+        blankSentence,
+        options:       allOptions,
+        correctIdx:    allOptions.indexOf(word.term),
+        answered:      false,
+        correct:       false,
+      };
+    });
+  }
+
+  function renderPhase3() {
+    _vocab.phase = 3;
+    updateHeader(3);
+    _vocab.clozeItems   = buildClozeItems();
+    _vocab.clozeCorrect = 0;
+
+    const next = el('vocab-btn-next');
+    const prev = el('vocab-btn-prev');
+    if (next) {
+      next.textContent   = 'Vedi il risultato →';
+      next.style.display = 'inline-flex'; // visibile ma disabilitato
+      next.disabled      = true;          // si abilita quando tutte le domande sono risposte
+    }
+    if (prev) prev.style.display = 'none';
+
+    renderClozeItems();
+  }
+
+  function renderClozeItems() {
+    const body = el('vocab-modal-body');
+    if (!body) return;
+
+    if (!_vocab.clozeItems.length) {
+      // Niente cloze (vocabolario troppo piccolo), vai al risultato
+      renderPhase4();
+      return;
+    }
+
+    const itemsHtml = _vocab.clozeItems.map((item, itemIdx) => {
+      // Mostra la frase con ___ visibile
+      const sentenceDisplay = esc(item.blankSentence).replace('___',
+        `<span class="vocab-cloze-blank" id="cloze-blank-${itemIdx}">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>`
+      );
+
+      const optionsHtml = item.options.map((opt, optIdx) =>
+        `<button class="vocab-cloze-option"
+                 type="button"
+                 data-item="${itemIdx}"
+                 data-opt="${optIdx}"
+                 id="cloze-opt-${itemIdx}-${optIdx}"
+                 onclick="_vocabClozeAnswer(${itemIdx},${optIdx})">
+           ${esc(opt)}
+         </button>`
+      ).join('');
+
+      return `
+        <div class="vocab-cloze-item" id="cloze-item-${itemIdx}">
+          <div class="vocab-cloze-sentence">${sentenceDisplay}</div>
+          <div class="vocab-cloze-bank">${optionsHtml}</div>
+          <div class="vocab-cloze-feedback" id="cloze-fb-${itemIdx}"></div>
+        </div>`;
+    }).join('');
+
+    body.innerHTML = `
+      <div class="vocab-cloze">
+        <p class="vocab-cloze-intro">
+          Scegli la parola corretta per completare ogni frase.
+        </p>
+        ${itemsHtml}
+      </div>`;
+  }
+
+  /* Risposta a una domanda cloze
+   * NOTA: definita qui (non dentro listener DOMContentLoaded) per evitare
+   * race condition con onclick="" nel HTML generato dinamicamente. */
+  window._vocabClozeAnswer = function(itemIdx, optIdx) {
+    const item = _vocab.clozeItems[itemIdx];
+    if (!item || item.answered) return;
+
+    item.answered = true;
+    item.correct  = optIdx === item.correctIdx;
+    if (item.correct) _vocab.clozeCorrect++;
+
+    // Feedback visivo
+    const itemEl  = el(`cloze-item-${itemIdx}`);
+    const blankEl = el(`cloze-blank-${itemIdx}`);
+    const fbEl    = el(`cloze-fb-${itemIdx}`);
+
+    if (itemEl)  itemEl.classList.add(item.correct ? 'correct-answer' : 'wrong-answer');
+    if (blankEl) blankEl.textContent = item.options[item.correct ? optIdx : item.correctIdx];
+
+    if (fbEl) {
+      if (item.correct) {
+        fbEl.className  = 'vocab-cloze-feedback ok';
+        fbEl.textContent = '✓ Esatto';
+      } else {
+        fbEl.className  = 'vocab-cloze-feedback err';
+        fbEl.textContent = `✗ La risposta corretta era: ${item.options[item.correctIdx]}`;
+      }
+    }
+
+    // Disabilita tutti i bottoni di questo item
+    item.options.forEach((_, i) => {
+      const btn = el(`cloze-opt-${itemIdx}-${i}`);
+      if (btn) {
+        btn.disabled = true;
+        if (i === item.correctIdx) btn.classList.add('correct');
+        else if (i === optIdx && !item.correct) btn.classList.add('wrong');
+      }
+    });
+
+    // Abilita il bottone solo quando tutte le domande sono risposte
+    const allAnswered = _vocab.clozeItems.every(i => i.answered);
+    const nextBtn = el('vocab-btn-next');
+    if (allAnswered && nextBtn) {
+      nextBtn.disabled = false;
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════
+     FASE 4 — Risultato + salvataggio SRS
+  ═══════════════════════════════════════════════════════════════ */
+  function renderPhase4() {
+    _vocab.phase = 4;
+    updateHeader(4);
+    _vocab.saveStatus = 'idle';
+
+    const next = el('vocab-btn-next');
+    const prev = el('vocab-btn-prev');
+    if (next) { next.style.display = 'none'; }
+    if (prev) { prev.style.display = 'none'; }
+
+    const total   = _vocab.clozeItems.length;
+    const correct = _vocab.clozeCorrect;
+    const pct     = total > 0 ? Math.round((correct / total) * 100) : 100;
+
+    const message = pct === 100
+      ? 'Perfetto — tutte le parole riconosciute.'
+      : pct >= 60
+      ? `Bene. ${correct} su ${total} richiamate correttamente.`
+      : `Continua a leggere — le parole si acquisiranno con l\'esposizione ripetuta.`;
+
+    const srsNote = total > 0
+      ? `Salva nel tuo vocabolario per ripassarle con intervalli crescenti: domani, fra 3 giorni, fra 7 giorni.`
+      : `Hai esplorato ${_vocab.words.length} parole di questa lezione.`;
+
+    const body = el('vocab-modal-body');
+    if (!body) return;
+
+    body.innerHTML = `
+      <div class="vocab-result">
+        <div class="vocab-result-score">${pct}%</div>
+        <div class="vocab-result-label">Richiamate correttamente</div>
+        <div class="vocab-result-message">${esc(message)}</div>
+        <div class="vocab-result-srs-note">${esc(srsNote)}</div>
+        <button class="vocab-result-btn-save" id="vocab-save-btn"
+                type="button" onclick="_vocabSaveToSRS()">
+          Salva nel vocabolario (${_vocab.words.length} parole)
+        </button>
+        <div class="vocab-result-save-status" id="vocab-save-status"></div>
+      </div>`;
+  }
+
+  /* Salva le parole nel vocabolario personale (SRS)
+   * NOTA: definita qui (non dentro listener) per evitare race condition. */
+  window._vocabSaveToSRS = async function() {
+    if (_vocab.saveStatus === 'saving' || _vocab.saveStatus === 'done') return;
+    _vocab.saveStatus = 'saving';
+
+    const btn    = el('vocab-save-btn');
+    const status = el('vocab-save-status');
+    if (btn)    btn.disabled    = true;
+    if (status) status.textContent = 'Salvataggio in corso…';
+
+    let saved = 0, errors = 0;
+
+    for (const word of _vocab.words) {
+      try {
+        const r = await fetch('/api/vocabulary', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            term:        word.term,
+            translation: word.meaning,
+            context:     word.contextSentence || '',
+            lang:        _vocab.courseLang,
+            lessonId:    _vocab.lessonId,
+          })
+        });
+        if (r.ok) saved++;
+        else {
+          const err = await r.json().catch(() => ({}));
+          // 409-like: parola già presente — non è un errore per l'utente
+          if (r.status !== 409) errors++;
+        }
+      } catch (_) {
+        errors++;
+      }
+    }
+
+    _vocab.saveStatus = errors === 0 ? 'done' : 'error';
+
+    if (btn) {
+      btn.textContent = errors === 0 ? '✓ Salvato' : '⚠ Salvato con qualche problema';
+      btn.style.opacity = '.5';
+    }
+    if (status) {
+      status.textContent = errors === 0
+        ? `${saved} parole aggiunte al tuo vocabolario.`
+        : `${saved} parole salvate, ${errors} già presenti o non disponibili.`;
+    }
+  };
+
+  /* ═══════════════════════════════════════════════════════════════
+     Caricamento dati + avvio sessione
+  ═══════════════════════════════════════════════════════════════ */
+  async function startVocabSession(lessonId) {
+    _vocab.lessonId    = lessonId;
+    _vocab.phase       = 1;
+    _vocab.wordIdx     = 0;
+    _vocab.wordsSeen   = new Set();
+    _vocab.clozeItems  = [];
+    _vocab.clozeCorrect = 0;
+    _vocab.saveStatus  = 'idle';
+
+    openVocabModal();
+    updateHeader(1);
+    showLoading('Carico le parole della lezione…');
+
+    // Nascondi pulsante "Vedi risultato" finché non si risponde
+    const next = el('vocab-btn-next');
+    const prev = el('vocab-btn-prev');
+    if (next) { next.textContent = 'Avanti →'; next.style.display = 'inline-flex'; next.disabled = false; }
+    if (prev) { prev.style.display = 'none'; }
+
+    try {
+      const res = await fetch(`/api/vocabulary/session?lessonId=${encodeURIComponent(lessonId)}`);
+
+      if (res.status === 403) {
+        el('vocab-modal-body').innerHTML = `
+          <div class="vocab-loading">
+            <div style="font-size:1.5rem;margin-bottom:8px">🔒</div>
+            <div class="vocab-loading-text">Accesso non disponibile per questa lezione.</div>
+          </div>`;
+        if (next) next.style.display = 'none';
+        return;
+      }
+
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+
+      if (!data.hasVocab || !data.words || data.words.length === 0) {
+        el('vocab-modal-body').innerHTML = `
+          <div class="vocab-loading">
+            <div style="font-size:1.5rem;margin-bottom:8px">📖</div>
+            <div class="vocab-loading-text">Il vocabolario per questa lezione non è ancora disponibile.</div>
+          </div>`;
+        if (next) next.style.display = 'none';
+        return;
+      }
+
+      _vocab.words        = data.words;
+      _vocab.textFragment = data.textFragment;
+      _vocab.lessonTitle  = data.lessonTitle;
+      _vocab.courseTitle  = data.courseTitle;
+      _vocab.courseLang   = data.courseLang;
+
+      renderPhase1();
+
+    } catch (e) {
+      console.error('[vocab session]', e);
+      el('vocab-modal-body').innerHTML = `
+        <div class="vocab-loading">
+          <div class="vocab-loading-text">Errore nel caricamento del vocabolario. Riprova tra qualche istante.</div>
+        </div>`;
+      if (next) next.style.display = 'none';
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     Navigazione inter-fase (bottoni footer)
+  ═══════════════════════════════════════════════════════════════ */
+  function handleNext() {
+    if (_vocab.phase === 1) {
+      if (_vocab.wordIdx < _vocab.words.length - 1) {
+        renderWordCard(_vocab.wordIdx + 1);
+      } else {
+        renderPhase2();
+      }
+    } else if (_vocab.phase === 2) {
+      renderPhase3();
+    } else if (_vocab.phase === 3) {
+      // Consenti di andare avanti solo se tutte le domande sono risposte
+      const allAnswered = !_vocab.clozeItems.length || _vocab.clozeItems.every(i => i.answered);
+      if (!allAnswered) {
+        // Anima lievemente il modal per segnalare che si deve rispondere prima
+        const card = el('vocab-modal-card');
+        if (card) {
+          card.style.transform = 'translateX(4px)';
+          setTimeout(() => { card.style.transform = ''; }, 80);
+          setTimeout(() => { card.style.transform = 'translateX(-4px)'; }, 160);
+          setTimeout(() => { card.style.transform = ''; }, 240);
+        }
+        return;
+      }
+      renderPhase4();
+    }
+  }
+
+  function handlePrev() {
+    if (_vocab.phase === 1 && _vocab.wordIdx > 0) {
+      renderWordCard(_vocab.wordIdx - 1);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     Aggiornamento trigger section dalla lezione
+  ═══════════════════════════════════════════════════════════════ */
+  window.updateVocabContext = function(lesson) {
+    const section  = el('lesson-vocab-section');
+    const subLabel = el('vocab-trigger-sub');
+    if (!section) return;
+
+    // Mostra solo se la lezione ha vocabolario configurato
+    if (lesson && lesson.hasAiContext) {
+      section.style.display = 'block';
+      if (subLabel) {
+        // Conta le parole nel keyVocabulary se disponibile, altrimenti generico
+        const count = lesson.vocabCount || null;
+        subLabel.textContent = count
+          ? `${count} parole da esplorare · Incontro, lettura, produzione`
+          : 'Incontro con le parole · Lettura · Esercizi di produzione';
+      }
+    } else {
+      section.style.display = 'none';
+    }
+  };
+
+  /* ─── Utilità lingua ─── */
+  function _isGreek(lang) {
+    return lang && lang.toLowerCase().includes('grec');
+  }
+  function _langEmoji(lang, term) {
+    if (_isGreek(lang)) return '🏛️';
+    // Tenta emoji semantico basato sulla parola
+    const t = term.toLowerCase();
+    if (/villa|domus|casa/.test(t))    return '🏛️';
+    if (/toga|vestis|vestim/.test(t))  return '👘';
+    if (/aqua|flumen|mare/.test(t))    return '🌊';
+    if (/pater|mater|fili/.test(t))    return '👨‍👩‍👧';
+    if (/miles|bellum|arma/.test(t))   return '⚔️';
+    if (/liber|scribit|legit/.test(t)) return '📜';
+    if (/deus|templu|sacrum/.test(t))  return '🏺';
+    if (/via|iter|iter/.test(t))       return '🛤️';
+    if (/forum|curia|senatus/.test(t)) return '🏟️';
+    return '📖';
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
+     Init: event listeners
+  ═══════════════════════════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', function() {
+    // Trigger button
+    const triggerBtn = el('vocab-trigger-btn');
+    if (triggerBtn) {
+      triggerBtn.addEventListener('click', function() {
+        if (_vocab.lessonId) startVocabSession(_vocab.lessonId);
+      });
+    }
+
+    // Chiudi modal
+    const closeBtn = el('vocab-modal-close');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeVocabModal);
+    }
+
+    // Overlay click fuori dalla card
+    const overlay = el('vocab-modal-overlay');
+    if (overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) closeVocabModal();
+      });
+    }
+
+    // Bottoni footer
+    const nextBtn = el('vocab-btn-next');
+    const prevBtn = el('vocab-btn-prev');
+    if (nextBtn) nextBtn.addEventListener('click', handleNext);
+    if (prevBtn) prevBtn.addEventListener('click', handlePrev);
+
+    // ESC chiude
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && _vocab.open) closeVocabModal();
+    });
+  });
+
+  /* ═══════════════════════════════════════════════════════════════
+     Aggancia updateVocabContext a selectLesson
+  ═══════════════════════════════════════════════════════════════ */
+  // Patcha la funzione selectLesson per aggiornare il contesto vocab
+  // (si esegue dopo il DOMContentLoaded per essere sicuri che selectLesson esista)
+  // updateVocabContext viene già chiamata da updateAiContext (che è chiamata da selectLesson).
+  // Questo listener gestisce solo il caso "lezione non accessibile" → nasconde il trigger.
+  window.addEventListener('load', function() {
+    const _origSelectLesson = window.selectLesson;
+    if (typeof _origSelectLesson === 'function') {
+      window.selectLesson = function(lesson, hasAccess, course) {
+        _origSelectLesson.call(this, lesson, hasAccess, course);
+        // Se la lezione non è accessibile, nascondi il trigger lessico
+        if (!hasAccess) {
+          const section = el('lesson-vocab-section');
+          if (section) section.style.display = 'none';
+        }
+      };
+    }
+  });
+
+})();
+</script>
+<!-- ══ /LESSICO DELLA LEZIONE JS ═══════════════════════════════════ -->
 </body>
 </html>
