@@ -106,12 +106,19 @@ export default withAuth(async function handler(req, res) {
       isExpiringSoon = daysLeft >= 0 && daysLeft <= 14;
     }
 
-    // Filtra vimeoUrl per lezioni a pagamento se l'utente non ha accesso
+    // Filtra vimeoUrl per lezioni a pagamento se l'utente non ha accesso.
+    // Aggiunge hasAiContext: true se la lezione ha contenuto per il Magistro.
+    // I campi di contesto AI (textFragment ecc.) vengono rimossi dalla response:
+    // le API /api/ai/* li fetchano direttamente dal DB per sicurezza.
     const lessons = course.lessons.map((lesson) => {
+      const hasAiContext = !!(lesson.textFragment || lesson.contentSummary);
+      // eslint-disable-next-line no-unused-vars
+      const { textFragment, contentSummary, keyVocabulary, learningObjectives, ...lessonPublic } = lesson;
+
       if (lesson.isFree || hasAccess) {
-        return lesson;
+        return { ...lessonPublic, hasAiContext };
       }
-      return { ...lesson, vimeoUrl: null };
+      return { ...lessonPublic, vimeoUrl: null, hasAiContext };
     });
 
     return res.status(200).json({

@@ -4906,9 +4906,11 @@ function _closeTooltipOutside(e) {
   /* ── Aggiorna context bar + welcome + dot indicatore toggle ─────── */
   window.updateAiContext = function(lesson, course) {
     if (!lesson) return;
-    _ai.lessonId    = lesson.id;
-    _ai.lessonTitle = lesson.title || 'Lezione';
-    _ai.courseTitle = (course && (course.title || course.name)) || '';
+    _ai.lessonId     = lesson.id;
+    _ai.lessonTitle  = lesson.title || 'Lezione';
+    _ai.courseTitle  = (course && (course.title || course.name)) || '';
+    // hasAiContext: true se la lezione ha textFragment/contentSummary nel DB
+    _ai.hasAiContext = !!lesson.hasAiContext;
 
     /* Context bar con dot colorato per lingua */
     const bar    = el('ai-context-bar');

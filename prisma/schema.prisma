@@ -80,6 +80,14 @@ model Lesson {
   vimeoUrl     String?
   latinCertId  Int?    @unique  // IDL originale da latin-cert (per mapping risorse)
 
+  // Contesto per il pannello AI (metodo induttivo-contestuale)
+  // Popolati dal docente/admin — permettono al Magistro di generare esercizi
+  // veramente legati al contenuto della lezione, non generici.
+  textFragment       String? @db.Text   // Testo autentico/pseudoautentico usato nella lezione
+  contentSummary     String? @db.Text   // Descrizione breve del contenuto (3-5 frasi)
+  keyVocabulary      Json?              // Array [{term, meaning, notes?}] — max 15 voci
+  learningObjectives String? @db.Text   // Cosa lo studente capisce/sa fare dopo la lezione
+
   course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
   lessonProgress LessonProgress[]
   resources      LessonResource[]
