@@ -325,7 +325,10 @@ async function generateImage(apiKey, prompt) {
     headers: { 'Content-Type': 'application/json' },
     body:    JSON.stringify({
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseModalities: ['IMAGE'] }
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+        imageGenerationConfig: { aspectRatio: '16:9' }
+      }
     })
   });
 
