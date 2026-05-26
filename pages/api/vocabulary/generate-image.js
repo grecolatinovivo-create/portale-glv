@@ -127,31 +127,46 @@ async function handler(req, res) {
   }
 
   /* ── 3. Genera immagine con Imagen 3 Fast ───────────────────── */
-  let imageUrl = null;
+  let imageUrl  = null;
+  let b64Image  = null;
+
   try {
     const lang   = lesson.course?.lang || '';
     const prompt = buildImagePrompt(term, semanticField, contextSentences, lang);
-    const b64    = await generateImage(apiKey, prompt);
+    b64Image     = await generateImage(apiKey, prompt);
+  } catch (e) {
+    console.error(`[generate-image] Imagen API failed for "${term}":`, e.message);
+    return res.status(502).json({ error: 'Imagen API fallita', detail: e.message });
+  }
 
-    if (b64) {
-      const buffer   = Buffer.from(b64, 'base64');
+  if (!b64Image) {
+    console.error(`[generate-image] Imagen returned no data for "${term}"`);
+    return res.status(502).json({ error: 'Imagen non ha restituito dati' });
+  }
+
+  /* ── 4. Salva su Vercel Blob (se token disponibile) altrimenti data URL ── */
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+  if (blobToken) {
+    try {
+      const buffer   = Buffer.from(b64Image, 'base64');
       const filename = `vocab/${lessonId}/${slugify(term)}.png`;
       const blob     = await put(filename, buffer, {
         access:      'public',
         contentType: 'image/png',
       });
       imageUrl = blob.url;
+    } catch (e) {
+      console.error(`[generate-image] Vercel Blob failed for "${term}":`, e.message);
+      // Fallback: usa data URL (salvato nel DB, funziona senza Blob)
+      imageUrl = `data:image/png;base64,${b64Image}`;
     }
-  } catch (e) {
-    console.error(`[generate-image] Imagen failed for "${term}":`, e.message);
-    return res.status(502).json({ error: 'Generazione immagine fallita', detail: e.message });
+  } else {
+    // Nessun token Blob configurato: usa data URL come fallback
+    console.warn(`[generate-image] BLOB_READ_WRITE_TOKEN mancante — uso data URL per "${term}"`);
+    imageUrl = `data:image/png;base64,${b64Image}`;
   }
 
-  if (!imageUrl) {
-    return res.status(502).json({ error: 'Imagen non ha restituito dati' });
-  }
-
-  /* ── 4. Aggiorna keyVocabulary nel DB ───────────────────────── */
+  /* ── 5. Aggiorna keyVocabulary nel DB ───────────────────────── */
   try {
     if (idx >= 0) {
       vocab[idx] = { ...vocab[idx], imageUrl };

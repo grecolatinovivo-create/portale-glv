@@ -6347,10 +6347,17 @@ function _closeTooltipOutside(e) {
         })
       });
 
-      if (!res.ok) return; // silenzioso: il placeholder rimane
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => '');
+        console.warn(`[vocab-img] generate-image ${res.status}:`, errBody.substring(0, 200));
+        return;
+      }
 
       const data = await res.json();
-      if (!data.imageUrl) return;
+      if (!data.imageUrl) {
+        console.warn('[vocab-img] no imageUrl in response:', data);
+        return;
+      }
 
       // Aggiorna item in queue (evita rigenerazione nella stessa sessione)
       item.imageUrl = data.imageUrl;
