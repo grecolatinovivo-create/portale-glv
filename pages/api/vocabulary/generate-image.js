@@ -36,22 +36,20 @@ function slugify(str) {
 
 /* ── Prompt immagine per termini latini/greci ────────────────────── */
 function buildImagePrompt(term, semanticField, contextSentences, lang) {
-  const isGreek = lang && lang.toLowerCase().includes('grec');
-  const culture = isGreek ? 'ancient Greek' : 'ancient Roman';
-  const ctx     = Array.isArray(contextSentences) && contextSentences.length > 0
-    ? contextSentences[0].substring(0, 120)
-    : semanticField || term;
+  // La frase latina è il soggetto dell'illustrazione — non contesto linguistico,
+  // ma scena da disegnare. Gemini capisce il latino e traduce la scena in immagine.
+  const sentence = Array.isArray(contextSentences) && contextSentences.length > 0
+    ? contextSentences[0]
+    : term;
 
   return (
-    `Children's book illustration style, like a 1950s Italian elementary school primer (sussidiario). ` +
-    `Draw: one single object or character from ${culture} daily life that represents "${term}" ` +
-    `(context: "${ctx}"). ` +
-    `Style: hand-drawn line art with flat watercolor fills, warm muted palette, ` +
-    `simple shapes, like Lele Luzzati or old Einaudi children's books. ` +
-    `Plain white or cream background, no scenery, no decorations, no text. ` +
-    `NOT photorealistic. NOT a photograph. NOT a sculpture. NOT a museum piece. ` +
-    `NO text, NO letters, NO numbers, NO labels anywhere. ` +
-    `Just one clear, simple illustration of the concept, centered, with generous white space around it.`
+    `"${sentence}" — illustra questa frase come scena semplice, ` +
+    `nello stile di un sussidiario italiano degli anni '50 disegnato su un foglio a quadretti. ` +
+    `Tratto a matita con acquerelli leggeri, colori caldi e spenti, linea pulita, ` +
+    `come Lele Luzzati o Bruno Munari. Sfondo di carta a quadretti. ` +
+    `Una sola scena centrale, semplice e chiara, spazio bianco generoso. ` +
+    `NON fotorealistico. NON statue o reperti museali. ` +
+    `NESSUN testo, NESSUNA lettera, NESSUNA etichetta, NESSUN numero nell'immagine.`
   );
 }
 

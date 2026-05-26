@@ -300,23 +300,20 @@ Rispondi SOLO con un JSON array valido: [{"term":"...","contextSentence":"...","
   }
 }
 
-/* ── Prompt immagine: usa contextSentence invece di meaning ───────── */
+/* ── Prompt immagine: la frase latina è la scena da illustrare ────── */
 function buildImagePrompt(word, lang) {
-  const isGreek = lang && lang.toLowerCase().includes('grec');
-  const culture = isGreek ? 'ancient Greek' : 'ancient Roman';
-  const ctx     = word.meaning
-    ? `${word.term} (${word.meaning})`
-    : `"${word.term}" as in: "${(word.contextSentence || word.term).substring(0, 120)}"`;
+  // La frase di contesto latina è il soggetto dell'illustrazione.
+  // Gemini capisce il latino e disegna la scena descritta dalla frase.
+  const sentence = word.contextSentence || word.term;
 
   return (
-    `Children's book illustration style, like a 1950s Italian elementary school primer (sussidiario). ` +
-    `Draw: one single object or character from ${culture} daily life that represents the word ${ctx}. ` +
-    `Style: hand-drawn line art with flat watercolor fills, warm muted palette, ` +
-    `simple shapes, like Lele Luzzati or old Einaudi children's books. ` +
-    `Plain white or cream background, no scenery, no decorations, no text. ` +
-    `NOT photorealistic. NOT a photograph. NOT a sculpture. NOT a museum piece. ` +
-    `NO text, NO letters, NO numbers, NO labels anywhere. ` +
-    `Just one clear, simple illustration of the concept, centered, with generous white space around it.`
+    `"${sentence}" — illustra questa frase come scena semplice, ` +
+    `nello stile di un sussidiario italiano degli anni '50 disegnato su un foglio a quadretti. ` +
+    `Tratto a matita con acquerelli leggeri, colori caldi e spenti, linea pulita, ` +
+    `come Lele Luzzati o Bruno Munari. Sfondo di carta a quadretti. ` +
+    `Una sola scena centrale, semplice e chiara, spazio bianco generoso. ` +
+    `NON fotorealistico. NON statue o reperti museali. ` +
+    `NESSUN testo, NESSUNA lettera, NESSUNA etichetta, NESSUN numero nell'immagine.`
   );
 }
 
