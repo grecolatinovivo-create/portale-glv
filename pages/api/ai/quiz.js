@@ -80,7 +80,7 @@ async function handler(req, res) {
 
       const result    = await model.generateContent(prompt);
       const raw       = result.response.text();
-      const questions = parseQuestionsFromJson(raw);
+      const questions = parseQuestionsFromJson(raw).map(shuffleOptions);
 
       if (questions.length === 0) {
         throw new Error('Gemini ha restituito 0 domande valide');
@@ -110,13 +110,13 @@ async function handler(req, res) {
       lessonData.keyVocabulary,
       isGreek,
       numQuestions
-    );
+    ).map(shuffleOptions);
     return res.status(200).json({ questions });
   }
 
   const bank     = isGreek ? GREEK_QUESTIONS : LATIN_QUESTIONS;
   const shuffled = [...bank].sort(() => Math.random() - 0.5);
-  return res.status(200).json({ questions: shuffled.slice(0, numQuestions) });
+  return res.status(200).json({ questions: shuffled.slice(0, numQuestions).map(shuffleOptions) });
   /* ── /MOCK ─────────────────────────────────────────────────────── */
 }
 
@@ -167,6 +167,30 @@ Restituisci SOLO il seguente JSON (nessun testo prima o dopo):
     }
   ]
 }`;
+}
+
+/**
+ * Mescola le opzioni di una domanda e ricalcola correctIndex.
+ * Risolve il problema per cui l'AI (e il mock) tendono a mettere
+ * la risposta corretta sempre in prima posizione.
+ */
+function shuffleOptions(q) {
+  if (!Array.isArray(q.options) || q.options.length < 2) return q;
+
+  const correctText = q.options[q.correctIndex ?? 0];
+
+  // Fisher-Yates shuffle
+  const opts = [...q.options];
+  for (let i = opts.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [opts[i], opts[j]] = [opts[j], opts[i]];
+  }
+
+  return {
+    ...q,
+    options:      opts,
+    correctIndex: opts.indexOf(correctText),
+  };
 }
 
 function parseQuestionsFromJson(raw) {
