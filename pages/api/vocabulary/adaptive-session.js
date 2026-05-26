@@ -5,16 +5,14 @@
  *
  * LOGICA:
  *  1. Carica il keyVocabulary del capitolo corrente
- *  2. Trova eventuali termini in scadenza SRS da capitoli precedenti
- *     (lo studente ha sbagliato "pater" nel Cap. I → riappare nel Cap. II)
- *  3. Per ogni termine, determina il livello di esercizio in base alla storia
- *     dello studente (reviewCount, lastResult, easeFactor)
- *  4. Restituisce la coda ordinata:
- *     [ripasso da altri capitoli] → [nuovi termini del capitolo corrente]
+ *  2. Filtra funzionali (est, in, et, ...) — non utili per acquisizione lessicale
+ *  3. Trova eventuali termini in scadenza SRS da capitoli precedenti
+ *  4. Per ogni termine determina livello esercizio in base alla storia SRS
+ *  5. Restituisce la coda: [ripasso cross-capitolo] → [nuovi termini]
  *
  * LIVELLI ESERCIZIO:
- *  1 — encounter:    prima esposizione (immagine + termine + contesto)
- *  2 — recognition:  4 opzioni visive / scegli il termine
+ *  1 — encounter:    prima esposizione (placeholder semantico + termine + contesto)
+ *  2 — recognition:  4 opzioni — scegli il termine mancante nella frase
  *  3 — cloze:        frase con blank + word bank
  *
  * Auth: withAuth
@@ -23,8 +21,25 @@
 import { withAuth } from '../../../lib/auth.js';
 import { prisma }   from '../../../lib/prisma.js';
 
-/* ── Quante review da altri capitoli mostrare per sessione ── */
 const MAX_CROSS_CHAPTER_REVIEWS = 3;
+
+/* ── Funzionali latini da escludere dal vocab adattivo ── */
+const LATIN_FUNCTION_WORDS = new Set([
+  'est','sunt','erat','erant','esse','fuit','fuerat','fuerunt',
+  'in','ad','ex','de','cum','ab','per','pro','sub','sine','ante',
+  'post','inter','contra','trans','super','apud','ob','propter',
+  'et','sed','aut','nec','neque','at','vel','ac','atque',
+  'non','iam','nunc','tum','tunc','etiam','autem','enim',
+  'igitur','ergo','nam','ubi','ut','ne','si','nisi','quod',
+  'hic','haec','hoc','is','ea','id','ille','illa','illud',
+  'qui','quae','qui','ego','tu','nos','vos','se',
+  'unus','duo','tres','primus','secundus',
+]);
+
+function isFunctionWord(term) {
+  return LATIN_FUNCTION_WORDS.has(term.toLowerCase().replace(/[āēīōūĀĒĪŌŪ]/g, m =>
+    ({ā:'a',ē:'e',ī:'i',ō:'o',ū:'u',Ā:'a',Ē:'e',Ī:'i',Ō:'o',Ū:'u'}[m])));
+}
 
 async function handler(req, res) {
   if (req.method !== 'GET') {
@@ -62,9 +77,15 @@ async function handler(req, res) {
     if (!sub && !purchase) return res.status(403).json({ error: 'Accesso non autorizzato' });
   }
 
-  const chapterVocab = Array.isArray(lesson.keyVocabulary) ? lesson.keyVocabulary : [];
+  /* ── 2. Filtra vocab: rimuovi funzionali e termini senza contesto ── */
+  const rawVocab = Array.isArray(lesson.keyVocabulary) ? lesson.keyVocabulary : [];
+  const chapterVocab = rawVocab.filter(v =>
+    v.term &&
+    !isFunctionWord(v.term) &&
+    Array.isArray(v.contextSentences) && v.contextSentences.length > 0
+  );
 
-  /* ── 2. Carica storia SRS dell'utente per questo capitolo ─── */
+  /* ── 3. Carica storia SRS ──────────────────────────────────── */
   const userId      = req.user.userId;
   const termsInChap = chapterVocab.map(v => v.term);
 
@@ -72,40 +93,27 @@ async function handler(req, res) {
   let crossChapterReviews   = [];
 
   try {
-    // Record SRS per i termini del capitolo corrente
     if (termsInChap.length > 0) {
       currentChapterRecords = await prisma.vocabulary.findMany({
-        where: {
-          userId,
-          lessonId,
-          term: { in: termsInChap }
-        }
+        where: { userId, lessonId, term: { in: termsInChap } }
       });
     }
-
-    // Termini da altri capitoli in scadenza SRS (nextReview <= ora)
     crossChapterReviews = await prisma.vocabulary.findMany({
       where: {
         userId,
         nextReview: { lte: new Date() },
-        NOT: { lessonId }  // da altri capitoli
+        NOT: { lessonId }
       },
       orderBy: { nextReview: 'asc' },
-      take:    MAX_CROSS_CHAPTER_REVIEWS,
-      include: {
-        // Abbiamo bisogno del titolo della lezione sorgente
-        // Ma Vocabulary non ha relazione a Lesson — recuperiamo dopo
-      }
+      take: MAX_CROSS_CHAPTER_REVIEWS,
     });
   } catch (e) {
     console.error('[adaptive-session] DB error:', e.message);
-    // Non fatale: procedi senza storia
   }
 
-  /* ── 3. Arricchisci le review cross-chapter con dati della lezione ── */
+  /* ── 4. Review cross-capitolo ─────────────────────────────── */
   const reviewQueue = [];
   if (crossChapterReviews.length > 0) {
-    // Carica titoli delle lezioni sorgente in batch
     const sourceLessonIds = [...new Set(crossChapterReviews.map(r => r.lessonId).filter(Boolean))];
     let sourceLessons = {};
     try {
@@ -123,61 +131,64 @@ async function handler(req, res) {
         : null;
 
       reviewQueue.push({
-        exerciseId:          `review-${review.id}`,
-        term:                review.term,
-        level:               determineLevel(review),
-        isReview:            true,
-        sourceLesson:        review.lessonId,
-        sourceLessonTitle:   sourceLesson?.title || 'Lezione precedente',
-        contextSentences:    sourceVocab?.contextSentences || (review.context ? [review.context] : []),
-        imageUrl:            sourceVocab?.imageUrl || null,
-        grammarNote:         sourceVocab?.grammarNote || review.context || null,
-        distractors:         buildDistractors(review.term, chapterVocab, currentChapterRecords),
-        vocabularyId:        review.id,
-        srsInterval:         review.interval,
-        reviewCount:         review.reviewCount,
+        exerciseId:        `review-${review.id}`,
+        term:              review.term,
+        forms:             sourceVocab?.forms || [],
+        level:             determineLevel(review),
+        isReview:          true,
+        sourceLesson:      review.lessonId,
+        sourceLessonTitle: sourceLesson?.title || 'Lezione precedente',
+        contextSentences:  sourceVocab?.contextSentences || (review.context ? [review.context] : []),
+        imageUrl:          sourceVocab?.imageUrl || null,
+        grammarNote:       sourceVocab?.grammarNote || null,
+        semanticField:     sourceVocab?.semanticField || null,
+        difficulty:        sourceVocab?.difficulty || 1,
+        distractors:       buildDistractors(review.term, chapterVocab, currentChapterRecords),
+        vocabularyId:      review.id,
+        srsInterval:       review.interval,
+        reviewCount:       review.reviewCount,
       });
     }
   }
 
-  /* ── 4. Costruisci la coda del capitolo corrente ─────────────── */
+  /* ── 5. Coda capitolo corrente ────────────────────────────── */
   const chapterQueue = [];
-  const srsMap       = Object.fromEntries(currentChapterRecords.map(r => [r.term, r]));
+  const srsMap = Object.fromEntries(currentChapterRecords.map(r => [r.term, r]));
 
   for (const vocabItem of chapterVocab) {
     const srs = srsMap[vocabItem.term] || null;
 
-    // Salta termini già masterizzati (easeFactor=5 + interval>30 + reviewCount>5)
+    // Salta termini già masterizzati
     if (srs && srs.easeFactor >= 5 && srs.interval > 30 && srs.reviewCount > 5) continue;
 
     chapterQueue.push({
-      exerciseId:       `ch-${lessonId}-${vocabItem.term}`,
-      term:             vocabItem.term,
-      level:            srs ? determineLevel(srs) : 1,
-      isReview:         false,
-      sourceLesson:     lessonId,
+      exerciseId:        `ch-${lessonId}-${vocabItem.term}`,
+      term:              vocabItem.term,
+      forms:             Array.isArray(vocabItem.forms) ? vocabItem.forms : [],
+      level:             srs ? determineLevel(srs) : 1,
+      isReview:          false,
+      sourceLesson:      lessonId,
       sourceLessonTitle: lesson.title,
-      contextSentences: vocabItem.contextSentences
-        || (vocabItem.contextSentence ? [vocabItem.contextSentence] : []),
-      imageUrl:         vocabItem.imageUrl || null,
-      grammarNote:      vocabItem.grammarNote || vocabItem.notes || null,
-      semanticField:    vocabItem.semanticField || null,
-      difficulty:       vocabItem.difficulty || 1,
-      distractors:      buildDistractors(vocabItem.term, chapterVocab, currentChapterRecords),
-      vocabularyId:     srs?.id || null,
-      srsInterval:      srs?.interval || 1,
-      reviewCount:      srs?.reviewCount || 0,
+      contextSentences:  vocabItem.contextSentences || [],
+      imageUrl:          vocabItem.imageUrl || null,
+      grammarNote:       vocabItem.grammarNote || null,
+      semanticField:     vocabItem.semanticField || null,
+      difficulty:        vocabItem.difficulty || 1,
+      distractors:       buildDistractors(vocabItem.term, chapterVocab, currentChapterRecords),
+      vocabularyId:      srs?.id || null,
+      srsInterval:       srs?.interval || 1,
+      reviewCount:       srs?.reviewCount || 0,
     });
   }
 
-  // Ordina: prima i termini non ancora visti, poi quelli in base alla difficoltà
+  // Ordina: termini mai visti prima, poi per difficoltà crescente
   chapterQueue.sort((a, b) => {
     if (a.reviewCount === 0 && b.reviewCount > 0) return -1;
     if (a.reviewCount > 0 && b.reviewCount === 0) return 1;
     return (a.difficulty || 1) - (b.difficulty || 1);
   });
 
-  /* ── 5. Coda finale: review → capitolo corrente ─────────────── */
+  /* ── 6. Coda finale ───────────────────────────────────────── */
   const queue = [...reviewQueue, ...chapterQueue];
 
   return res.status(200).json({
@@ -192,45 +203,28 @@ async function handler(req, res) {
   });
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   Determina il livello di esercizio in base alla storia SRS
-   ═══════════════════════════════════════════════════════════════════
-
-   Logica (bilanciata per acquisizione implicita, Krashen):
-   - Mai visto                           → 1 encounter
-   - Visto ma sbagliato l'ultima volta   → 1 encounter (più esposizione)
-   - Visto 1-2 volte, andava bene        → 2 recognition
-   - Visto 3+ volte, buon easeFactor     → 3 cloze
-*/
+/* ── Determina livello esercizio in base alla storia SRS ── */
 function determineLevel(srsRecord) {
   const { reviewCount, lastResult, easeFactor } = srsRecord;
-
-  if (!reviewCount || reviewCount === 0)              return 1; // encounter
-  if (lastResult === 'wrong' || easeFactor <= 1)      return 1; // torna all'encounter
-  if (reviewCount <= 2 || easeFactor <= 2)            return 2; // recognition
-  return 3;                                                      // cloze
+  if (!reviewCount || reviewCount === 0)         return 1;
+  if (lastResult === 'wrong' || easeFactor <= 1) return 1;
+  if (reviewCount <= 2 || easeFactor <= 2)       return 2;
+  return 3;
 }
 
-/* ═══════════════════════════════════════════════════════════════════
-   Costruisce i distrattori per recognition e cloze
-   Prende termini dal capitolo corrente, diversi dal termine target
-   ═══════════════════════════════════════════════════════════════════ */
+/* ── Costruisce 3 distrattori dal pool del capitolo ── */
 function buildDistractors(targetTerm, chapterVocab, srsRecords) {
   const pool = chapterVocab
     .filter(v => v.term !== targetTerm)
     .map(v => v.term);
 
-  // Shuffla e prendi 3
   for (let i = pool.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [pool[i], pool[j]] = [pool[j], pool[i]];
   }
 
   const result = pool.slice(0, 3);
-
-  // Fallback se il capitolo ha pochi termini
   while (result.length < 3) result.push('—');
-
   return result;
 }
 

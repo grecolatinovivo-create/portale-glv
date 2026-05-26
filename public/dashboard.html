@@ -6307,6 +6307,89 @@ function _closeTooltipOutside(e) {
   }
 
   /* ═══════════════════════════════════════════════════════════════════
+     HELPER — Sostituisce un termine (con varianti flessive e macron)
+     nella frase con un placeholder. Strategia a cascata:
+       1. Match esatto del termine
+       2. Match di ciascuna forma in item.forms[]
+       3. Fallback macron-normalizzato: confronta strippando āēīōū→aeiou
+          ma sostituisce la sottostringa originale della frase
+  ═══════════════════════════════════════════════════════════════ */
+  function _normMacron(s) {
+    return s.replace(/[āēīōūĀĒĪŌŪ]/g, m =>
+      ({ā:'a',ē:'e',ī:'i',ō:'o',ū:'u',Ā:'A',Ē:'E',Ī:'I',Ō:'O',Ū:'U'}[m]));
+  }
+
+  function _escapeRe(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  /**
+   * Restituisce la frase con il termine sostituito.
+   * @param {string} sentence  - frase originale con macron
+   * @param {object} item      - voce vocabolo (item.term, item.forms[])
+   * @param {string} replacement - testo/HTML da inserire al posto del termine
+   * @param {string} [flags]   - flag regex ('gi' per recognition, 'i' per cloze)
+   */
+  function _replaceTermInSentence(sentence, item, replacement, flags = 'i') {
+    if (!sentence) return null;
+
+    // 1. Match esatto del termine
+    const exactRe = new RegExp(_escapeRe(item.term), flags);
+    if (exactRe.test(sentence)) {
+      return sentence.replace(new RegExp(_escapeRe(item.term), flags), replacement);
+    }
+
+    // 2. Match di ogni forma flessiva
+    const forms = Array.isArray(item.forms) ? item.forms : [];
+    for (const form of forms) {
+      if (!form) continue;
+      const formRe = new RegExp(_escapeRe(form), flags);
+      if (formRe.test(sentence)) {
+        return sentence.replace(new RegExp(_escapeRe(form), flags), replacement);
+      }
+    }
+
+    // 3. Fallback macron-normalizzato: cerca nel testo normalizzato,
+    //    poi sostituisce la sottostringa originale corrispondente.
+    //    Usa flag senza 'g' per exec (evita stato lastIndex), poi ri-applica 'g' se serve.
+    const normSentence = _normMacron(sentence);
+    const normTerm     = _normMacron(item.term);
+    const execFlags    = flags.replace('g', ''); // 'gi'→'i', 'i'→'i'
+    const normRe       = new RegExp(_escapeRe(normTerm), execFlags);
+    const m = normRe.exec(normSentence);
+    if (m) {
+      if (flags.includes('g')) {
+        // Sostituzione globale: ricostruiamo sostituendo tutte le occorrenze
+        let result = '';
+        let lastIdx = 0;
+        const normReG = new RegExp(_escapeRe(normTerm), execFlags + 'g');
+        let mg;
+        while ((mg = normReG.exec(normSentence)) !== null) {
+          result += sentence.slice(lastIdx, mg.index) + replacement;
+          lastIdx = mg.index + mg[0].length;
+        }
+        result += sentence.slice(lastIdx);
+        return result;
+      }
+      return sentence.slice(0, m.index) + replacement + sentence.slice(m.index + m[0].length);
+    }
+
+    // 4. Prova le forme anche con normalizzazione macron
+    for (const form of forms) {
+      if (!form) continue;
+      const normForm   = _normMacron(form);
+      const normFormRe = new RegExp(_escapeRe(normForm), execFlags);
+      const mf = normFormRe.exec(normSentence);
+      if (mf) {
+        return sentence.slice(0, mf.index) + replacement + sentence.slice(mf.index + mf[0].length);
+      }
+    }
+
+    // Nessun match: restituisce la frase invariata (il blank apparirà standalone)
+    return null;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════
      LIVELLO 2 — Recognition: scegli il termine corretto tra 4 opzioni
   ═══════════════════════════════════════════════════════════════ */
   function renderRecognition(item) {
@@ -6314,10 +6397,8 @@ function _closeTooltipOutside(e) {
     if (!body) return;
 
     const sentence  = getContextSentence(item);
-    // Mostra la frase con un blank al posto del termine
-    const displaySentence = sentence
-      ? sentence.replace(new RegExp(item.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '______')
-      : null;
+    // Mostra la frase con un blank al posto del termine (macron-aware)
+    const displaySentence = _replaceTermInSentence(sentence, item, '______', 'gi');
 
     // Opzioni: termine corretto + distrattori, mescolati
     const distractors = Array.isArray(item.distractors)
@@ -6400,13 +6481,9 @@ function _closeTooltipOutside(e) {
 
     const sentence = getContextSentence(item);
 
-    // Sostituisci la prima occorrenza del termine con il blank
-    let blankSentence = sentence
-      ? sentence.replace(
-          new RegExp(item.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'),
-          `<span class="vocab-cloze-blank" id="cloze-blank">________</span>`
-        )
-      : `<span class="vocab-cloze-blank" id="cloze-blank">________</span>`;
+    // Sostituisci la prima occorrenza del termine con il blank (macron-aware)
+    const _blankHtml = `<span class="vocab-cloze-blank" id="cloze-blank">________</span>`;
+    let blankSentence = _replaceTermInSentence(sentence, item, _blankHtml, 'i') || _blankHtml;
 
     // Word bank: termine corretto + distrattori mescolati
     const distractors = Array.isArray(item.distractors)
