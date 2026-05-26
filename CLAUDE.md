@@ -14,6 +14,16 @@
 - Nel frontend (`dashboard.html`), se `user.isAdmin` è true, viene impostato `_adminTierActive = 3` (tier massimo = accademia).
 - **NON aggiungere mai logica di trial o accesso gratuito temporaneo.** L'unico bypass speciale è quello admin.
 
+## Lezioni e contenuti — REGOLA ASSOLUTA
+
+- **`isFree` è SEMPRE `false` su ogni lezione, senza eccezioni.**
+- NON impostare mai `isFree: true` su nessuna lezione, in nessun caso, per nessun motivo.
+- NON creare preview gratuite, anteprime, "prima lezione gratis" o qualsiasi forma di accesso gratuito ai contenuti.
+- NON suggerire trial, preview o logiche di free tier sui contenuti.
+- Se trovi `isFree: true` nel codice o nel DB: impostalo a `false` immediatamente.
+- Se trovi logica di "free lesson" o "preview lesson": rimuovila.
+- Tutti i contenuti sono esclusivamente dietro abbonamento attivo (`status === 'active'`).
+
 ## Regole permanenti per lo sviluppo
 
 - **Bug fix**: verificare sempre l'intero flusso end-to-end, non solo il punto che si rompe.
