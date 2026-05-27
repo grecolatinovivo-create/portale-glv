@@ -167,7 +167,7 @@
 
     /* ── "Continua a guardare" — card stile Netflix con thumbnail ── */
     .continua-thumb-card {
-      width: 260px;
+      width: 160px;
       flex-shrink: 0;
       border-radius: 8px;
       overflow: hidden;
@@ -178,8 +178,8 @@
       border: 1px solid rgba(255,255,255,.06);
     }
     .continua-thumb-card:hover {
-      transform: translateY(-3px) scale(1.01);
-      box-shadow: 0 8px 28px rgba(0,0,0,.55);
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(0,0,0,.55);
     }
     /* Area thumbnail: gradient di fallback, sostituito da immagine Vimeo */
     .ctc-thumb {
@@ -215,7 +215,7 @@
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%,-55%);
-      font-size: 1.8rem;
+      font-size: 1.4rem;
       color: rgba(255,255,255,.55);
       z-index: 1;
       pointer-events: none;
@@ -224,25 +224,25 @@
     .ctc-thumb.ctc-has-thumb .ctc-play-icon { opacity: 0; }
     /* Info sotto la thumbnail */
     .ctc-info {
-      padding: 10px 12px 12px;
+      padding: 7px 9px 9px;
     }
     .ctc-title {
       font-family:'Inter',sans-serif;
-      font-size:.9rem;
+      font-size:.78rem;
       font-weight:600;
       color:#f5f5f5;
-      line-height:1.35;
+      line-height:1.3;
       display:-webkit-box;
       -webkit-line-clamp:2;
       -webkit-box-orient:vertical;
       overflow:hidden;
-      margin-bottom:4px;
+      margin-bottom:3px;
     }
     .ctc-meta {
       font-family:'Inter',sans-serif;
-      font-size:.72rem;
+      font-size:.66rem;
       color:rgba(245,245,245,.5);
-      display:flex;align-items:center;gap:6px;
+      display:flex;align-items:center;gap:4px;
     }
     .ctc-resume {
       color:var(--gold-lt);
@@ -354,7 +354,7 @@
         border-radius:8px;
       }
       .continua-thumb-card{
-        width:108px;
+        width:100px;
         flex-shrink:0;
         scroll-snap-align:start;
       }
@@ -455,7 +455,7 @@
       #global-progress-widget{ display:none !important; }
 
       /* ══ CONTINUA A GUARDARE: width con !important ══ */
-      .continua-thumb-card{ width:108px !important; }
+      .continua-thumb-card{ width:100px !important; }
 
       /* ══ CORSO — HEADER COMPATTO: solo titolo ══
          Nasconde badge, descrizione, barra progresso, streak.
