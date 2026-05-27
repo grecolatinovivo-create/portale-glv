@@ -395,6 +395,8 @@
     }
     .plan-features li.off::before { content: '✕'; color: rgba(245,245,245,.38); }
     .plan-features li.off { color: rgba(245,245,245,.45); }
+    .only-annual { display: none; font-size: .72rem; color: var(--gold); opacity: .75; font-style: italic; margin-left: .25rem; }
+    .off .only-annual { display: inline; }
     .plan-features li.tutto-in {
       color: var(--gold);
       font-weight: 600;
@@ -583,7 +585,7 @@
           <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
           <li>Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
           <li>Test autocorrettivi per misurare i propri progressi</li>
-          <li id="feat-cert-linguistica" class="off">Esame di certificazione linguistica di Latino e Greco Antico</li>
+          <li id="feat-cert-linguistica" class="off">Esame di certificazione linguistica di Latino e Greco Antico<span class="only-annual">(solo annuale)</span></li>
           <li class="off">Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
           <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
           <li class="off">Possibilità di pagamento con Bonus Docenti</li>
@@ -604,9 +606,9 @@
           <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
           <li>Corsi di formazione tematici di pratica didattica</li>
           <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
-          <li id="feat-test-classe" class="off">Batterie di test per la classe — verifica l'apprendimento dei tuoi studenti</li>
-          <li id="feat-live-mensile" class="off">Live mensile di 1 ora con i docenti — domande e metodologia</li>
-          <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
+          <li id="feat-test-classe" class="off">Batterie di test per la classe — verifica l'apprendimento dei tuoi studenti<span class="only-annual">(solo annuale)</span></li>
+          <li id="feat-live-mensile" class="off">Live mensile di 1 ora con i docenti — domande e metodologia<span class="only-annual">(solo annuale)</span></li>
+          <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti<span class="only-annual">(solo annuale)</span></li>
         </ul>
         <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Lascia la tua email →</button>
       </div>
@@ -779,7 +781,7 @@
     const PLANS = {
       cultura:   { m: '€5,90',  mL: '/mese', a: '€49',  aL: '/anno', aOld: 'anziché €70,80'  },
       linguae:   { m: '€12,90', mL: '/mese', a: '€99',  aL: '/anno', aOld: 'anziché €154,80' },
-      accademia: { m: '€19,90', mL: '/mese', a: '€179', aL: '/anno', aOld: 'anziché €238,80' },
+      accademia: { m: '€19,90', mL: '/mese', a: '€199', aL: '/anno', aOld: 'anziché €238,80' },
     };
     let annual = false;
 
