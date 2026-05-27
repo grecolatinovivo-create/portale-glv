@@ -535,7 +535,12 @@
     <div class="section-header">
       <p class="section-tag">Cosa trovi nel portale</p>
       <h2 class="section-heading">Tre piani, <em>un catalogo intero</em></h2>
-      <p class="section-sub">Prezzi mensili indicativi · Piano annuale disponibile con sconto −30%</p>
+      <p class="section-sub">Il catalogo cresce ogni mese. Cancella quando vuoi.</p>
+    </div>
+
+    <div class="billing-toggle">
+      <button class="billing-tab active" id="tog-monthly">Mensile</button>
+      <button class="billing-tab" id="tog-annual">Annuale <span class="annual-badge">−30%</span></button>
     </div>
 
     <div class="pricing-grid">
@@ -545,10 +550,12 @@
         <div class="plan-name">Cultura</div>
         <div class="plan-desc">Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.</div>
         <div class="plan-price">
-          <span class="plan-amount">€5,90</span><span class="plan-period">/mese</span>
+          <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
+          <div class="plan-old" id="old-cultura"></div>
         </div>
         <ul class="plan-features">
           <li>Corsi Brevi di cultura classica</li>
+          <li>Webinar asincroni</li>
           <li>Corsi e attestati riconosciuti dal MIM</li>
           <li>Attestati digitali con codice univoco verificabile</li>
           <li class="off">Corsi di lingua (Latino, Greco Antico, Egiziano, Ebraico Biblico)</li>
@@ -567,7 +574,8 @@
         <div class="plan-name">Linguae</div>
         <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
         <div class="plan-price">
-          <span class="plan-amount">€12,90</span><span class="plan-period">/mese</span>
+          <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
+          <div class="plan-old" id="old-linguae"></div>
         </div>
         <ul class="plan-features">
           <li class="tutto-in">Tutto in <em>Cultura</em></li>
@@ -587,13 +595,15 @@
         <div class="plan-name">Accademia</div>
         <div class="plan-desc">Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti attivo (piano annuale).</div>
         <div class="plan-price">
-          <span class="plan-amount">€19,90</span><span class="plan-period">/mese</span>
+          <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
+          <div class="plan-old" id="old-accademia"></div>
         </div>
         <ul class="plan-features">
           <li class="tutto-in">Tutto in <em>Linguae</em></li>
           <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
+          <li>Corsi di formazione tematici di pratica didattica</li>
           <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
-          <li>Possibilità di pagamento con Bonus Docenti (piano annuale)</li>
+          <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
         </ul>
         <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Lascia la tua email →</button>
       </div>
@@ -761,6 +771,44 @@
     document.getElementById('code-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') verifyCode();
     });
+
+    // ── Billing toggle ───────────────────────────────────────
+    const PLANS = {
+      cultura:   { m: '€5,90',  mL: '/mese', a: '€49',  aL: '/anno', aOld: 'anziché €70,80'  },
+      linguae:   { m: '€12,90', mL: '/mese', a: '€99',  aL: '/anno', aOld: 'anziché €154,80' },
+      accademia: { m: '€19,90', mL: '/mese', a: '€179', aL: '/anno', aOld: 'anziché €238,80' },
+    };
+    let annual = false;
+
+    function applyPricing() {
+      Object.entries(PLANS).forEach(([key, p]) => {
+        const amt = document.getElementById(`amt-${key}`);
+        const per = document.getElementById(`per-${key}`);
+        const old = document.getElementById(`old-${key}`);
+        if (!amt) return;
+        if (annual) {
+          amt.textContent  = p.a;
+          per.textContent  = p.aL;
+          old.textContent  = p.aOld;
+          old.style.display = 'block';
+        } else {
+          amt.textContent  = p.m;
+          per.textContent  = p.mL;
+          old.style.display = 'none';
+        }
+      });
+      const bonus = document.getElementById('feat-bonus-docenti');
+      if (bonus) {
+        if (annual) { bonus.classList.remove('off'); }
+        else        { bonus.classList.add('off'); }
+      }
+      document.getElementById('tog-monthly').classList.toggle('active', !annual);
+      document.getElementById('tog-annual').classList.toggle('active',  annual);
+    }
+
+    applyPricing();
+    document.getElementById('tog-monthly').addEventListener('click', () => { if (annual)  { annual = false; applyPricing(); } });
+    document.getElementById('tog-annual').addEventListener('click',  () => { if (!annual) { annual = true;  applyPricing(); } });
 
     // ── Scroll to form ───────────────────────────────────────
     function scrollToForm() {
