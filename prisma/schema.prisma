@@ -34,6 +34,7 @@ model User {
   certificates         Certificate[]
   passwordResetTokens  PasswordResetToken[]
   vocabulary           Vocabulary[]
+  favorites            Favorite[]
 }
 
 // Corsi disponibili nel catalogo
@@ -67,6 +68,7 @@ model Course {
   certificates   Certificate[]
   resources      CourseResource[]
   exercises      ExerciseTest[]
+  favorites      Favorite[]
 }
 
 // Lezioni appartenenti a un corso
@@ -186,6 +188,22 @@ model Certificate {
   course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])   // un solo attestato per coppia utente+corso
+}
+
+// Preferiti — corsi salvati dall'utente dalla pagina corso
+// La stellina è disponibile nella pagina corso (accanto al titolo).
+// Saved in DB so they sync across devices.
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])   // un solo preferito per coppia utente+corso
+  @@index([userId])
 }
 
 // Token monouso per impostare la password dopo il primo pagamento
