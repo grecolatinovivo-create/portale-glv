@@ -2531,24 +2531,24 @@ function reorderSections(tier) {
 
   let order;
   if (hasActive) {
-    // Utente attivo: Continua in cima, poi Nuovi arrivi, poi il resto
+    // Utente attivo: Continua in cima, poi Preferiti, poi Nuovi arrivi, poi il resto
     order = tier <= 1
-      ? ['section-continua','section-nuovi','section-per-te',
+      ? ['section-continua','section-preferiti','section-nuovi','section-per-te',
          'section-per-iniziare','section-brevi',
          'section-latino','section-greco','section-egiziano','section-ebraico',
          'section-completati','section-didattica']
-      : ['section-continua','section-nuovi','section-per-te',
+      : ['section-continua','section-preferiti','section-nuovi','section-per-te',
          'section-per-iniziare',
          'section-latino','section-greco','section-egiziano','section-ebraico',
          'section-brevi','section-completati','section-didattica'];
   } else {
-    // Utente nuovo o senza corsi in corso: Continua in 3ª posizione
+    // Utente nuovo o senza corsi in corso: Preferiti in 2ª posizione, Continua in 4ª
     order = tier <= 1
-      ? ['section-nuovi','section-per-te','section-continua',
+      ? ['section-nuovi','section-preferiti','section-per-te','section-continua',
          'section-per-iniziare','section-brevi',
          'section-latino','section-greco','section-egiziano','section-ebraico',
          'section-completati','section-didattica']
-      : ['section-nuovi','section-per-te','section-continua',
+      : ['section-nuovi','section-preferiti','section-per-te','section-continua',
          'section-per-iniziare',
          'section-latino','section-greco','section-egiziano','section-ebraico',
          'section-brevi','section-completati','section-didattica'];
@@ -2597,6 +2597,9 @@ function rerenderRows(tier) {
   renderNuoviRow('row-nuovi', courses, tier);
   renderPerIniziareRow('row-per-iniziare', courses, tier);
   renderCompletatiRow('row-completati', courses, tier);
+
+  // ── Preferiti (async — nasconde sezione se vuota) ─────────
+  renderPreferiti().catch(() => {});
 
   // Righe per lingua + badge sezione
   const byLang = lg => courses.filter(c => c.lang === lg);
@@ -5246,7 +5249,9 @@ async function renderPreferiti() {
     }
 
     // Calcola il tier corrente (per il gate lock sui corsi)
-    const tier = _adminTierActive ?? _computeTier(_allCourses);
+    const tier = typeof _adminTierActive !== 'undefined' && _adminTierActive !== null
+      ? _adminTierActive
+      : (typeof _currentTier !== 'undefined' ? _currentTier : 0);
 
     // Arricchisci con i dati di _allCourses (progressPercent, ecc.) se disponibili
     const enriched = favorites.map(fav => {
@@ -5254,7 +5259,10 @@ async function renderPreferiti() {
       return full ? { ...fav, ...full } : fav;
     });
 
-    row.innerHTML = enriched.map(c => buildCourseCard(c, tier)).join('');
+    row.innerHTML = enriched.map(c =>
+      isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+    ).join('');
+    setTimeout(_loadAllDashboardThumbnails, 0);
     sec.classList.remove('hidden');
 
     // Riordina sezioni se necessario
@@ -5572,6 +5580,9 @@ function _applyFilter() {
   renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
   renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
   renderRow('row-didattica', byLang('Didattica'),            tier);
+
+  // I preferiti non si filtrano per lingua: li ricarica sempre dall'API
+  renderPreferiti().catch(() => {});
 
   // Mostra/nascondi sezione "Continua"
   const inProg = filtered.filter(c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100);
