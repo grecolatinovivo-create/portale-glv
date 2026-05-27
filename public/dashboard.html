@@ -1241,6 +1241,76 @@
       .vocab-card-term { font-size: 1.7rem; }
       .vocab-cloze-sentence { font-size: .95rem; }
     }
+
+    /* ── Stellina Preferiti ───────────────────────────────────────────── */
+    .fav-star-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .2s, border-color .2s, transform .15s;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      line-height: 1;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .fav-star-btn:hover {
+      background: rgba(201,150,42,.12);
+      border-color: rgba(201,150,42,.3);
+      color: var(--gold-lt);
+      transform: scale(1.08);
+    }
+    .fav-star-btn:focus-visible {
+      outline: 2px solid var(--gold-lt);
+      outline-offset: 3px;
+    }
+    .fav-star-btn.active {
+      background: rgba(201,150,42,.15);
+      border-color: rgba(201,150,42,.35);
+      color: var(--gold);
+    }
+    .fav-star-btn.loading { opacity: .5; pointer-events: none; }
+
+    /* ── Toast certificato / errori ──────────────────────────────────── */
+    .glv-toast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+      background: #141414;
+      border: 1px solid rgba(201,150,42,.3);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      font-size: .88rem;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,.6);
+      max-width: 360px;
+      opacity: 0; transform: translateY(12px);
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+    }
+    .glv-toast.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .glv-toast-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .glv-toast-body { flex: 1; }
+    .glv-toast-title { font-weight: 600; margin-bottom: 3px; }
+    .glv-toast-msg { color: var(--text-secondary); font-size: .82rem; line-height: 1.4; }
+    .glv-toast-link {
+      display: inline-block; margin-top: 6px;
+      color: var(--gold-lt); font-size: .82rem; font-weight: 500;
+      text-decoration: underline;
+    }
+    .glv-toast-close {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 1rem;
+      padding: 2px; flex-shrink: 0;
+      transition: color .2s;
+    }
+    .glv-toast-close:hover { color: var(--text-primary); }
+    @media (max-width: 640px) {
+      .glv-toast { left: 12px; right: 12px; max-width: none; bottom: 14px; }
+    }
   </style>
 </head>
 <body>
@@ -1506,6 +1576,16 @@
       <div class="courses-row" id="row-continua" aria-label="Corsi in corso"></div>
     </section>
 
+    <!-- ── I MIEI PREFERITI ─────────────────────────────────────── -->
+    <section class="dash-section hidden" id="section-preferiti" aria-labelledby="section-preferiti-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-preferiti-title">I miei preferiti</h2>
+        <span class="dash-section-subtitle">Corsi che hai salvato con la stellina</span>
+        <span class="dash-section-badge" style="background:rgba(201,150,42,.12);color:var(--gold-lt);">★ Preferiti</span>
+      </div>
+      <div class="courses-row" id="row-preferiti" aria-label="Corsi preferiti"></div>
+    </section>
+
     <!-- ── NUOVI ARRIVI ─────────────────────────────────────────── -->
     <section class="dash-section hidden" id="section-nuovi" aria-labelledby="section-nuovi-title">
       <div class="dash-section-header">
@@ -1680,8 +1760,18 @@
         <section class="course-header" id="course-header">
           <div class="course-badges" id="course-badges"></div>
 
-          <div class="course-title-row">
-            <h2 class="course-title" id="course-title"></h2>
+          <div class="course-title-row" style="display:flex;align-items:center;gap:0;flex-wrap:wrap;">
+            <h2 class="course-title" id="course-title" style="flex:1;min-width:0;"></h2>
+            <!-- Stellina preferiti: visibile solo quando un corso è aperto -->
+            <button
+              class="fav-star-btn"
+              id="fav-star-btn"
+              type="button"
+              aria-label="Aggiungi ai preferiti"
+              aria-pressed="false"
+              title="Aggiungi ai preferiti"
+              style="display:none"
+            >☆</button>
           </div>
           <p class="course-description" id="course-description"></p>
 
@@ -1977,6 +2067,17 @@
   </main><!-- /#main-content -->
 </div><!-- /#glv-dashboard -->
 
+<!-- ── Toast globale (certificati, errori, messaggi) ── -->
+<div class="glv-toast" id="glv-toast" role="alert" aria-live="polite" aria-atomic="true">
+  <span class="glv-toast-icon" id="glv-toast-icon" aria-hidden="true">🎓</span>
+  <div class="glv-toast-body">
+    <div class="glv-toast-title" id="glv-toast-title"></div>
+    <div class="glv-toast-msg" id="glv-toast-msg"></div>
+    <a class="glv-toast-link" id="glv-toast-link" href="#" style="display:none"></a>
+  </div>
+  <button class="glv-toast-close" id="glv-toast-close" type="button" aria-label="Chiudi notifica">✕</button>
+</div>
+
 <!-- SDK ufficiale Vimeo Player — necessario per eventi timeupdate/ended -->
 <script src="https://player.vimeo.com/api/player.js"></script>
 <script src="/js/app.js"></script>
@@ -1989,6 +2090,44 @@
 
 // PROFILE_KEY localStorage rimosso — le preferenze sono ora nel DB (User.prefLang/prefLevel/prefGoal/onboardingDone)
 let quizAnswers = { lang: null, level: null, goal: null };
+
+// ── Toast globale ─────────────────────────────────────────────────────────
+// Usato per: certificato emesso, errori di caricamento, conferma preferito.
+let _toastTimer = null;
+function showToast({ icon = 'ℹ️', title = '', msg = '', link = null, linkText = '', durationMs = 5000 } = {}) {
+  const el    = document.getElementById('glv-toast');
+  const elIcon  = document.getElementById('glv-toast-icon');
+  const elTitle = document.getElementById('glv-toast-title');
+  const elMsg   = document.getElementById('glv-toast-msg');
+  const elLink  = document.getElementById('glv-toast-link');
+  if (!el) return;
+
+  elIcon.textContent  = icon;
+  elTitle.textContent = title;
+  elMsg.textContent   = msg;
+
+  if (link) {
+    elLink.href = link;
+    elLink.textContent = linkText || 'Vai';
+    elLink.style.display = '';
+  } else {
+    elLink.style.display = 'none';
+  }
+
+  el.classList.add('visible');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('visible'), durationMs);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const closeBtn = document.getElementById('glv-toast-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      document.getElementById('glv-toast')?.classList.remove('visible');
+      if (_toastTimer) clearTimeout(_toastTimer);
+    });
+  }
+});
 
 // Admin preview — stato globale
 let _allCourses      = [];   // cache corsi caricati
@@ -4913,6 +5052,19 @@ function _startVimeoTracking(player, lessonId, courseId, totalSeconds) {
           if (overlay) overlay.innerHTML = `<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="rgba(61,176,91,.18)"/><path d="M5 8l2 2 4-4" stroke="#3db05b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
         }
         if (result.coursePercent != null) _updateProgressBar(result.coursePercent);
+
+        // Attestato emesso automaticamente al 100%
+        if (result.certificateIssued && result.certCode) {
+          showToast({
+            icon: '🎓',
+            title: 'Attestato ottenuto!',
+            msg: `Hai completato il corso. Il tuo attestato (${result.certCode}) è pronto.`,
+            link: '/attestati.html',
+            linkText: 'Vai ai miei attestati',
+            durationMs: 10000,
+          });
+        }
+
         showNextLessonOverlay();
       }).catch(() => {});
   });
