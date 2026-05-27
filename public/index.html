@@ -314,7 +314,7 @@
       display: none;
       font-size: .78rem;
       color: rgba(245,245,245,.55);
-      text-decoration: line-through;
+      text-decoration: none;
       margin-top: .3rem;
     }
     .plan-features {
@@ -1103,6 +1103,7 @@
       </div>
       <ul class="plan-features">
         <li>Corsi Brevi di cultura classica</li>
+        <li>Corsi e attestati riconosciuti dal MIM</li>
         <li>Attestati digitali con codice univoco verificabile</li>
         <li class="off">Corsi di lingua (Latino, Greco Antico, Egiziano, Ebraico Biblico)</li>
         <li class="off">Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
@@ -1468,7 +1469,7 @@ function applyPricing() {
     if (annual) {
       amt.textContent = p.a;
       per.textContent = p.aLabel;
-      old.textContent = p.aOld + '/anno se mensile';
+      old.textContent = 'anziché ' + p.aOld;
       old.style.display = 'block';
     } else {
       amt.textContent = p.m;
