@@ -1152,6 +1152,7 @@
         <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
         <li>Corsi di formazione tematici di pratica didattica</li>
         <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+        <li id="feat-live-mensile" class="off">Live mensile di 1 ora con i docenti — domande e metodologia</li>
         <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
@@ -1480,15 +1481,14 @@ function applyPricing() {
       old.style.display = 'none';
     }
   });
-  // Bonus Docenti: ✕ su mensile, ✓ su annuale
+  // Annuale-only features: Live mensile + Bonus Docenti
+  const liveFeat  = document.getElementById('feat-live-mensile');
   const bonusFeat = document.getElementById('feat-bonus-docenti');
-  if (bonusFeat) {
-    if (annual) {
-      bonusFeat.classList.remove('off');
-    } else {
-      bonusFeat.classList.add('off');
-    }
-  }
+  [liveFeat, bonusFeat].forEach(el => {
+    if (!el) return;
+    if (annual) { el.classList.remove('off'); }
+    else        { el.classList.add('off'); }
+  });
   // Aggiorna stato tab: app.js legge tog-annual.classList.contains('active')
   tabMonthly.classList.toggle('active', !annual);
   tabAnnual.classList.toggle('active', annual);

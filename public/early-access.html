@@ -603,6 +603,7 @@
           <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
           <li>Corsi di formazione tematici di pratica didattica</li>
           <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+          <li id="feat-live-mensile" class="off">Live mensile di 1 ora con i docenti — domande e metodologia</li>
           <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
         </ul>
         <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Lascia la tua email →</button>
@@ -797,11 +798,13 @@
           old.style.display = 'none';
         }
       });
+      const live  = document.getElementById('feat-live-mensile');
       const bonus = document.getElementById('feat-bonus-docenti');
-      if (bonus) {
-        if (annual) { bonus.classList.remove('off'); }
-        else        { bonus.classList.add('off'); }
-      }
+      [live, bonus].forEach(el => {
+        if (!el) return;
+        if (annual) { el.classList.remove('off'); }
+        else        { el.classList.add('off'); }
+      });
       document.getElementById('tog-monthly').classList.toggle('active', !annual);
       document.getElementById('tog-annual').classList.toggle('active',  annual);
     }
