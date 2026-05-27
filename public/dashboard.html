@@ -93,11 +93,11 @@
     .quiz-btn-skip:hover{color:var(--text);}
 
     /* ── DASHBOARD ─────────────────────────────────────────── */
-    #glv-dashboard{min-height:100vh;}
+    #glv-dashboard{min-height:100vh;padding-top:calc(64px + 40px);} /* 64px navbar + 40px respiro */
     #glv-dashboard.hidden{display:none;}
 
-    /* Hero — padding-top = nav-height (64px) + spazio */
-    .dash-hero{padding:96px 48px 40px;max-width:1200px;margin:0 auto;}
+    /* Hero — rimosso su richiesta: nessun saluto "Bentornato" */
+    .dash-hero{display:none !important;}
     .dash-greeting{font-family:var(--font-heading);font-size:clamp(1.8rem,4vw,3rem);font-weight:700;margin-bottom:10px;}
     .dash-greeting em{color:var(--gold);font-style:italic;}
     .dash-subtitle{font-family:var(--font-body);font-size:.95rem;color:var(--text-muted);line-height:1.6;}
@@ -4922,7 +4922,8 @@ function _renderRiprendiCard(data) {
 
   // Costruisce una card per ogni corso avviato
   if (!container) return;
-  container.style.cssText = 'display:flex;flex:1;gap:16px;flex-wrap:wrap;';
+  /* Scorrimento orizzontale Netflix: le card non wrappano, escono a destra */
+  container.style.cssText = 'display:flex;flex:1;min-width:0;gap:16px;flex-wrap:nowrap;overflow-x:auto;overflow-y:visible;scrollbar-width:none;scroll-snap-type:x mandatory;padding-bottom:4px;';
 
   courses.forEach(lesson => {
     const { courseSlug, courseTitle, courseLang, lessonTitle,

@@ -3636,7 +3636,8 @@ body.has-corso-cta { padding-bottom: 80px; }
 
 .riprendi-card {
   position: relative;
-  flex: 1;
+  flex: 0 0 260px;   /* larghezza fissa — non cresce, non si restringe */
+  min-width: 260px;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -3648,6 +3649,7 @@ body.has-corso-cta { padding-bottom: 80px; }
   overflow: hidden;
   transition: border-color .2s ease, transform .15s ease;
   min-height: 90px;
+  scroll-snap-align: start;
 }
 .riprendi-card:hover {
   border-color: rgba(255,255,255,.18);
@@ -3941,9 +3943,13 @@ body.has-corso-cta { padding-bottom: 80px; }
   color: var(--text);
 }
 
+/* Nascondi scrollbar del container riprendi-cards */
+#riprendi-cards::-webkit-scrollbar { display: none; }
+
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .riprendi-section { padding: 0 16px; flex-direction: column; }
+  .riprendi-card { flex: 0 0 220px; min-width: 220px; } /* più strette su tablet */
   .global-progress-widget {
     flex-direction: row;
     min-width: auto;
@@ -3953,6 +3959,9 @@ body.has-corso-cta { padding-bottom: 80px; }
   .gp-divider { width: 1px; height: 32px; }
   .course-filter-bar { padding: 0 16px; }
   .course-search-input { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .riprendi-card { flex: 0 0 200px; min-width: 200px; } /* mobile stretto */
 }
 
 /* ══ COURSE TITLE ROW ════════════════════════════════════════════ */
