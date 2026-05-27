@@ -1683,6 +1683,80 @@
       <div class="courses-row" id="row-didattica"></div>
     </section>
 
+    <!-- ── SEZIONI TEMATICHE ─────────────────────────────────────── -->
+
+    <section class="dash-section hidden" id="section-mondo-greco" aria-labelledby="section-mondo-greco-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-mondo-greco-title">Mondo Greco</h2>
+        <span class="dash-section-subtitle">Polis, filosofia e civiltà ellenica</span>
+        <span class="dash-section-badge" style="background:rgba(100,140,220,.15);color:#8eb4f0;">🏛 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-mondo-greco" aria-label="Corsi sul Mondo Greco"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-mondo-romano" aria-labelledby="section-mondo-romano-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-mondo-romano-title">Mondo Romano</h2>
+        <span class="dash-section-subtitle">Repubblica, Impero e cultura latina</span>
+        <span class="dash-section-badge" style="background:rgba(180,60,60,.15);color:#e08080;">🏛 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-mondo-romano" aria-label="Corsi sul Mondo Romano"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-archeologia" aria-labelledby="section-archeologia-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-archeologia-title">Archeologia</h2>
+        <span class="dash-section-subtitle">Scavi, epigrafia e reperti del mondo antico</span>
+        <span class="dash-section-badge" style="background:rgba(140,110,60,.15);color:#c4a060;">⛏ Tematica</span>
+      </div>
+      <div class="courses-row" id="row-archeologia" aria-label="Corsi di Archeologia"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-filosofia-storia" aria-labelledby="section-filosofia-storia-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-filosofia-storia-title">Filosofia e Storia</h2>
+        <span class="dash-section-subtitle">Pensiero antico, storiografia e politica</span>
+        <span class="dash-section-badge" style="background:rgba(80,160,120,.15);color:#70c090;">📜 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-filosofia-storia" aria-label="Corsi di Filosofia e Storia"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-letteratura" aria-labelledby="section-letteratura-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-letteratura-title">Letteratura</h2>
+        <span class="dash-section-subtitle">Epica, lirica, teatro e prosa classica</span>
+        <span class="dash-section-badge" style="background:rgba(160,80,180,.15);color:#c090d8;">📖 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-letteratura" aria-label="Corsi di Letteratura classica"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-arte-civilta" aria-labelledby="section-arte-civilta-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-arte-civilta-title">Arte e Civiltà</h2>
+        <span class="dash-section-subtitle">Scultura, architettura, mitologia e religione</span>
+        <span class="dash-section-badge" style="background:rgba(220,140,40,.15);color:#d4a050;">🎨 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-arte-civilta" aria-label="Corsi di Arte e Civiltà"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-lettura-testi" aria-labelledby="section-lettura-testi-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-lettura-testi-title">Lettura e Testi</h2>
+        <span class="dash-section-subtitle">Lessico, morfologia e testi autentici</span>
+        <span class="dash-section-badge" style="background:rgba(60,160,200,.15);color:#60b8d8;">✍ Tematica</span>
+      </div>
+      <div class="courses-row" id="row-lettura-testi" aria-label="Corsi di Lettura e Testi classici"></div>
+    </section>
+
+    <section class="dash-section hidden" id="section-mondo-antico" aria-labelledby="section-mondo-antico-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-mondo-antico-title">Mondo Antico</h2>
+        <span class="dash-section-subtitle">Egitto, Mesopotamia e civiltà del Mediterraneo</span>
+        <span class="dash-section-badge" style="background:rgba(180,160,80,.15);color:#c8b850;">🌍 Tematica</span>
+      </div>
+      <div class="courses-row" id="row-mondo-antico" aria-label="Corsi sul Mondo Antico"></div>
+    </section>
+
   </div><!-- /course-sections -->
 
   <footer class="dash-footer">
@@ -2541,16 +2615,25 @@ function reorderSections(tier) {
   if (!container) return;
 
   // "Continua a guardare" (riprendi-section) SEMPRE in 3ª posizione per tutti.
+  // Le sezioni tematiche (Mondo Greco, Mondo Romano, ecc.) appaiono DOPO le sezioni lingua.
   // section-continua è tenuta nel DOM ma non nell'ordine — gestita da riprendi-section.
   const order = tier <= 1
     ? ['section-nuovi','section-per-te','riprendi-section','section-preferiti',
        'section-per-iniziare','section-brevi',
        'section-latino','section-greco','section-egiziano','section-ebraico',
-       'section-completati','section-didattica']
+       'section-completati','section-didattica',
+       // Sezioni tematiche
+       'section-mondo-greco','section-mondo-romano','section-archeologia',
+       'section-filosofia-storia','section-letteratura','section-arte-civilta',
+       'section-lettura-testi','section-mondo-antico']
     : ['section-nuovi','section-per-te','riprendi-section','section-preferiti',
        'section-per-iniziare',
        'section-latino','section-greco','section-egiziano','section-ebraico',
-       'section-brevi','section-completati','section-didattica'];
+       'section-brevi','section-completati','section-didattica',
+       // Sezioni tematiche
+       'section-mondo-greco','section-mondo-romano','section-archeologia',
+       'section-filosofia-storia','section-letteratura','section-arte-civilta',
+       'section-lettura-testi','section-mondo-antico'];
 
   order.forEach(id => {
     const el = document.getElementById(id);
@@ -2620,6 +2703,9 @@ function rerenderRows(tier) {
     b.classList.toggle('locked-badge', tier < 3);
     b.style.display = '';
   }
+
+  // Sezioni tematiche (Mondo Greco, Romano, Archeologia, ecc.)
+  renderAllThemeSections(courses, tier);
 
   // Riordina sezioni in base a cosa è sbloccato
   reorderSections(tier);
@@ -3314,6 +3400,154 @@ const GLV_LANG_GRADIENTS = {
   'didattica':            'linear-gradient(155deg,#3c1a62,#1e0c32)',
   'corsi brevi':          'linear-gradient(155deg,#253e3e,#121e1e)',
 };
+
+/* ══ SEZIONI TEMATICHE ════════════════════════════════════════════
+   Classificazione per keyword su title + description.
+   Aggiornare THEME_MAP senza toccare il DB.
+   Un corso può comparire in MAX 2 sezioni (contato in renderAllThemes).
+   Una sezione viene mostrata solo se almeno 2 corsi la matchano.
+════════════════════════════════════════════════════════════════════ */
+const THEME_MAP = {
+  'section-mondo-greco': {
+    label: 'Mondo Greco',
+    rowId: 'row-mondo-greco',
+    keywords: ['greco','grecia','atene','sparta','ellenismo','ellenico',
+               'aristotele','platone','socrate','omero','iliade','odissea',
+               'tragedia','commedia','polis','micene','arcaico','ellade',
+               'erodoto','tucidide','demostene','esiodo','pindaro'],
+  },
+  'section-mondo-romano': {
+    label: 'Mondo Romano',
+    rowId: 'row-mondo-romano',
+    keywords: ['romano','roma','repubblica','impero','cesare','cicerone',
+               'virgilio','ovidio','livio','tacito','orazio','sallustio',
+               'senato','legione','augusto','latino','storia di roma','catullo',
+               'lucrezio','plauto','terenzio','seneca','svetonio','plinio'],
+  },
+  'section-archeologia': {
+    label: 'Archeologia',
+    rowId: 'row-archeologia',
+    keywords: ['archeologia','scavo','reperto','epigrafia','papirologia',
+               'iscrizione','monumento','tempio','anfiteatro','foro',
+               'necropoli','tomba','ceramica','numismatica','museo',
+               'pompei','ercolano','ostia','agora','acropoli'],
+  },
+  'section-filosofia-storia': {
+    label: 'Filosofia e Storia',
+    rowId: 'row-filosofia-storia',
+    keywords: ['filosofia','storia','pensiero','politica','etica',
+               'logica','retorica','dialettica','storiografia','polibio',
+               'tucidide','erodoto','platone','epicuro','stoicismo',
+               'presocratici','sofisti','neoplatonismo','accademia','liceo'],
+  },
+  'section-letteratura': {
+    label: 'Letteratura',
+    rowId: 'row-letteratura',
+    keywords: ['letteratura','poesia','epica','lirica','elegia','satira',
+               'prosa','oratoria','epistola','ode','narrativa','dramma',
+               'teatro','autore classico','genere letterario','metro',
+               'iliade','odissea','eneide','metamorfosi','georgiche'],
+  },
+  'section-arte-civilta': {
+    label: 'Arte e Civiltà',
+    rowId: 'row-arte-civilta',
+    keywords: ['arte','scultura','pittura','architettura','mosaico','affresco',
+               'iconografia','mitologia','rito','culto','olimpia','giochi',
+               'civiltà','cultura materiale','religione','pantheon','dei',
+               'eroi','vaso','ceramica attica'],
+  },
+  'section-lettura-testi': {
+    label: 'Lettura e Testi',
+    rowId: 'row-lettura-testi',
+    keywords: ['lettura','brano','versione','analisi','commento','comprensione',
+               'lessico','vocabolario','morfologia','sintassi','grammatica',
+               'testo autentico','lingua latina','lingua greca','llpsi',
+               'metodo induttivo','input comprensibile','testo'],
+  },
+  'section-mondo-antico': {
+    label: 'Mondo Antico',
+    rowId: 'row-mondo-antico',
+    keywords: ['antico','antichità','mediterraneo','egitto','mesopotamia',
+               'vicino oriente','medio oriente','bronze age','età del bronzo',
+               'età del ferro','sumerica','babilonia','assira','fenico',
+               'civiltà antica','preistoria','proto-storia'],
+  },
+};
+
+/* Verifica se un corso matcha un tema (keyword su title + description).
+   Case-insensitive, substring match. */
+function _courseMatchesTheme(course, keywords) {
+  const haystack = ((course.title || '') + ' ' + (course.description || '')).toLowerCase();
+  return keywords.some(kw => haystack.includes(kw.toLowerCase()));
+}
+
+/* Render di una singola sezione tematica.
+   Nasconde la sezione se < 2 corsi matchano.
+   Un corso è "accessibile" se isLangUnlocked(lang, tier). */
+function renderThemeSection(themeId, courses, tier) {
+  const config = THEME_MAP[themeId];
+  if (!config) return;
+
+  const sec = document.getElementById(themeId);
+  const row = document.getElementById(config.rowId);
+  if (!sec || !row) return;
+
+  const matched = courses.filter(c => _courseMatchesTheme(c, config.keywords));
+
+  if (matched.length < 2) {
+    sec.classList.add('hidden');
+    row.innerHTML = '';
+    return;
+  }
+
+  sec.classList.remove('hidden');
+  row.innerHTML = matched.map(c =>
+    isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+  ).join('');
+
+  setTimeout(_loadAllDashboardThumbnails, 0);
+}
+
+/* Render di TUTTE le sezioni tematiche in una chiamata sola.
+   Rispetta il limite: un corso compare in max 2 sezioni. */
+function renderAllThemeSections(courses, tier) {
+  // Contatore apparizioni per corso (slug → count)
+  const appearances = {};
+  const MAX_SECTIONS_PER_COURSE = 2;
+
+  Object.keys(THEME_MAP).forEach(themeId => {
+    const config = THEME_MAP[themeId];
+    const sec = document.getElementById(themeId);
+    const row = document.getElementById(config.rowId);
+    if (!sec || !row) return;
+
+    // Filtra: matcha keyword E non ha già superato il limite di sezioni
+    const matched = courses.filter(c => {
+      const slug = c.slug || c.id;
+      const count = appearances[slug] || 0;
+      return _courseMatchesTheme(c, config.keywords) && count < MAX_SECTIONS_PER_COURSE;
+    });
+
+    if (matched.length < 2) {
+      sec.classList.add('hidden');
+      row.innerHTML = '';
+      return;
+    }
+
+    // Aggiorna contatore
+    matched.forEach(c => {
+      const slug = c.slug || c.id;
+      appearances[slug] = (appearances[slug] || 0) + 1;
+    });
+
+    sec.classList.remove('hidden');
+    row.innerHTML = matched.map(c =>
+      isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+    ).join('');
+  });
+
+  setTimeout(_loadAllDashboardThumbnails, 0);
+}
 
 /**
  * Aggiorna i gradienti delle tre mini-card nel mazzetto angolo.
@@ -5579,6 +5813,8 @@ function _applyFilter() {
   renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
   renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
   renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
+  // Sezioni tematiche — filtrate per la stessa query/lingua del filtro attivo
+  renderAllThemeSections(filtered, tier);
   renderRow('row-didattica', byLang('Didattica'),            tier);
 
   // I preferiti non si filtrano per lingua: li ricarica sempre dall'API
