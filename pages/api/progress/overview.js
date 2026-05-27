@@ -1,14 +1,15 @@
 // pages/api/progress/overview.js — Riepilogo globale progresso utente
 // GET → {
-//   completedLessons,  // totale lezioni completate su tutti i corsi
-//   totalLessons,      // totale lezioni disponibili (solo corsi avviati)
-//   percent,           // percentuale completamento globale
-//   weeklyLessons,     // lezioni viste/aggiornate negli ultimi 7 giorni
-//   lastLesson: {      // ultima lezione aperta (per "Riprendi da dove hai lasciato")
-//     courseSlug, courseTitle, courseLang,
-//     lessonId, lessonTitle, lessonSortOrder,
-//     resumeAt, progressPercent
-//   } | null
+//   completedLessons,    // totale lezioni completate su tutti i corsi
+//   totalLessons,        // totale lezioni disponibili (solo corsi avviati)
+//   percent,             // percentuale completamento globale
+//   weeklyLessons,       // lezioni viste/aggiornate negli ultimi 7 giorni
+//   lastLesson: { ... } | null,  // ultima lezione aperta (compat. legacy)
+//   inProgressLessons: [ // tutti i corsi avviati, ordinati per ultimo accesso
+//     { courseSlug, courseTitle, courseLang,
+//       lessonId, lessonTitle, lessonSortOrder,
+//       resumeAt, progressPercent, completed }
+//   ]
 // }
 
 const { prisma } = require('../../../lib/prisma');
@@ -41,18 +42,19 @@ export default withAuth(async function handler(req, res) {
 
     if (!allProgress.length) {
       return res.status(200).json({
-        completedLessons: 0,
-        totalLessons: 0,
-        percent: 0,
-        weeklyLessons: 0,
-        lastLesson: null,
+        completedLessons:  0,
+        totalLessons:      0,
+        percent:           0,
+        weeklyLessons:     0,
+        lastLesson:        null,
+        inProgressLessons: [],
       });
     }
 
     // ── Aggregati globali ──────────────────────────────────────────
     const completedLessons = allProgress.filter(p => p.completed).length;
-    const totalLessons = allProgress.length; // solo lezioni avviate
-    const percent = totalLessons > 0
+    const totalLessons     = allProgress.length; // solo lezioni avviate
+    const percent          = totalLessons > 0
       ? Math.round((completedLessons / totalLessons) * 100)
       : 0;
 
@@ -61,29 +63,41 @@ export default withAuth(async function handler(req, res) {
       p => p.updatedAt >= sevenDaysAgo
     ).length;
 
-    // ── Ultima lezione aperta ─────────────────────────────────────
-    // allProgress è già ordinato per updatedAt desc → il primo è l'ultimo accesso
-    const last = allProgress[0];
-    const lessonProgress = last.watchedSeconds > 0 || last.resumeAt > 0
-      ? last
-      : allProgress.find(p => p.watchedSeconds > 0 || p.resumeAt > 0) || last;
+    // ── Ultimo accesso PER CORSO (per "Riprendi" multi-corso) ─────
+    // allProgress è ordinato per updatedAt desc.
+    // Per ogni corso prendiamo il record più recente (= il primo che
+    // troviamo per quel courseId, dato l'ordinamento desc).
+    const coursesMap = new Map();
+    for (const p of allProgress) {
+      const courseId = p.course.id;
+      if (!coursesMap.has(courseId)) {
+        // Prima occorrenza = più recente per quel corso
+        coursesMap.set(courseId, p);
+      }
+    }
 
-    const totalSecondsForPct = lessonProgress.totalSeconds > 0 ? lessonProgress.totalSeconds : 1;
-    const progressPercent = Math.round(
-      (lessonProgress.watchedSeconds / totalSecondsForPct) * 100
-    );
+    // Converti in array già ordinato per ultimo accesso (preserva l'ordine
+    // del Map, che segue l'inserimento → updatedAt desc per costruzione).
+    const inProgressLessons = Array.from(coursesMap.values()).map(p => {
+      const totalSecondsForPct = p.totalSeconds > 0 ? p.totalSeconds : 1;
+      const progressPercent    = Math.min(100,
+        Math.round((p.watchedSeconds / totalSecondsForPct) * 100)
+      );
+      return {
+        courseSlug:      p.course.slug,
+        courseTitle:     p.course.title,
+        courseLang:      p.course.lang,
+        lessonId:        p.lesson.id,
+        lessonTitle:     p.lesson.title,
+        lessonSortOrder: p.lesson.sortOrder,
+        resumeAt:        p.resumeAt,
+        progressPercent,
+        completed:       p.completed,
+      };
+    });
 
-    const lastLesson = {
-      courseSlug:      lessonProgress.course.slug,
-      courseTitle:     lessonProgress.course.title,
-      courseLang:      lessonProgress.course.lang,
-      lessonId:        lessonProgress.lesson.id,
-      lessonTitle:     lessonProgress.lesson.title,
-      lessonSortOrder: lessonProgress.lesson.sortOrder,
-      resumeAt:        lessonProgress.resumeAt,
-      progressPercent: Math.min(100, progressPercent),
-      completed:       lessonProgress.completed,
-    };
+    // ── lastLesson: il primo elemento (legacy compat.) ────────────
+    const lastLesson = inProgressLessons[0] || null;
 
     return res.status(200).json({
       completedLessons,
@@ -91,6 +105,7 @@ export default withAuth(async function handler(req, res) {
       percent,
       weeklyLessons,
       lastLesson,
+      inProgressLessons,
     });
   } catch (err) {
     console.error('[progress/overview] Errore:', err);

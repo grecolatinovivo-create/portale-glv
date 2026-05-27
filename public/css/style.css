@@ -3598,6 +3598,40 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 .riprendi-section.hidden { display: none; }
 
+/* Stato scheletro mentre i dati si caricano — riserva lo spazio
+   evitando il layout shift quando la card appare */
+.riprendi-section.riprendi-loading {
+  display: flex;   /* visibile subito, ma contenuto trasparente */
+}
+.riprendi-section.riprendi-loading .riprendi-card {
+  pointer-events: none;
+}
+.riprendi-skeleton {
+  flex: 1;
+  min-height: 90px;
+  border-radius: var(--r-lg);
+  background: var(--dark-2);
+  border: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+  position: relative;
+}
+.riprendi-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.04) 50%,
+    transparent 100%
+  );
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%);  }
+}
+
 .riprendi-card {
   position: relative;
   flex: 1;

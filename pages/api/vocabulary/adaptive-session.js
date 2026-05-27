@@ -82,7 +82,12 @@ async function handler(req, res) {
   const chapterVocab = rawVocab.filter(v =>
     v.term &&
     !isFunctionWord(v.term) &&
-    Array.isArray(v.contextSentences) && v.contextSentences.length > 0
+    (
+      // Formato nuovo (extract-vocab.js): contextSentences è un array
+      (Array.isArray(v.contextSentences) && v.contextSentences.length > 0) ||
+      // Formato vecchio (session.js auto-gen): contextSentence è una stringa singola
+      (typeof v.contextSentence === 'string' && v.contextSentence.trim().length > 0)
+    )
   );
 
   /* ── 3. Carica storia SRS ──────────────────────────────────── */
@@ -138,7 +143,9 @@ async function handler(req, res) {
         isReview:          true,
         sourceLesson:      review.lessonId,
         sourceLessonTitle: sourceLesson?.title || 'Lezione precedente',
-        contextSentences:  sourceVocab?.contextSentences || (review.context ? [review.context] : []),
+        contextSentences:  (Array.isArray(sourceVocab?.contextSentences) && sourceVocab.contextSentences.length > 0)
+          ? sourceVocab.contextSentences
+          : (sourceVocab?.contextSentence ? [sourceVocab.contextSentence] : (review.context ? [review.context] : [])),
         imageUrl:          sourceVocab?.imageUrl || null,
         grammarNote:       sourceVocab?.grammarNote || null,
         semanticField:     sourceVocab?.semanticField || null,
@@ -169,7 +176,9 @@ async function handler(req, res) {
       isReview:          false,
       sourceLesson:      lessonId,
       sourceLessonTitle: lesson.title,
-      contextSentences:  vocabItem.contextSentences || [],
+      contextSentences:  Array.isArray(vocabItem.contextSentences) && vocabItem.contextSentences.length > 0
+        ? vocabItem.contextSentences
+        : (vocabItem.contextSentence ? [vocabItem.contextSentence] : []),
       imageUrl:          vocabItem.imageUrl || null,
       grammarNote:       vocabItem.grammarNote || null,
       semanticField:     vocabItem.semanticField || null,

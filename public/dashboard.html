@@ -840,8 +840,10 @@
 
     /* Body scrollabile */
     .vocab-modal-body {
-      overflow: hidden;
+      flex: 1;
+      overflow-y: auto;
       padding: 0;
+      min-height: 0; /* necessario in flex column per permettere shrink */
     }
 
     /* Footer con bottoni navigazione */
@@ -955,18 +957,7 @@
       font-weight: 700;
       font-style: normal;
     }
-    .vocab-card-notes {
-      font-family: 'Inter', sans-serif;
-      font-size: .72rem;
-      color: rgba(255,255,255,.4);
-      margin-top: 8px;
-    }
-    .vocab-card-notes {
-      font-family: 'Inter', sans-serif;
-      font-size: .75rem;
-      color: rgba(255,255,255,.3);
-      margin-top: 10px;
-    }
+    /* .vocab-card-notes rimosso — le note grammaticali non vengono mostrate allo studente */
 
     /* Navigation dots fase 1 */
     .vocab-nav-dots {
@@ -1440,28 +1431,14 @@
   </section>
 
   <!-- ── RIPRENDI + PROGRESSO GLOBALE ───────────────────────── -->
-  <div id="riprendi-section" class="riprendi-section hidden" aria-live="polite">
-    <div id="riprendi-card" class="riprendi-card" role="button" tabindex="0"
-         aria-label="Riprendi ultima lezione">
-      <div class="riprendi-gradient" id="riprendi-gradient" aria-hidden="true"></div>
-      <div class="riprendi-body">
-        <div class="riprendi-label">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M5 3l6 5-6 5V3z" fill="currentColor"/>
-          </svg>
-          Riprendi
-        </div>
-        <div class="riprendi-course" id="riprendi-course-title"></div>
-        <div class="riprendi-lesson" id="riprendi-lesson-title"></div>
-        <div class="riprendi-progress-wrap" aria-hidden="true">
-          <div class="riprendi-progress-bar">
-            <div class="riprendi-progress-fill" id="riprendi-progress-fill"></div>
-          </div>
-          <span class="riprendi-progress-pct" id="riprendi-progress-pct"></span>
-        </div>
-      </div>
-      <div class="riprendi-cta" aria-hidden="true">→</div>
-    </div>
+  <!-- Visibile subito in stato "loading" per riservare spazio ed evitare
+       layout shift. Sostituito con le card reali quando l'API risponde.
+       Se nessun progresso → classe "hidden" aggiunta via JS. -->
+  <div id="riprendi-section" class="riprendi-section riprendi-loading" aria-live="polite">
+    <!-- Scheletro iniziale — rimosso quando i dati arrivano -->
+    <div class="riprendi-skeleton" id="riprendi-skeleton" aria-hidden="true"></div>
+    <!-- Container per le card dinamiche (una per ogni corso avviato) -->
+    <div id="riprendi-cards" style="display:none;"></div>
 
     <div id="global-progress-widget" class="global-progress-widget hidden">
       <div class="gp-stat" id="gp-lessons">
@@ -1983,6 +1960,7 @@ let quizAnswers = { lang: null, level: null, goal: null };
 // Admin preview — stato globale
 let _allCourses      = [];   // cache corsi caricati
 let _adminTierActive = null; // null = tier reale, 0-3 = override admin
+let _glvIsAdmin = false;    // true solo per grecolatinovivo@gmail.com — gate per vocab
 
 /* ── Quiz ─────────────────────────────────────────────────── */
 function initQuizOptions() {
@@ -2483,6 +2461,7 @@ async function showDashboard() {
   if (user.isAdmin) {
     _adminTierActive = 3;
     _currentTier = 3;
+    _glvIsAdmin = true;
     rerenderRows(3);
     injectAdminPanel(3);
   } else {
@@ -4920,38 +4899,77 @@ async function fetchAndRenderOverview() {
 }
 
 function _renderRiprendiCard(data) {
-  if (!data?.lastLesson) return;
-  const { courseSlug, courseTitle, courseLang, lessonTitle, progressPercent, completed } = data.lastLesson;
+  const section  = document.getElementById('riprendi-section');
+  const skeleton = document.getElementById('riprendi-skeleton');
+  const container= document.getElementById('riprendi-cards');
+  if (!section) return;
 
-  const section = document.getElementById('riprendi-section');
-  const card    = document.getElementById('riprendi-card');
-  if (!section || !card) return;
+  // Rimuovi stato loading in ogni caso (scheletro ha già riservato lo spazio)
+  section.classList.remove('riprendi-loading');
+  if (skeleton) skeleton.remove();
 
-  // Gradiente lingua
-  const gradient = GLV_LANG_GRADIENTS[(courseLang || '').toLowerCase()] || 'linear-gradient(155deg,#252525,#111)';
-  const gradEl = document.getElementById('riprendi-gradient');
-  if (gradEl) gradEl.style.background = gradient;
+  // Nessun progresso → nascondi la sezione (zero layout shift: lo spazio era
+  // già riservato dallo scheletro, ora collassa di colpo ma è il caso "no data").
+  const courses = data?.inProgressLessons;
+  if (!courses || courses.length === 0) {
+    section.classList.add('hidden');
+    return;
+  }
 
-  // Testi (textContent per XSS safety)
-  const courseEl = document.getElementById('riprendi-course-title');
-  const lessonEl = document.getElementById('riprendi-lesson-title');
-  if (courseEl) courseEl.textContent = _sanitizeTitle(courseTitle);
-  if (lessonEl) lessonEl.textContent = completed ? '✓ Completata — ' + (lessonTitle || '') : (lessonTitle || '');
+  // Costruisce una card per ogni corso avviato
+  if (!container) return;
+  container.style.cssText = 'display:flex;flex:1;gap:16px;flex-wrap:wrap;';
 
-  // Barra progresso
-  const fillEl  = document.getElementById('riprendi-progress-fill');
-  const pctEl   = document.getElementById('riprendi-progress-pct');
-  if (fillEl) fillEl.style.width = (progressPercent || 0) + '%';
-  if (pctEl)  pctEl.textContent  = (progressPercent || 0) + '%';
+  courses.forEach(lesson => {
+    const { courseSlug, courseTitle, courseLang, lessonTitle,
+            progressPercent, completed, lessonId } = lesson;
 
-  // Rendi cliccabile
-  card.onclick = () => {
-    const lessonId = data.lastLesson.lessonId;
-    openCourseView(courseSlug, { preselectLessonId: lessonId });
-  };
-  card.onkeydown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.onclick(); }
-  };
+    const gradient = GLV_LANG_GRADIENTS[(courseLang || '').toLowerCase()]
+      || 'linear-gradient(155deg,#252525,#111)';
+
+    const card = document.createElement('div');
+    card.className   = 'riprendi-card';
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', 'Riprendi: ' + _sanitizeTitle(courseTitle));
+
+    const lessonText = completed
+      ? '✓ Completata — ' + (lessonTitle || '')
+      : (lessonTitle || '');
+    const pct = Math.min(100, progressPercent || 0);
+
+    // innerHTML sicuro: i dati API sono stringhe — usiamo _esc() dove esposti
+    card.innerHTML = `
+      <div class="riprendi-gradient" style="background:${gradient}" aria-hidden="true"></div>
+      <div class="riprendi-body">
+        <div class="riprendi-label">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M5 3l6 5-6 5V3z" fill="currentColor"/>
+          </svg>
+          Riprendi
+        </div>
+        <div class="riprendi-course"></div>
+        <div class="riprendi-lesson"></div>
+        <div class="riprendi-progress-wrap" aria-hidden="true">
+          <div class="riprendi-progress-bar">
+            <div class="riprendi-progress-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="riprendi-progress-pct">${pct}%</span>
+        </div>
+      </div>
+      <div class="riprendi-cta" aria-hidden="true">→</div>`;
+
+    // Testi via textContent per sicurezza XSS
+    card.querySelector('.riprendi-course').textContent = _sanitizeTitle(courseTitle);
+    card.querySelector('.riprendi-lesson').textContent = lessonText;
+
+    card.onclick = () => openCourseView(courseSlug, { preselectLessonId: lessonId });
+    card.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.onclick(); }
+    };
+
+    container.appendChild(card);
+  });
 
   section.classList.remove('hidden');
 }
@@ -5165,14 +5183,17 @@ let _currentPlan = null; // es. 'cultura-mensile' — usato dal popup upgrade ad
 
 
 // ══ COLLEGAMENTO OVERVIEW + FILTER A showDashboard ═══════════════
-// Patchiamo showDashboard per chiamare le nuove funzioni dopo il render
+// Patchiamo showDashboard per lanciare overview IN PARALLELO con il
+// catalogo, non dopo. Così la card "Riprendi" arriva insieme ai corsi,
+// eliminando il layout shift.
 
 const _origShowDashboard = showDashboard;
 window.showDashboard = async function() {
-  await _origShowDashboard.call(this);
-  // Dopo che il catalogo è caricato, lancia overview in background
+  // Avvia entrambe le fetch in parallelo: overview e catalogo.
+  // fetchAndRenderOverview è fire-and-forget: non blocca il render del catalogo.
   fetchAndRenderOverview();
-  // Inizializza filtri
+  await _origShowDashboard.call(this);
+  // Inizializza filtri (richiede il catalogo → dopo await)
   initCourseFilter();
 };
 showDashboard = window.showDashboard;
@@ -6872,6 +6893,12 @@ function _closeTooltipOutside(e) {
     const section  = el('lesson-vocab-section');
     const subLabel = el('vocab-trigger-sub');
     if (!section) return;
+
+    // Il modulo vocabolario è in pausa — visibile solo all'admin
+    if (!_glvIsAdmin) {
+      section.style.display = 'none';
+      return;
+    }
 
     if (lesson && lesson.hasAiContext) {
       section.style.display = 'block';
