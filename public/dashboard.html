@@ -3633,12 +3633,19 @@ async function openCourseView(slug, opts) {
   const glvDashboard = document.getElementById('glv-dashboard');
   if (glvDashboard) glvDashboard.classList.add('glv-course-open');
 
+  // Pellicola — skeleton subito nel DOM prima dell'animazione
+  const _pellicola = document.getElementById('course-lessons-section');
+  const _filmStrip = document.getElementById('lesson-film-strip');
+  if (_filmStrip) _filmStrip.innerHTML = _buildFilmStripSkeleton(10);
+
   if (noAnim) {
     catalogView.classList.add('stack-below');
     courseView.classList.remove('offscreen-bottom', 'slide-out-down');
     courseView.classList.add('slide-in-up');
     courseView.setAttribute('aria-hidden', 'false');
     if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
+    // Pellicola entra insieme — stesso frame, nessuna transizione
+    if (_pellicola) _pellicola.classList.add('strip-visible');
   } else {
     courseView.classList.add('offscreen-bottom');
     courseView.classList.remove('slide-in-up', 'slide-out-down');
@@ -3650,6 +3657,8 @@ async function openCourseView(slug, opts) {
       courseView.setAttribute('aria-hidden', 'false');
       // Mazzetto entra insieme alla vista corso
       if (cornerDeck) { cornerDeck.classList.add('visible'); cornerDeck.setAttribute('aria-hidden', 'false'); }
+      // Pellicola — stesso frame della course-view: entrano sincronizzati
+      if (_pellicola) _pellicola.classList.add('strip-visible');
     }));
   }
 
@@ -3693,16 +3702,9 @@ async function openCourseView(slug, opts) {
   renderCourseHeader(course, progressData, streakData);
   renderTierBanner(course);
   renderLessonList(course, progressData);
-  // Attiva l'entrata della pellicola (slide da sinistra) dopo un tick
-  requestAnimationFrame(() => {
-    const strip = document.getElementById('course-lessons-section');
-    if (strip) {
-      strip.classList.add('strip-visible');
-      // Su tablet: aggiorna la posizione della tab laterale
-      const w = window.innerWidth;
-      if (w >= 768 && w <= 1024) _updateSidebarTab(true);
-    }
-  });
+  // strip-visible già impostato in STEP 1 (sincronizzato con course-view).
+  // Qui solo: aggiorna tab laterale su tablet.
+  { const w = window.innerWidth; if (w >= 768 && w <= 1024) _updateSidebarTab(true); }
 
   // FIX SCROLL — aggiorna min-height wrapper al contenuto reale del corso
   // (le viste sono position:absolute, non aggiungono altezza al flusso)
@@ -3933,6 +3935,18 @@ function renderCourseHeader(course, progressData, streakData) {
   if (labelRight) labelRight.textContent = pct + '%';
   if (fill)       fill.style.width       = '0%'; // parte da 0 — animato dopo
   if (barEl)      barEl.setAttribute('aria-valuenow', 0);
+}
+
+// ── Skeleton pellicola — mostrato PRIMA della fetch ───────────────
+// Genera n frame-placeholder che imitano la forma dei film-frame reali.
+// renderLessonList() li sovrascrive quando i dati arrivano.
+function _buildFilmStripSkeleton(n) {
+  n = n || 10;
+  let frames = '';
+  for (let i = 0; i < n; i++) {
+    frames += '<div class="film-frame-skeleton" aria-hidden="true"></div>';
+  }
+  return '<div class="film-strip film-strip--skeleton">' + frames + '</div>';
 }
 
 // ── Render lista lezioni ──────────────────────────────────────────
@@ -7568,11 +7582,20 @@ function _closeTooltipOutside(e) {
     const subLabel = el('vocab-trigger-sub');
     if (!section) return;
 
-    // Il modulo vocabolario è in pausa — visibile solo all'admin
+    // Vocabolario: admin sempre visibile, utenti solo con piano Linguae o Accademia
+    // Per ora resta disabilitato per i non-admin (in pausa).
+    // Quando si attiva: rimuovere la riga _glvIsAdmin e lasciare solo il check sul tier.
     if (!_glvIsAdmin) {
       section.style.display = 'none';
       return;
     }
+    // Gate per quando sarà attivo (decommentare e rimuovere il blocco admin sopra):
+    // const userTier = _glvUser?.subscription?.planId || '';
+    // const allowedTiers = ['linguae', 'accademia'];
+    // if (!allowedTiers.includes(userTier)) {
+    //   section.style.display = 'none';
+    //   return;
+    // }
 
     if (lesson && lesson.hasAiContext) {
       section.style.display = 'block';
