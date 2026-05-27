@@ -2200,14 +2200,16 @@ body.has-corso-cta { padding-bottom: 80px; }
   width: 100%;
   max-width: 860px;
   margin: 0 auto;
-  /* card direttamente sotto la navbar — nessun gap extra */
-  padding: var(--nav-height) 24px 80px;
+  /* padding-top: 0 — il gap sotto la navbar è già coperto dal
+     margin-top negativo su .dash-spa-wrapper.course-open + il
+     padding-top di #glv-dashboard. Non serve aggiungere altro. */
+  padding: 0 24px 80px;
 }
 
 @media (max-width: 900px) {
   .course-view-inner {
     max-width: 860px;
-    padding: calc(var(--nav-height) + 24px) 16px 56px;
+    padding: 0 16px 56px;
   }
 }
 
@@ -3570,6 +3572,9 @@ body.has-corso-cta { padding-bottom: 80px; }
    manterrebbe min-height:100vh anche se il corso è più corto, lasciando spazio nero. */
 .dash-spa-wrapper.course-open {
   min-height: 0;
+  /* Cancella il breathing-room del dashboard (40px) in modo che
+     .course-view { top:0 } coincida esattamente con il fondo della navbar. */
+  margin-top: -40px;
 }
 
 /* ── prefers-reduced-motion: disabilita tutte le animazioni ────── */

@@ -322,6 +322,9 @@
             Compensiamo con padding-top sul wrapper del dashboard. */
       .dash-hero{ display:none; }
       #glv-dashboard{ padding-top:calc(var(--nav-height, 64px) + 8px); }
+      /* Su mobile il breathing-room è solo 8px (non 40px del desktop),
+         quindi il margin-top negativo va ridotto di conseguenza. */
+      .dash-spa-wrapper.course-open{ margin-top:-8px !important; }
 
       /* 2. Sezioni: padding compatto */
       .dash-section{padding:0 16px;margin-bottom:24px;scroll-margin-top:60px;}
@@ -2523,8 +2526,7 @@ function reorderSections(tier) {
   const container = document.getElementById('course-sections');
   if (!container) return;
 
-  // "Continua a guardare" è SEMPRE in 3ª posizione — regola fissa.
-  // I Preferiti seguono subito dopo (4ª posizione, nascosti se vuoti).
+  // "Continua a guardare" SEMPRE in 3ª posizione per tutti.
   const order = tier <= 1
     ? ['section-nuovi','section-per-te','section-continua','section-preferiti',
        'section-per-iniziare','section-brevi',
