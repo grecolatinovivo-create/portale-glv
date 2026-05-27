@@ -1132,6 +1132,7 @@
         <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
         <li>Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
         <li>Test autocorrettivi per misurare i propri progressi</li>
+        <li id="feat-cert-linguistica" class="off">Esame di certificazione linguistica di Latino e Greco Antico</li>
         <li class="off">Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
         <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
         <li class="off">Possibilità di pagamento con Bonus Docenti</li>
@@ -1152,6 +1153,7 @@
         <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
         <li>Corsi di formazione tematici di pratica didattica</li>
         <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+        <li id="feat-test-classe" class="off">Batterie di test per la classe — verifica l'apprendimento dei tuoi studenti</li>
         <li id="feat-live-mensile" class="off">Live mensile di 1 ora con i docenti — domande e metodologia</li>
         <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
       </ul>
@@ -1482,9 +1484,11 @@ function applyPricing() {
     }
   });
   // Annuale-only features: Live mensile + Bonus Docenti
+  const certFeat  = document.getElementById('feat-cert-linguistica');
+  const testFeat  = document.getElementById('feat-test-classe');
   const liveFeat  = document.getElementById('feat-live-mensile');
   const bonusFeat = document.getElementById('feat-bonus-docenti');
-  [liveFeat, bonusFeat].forEach(el => {
+  [certFeat, testFeat, liveFeat, bonusFeat].forEach(el => {
     if (!el) return;
     if (annual) { el.classList.remove('off'); }
     else        { el.classList.add('off'); }
