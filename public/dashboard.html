@@ -1506,6 +1506,35 @@
       <div class="courses-row" id="row-continua" aria-label="Corsi in corso"></div>
     </section>
 
+    <!-- ── NUOVI ARRIVI ─────────────────────────────────────────── -->
+    <section class="dash-section hidden" id="section-nuovi" aria-labelledby="section-nuovi-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-nuovi-title">Nuovi arrivi</h2>
+        <span class="dash-section-subtitle">Appena aggiunti al catalogo</span>
+        <span class="dash-section-badge" style="background:rgba(201,150,42,.15);color:var(--gold-lt);">Nuovo</span>
+      </div>
+      <div class="courses-row" id="row-nuovi" aria-label="Corsi appena pubblicati"></div>
+    </section>
+
+    <!-- ── PER INIZIARE ──────────────────────────────────────────── -->
+    <section class="dash-section hidden" id="section-per-iniziare" aria-labelledby="section-per-iniziare-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-per-iniziare-title">Per iniziare</h2>
+        <span class="dash-section-subtitle">Il punto di partenza ideale per i principianti</span>
+      </div>
+      <div class="courses-row" id="row-per-iniziare" aria-label="Corsi per principianti"></div>
+    </section>
+
+    <!-- ── GIÀ COMPLETATI ────────────────────────────────────────── -->
+    <section class="dash-section hidden" id="section-completati" aria-labelledby="section-completati-title">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title" id="section-completati-title">Già completati</h2>
+        <span class="dash-section-subtitle">I tuoi traguardi raggiunti</span>
+        <span class="dash-section-badge" style="background:rgba(40,180,100,.12);color:#5dd99a;">✓ Completato</span>
+      </div>
+      <div class="courses-row" id="row-completati" aria-label="Corsi completati"></div>
+    </section>
+
     <section class="dash-section" id="section-brevi">
       <div class="dash-section-header">
         <h2 class="dash-section-title">Corsi Brevi</h2>
@@ -2236,6 +2265,93 @@ function renderContinuaRow(id, courses, tier) {
   el.innerHTML = sorted.map(c => buildContinuaCard(c)).join('');
 }
 
+/* ── "Nuovi arrivi" ───────────────────────────────────────── */
+/* Mostra i corsi marcati isNew:true, poi quelli con sortOrder più basso (=inseriti di recente).
+   Se nessun corso è isNew, usa gli ultimi 8 per sortOrder.
+   Nasconde la sezione se la lista è vuota. */
+function renderNuoviRow(id, courses, tier) {
+  const el  = document.getElementById(id);
+  const sec = document.getElementById('section-nuovi');
+  if (!el || !sec) return;
+
+  // Prima prendi i corsi marcati isNew, poi completa con i più recenti per sortOrder
+  const nuovi = courses.filter(c => c.isNew && isLangUnlocked(c.lang, tier));
+  // Se nessun isNew, mostra gli 8 con sortOrder più alto (=più recenti in DB)
+  const list = nuovi.length
+    ? nuovi
+    : courses.filter(c => isLangUnlocked(c.lang, tier))
+             .sort((a,b) => (b.sortOrder||0) - (a.sortOrder||0))
+             .slice(0, 8);
+
+  if (!list.length) {
+    sec.classList.add('hidden');
+    el.innerHTML = '';
+    return;
+  }
+  sec.classList.remove('hidden');
+  el.innerHTML = list.map(c => isLangUnlocked(c.lang, tier)
+    ? buildCard(c, {})
+    : renderLockedCard(c)
+  ).join('');
+}
+
+/* ── "Per iniziare" ───────────────────────────────────────── */
+/* Corsi di livello A1/A2/Base/Elementare — porta d'ingresso didattica.
+   Ordinati per livello crescente (A1 prima, A2 dopo). */
+function renderPerIniziareRow(id, courses, tier) {
+  const el  = document.getElementById(id);
+  const sec = document.getElementById('section-per-iniziare');
+  if (!el || !sec) return;
+
+  const ENTRY_LEVELS = ['a1', 'a2', 'base', 'elementare', 'principianti', 'zero'];
+  const isEntry = c => {
+    const lv = (c.level || '').toLowerCase();
+    return ENTRY_LEVELS.some(k => lv.includes(k));
+  };
+
+  const list = courses.filter(c => isEntry(c) && isLangUnlocked(c.lang, tier));
+
+  if (!list.length) {
+    sec.classList.add('hidden');
+    el.innerHTML = '';
+    return;
+  }
+  // Ordina: A1 prima, A2 dopo, poi gli altri entry-level
+  list.sort((a, b) => {
+    const lva = (a.level || '').toLowerCase();
+    const lvb = (b.level || '').toLowerCase();
+    if (lva.includes('a1') && !lvb.includes('a1')) return -1;
+    if (!lva.includes('a1') && lvb.includes('a1')) return  1;
+    if (lva.includes('a2') && !lvb.includes('a2')) return -1;
+    if (!lva.includes('a2') && lvb.includes('a2')) return  1;
+    return (a.sortOrder||0) - (b.sortOrder||0);
+  });
+
+  sec.classList.remove('hidden');
+  el.innerHTML = list.map(c => isLangUnlocked(c.lang, tier)
+    ? buildCard(c, {})
+    : renderLockedCard(c)
+  ).join('');
+}
+
+/* ── "Già completati" ─────────────────────────────────────── */
+/* Corsi con progressPercent === 100 — visibili solo se ce ne sono. */
+function renderCompletatiRow(id, courses, tier) {
+  const el  = document.getElementById(id);
+  const sec = document.getElementById('section-completati');
+  if (!el || !sec) return;
+
+  const list = courses.filter(c => (c.progressPercent || 0) >= 100 && isLangUnlocked(c.lang, tier));
+
+  if (!list.length) {
+    sec.classList.add('hidden');
+    el.innerHTML = '';
+    return;
+  }
+  sec.classList.remove('hidden');
+  el.innerHTML = list.map(c => buildCard(c, {})).join('');
+}
+
 /* ── "Scelti per te" ──────────────────────────────────────── */
 function buildPerTeRow(all, profile, tier) {
   const { lang, level, goal } = profile;
@@ -2268,16 +2384,36 @@ function reorderSections(tier) {
   const container = document.getElementById('course-sections');
   if (!container) return;
 
-  // Cultura (tier 1): Corsi Brevi in cima tra i contenuti di lingua
-  // Linguae/Accademia: ordine lingua standard, Corsi Brevi dopo le lingue
-  // "Continua" SEMPRE prima — è la cosa più importante per l'utente attivo
-  const order = tier <= 1
-    ? ['section-continua','section-per-te','section-brevi',
-       'section-latino','section-greco','section-egiziano','section-ebraico',
-       'section-didattica']
-    : ['section-continua','section-per-te',
-       'section-latino','section-greco','section-egiziano','section-ebraico',
-       'section-brevi','section-didattica'];
+  // "Continua" in 3ª posizione di default.
+  // Se l'utente ha corsi attivi (>0% e <100%) "Continua" sale in 1ª posizione.
+  const hasActive = (_allCourses || []).some(
+    c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100
+  );
+
+  let order;
+  if (hasActive) {
+    // Utente attivo: Continua in cima, poi Nuovi arrivi, poi il resto
+    order = tier <= 1
+      ? ['section-continua','section-nuovi','section-per-te',
+         'section-per-iniziare','section-brevi',
+         'section-latino','section-greco','section-egiziano','section-ebraico',
+         'section-completati','section-didattica']
+      : ['section-continua','section-nuovi','section-per-te',
+         'section-per-iniziare',
+         'section-latino','section-greco','section-egiziano','section-ebraico',
+         'section-brevi','section-completati','section-didattica'];
+  } else {
+    // Utente nuovo o senza corsi in corso: Continua in 3ª posizione
+    order = tier <= 1
+      ? ['section-nuovi','section-per-te','section-continua',
+         'section-per-iniziare','section-brevi',
+         'section-latino','section-greco','section-egiziano','section-ebraico',
+         'section-completati','section-didattica']
+      : ['section-nuovi','section-per-te','section-continua',
+         'section-per-iniziare',
+         'section-latino','section-greco','section-egiziano','section-ebraico',
+         'section-brevi','section-completati','section-didattica'];
+  }
 
   order.forEach(id => {
     const el = document.getElementById(id);
@@ -2317,6 +2453,11 @@ function rerenderRows(tier) {
   } else {
     secContinua?.classList.add('hidden');
   }
+
+  // ── Nuove sezioni tematiche ───────────────────────────────
+  renderNuoviRow('row-nuovi', courses, tier);
+  renderPerIniziareRow('row-per-iniziare', courses, tier);
+  renderCompletatiRow('row-completati', courses, tier);
 
   // Righe per lingua + badge sezione
   const byLang = lg => courses.filter(c => c.lang === lg);
@@ -5143,6 +5284,9 @@ function _applyFilter() {
 
   renderRow('row-per-te',    _buildFilteredPerTe(filtered, tier), tier);
   renderContinuaRow('row-continua', filtered.filter(c => (c.progressPercent || 0) > 0), tier);
+  renderNuoviRow('row-nuovi', filtered, tier);
+  renderPerIniziareRow('row-per-iniziare', filtered, tier);
+  renderCompletatiRow('row-completati', filtered, tier);
   renderRow('row-latino',    byLang('Latino'),               tier);
   renderRow('row-greco',     byLang('Greco Antico'),         tier);
   renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);

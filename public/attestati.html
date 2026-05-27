@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>I miei attestati — GrecoLatinoVivo</title>
+  <link rel="icon" href="/resources/glv-favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    /* ── Variabili ereditate da style.css ── */
+    :root {
+      --bordeaux: #a01a36;
+      --bordeaux-dark: #7b0d1e;
+    }
+
+    body { background: var(--bg); color: var(--text-primary); }
+
+    /* ── Nav ── */
+    .att-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      background: rgba(10,10,10,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    }
+    .att-nav-logo {
+      font-family: var(--font-heading);
+      font-size: 1.2rem; font-weight: 700;
+      color: var(--gold-lt);
+      text-decoration: none;
+    }
+    .att-nav-back {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--text-secondary); font-size: .85rem;
+      text-decoration: none; margin-left: auto;
+      transition: color .2s;
+    }
+    .att-nav-back:hover { color: var(--gold-lt); }
+    .att-nav-back svg { flex-shrink: 0; }
+
+    /* ── Layout ── */
+    .att-page {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: calc(64px + 40px) 24px 60px;
+    }
+
+    /* ── Header pagina ── */
+    .att-page-header { margin-bottom: 40px; }
+    .att-page-header h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 4vw, 2.2rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 8px;
+    }
+    .att-page-header p {
+      color: var(--text-secondary);
+      font-size: .95rem;
+      margin: 0;
+    }
+
+    /* ── Stato vuoto ── */
+    .att-empty {
+      text-align: center;
+      padding: 80px 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    .att-empty-icon {
+      font-size: 3rem; margin-bottom: 20px; display: block;
+    }
+    .att-empty h2 {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      color: var(--text-primary);
+      margin: 0 0 12px;
+    }
+    .att-empty p {
+      color: var(--text-secondary);
+      font-size: .95rem;
+      margin: 0 0 28px;
+      max-width: 400px;
+      margin-left: auto; margin-right: auto;
+    }
+    .att-empty-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 600; font-size: .9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .att-empty-cta:hover { background: var(--gold-lt); transform: translateY(-1px); }
+
+    /* ── Grid attestati ── */
+    .att-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    /* ── Card attestato ── */
+    .att-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color .2s, transform .15s;
+    }
+    .att-card:hover {
+      border-color: rgba(201,150,42,.3);
+      transform: translateY(-2px);
+    }
+
+    /* Fascia dorata in testa */
+    .att-card-banner {
+      background: linear-gradient(135deg, var(--bordeaux), var(--bordeaux-dark));
+      padding: 20px 20px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .att-card-banner::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(201,150,42,.04) 20px,
+        rgba(201,150,42,.04) 40px
+      );
+    }
+    .att-card-medal {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .att-card-course-title {
+      font-family: var(--font-heading);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 4px;
+      position: relative;
+    }
+    .att-card-meta {
+      font-size: .78rem;
+      color: rgba(255,255,255,.65);
+      margin: 0;
+      position: relative;
+    }
+
+    /* Corpo card */
+    .att-card-body {
+      padding: 16px 20px 20px;
+    }
+    .att-card-info {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .att-card-date {
+      font-size: .82rem;
+      color: var(--text-secondary);
+    }
+    .att-card-date strong { color: var(--text-primary); }
+    .att-card-code {
+      font-size: .72rem;
+      font-family: 'Courier New', monospace;
+      background: rgba(201,150,42,.08);
+      border: 1px solid rgba(201,150,42,.15);
+      color: var(--gold-lt);
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: .5px;
+    }
+
+    /* Azioni */
+    .att-card-actions {
+      display: flex; gap: 10px;
+    }
+    .att-btn-download {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 16px;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-weight: 600; font-size: .85rem;
+      border: none; border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .2s, transform .1s;
+    }
+    .att-btn-download:hover { background: var(--gold-lt); transform: translateY(-1px); }
+    .att-btn-download:active { transform: translateY(0); }
+    .att-btn-download.loading {
+      opacity: .7; cursor: wait; pointer-events: none;
+    }
+
+    .att-btn-verify {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 10px 14px;
+      background: transparent;
+      border: 1px solid var(--border-mid);
+      color: var(--text-secondary);
+      font-size: .85rem; font-weight: 500;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s, color .2s;
+      white-space: nowrap;
+    }
+    .att-btn-verify:hover {
+      border-color: rgba(201,150,42,.4);
+      color: var(--gold-lt);
+    }
+
+    /* ── Loading skeleton ── */
+    .att-skeleton {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .att-skeleton-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      animation: att-pulse 1.5s ease-in-out infinite;
+    }
+    .att-skeleton-banner { height: 100px; background: rgba(255,255,255,.04); }
+    .att-skeleton-body { padding: 16px 20px; }
+    .att-skeleton-line {
+      height: 12px; border-radius: 6px;
+      background: rgba(255,255,255,.06);
+      margin-bottom: 12px;
+    }
+    .att-skeleton-line.short { width: 60%; }
+    .att-skeleton-line.tall { height: 36px; border-radius: 8px; }
+    @keyframes att-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .55; }
+    }
+
+    /* ── Toast notifica ── */
+    .att-toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--bg-card);
+      border: 1px solid rgba(201,150,42,.3);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex; align-items: center; gap: 12px;
+      font-size: .88rem;
+      color: var(--text-primary);
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+      z-index: 9999;
+      transform: translateY(0); opacity: 1;
+      transition: opacity .3s, transform .3s;
+      max-width: 340px;
+    }
+    .att-toast.hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
+    .att-toast-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+    /* ── Contatore ── */
+    .att-count {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(201,150,42,.08);
+      border: 1px solid rgba(201,150,42,.15);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: .83rem;
+      color: var(--gold-lt);
+      margin-top: 8px;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .att-page { padding: calc(64px + 24px) 16px 40px; }
+      .att-grid { grid-template-columns: 1fr; }
+      .att-skeleton { grid-template-columns: 1fr; }
+      .att-toast { left: 16px; right: 16px; bottom: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigazione ── -->
+  <nav class="att-nav" role="navigation" aria-label="Navigazione principale">
+    <a href="/dashboard.html" class="att-nav-logo" aria-label="GrecoLatinoVivo — vai alla dashboard">
+      GrecoLatinoVivo
+    </a>
+    <a href="/dashboard.html" class="att-nav-back" aria-label="Torna alla dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Dashboard
+    </a>
+  </nav>
+
+  <!-- ── Contenuto ── -->
+  <main class="att-page" id="att-page" role="main">
+
+    <!-- Header -->
+    <header class="att-page-header">
+      <h1>I miei attestati</h1>
+      <p>I tuoi attestati di completamento. Scaricali in PDF o condividi il link di verifica.</p>
+      <div id="att-count-wrap" style="display:none">
+        <span class="att-count">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 15l-2 5L7 18l-5 1 1-5 9.586-9.586a2 2 0 012.828 0l1.172 1.172a2 2 0 010 2.828L12 15z" stroke="var(--gold)" stroke-width="1.8"/>
+          </svg>
+          <span id="att-count-text">0 attestati</span>
+        </span>
+      </div>
+    </header>
+
+    <!-- Skeleton loading -->
+    <div class="att-skeleton" id="att-skeleton" aria-hidden="true">
+      <div class="att-skeleton-card">
+        <div class="att-skeleton-banner"></div>
+        <div class="att-skeleton-body">
+          <div class="att-skeleton-line"></div>
+          <div class="att-skeleton-line short"></div>
+          <div class="att-skeleton-line tall"></div>
+        </div>
+      </div>
+      <div class="att-skeleton-card">
+        <div class="att-skeleton-banner"></div>
+        <div class="att-skeleton-body">
+          <div class="att-skeleton-line"></div>
+          <div class="att-skeleton-line short"></div>
+          <div class="att-skeleton-line tall"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Errore auth -->
+    <div id="att-auth-error" style="display:none; text-align:center; padding: 80px 24px;">
+      <p style="color:var(--text-secondary); margin-bottom:20px;">Devi essere autenticato per vedere i tuoi attestati.</p>
+      <a href="/dashboard.html" class="att-empty-cta">Vai alla dashboard</a>
+    </div>
+
+    <!-- Stato vuoto -->
+    <div class="att-empty" id="att-empty" style="display:none">
+      <span class="att-empty-icon" aria-hidden="true">🎓</span>
+      <h2>Nessun attestato ancora</h2>
+      <p>Completa un corso al 100% per ricevere il tuo attestato ufficiale con QR code verificabile.</p>
+      <a href="/dashboard.html" class="att-empty-cta">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3 12h18M3 12l6-6M3 12l6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Vai ai miei corsi
+      </a>
+    </div>
+
+    <!-- Grid attestati -->
+    <div class="att-grid" id="att-grid" style="display:none" role="list" aria-label="Lista attestati"></div>
+
+  </main>
+
+  <!-- Toast errore download -->
+  <div class="att-toast hidden" id="att-toast" role="alert" aria-live="polite">
+    <span class="att-toast-icon" aria-hidden="true">⚠️</span>
+    <span id="att-toast-text">Si è verificato un errore.</span>
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const $ = id => document.getElementById(id);
+
+    // ── Utility: mostra toast temporaneo ─────────────────────────────
+    function showToast(msg, emoji = '⚠️', durationMs = 4000) {
+      const toast = $('att-toast');
+      $('att-toast-text').textContent = msg;
+      toast.querySelector('.att-toast-icon').textContent = emoji;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), durationMs);
+    }
+
+    // ── Utility: formatta data ────────────────────────────────────────
+    function formatDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('it-IT', {
+          day: 'numeric', month: 'long', year: 'numeric'
+        });
+      } catch { return '—'; }
+    }
+
+    // ── Utility: plurale ─────────────────────────────────────────────
+    function pluralAttestato(n) {
+      return n === 1 ? '1 attestato' : `${n} attestati`;
+    }
+
+    // ── Render singola card ───────────────────────────────────────────
+    function renderCard(cert) {
+      const card = document.createElement('article');
+      card.className = 'att-card';
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('aria-label', `Attestato: ${cert.title}`);
+
+      const langLevel = [cert.lang, cert.level].filter(Boolean).join(' · ');
+      const dateStr   = formatDate(cert.issuedAt);
+
+      card.innerHTML = `
+        <div class="att-card-banner">
+          <span class="att-card-medal" aria-hidden="true">🎓</span>
+          <p class="att-card-course-title">${escHtml(cert.title)}</p>
+          ${langLevel ? `<p class="att-card-meta">${escHtml(langLevel)}</p>` : ''}
+        </div>
+        <div class="att-card-body">
+          <div class="att-card-info">
+            <div class="att-card-date">
+              Completato il<br>
+              <strong>${dateStr}</strong>
+            </div>
+            <span class="att-card-code" title="Codice univoco attestato">${escHtml(cert.certCode)}</span>
+          </div>
+          <div class="att-card-actions">
+            <button
+              class="att-btn-download"
+              data-url="${escHtml(cert.downloadUrl)}"
+              data-title="${escHtml(cert.title)}"
+              type="button"
+              aria-label="Scarica attestato PDF per ${escHtml(cert.title)}"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Scarica PDF
+            </button>
+            <a
+              href="${escHtml(cert.verifyUrl)}"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="att-btn-verify"
+              aria-label="Verifica autenticità attestato ${escHtml(cert.certCode)}"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+              Verifica
+            </a>
+          </div>
+        </div>
+      `;
+
+      // Gestione download con feedback loading
+      card.querySelector('.att-btn-download').addEventListener('click', async function () {
+        const btn = this;
+        const url = btn.dataset.url;
+        btn.classList.add('loading');
+        btn.textContent = 'Download in corso…';
+
+        try {
+          const res = await fetch(url, { credentials: 'include' });
+          if (!res.ok) {
+            const json = await res.json().catch(() => ({}));
+            throw new Error(json.error || `Errore ${res.status}`);
+          }
+          const blob = await res.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = blobUrl;
+          a.download = `attestato_${btn.dataset.title.replace(/\s+/g, '_').toLowerCase()}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+          showToast('PDF scaricato con successo!', '✅', 3000);
+        } catch (err) {
+          console.error('[attestati] Download error:', err);
+          showToast(`Impossibile scaricare il PDF: ${err.message}`, '⚠️');
+        } finally {
+          btn.classList.remove('loading');
+          btn.innerHTML = `
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Scarica PDF
+          `;
+        }
+      });
+
+      return card;
+    }
+
+    // ── Escape HTML ───────────────────────────────────────────────────
+    function escHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])
+      );
+    }
+
+    // ── Carica attestati ──────────────────────────────────────────────
+    async function loadCertificates() {
+      try {
+        const res = await fetch('/api/progress/certificates', { credentials: 'include' });
+
+        // Non autenticato
+        if (res.status === 401) {
+          $('att-skeleton').style.display = 'none';
+          $('att-auth-error').style.display = 'block';
+          return;
+        }
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const { certificates } = await res.json();
+
+        $('att-skeleton').style.display = 'none';
+
+        if (!certificates || certificates.length === 0) {
+          $('att-empty').style.display = 'block';
+          return;
+        }
+
+        // Mostra contatore
+        $('att-count-text').textContent = pluralAttestato(certificates.length);
+        $('att-count-wrap').style.display = 'block';
+
+        // Popola grid
+        const grid = $('att-grid');
+        grid.style.display = 'grid';
+        for (const cert of certificates) {
+          grid.appendChild(renderCard(cert));
+        }
+
+      } catch (err) {
+        console.error('[attestati] Errore caricamento:', err);
+        $('att-skeleton').style.display = 'none';
+        $('att-auth-error').style.display = 'block';
+      }
+    }
+
+    // ── Avvio ─────────────────────────────────────────────────────────
+    loadCertificates();
+
+  })();
+  </script>
+</body>
+</html>
