@@ -2523,40 +2523,21 @@ function reorderSections(tier) {
   const container = document.getElementById('course-sections');
   if (!container) return;
 
-  // "Continua" in 3ª posizione di default.
-  // Se l'utente ha corsi attivi (>0% e <100%) "Continua" sale in 1ª posizione.
-  const hasActive = (_allCourses || []).some(
-    c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100
-  );
-
-  let order;
-  if (hasActive) {
-    // Utente attivo: Continua in cima, poi Preferiti, poi Nuovi arrivi, poi il resto
-    order = tier <= 1
-      ? ['section-continua','section-preferiti','section-nuovi','section-per-te',
-         'section-per-iniziare','section-brevi',
-         'section-latino','section-greco','section-egiziano','section-ebraico',
-         'section-completati','section-didattica']
-      : ['section-continua','section-preferiti','section-nuovi','section-per-te',
-         'section-per-iniziare',
-         'section-latino','section-greco','section-egiziano','section-ebraico',
-         'section-brevi','section-completati','section-didattica'];
-  } else {
-    // Utente nuovo o senza corsi in corso: Preferiti in 2ª posizione, Continua in 4ª
-    order = tier <= 1
-      ? ['section-nuovi','section-preferiti','section-per-te','section-continua',
-         'section-per-iniziare','section-brevi',
-         'section-latino','section-greco','section-egiziano','section-ebraico',
-         'section-completati','section-didattica']
-      : ['section-nuovi','section-preferiti','section-per-te','section-continua',
-         'section-per-iniziare',
-         'section-latino','section-greco','section-egiziano','section-ebraico',
-         'section-brevi','section-completati','section-didattica'];
-  }
+  // "Continua a guardare" è SEMPRE in 3ª posizione — regola fissa.
+  // I Preferiti seguono subito dopo (4ª posizione, nascosti se vuoti).
+  const order = tier <= 1
+    ? ['section-nuovi','section-per-te','section-continua','section-preferiti',
+       'section-per-iniziare','section-brevi',
+       'section-latino','section-greco','section-egiziano','section-ebraico',
+       'section-completati','section-didattica']
+    : ['section-nuovi','section-per-te','section-continua','section-preferiti',
+       'section-per-iniziare',
+       'section-latino','section-greco','section-egiziano','section-ebraico',
+       'section-brevi','section-completati','section-didattica'];
 
   order.forEach(id => {
     const el = document.getElementById(id);
-    if (el) container.appendChild(el); // sposta in fondo = rispetta l'ordine
+    if (el) container.appendChild(el);
   });
 }
 
