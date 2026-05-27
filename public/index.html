@@ -1146,8 +1146,7 @@
       <ul class="plan-features">
         <li class="tutto-in">Tutto incluso in Linguae</li>
         <li>4 moduli di formazione docenti: Elementa, Principia, Grammatica, Litterae</li>
-        <li>Accreditamento MIM — crediti CFU per la carriera docente</li>
-        <li>Bonus Docenti attivo — spesa detraibile al 100%</li>
+        <li id="feat-bonus-docenti" class="off" style="display:none;">Bonus Docenti — spesa detraibile al 100% (solo annuale)</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
     </div>
@@ -1475,6 +1474,12 @@ function applyPricing() {
       old.style.display = 'none';
     }
   });
+  // Bonus Docenti: visibile e attivo solo su Accademia Annuale
+  const bonusFeat = document.getElementById('feat-bonus-docenti');
+  if (bonusFeat) {
+    bonusFeat.style.display = annual ? 'flex' : 'none';
+    bonusFeat.classList.toggle('off', false); // è sempre ✓ quando visibile
+  }
   // Aggiorna stato tab: app.js legge tog-annual.classList.contains('active')
   tabMonthly.classList.toggle('active', !annual);
   tabAnnual.classList.toggle('active', annual);
