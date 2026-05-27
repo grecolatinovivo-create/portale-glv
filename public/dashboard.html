@@ -181,6 +181,10 @@
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 6px 20px rgba(0,0,0,.55);
     }
+    .continua-thumb-card:focus-visible {
+      outline: 2px solid var(--gold-lt);
+      outline-offset: 3px;
+    }
     /* Area thumbnail: gradient di fallback, sostituito da immagine Vimeo */
     .ctc-thumb {
       width: 100%;
@@ -1495,11 +1499,11 @@
       <div class="courses-row" id="row-per-te"></div>
     </section>
 
-    <section class="dash-section hidden" id="section-continua">
+    <section class="dash-section hidden" id="section-continua" aria-labelledby="section-continua-title">
       <div class="dash-section-header">
-        <h2 class="dash-section-title">Continua dove hai lasciato</h2>
+        <h2 class="dash-section-title" id="section-continua-title">Continua dove hai lasciato</h2>
       </div>
-      <div class="courses-row" id="row-continua"></div>
+      <div class="courses-row" id="row-continua" aria-label="Corsi in corso"></div>
     </section>
 
     <section class="dash-section" id="section-brevi">

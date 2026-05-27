@@ -1,6 +1,62 @@
 # Audit Report — Portale GLV · dashboard.html
 
-> Data: 21 maggio 2026 · Versione auditata: post-QA + fix scroll + film strip fixed
+> Ultima modifica: 27 maggio 2026 · Round 3: "Continua a guardare" card layout fix
+> Versione precedente: 21 maggio 2026 · post-QA + fix scroll + film strip fixed
+
+---
+
+## 🔄 ROUND 3 — 2026-05-27: "Continua a guardare" layout fix
+
+**File modificati**: `public/dashboard.html`, `public/css/style.css`
+**Modifiche**: riduzione larghezza card (260px → 160px), `flex-wrap: nowrap`, `scroll-snap-type: x mandatory`, font size ridotto in `.ctc-info`
+
+### Livello di rischio round 3: **BASSO** (tutti i problemi corretti inline)
+
+### WCAG — Nuovi elementi auditati
+
+| Criterio | Elemento | Esito | Note |
+|----------|----------|-------|------|
+| 1.3.1 Info e relazioni | `<section id="section-continua">` senza `aria-labelledby` | ✅ **CORRETTO** | Aggiunto `aria-labelledby="section-continua-title"` e `id` sull'h2 |
+| 2.4.7 Focus visibile | `.continua-thumb-card` con `role="button"` e `tabindex="0"` senza `:focus-visible` | ✅ **CORRETTO** | Aggiunto outline gold 2px |
+| 1.4.3 Contrasto `.ctc-meta` | `rgba(245,245,245,.5)` su `#1a1a1a` → ~5.1:1 | ✅ | Supera AA (4.5:1). Font 0.66rem: piccolo ma tecnicamente conforme. |
+| 1.4.3 Contrasto `.ctc-title` | `#f5f5f5` su `#1a1a1a` → ~17:1 | ✅ | |
+| 1.1.1 Alt text | `aria-label` su ogni card, `aria-hidden` sull'icona ▶ | ✅ | Preesistente, confermato |
+| 2.1.1 Tastiera | `onkeydown` Enter/Space su ogni card | ✅ | Preesistente, confermato |
+| `scroll-snap-type: x mandatory` | Aggiunto a `.courses-row` | ✅ | Non interferisce con screen reader (le card restano tabbabili in sequenza) |
+
+### Sicurezza — Nessun rischio introdotto
+
+- Nessun nuovo innerHTML non sanitizzato
+- `slug` usato in `onclick="openCourseView('${slug}')"` — valore da DB (URL-safe). Rischio basso, segnalato in round precedente.
+- Nessuna nuova dipendenza esterna
+
+### Correzioni applicate in round 3
+
+**Fix A — WCAG 2.4.7: focus visibile mancante** (`dashboard.html`, inline `<style>`)
+```css
+.continua-thumb-card:focus-visible {
+  outline: 2px solid var(--gold-lt);
+  outline-offset: 3px;
+}
+```
+
+**Fix B — WCAG 1.3.1 / 4.1.2: section senza nome accessibile** (`dashboard.html`, HTML)
+```html
+<section ... aria-labelledby="section-continua-title">
+  <h2 ... id="section-continua-title">Continua dove hai lasciato</h2>
+  <div class="courses-row" id="row-continua" aria-label="Corsi in corso"></div>
+</section>
+```
+
+**Fix C — Cascata CSS silenziosa** (`dashboard.html`, riga 144)
+Aggiunto `flex-wrap:nowrap; scroll-snap-type:x mandatory` nella definizione interna di `.courses-row` che sovrascriveva `style.css` — senza questo fix le modifiche al foglio esterno non avevano effetto.
+
+### Raccomandazioni aperte da round 3
+
+1. **`.ctc-meta` font-size `0.66rem`** (priorità bassa): 10.5px è al limite della leggibilità su retina. Portare a `0.7rem` nella prossima iterazione.
+2. **`slug` in onclick** (priorità bassa): refactoring con `addEventListener` in JS per eliminare attributi onclick inline — aumenta CSP compliance.
+
+---
 
 ---
 
