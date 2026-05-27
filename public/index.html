@@ -343,6 +343,8 @@
     }
     .plan-features li.off::before { content: '✕'; color: rgba(245,245,245,.38); }
     .plan-features li.off { color: rgba(245,245,245,.45); }
+    .plan-features li.tutto-in { color: var(--gold); font-weight: 600; border-bottom: 1px solid rgba(201,150,42,.2); margin-bottom: 2px; }
+    .plan-features li.tutto-in::before { content: '↳'; color: var(--gold); font-weight: 400; }
     .btn-plan {
       display: block;
       width: 100%;
@@ -1123,10 +1125,7 @@
         <div class="plan-old" id="old-linguae"></div>
       </div>
       <ul class="plan-features">
-        <li>Corsi Brevi di cultura classica</li>
-        <li>Attestati digitali con codice univoco verificabile</li>
-        <li>Video-lezioni senza scadenza, accesso illimitato</li>
-        <li>2 nuovi corsi al mese inclusi automaticamente</li>
+        <li class="tutto-in">Tutto incluso in Cultura</li>
         <li>Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
         <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
         <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
@@ -1145,14 +1144,9 @@
         <div class="plan-old" id="old-accademia"></div>
       </div>
       <ul class="plan-features">
-        <li>Corsi Brevi di cultura classica</li>
-        <li>Attestati digitali con codice univoco verificabile</li>
-        <li>Video-lezioni senza scadenza, accesso illimitato</li>
-        <li>2 nuovi corsi al mese inclusi automaticamente</li>
-        <li>Magistro AI — tutor e quiz contestuali alla lezione</li>
-        <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
-        <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
+        <li class="tutto-in">Tutto incluso in Linguae</li>
         <li>4 moduli di formazione docenti: Elementa, Principia, Grammatica, Litterae</li>
+        <li>Accreditamento MIM — crediti CFU per la carriera docente</li>
         <li>Bonus Docenti attivo — spesa detraibile al 100%</li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
