@@ -3595,14 +3595,40 @@ body.has-corso-cta { padding-bottom: 80px; }
 
 /* ══ RIPRENDI CARD ════════════════════════════════════════════════ */
 .riprendi-section {
-  padding: 0 48px;
+  /* Sfondo oro + bordo — identifica visivamente la sezione "Continua" */
+  background: rgba(201,150,42,0.10);
+  border: 1px solid rgba(201,150,42,0.22);
+  border-radius: var(--r-lg);
+  padding: 20px 32px 24px;
   max-width: 1200px;
   margin: 0 auto 8px;
   display: flex;
-  gap: 16px;
-  align-items: stretch;
+  flex-direction: column;
+  gap: 14px;
 }
 .riprendi-section.hidden { display: none; }
+
+/* Header titolo */
+.riprendi-section-header {
+  display: flex;
+  align-items: center;
+}
+.riprendi-section-title {
+  font-family: var(--font-heading, 'Playfair Display', serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold-lt, #e8c875);
+  margin: 0;
+  letter-spacing: .01em;
+}
+
+/* Body: row con skeleton + card + progress widget */
+.riprendi-section-body {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  min-width: 0;
+}
 
 /* Stato scheletro mentre i dati si caricano — riserva lo spazio
    evitando il layout shift quando la card appare */

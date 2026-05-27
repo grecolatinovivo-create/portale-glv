@@ -339,6 +339,7 @@
 
       /* 3. Upgrade banner e riprendi card compatti */
       .upgrade-banner-inner{padding:14px 16px;}
+      .riprendi-section{padding:14px 16px 18px;}
       .riprendi-card{padding:14px 16px;min-height:72px;gap:10px;}
       .riprendi-body{padding-left:4px;}
       .riprendi-lesson{font-size:.88rem;}
@@ -1558,20 +1559,27 @@
          layout shift. Sostituito con le card reali quando l'API risponde.
          Se nessun progresso → classe "hidden" aggiunta via JS. -->
     <div id="riprendi-section" class="riprendi-section riprendi-loading" aria-live="polite">
-      <!-- Scheletro iniziale — rimosso quando i dati arrivano -->
-      <div class="riprendi-skeleton" id="riprendi-skeleton" aria-hidden="true"></div>
-      <!-- Container per le card dinamiche (una per ogni corso avviato) -->
-      <div id="riprendi-cards" style="display:none;"></div>
+      <!-- Titolo sezione -->
+      <div class="riprendi-section-header">
+        <h2 class="riprendi-section-title">▶ Continua a guardare</h2>
+      </div>
+      <!-- Body: scheletro + card dinamiche + progress globale -->
+      <div class="riprendi-section-body">
+        <!-- Scheletro iniziale — rimosso quando i dati arrivano -->
+        <div class="riprendi-skeleton" id="riprendi-skeleton" aria-hidden="true"></div>
+        <!-- Container per le card dinamiche (una per ogni corso avviato) -->
+        <div id="riprendi-cards" style="display:none;"></div>
 
-      <div id="global-progress-widget" class="global-progress-widget hidden">
-        <div class="gp-stat" id="gp-lessons">
-          <span class="gp-num" id="gp-lessons-num">—</span>
-          <span class="gp-label">lezioni completate</span>
-        </div>
-        <div class="gp-divider" aria-hidden="true"></div>
-        <div class="gp-stat" id="gp-weekly">
-          <span class="gp-num" id="gp-weekly-num">—</span>
-          <span class="gp-label">questa settimana</span>
+        <div id="global-progress-widget" class="global-progress-widget hidden">
+          <div class="gp-stat" id="gp-lessons">
+            <span class="gp-num" id="gp-lessons-num">—</span>
+            <span class="gp-label">lezioni completate</span>
+          </div>
+          <div class="gp-divider" aria-hidden="true"></div>
+          <div class="gp-stat" id="gp-weekly">
+            <span class="gp-num" id="gp-weekly-num">—</span>
+            <span class="gp-label">questa settimana</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2420,14 +2428,15 @@ function renderNuoviRow(id, courses, tier) {
   const sec = document.getElementById('section-nuovi');
   if (!el || !sec) return;
 
-  // Prima prendi i corsi marcati isNew, poi completa con i più recenti per sortOrder
-  const nuovi = courses.filter(c => c.isNew && isLangUnlocked(c.lang, tier));
+  // Mostra TUTTI i corsi nuovi — inclusi quelli bloccati da tier superiore,
+  // come invito a sbloccarli (renderLockedCard mostra il lucchetto + upgrade).
+  const nuovi = courses.filter(c => c.isNew);
   // Se nessun isNew, mostra gli 8 con sortOrder più alto (=più recenti in DB)
   const list = nuovi.length
     ? nuovi
-    : courses.filter(c => isLangUnlocked(c.lang, tier))
-             .sort((a,b) => (b.sortOrder||0) - (a.sortOrder||0))
-             .slice(0, 8);
+    : courses
+        .sort((a,b) => (b.sortOrder||0) - (a.sortOrder||0))
+        .slice(0, 8);
 
   if (!list.length) {
     sec.classList.add('hidden');
@@ -2435,6 +2444,7 @@ function renderNuoviRow(id, courses, tier) {
     return;
   }
   sec.classList.remove('hidden');
+  // Unlocked → card normale; locked → card con lucchetto (invito upgrade)
   el.innerHTML = list.map(c => isLangUnlocked(c.lang, tier)
     ? buildCard(c, {})
     : renderLockedCard(c)
