@@ -43,7 +43,7 @@ export default async function handler(req, res) {
     await resend.emails.send({
       from: FROM,
       to:   email,
-      subject: `Il tuo codice di accesso — GrecoLatinoVivo`,
+      subject: `${code} — Il tuo codice GrecoLatinoVivo`,
       html: `
         <div style="font-family:'Inter',Arial,sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#f5f5f5;padding:40px;border-radius:12px;">
           <p style="font-family:'Georgia',serif;font-size:12px;font-weight:700;color:rgba(245,245,245,0.4);letter-spacing:0.15em;text-transform:uppercase;margin:0 0 24px;">GrecoLatinoVivo</p>
@@ -51,8 +51,8 @@ export default async function handler(req, res) {
           <p style="font-size:13px;color:rgba(245,245,245,0.6);line-height:1.6;margin:0 0 28px;">
             Inserisci questo codice nella pagina per confermare la tua email e riservare il posto.
           </p>
-          <div style="background:rgba(201,150,42,0.1);border:1px solid rgba(201,150,42,0.35);border-radius:10px;padding:20px 28px;text-align:center;margin-bottom:28px;">
-            <span style="font-family:'Georgia',serif;font-size:38px;font-weight:700;color:#e8c875;letter-spacing:0.18em;">${code}</span>
+          <div style="background:rgba(201,150,42,0.1);border:1px solid rgba(201,150,42,0.35);border-radius:10px;padding:28px 28px;text-align:center;margin-bottom:28px;">
+            <span style="font-family:'Georgia',serif;font-size:64px;font-weight:700;color:#e8c875;letter-spacing:0.22em;line-height:1;">${code}</span>
           </div>
           <p style="font-size:11px;color:rgba(245,245,245,0.3);line-height:1.6;margin:0;">
             Il codice scade tra 15 minuti. Se non hai richiesto questo codice, ignora questa email.

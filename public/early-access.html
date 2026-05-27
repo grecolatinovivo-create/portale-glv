@@ -487,10 +487,19 @@
         </div>
       </div>
 
+      <!-- Countdown arrivo email -->
+      <div id="step-countdown" style="display:none;text-align:center;padding:.5rem 0 1rem;">
+        <p style="font-size:.82rem;color:var(--dim);margin-bottom:.6rem;">
+          Abbiamo inviato un codice a <strong id="email-shown" style="color:var(--ivory);"></strong>
+        </p>
+        <p style="font-size:.78rem;color:var(--faint);margin-bottom:.4rem;">La mail arriverà tra</p>
+        <span id="countdown-n" style="font-family:var(--font-h);font-size:2.8rem;font-weight:700;color:var(--gold);line-height:1;">X</span>
+      </div>
+
       <!-- Step 2: inserisci codice -->
       <div id="step-code" style="display:none;">
         <p style="font-size:.82rem;color:var(--dim);text-align:center;margin-bottom:.9rem;">
-          Abbiamo inviato un codice a <strong id="email-shown" style="color:var(--ivory);"></strong>
+          Controlla la tua email e inserisci il codice ricevuto.
         </p>
         <div class="form-row">
           <input type="text" id="code-input" class="form-input" placeholder="Codice a 6 cifre"
@@ -498,12 +507,6 @@
                  style="letter-spacing:.2em;font-size:1.1rem;text-align:center;">
           <button type="button" id="btn-verify" class="form-btn">Conferma →</button>
         </div>
-        <p style="font-size:.72rem;color:var(--faint);text-align:center;margin-top:.65rem;">
-          Non l'hai ricevuto? <button type="button" id="btn-resend"
-            style="background:none;border:none;color:var(--gold);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">
-            Reinvia codice
-          </button>
-        </p>
       </div>
 
       <!-- Successo -->
@@ -676,10 +679,9 @@
         if (!res.ok) throw new Error(data.error || 'Errore nell\'invio');
 
         pendingToken = data.token;
-        document.getElementById('email-shown').textContent = email;
+        document.getElementById('email-shown').textContent  = email;
         document.getElementById('step-email').style.display = 'none';
-        document.getElementById('step-code').style.display  = 'block';
-        setTimeout(() => document.getElementById('code-input').focus(), 100);
+        startCountdown();
 
       } catch (e) {
         showError(e.message || 'Errore di rete. Riprova.');
@@ -727,19 +729,31 @@
       }
     }
 
-    // ── Reinvia codice ───────────────────────────────────────
-    function resendCode() {
-      document.getElementById('step-code').style.display  = 'none';
-      document.getElementById('step-email').style.display = 'block';
-      document.getElementById('btn-request').disabled    = false;
-      document.getElementById('btn-request').textContent = 'Prenota il mio posto →';
-      clearError();
+    // ── Countdown numeri romani ──────────────────────────────
+    const ROMANI = ['X','IX','VIII','VII','VI','V','IV','III','II','I'];
+
+    function startCountdown() {
+      const el = document.getElementById('countdown-n');
+      document.getElementById('step-countdown').style.display = 'block';
+      let i = 0;
+      el.textContent = ROMANI[i];
+
+      const timer = setInterval(() => {
+        i++;
+        if (i < ROMANI.length) {
+          el.textContent = ROMANI[i];
+        } else {
+          clearInterval(timer);
+          document.getElementById('step-countdown').style.display = 'none';
+          document.getElementById('step-code').style.display      = 'block';
+          setTimeout(() => document.getElementById('code-input').focus(), 100);
+        }
+      }, 1000);
     }
 
     // ── Event listeners ──────────────────────────────────────
     document.getElementById('btn-request').addEventListener('click', requestCode);
     document.getElementById('btn-verify').addEventListener('click', verifyCode);
-    document.getElementById('btn-resend').addEventListener('click', resendCode);
 
     document.getElementById('email-input').addEventListener('keydown', e => {
       if (e.key === 'Enter') requestCode();
