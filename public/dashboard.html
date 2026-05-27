@@ -309,6 +309,13 @@
       .quiz-options{grid-template-columns:1fr 1fr;}
     }
 
+    /* ── Gap pagina corso: quando il corso è aperto, riduci padding
+       di #glv-dashboard a soli 64px (navbar) — elimina lo spazio vuoto
+       tra la navbar e il card del corso. Funziona su TUTTI i breakpoint. */
+    #glv-dashboard.glv-course-open{
+      padding-top:var(--nav-height, 64px) !important;
+    }
+
     /* ── Mobile-first: 640px e sotto ───────────────────────────
        Desktop NON viene toccato. Solo layout mobile-first.       */
     @media(max-width:640px){
@@ -322,9 +329,6 @@
             Compensiamo con padding-top sul wrapper del dashboard. */
       .dash-hero{ display:none; }
       #glv-dashboard{ padding-top:calc(var(--nav-height, 64px) + 8px); }
-      /* Su mobile il breathing-room è solo 8px (non 40px del desktop),
-         quindi il margin-top negativo va ridotto di conseguenza. */
-      .dash-spa-wrapper.course-open{ margin-top:-8px !important; }
 
       /* 2. Sezioni: padding compatto */
       .dash-section{padding:0 16px;margin-bottom:24px;scroll-margin-top:60px;}
@@ -1507,29 +1511,6 @@
     <p class="dash-subtitle" id="dash-subtitle">Caricamento del tuo catalogo personalizzato…</p>
   </section>
 
-  <!-- ── RIPRENDI + PROGRESSO GLOBALE ───────────────────────── -->
-  <!-- Visibile subito in stato "loading" per riservare spazio ed evitare
-       layout shift. Sostituito con le card reali quando l'API risponde.
-       Se nessun progresso → classe "hidden" aggiunta via JS. -->
-  <div id="riprendi-section" class="riprendi-section riprendi-loading" aria-live="polite">
-    <!-- Scheletro iniziale — rimosso quando i dati arrivano -->
-    <div class="riprendi-skeleton" id="riprendi-skeleton" aria-hidden="true"></div>
-    <!-- Container per le card dinamiche (una per ogni corso avviato) -->
-    <div id="riprendi-cards" style="display:none;"></div>
-
-    <div id="global-progress-widget" class="global-progress-widget hidden">
-      <div class="gp-stat" id="gp-lessons">
-        <span class="gp-num" id="gp-lessons-num">—</span>
-        <span class="gp-label">lezioni completate</span>
-      </div>
-      <div class="gp-divider" aria-hidden="true"></div>
-      <div class="gp-stat" id="gp-weekly">
-        <span class="gp-num" id="gp-weekly-num">—</span>
-        <span class="gp-label">questa settimana</span>
-      </div>
-    </div>
-  </div>
-
   <div class="upgrade-banner hidden" id="upgrade-banner">
     <div class="upgrade-banner-inner">
       <div class="upgrade-banner-text">
@@ -1571,6 +1552,29 @@
       </div>
       <div class="courses-row" id="row-per-te"></div>
     </section>
+
+    <!-- ── RIPRENDI + PROGRESSO GLOBALE — posizione 3ª ───────────── -->
+    <!-- Visibile subito in stato "loading" per riservare spazio ed evitare
+         layout shift. Sostituito con le card reali quando l'API risponde.
+         Se nessun progresso → classe "hidden" aggiunta via JS. -->
+    <div id="riprendi-section" class="riprendi-section riprendi-loading" aria-live="polite">
+      <!-- Scheletro iniziale — rimosso quando i dati arrivano -->
+      <div class="riprendi-skeleton" id="riprendi-skeleton" aria-hidden="true"></div>
+      <!-- Container per le card dinamiche (una per ogni corso avviato) -->
+      <div id="riprendi-cards" style="display:none;"></div>
+
+      <div id="global-progress-widget" class="global-progress-widget hidden">
+        <div class="gp-stat" id="gp-lessons">
+          <span class="gp-num" id="gp-lessons-num">—</span>
+          <span class="gp-label">lezioni completate</span>
+        </div>
+        <div class="gp-divider" aria-hidden="true"></div>
+        <div class="gp-stat" id="gp-weekly">
+          <span class="gp-num" id="gp-weekly-num">—</span>
+          <span class="gp-label">questa settimana</span>
+        </div>
+      </div>
+    </div>
 
     <section class="dash-section hidden" id="section-continua" aria-labelledby="section-continua-title">
       <div class="dash-section-header">
@@ -2526,13 +2530,14 @@ function reorderSections(tier) {
   const container = document.getElementById('course-sections');
   if (!container) return;
 
-  // "Continua a guardare" SEMPRE in 3ª posizione per tutti.
+  // "Continua a guardare" (riprendi-section) SEMPRE in 3ª posizione per tutti.
+  // section-continua è tenuta nel DOM ma non nell'ordine — gestita da riprendi-section.
   const order = tier <= 1
-    ? ['section-nuovi','section-per-te','section-continua','section-preferiti',
+    ? ['section-nuovi','section-per-te','riprendi-section','section-preferiti',
        'section-per-iniziare','section-brevi',
        'section-latino','section-greco','section-egiziano','section-ebraico',
        'section-completati','section-didattica']
-    : ['section-nuovi','section-per-te','section-continua','section-preferiti',
+    : ['section-nuovi','section-per-te','riprendi-section','section-preferiti',
        'section-per-iniziare',
        'section-latino','section-greco','section-egiziano','section-ebraico',
        'section-brevi','section-completati','section-didattica'];
@@ -2566,15 +2571,11 @@ function rerenderRows(tier) {
   const profile = { lang: quizAnswers.lang, level: quizAnswers.level, goal: quizAnswers.goal };
   document.getElementById('row-per-te').innerHTML = buildPerTeRow(courses, profile, tier);
 
-  // "Continua a guardare" — Netflix-style
+  // "Continua a guardare" — gestita da riprendi-section (spostata in 3ª posizione).
+  // section-continua mantenuta nel DOM ma sempre nascosta (riprendi-section la sostituisce).
   const inProgress = courses.filter(c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100);
   const secContinua = document.getElementById('section-continua');
-  if (inProgress.length) {
-    secContinua?.classList.remove('hidden');
-    renderContinuaRow('row-continua', inProgress, tier);
-  } else {
-    secContinua?.classList.add('hidden');
-  }
+  if (secContinua) secContinua.classList.add('hidden'); // sempre nascosta
 
   // ── Nuove sezioni tematiche ───────────────────────────────
   renderNuoviRow('row-nuovi', courses, tier);
@@ -3384,6 +3385,9 @@ async function openCourseView(slug, opts) {
   // Segna il wrapper: min-height:0 durante la vista corso (evita spazio nero sotto)
   const spaWrapper = document.querySelector('.dash-spa-wrapper');
   if (spaWrapper) spaWrapper.classList.add('course-open');
+  // Riduce il padding del dashboard a soli 64px (navbar) — elimina gap tra navbar e corso
+  const glvDashboard = document.getElementById('glv-dashboard');
+  if (glvDashboard) glvDashboard.classList.add('glv-course-open');
 
   if (noAnim) {
     catalogView.classList.add('stack-below');
@@ -3520,6 +3524,9 @@ function closeCourseView(opts) {
   // Riporta il wrapper al min-height normale (catalogo torna in vista)
   const spaWrapperClose = document.querySelector('.dash-spa-wrapper');
   if (spaWrapperClose) spaWrapperClose.classList.remove('course-open');
+  // Ripristina il padding del dashboard (rimuove il fix gap corso)
+  const glvDashboardClose = document.getElementById('glv-dashboard');
+  if (glvDashboardClose) glvDashboardClose.classList.remove('glv-course-open');
 
   if (noAnim) {
     if (cornerDeck) { cornerDeck.classList.remove('visible'); cornerDeck.setAttribute('aria-hidden', 'true'); }
@@ -5567,10 +5574,9 @@ function _applyFilter() {
   // I preferiti non si filtrano per lingua: li ricarica sempre dall'API
   renderPreferiti().catch(() => {});
 
-  // Mostra/nascondi sezione "Continua"
-  const inProg = filtered.filter(c => (c.progressPercent || 0) > 0 && (c.progressPercent || 0) < 100);
+  // section-continua è sostituita da riprendi-section (in 3ª posizione) — sempre nascosta
   const secC = document.getElementById('section-continua');
-  if (secC) secC.classList.toggle('hidden', !inProg.length);
+  if (secC) secC.classList.add('hidden');
 
   // Messaggio "nessun risultato"
   const secAll = document.getElementById('course-sections');
