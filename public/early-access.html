@@ -478,15 +478,40 @@
 
     <!-- FORM -->
     <div class="form-wrap">
-      <div id="form-area">
+
+      <!-- Step 1: inserisci email -->
+      <div id="step-email">
         <div class="form-row">
           <input type="email" id="email-input" class="form-input" placeholder="La tua email" autocomplete="email">
-          <button type="button" id="submit-btn" class="form-btn">Prenota il mio posto →</button>
+          <button type="button" id="btn-request" class="form-btn">Prenota il mio posto →</button>
         </div>
       </div>
+
+      <!-- Step 2: inserisci codice -->
+      <div id="step-code" style="display:none;">
+        <p style="font-size:.82rem;color:var(--dim);text-align:center;margin-bottom:.9rem;">
+          Abbiamo inviato un codice a <strong id="email-shown" style="color:var(--ivory);"></strong>
+        </p>
+        <div class="form-row">
+          <input type="text" id="code-input" class="form-input" placeholder="Codice a 6 cifre"
+                 maxlength="6" inputmode="numeric" autocomplete="one-time-code"
+                 style="letter-spacing:.2em;font-size:1.1rem;text-align:center;">
+          <button type="button" id="btn-verify" class="form-btn">Conferma →</button>
+        </div>
+        <p style="font-size:.72rem;color:var(--faint);text-align:center;margin-top:.65rem;">
+          Non l'hai ricevuto? <button type="button" id="btn-resend"
+            style="background:none;border:none;color:var(--gold);font-size:.72rem;cursor:pointer;padding:0;text-decoration:underline;">
+            Reinvia codice
+          </button>
+        </p>
+      </div>
+
+      <!-- Successo -->
       <div class="form-success" id="form-success">
         ✓ &nbsp;Sei dentro. Ti scriviamo per primi.
       </div>
+
+      <!-- Errore -->
       <div class="form-error" id="form-error"></div>
     </div>
 
@@ -585,21 +610,21 @@
   </footer>
 
   <script>
-    const API       = '/api/early-access';
-    const API_COUNT = '/api/early-access-count';
+    const API_REQUEST = '/api/early-access-request';
+    const API_VERIFY  = '/api/early-access-verify';
+    const API_COUNT   = '/api/early-access-count';
 
-    // ── Carica il counter posti rimasti ──────────────────────
     let currentRemaining = null;
+    let pendingToken     = null;
 
+    // ── Counter posti rimasti ────────────────────────────────
     async function loadSpotsCounter() {
       try {
         const res  = await fetch(API_COUNT);
         const data = await res.json();
         currentRemaining = data.remaining;
         setSpots(currentRemaining);
-      } catch (e) {
-        // In caso di errore di rete, nascondiamo il badge senza rompere la pagina
-      }
+      } catch (e) {}
     }
 
     function setSpots(n) {
@@ -608,72 +633,126 @@
       if (!badge || !el) return;
       el.textContent = n;
       badge.style.display = 'inline-flex';
-      // Animazione bump
       el.classList.remove('bump');
-      void el.offsetWidth; // reflow
+      void el.offsetWidth;
       el.classList.add('bump');
       setTimeout(() => el.classList.remove('bump'), 300);
     }
 
     loadSpotsCounter();
 
-    // ── Form submit ──────────────────────────────────────────
-    document.getElementById('submit-btn').addEventListener('click', async () => {
-      const email = document.getElementById('email-input').value.trim();
-      const btn   = document.getElementById('submit-btn');
-      const errEl = document.getElementById('form-error');
+    // ── Helper errore ────────────────────────────────────────
+    function showError(msg) {
+      const el = document.getElementById('form-error');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+    function clearError() {
+      document.getElementById('form-error').style.display = 'none';
+    }
 
-      errEl.style.display = 'none';
+    // ── STEP 1: richiedi codice ──────────────────────────────
+    async function requestCode() {
+      const email = document.getElementById('email-input').value.trim();
+      const btn   = document.getElementById('btn-request');
+      clearError();
 
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        errEl.textContent = 'Inserisci un indirizzo email valido.';
-        errEl.style.display = 'block';
+        showError('Inserisci un indirizzo email valido.');
         return;
       }
 
-      btn.disabled = true;
+      btn.disabled    = true;
       btn.textContent = 'Invio…';
 
       try {
-        const res  = await fetch(API, {
-          method: 'POST',
+        const res  = await fetch(API_REQUEST, {
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
+          body:    JSON.stringify({ email }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Errore nell\'invio');
+
+        pendingToken = data.token;
+        document.getElementById('email-shown').textContent = email;
+        document.getElementById('step-email').style.display = 'none';
+        document.getElementById('step-code').style.display  = 'block';
+        setTimeout(() => document.getElementById('code-input').focus(), 100);
+
+      } catch (e) {
+        showError(e.message || 'Errore di rete. Riprova.');
+        btn.disabled    = false;
+        btn.textContent = 'Prenota il mio posto →';
+      }
+    }
+
+    // ── STEP 2: verifica codice ──────────────────────────────
+    async function verifyCode() {
+      const code = document.getElementById('code-input').value.trim();
+      const btn  = document.getElementById('btn-verify');
+      clearError();
+
+      if (!code || code.length !== 6 || !/^\d+$/.test(code)) {
+        showError('Inserisci il codice a 6 cifre che hai ricevuto.');
+        return;
+      }
+
+      btn.disabled    = true;
+      btn.textContent = 'Verifica…';
+
+      try {
+        const res  = await fetch(API_VERIFY, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ token: pendingToken, code }),
         });
         const data = await res.json();
 
         if (res.ok && data.ok) {
-          document.getElementById('form-area').style.display   = 'none';
+          document.getElementById('step-code').style.display    = 'none';
           document.getElementById('form-success').style.display = 'block';
-          // Decrementa il counter visivamente
           if (currentRemaining !== null && currentRemaining > 0) {
             currentRemaining--;
             setSpots(currentRemaining);
           }
         } else {
-          throw new Error(data.error || 'Errore sconosciuto');
+          throw new Error(data.error || 'Codice non valido');
         }
       } catch (e) {
-        errEl.textContent = e.message || 'Errore di rete. Riprova.';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Avvisami →';
+        showError(e.message || 'Errore di rete. Riprova.');
+        btn.disabled    = false;
+        btn.textContent = 'Conferma →';
       }
-    });
+    }
 
-    // Invio con Enter
+    // ── Reinvia codice ───────────────────────────────────────
+    function resendCode() {
+      document.getElementById('step-code').style.display  = 'none';
+      document.getElementById('step-email').style.display = 'block';
+      document.getElementById('btn-request').disabled    = false;
+      document.getElementById('btn-request').textContent = 'Prenota il mio posto →';
+      clearError();
+    }
+
+    // ── Event listeners ──────────────────────────────────────
+    document.getElementById('btn-request').addEventListener('click', requestCode);
+    document.getElementById('btn-verify').addEventListener('click', verifyCode);
+    document.getElementById('btn-resend').addEventListener('click', resendCode);
+
     document.getElementById('email-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') document.getElementById('submit-btn').click();
+      if (e.key === 'Enter') requestCode();
+    });
+    document.getElementById('code-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') verifyCode();
     });
 
     // ── Scroll to form ───────────────────────────────────────
     function scrollToForm() {
-      document.getElementById('email-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.getElementById('step-email').scrollIntoView({ behavior: 'smooth', block: 'center' });
       setTimeout(() => document.getElementById('email-input').focus(), 500);
     }
-
-    // Prezzi mensili statici — il toggle annuale non è necessario su questa pagina
-    // I prezzi annuali vengono comunicati al momento dell'iscrizione vera e propria
   </script>
 
 </body>
