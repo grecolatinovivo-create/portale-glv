@@ -3517,6 +3517,10 @@ function closeCourseView(opts) {
   _destroyPlayer();
   dismissNextLessonOverlay();
 
+  // Nascondi stellina preferiti
+  const starBtn = document.getElementById('fav-star-btn');
+  if (starBtn) starBtn.style.display = 'none';
+
   if (pushState) {
     history.pushState({}, '', location.pathname);
   }
@@ -3667,6 +3671,9 @@ function renderCourseHeader(course, progressData, streakData) {
 
   const descEl = document.getElementById('course-description');
   if (descEl) descEl.textContent = course.description || '';
+
+  // Stellina preferiti — inizializza per questo corso
+  _initFavStar(course.slug);
 
   // Streak qualitativa — lezioni viste questa settimana (non giorni consecutivi)
   const streakText = document.getElementById('streak-text');
@@ -5140,6 +5147,126 @@ function _updateProgressBar(pct) {
 // watchedSeconds = secondi EFFETTIVAMENTE guardati (contatore bucket).
 // Sono due valori diversi: il cursore può essere al minuto 25 pur avendo
 // guardato solo 30 secondi reali.
+// ── Stellina Preferiti ──────────────────────────────────────────────────
+// Inizializza la stellina nella pagina corso: fetch stato, attach listener toggle.
+let _favCurrentSlug   = null;   // slug del corso aperto
+let _favCurrentState  = false;  // true = è nei preferiti
+let _favToggleLocked  = false;  // lock durante la richiesta HTTP
+
+async function _initFavStar(slug) {
+  _favCurrentSlug  = slug;
+  _favCurrentState = false;
+  _favToggleLocked = false;
+
+  const btn = document.getElementById('fav-star-btn');
+  if (!btn) return;
+
+  // Mostra subito (stato neutro), poi aggiorna dopo la fetch
+  btn.style.display    = '';
+  btn.textContent      = '☆';
+  btn.className        = 'fav-star-btn';
+  btn.setAttribute('aria-pressed', 'false');
+  btn.setAttribute('aria-label', 'Aggiungi ai preferiti');
+
+  // Rimuovi listener precedente sostituendo il nodo
+  const newBtn = btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn, btn);
+  newBtn.style.display = '';
+
+  // Fetch stato corrente (non bloccante)
+  try {
+    const res = await fetch(`/api/favorites/${encodeURIComponent(slug)}`, { credentials: 'include' });
+    if (res.ok) {
+      const { isFavorite } = await res.json();
+      _favCurrentState = !!isFavorite;
+      _applyFavStarState(newBtn, _favCurrentState);
+    }
+  } catch { /* silente — la stellina rimane vuota */ }
+
+  // Listener click
+  newBtn.addEventListener('click', async () => {
+    if (_favToggleLocked) return;
+    _favToggleLocked = true;
+    newBtn.classList.add('loading');
+
+    const willAdd = !_favCurrentState;
+    const method  = willAdd ? 'POST' : 'DELETE';
+
+    try {
+      const res = await fetch(`/api/favorites/${encodeURIComponent(_favCurrentSlug)}`, {
+        method, credentials: 'include',
+      });
+      if (res.ok) {
+        _favCurrentState = willAdd;
+        _applyFavStarState(newBtn, _favCurrentState);
+        // Aggiorna la sezione "I miei preferiti" in background
+        renderPreferiti().catch(() => {});
+        // Feedback toast
+        if (willAdd) {
+          showToast({ icon: '★', title: 'Aggiunto ai preferiti', msg: 'Lo trovi nella sezione "I miei preferiti".', durationMs: 3000 });
+        }
+      } else {
+        showToast({ icon: '⚠️', title: 'Errore', msg: 'Impossibile aggiornare i preferiti. Riprova.', durationMs: 3500 });
+      }
+    } catch {
+      showToast({ icon: '⚠️', title: 'Errore', msg: 'Connessione assente. Riprova.', durationMs: 3500 });
+    } finally {
+      newBtn.classList.remove('loading');
+      _favToggleLocked = false;
+    }
+  });
+}
+
+function _applyFavStarState(btn, isFav) {
+  if (!btn) return;
+  btn.textContent = isFav ? '★' : '☆';
+  btn.classList.toggle('active', isFav);
+  btn.setAttribute('aria-pressed', isFav ? 'true' : 'false');
+  btn.setAttribute('aria-label', isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti');
+  btn.title = isFav ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti';
+}
+
+// ── Sezione "I miei preferiti" ──────────────────────────────────────────
+// Carica i preferiti dall'API e li renderizza nella riga Netflix.
+// Nasconde la sezione se l'utente non ha preferiti.
+async function renderPreferiti() {
+  const sec = document.getElementById('section-preferiti');
+  const row = document.getElementById('row-preferiti');
+  if (!sec || !row) return;
+
+  try {
+    const res = await fetch('/api/favorites', { credentials: 'include' });
+    if (!res.ok) { sec.classList.add('hidden'); return; }
+
+    const { favorites } = await res.json();
+
+    if (!favorites || favorites.length === 0) {
+      sec.classList.add('hidden');
+      return;
+    }
+
+    // Calcola il tier corrente (per il gate lock sui corsi)
+    const tier = _adminTierActive ?? _computeTier(_allCourses);
+
+    // Arricchisci con i dati di _allCourses (progressPercent, ecc.) se disponibili
+    const enriched = favorites.map(fav => {
+      const full = (_allCourses || []).find(c => c.id === fav.courseId || c.slug === fav.slug);
+      return full ? { ...fav, ...full } : fav;
+    });
+
+    row.innerHTML = enriched.map(c => buildCourseCard(c, tier)).join('');
+    sec.classList.remove('hidden');
+
+    // Riordina sezioni se necessario
+    if (typeof reorderSections === 'function') reorderSections(tier);
+
+  } catch {
+    sec.classList.add('hidden');
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────
+
 async function saveProgress(lessonId, courseId, watchedSeconds, totalSeconds, completed, resumeAt) {
   try {
     const body = {
