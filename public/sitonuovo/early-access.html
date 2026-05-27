@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accesso Anticipato — Portale GrecoLatinoVivo</title>
+  <meta name="description" content="Iscriviti per ricevere l'accesso anticipato al nuovo Portale GLV. Latino, Greco Antico, Egiziano, Ebraico Biblico — un abbonamento per l'intero catalogo.">
+  <meta name="robots" content="noindex">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --dark:      #0a0a0a;
+      --dark-2:    #111111;
+      --dark-3:    #141414;
+      --gold:      #c9962a;
+      --gold-lt:   #e8c875;
+      --ivory:     #f5f5f5;
+      --dim:       rgba(245,245,245,.6);
+      --faint:     rgba(245,245,245,.35);
+      --border:    rgba(255,255,255,.1);
+      --radius:    10px;
+      --radius-lg: 16px;
+      --font-h:    'Playfair Display', Georgia, serif;
+      --font-b:    'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--dark);
+      color: var(--ivory);
+      font-family: var(--font-b);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ── NAV ── */
+    .nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10,10,10,.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-brand {
+      font-family: var(--font-h);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ivory);
+      text-decoration: none;
+      letter-spacing: .02em;
+    }
+    .nav-brand span { color: var(--dim); font-weight: 400; }
+    .nav-tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(201,150,42,.3);
+      background: rgba(201,150,42,.06);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 7rem 1.5rem 4rem;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 500;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--faint);
+      border: 1px solid var(--border);
+      padding: .3rem 1rem;
+      border-radius: 2rem;
+      margin-bottom: 2rem;
+    }
+    .hero-title {
+      font-family: var(--font-h);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -.01em;
+      color: var(--ivory);
+      margin-bottom: 1.2rem;
+    }
+    .hero-title em { font-style: italic; color: var(--gold-lt); }
+    .hero-sub {
+      font-size: 1rem;
+      color: var(--dim);
+      line-height: 1.7;
+      max-width: 480px;
+      margin: 0 auto 2.8rem;
+    }
+
+    /* ── FORM ── */
+    .form-wrap {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto 2rem;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+    .form-input {
+      flex: 1;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: .85rem 1rem;
+      font-family: var(--font-b);
+      font-size: .95rem;
+      color: var(--ivory);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .form-input::placeholder { color: var(--faint); }
+    .form-input:focus { border-color: rgba(201,150,42,.5); }
+    .form-btn {
+      background: var(--gold);
+      color: #0a0a0a;
+      font-family: var(--font-b);
+      font-weight: 700;
+      font-size: .9rem;
+      padding: .85rem 1.4rem;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .2s, transform .15s;
+    }
+    .form-btn:hover { opacity: .88; transform: translateY(-1px); }
+    .form-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .form-note {
+      font-size: .75rem;
+      color: var(--faint);
+      text-align: center;
+      margin-top: .75rem;
+    }
+    /* Stati form */
+    .form-success, .form-error { display: none; text-align: center; padding: 1rem; border-radius: var(--radius); font-size: .9rem; }
+    .form-success { background: rgba(201,150,42,.1); border: 1px solid rgba(201,150,42,.3); color: var(--gold-lt); }
+    .form-error   { background: rgba(160,26,54,.12); border: 1px solid rgba(160,26,54,.3); color: #f08080; }
+
+    /* ── STATS ── */
+    .stats {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 3.5rem;
+      padding-top: 3.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat-n {
+      font-family: var(--font-h);
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--gold-lt);
+      line-height: 1;
+      display: block;
+    }
+    .stat-l {
+      font-size: .68rem;
+      font-weight: 500;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--faint);
+      display: block;
+      margin-top: .2rem;
+    }
+    .stat-sep { width: 1px; height: 36px; background: var(--border); }
+
+    /* ── SEZIONE PIANI ── */
+    .pricing {
+      background: var(--dark-2);
+      padding: 5rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .section-header {
+      text-align: center;
+      margin-bottom: 2.8rem;
+    }
+    .section-tag {
+      display: inline-block;
+      font-size: .68rem;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: .75rem;
+    }
+    .section-heading {
+      font-family: var(--font-h);
+      font-size: clamp(1.7rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      color: var(--ivory);
+      line-height: 1.15;
+    }
+    .section-heading em { font-style: italic; color: var(--gold); }
+    .section-sub {
+      font-size: .92rem;
+      color: var(--dim);
+      margin-top: .6rem;
+    }
+
+    /* Toggle mensile/annuale */
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .25rem;
+      margin: 0 auto 2.8rem;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      border-radius: 2rem;
+      padding: .3rem;
+      width: fit-content;
+    }
+    .billing-tab {
+      font-family: var(--font-b);
+      font-size: .85rem;
+      font-weight: 500;
+      color: var(--dim);
+      background: transparent;
+      border: none;
+      border-radius: 1.5rem;
+      padding: .45rem 1.2rem;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+      white-space: nowrap;
+    }
+    .billing-tab.active { background: rgba(255,255,255,.11); color: var(--ivory); font-weight: 600; }
+    .annual-badge {
+      font-size: .68rem;
+      font-weight: 700;
+      background: rgba(212,160,23,.22);
+      color: var(--gold);
+      border: 1px solid rgba(212,160,23,.35);
+      padding: .12rem .48rem;
+      border-radius: 1rem;
+      margin-left: .25rem;
+    }
+
+    /* Griglia piani */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+      max-width: 980px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    .plan-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.75rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color .2s, transform .2s;
+    }
+    .plan-card:hover { border-color: rgba(255,255,255,.22); transform: translateY(-3px); }
+    .plan-card.featured { border-color: rgba(201,150,42,.4); }
+    .plan-card.featured:hover { border-color: rgba(201,150,42,.65); }
+    .plan-badge {
+      position: absolute;
+      top: -13px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--gold);
+      color: #0a0a0a;
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: .28rem 1rem;
+      border-radius: 2rem;
+      white-space: nowrap;
+    }
+    .plan-name {
+      font-family: var(--font-h);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--ivory);
+      margin-bottom: .35rem;
+    }
+    .plan-desc {
+      font-size: .82rem;
+      color: var(--dim);
+      line-height: 1.55;
+      margin-bottom: 1.5rem;
+      min-height: 42px;
+    }
+    .plan-price { margin-bottom: 1.75rem; }
+    .plan-amount {
+      font-family: var(--font-h);
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--ivory);
+      line-height: 1;
+    }
+    .plan-period { font-size: .82rem; color: var(--faint); margin-left: .2rem; }
+    .plan-old {
+      display: none;
+      font-size: .78rem;
+      color: var(--faint);
+      text-decoration: none;
+      margin-top: .3rem;
+    }
+    .plan-features {
+      list-style: none;
+      flex: 1;
+      margin-bottom: 1.75rem;
+    }
+    .plan-features li {
+      font-size: .83rem;
+      color: rgba(245,245,245,.82);
+      padding: .42rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex;
+      align-items: flex-start;
+      gap: .55rem;
+      line-height: 1.45;
+    }
+    .plan-features li:last-child { border-bottom: none; }
+    .plan-features li::before {
+      content: '✓';
+      color: var(--gold);
+      font-size: .82rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: .03rem;
+    }
+    .plan-features li.off::before { content: '✕'; color: rgba(245,245,245,.38); }
+    .plan-features li.off { color: rgba(245,245,245,.45); }
+    .plan-features li.tutto-in {
+      color: var(--gold);
+      font-weight: 600;
+      border-bottom: 1px solid rgba(201,150,42,.2);
+      margin-bottom: 2px;
+    }
+    .plan-features li.tutto-in::before { content: '↳'; color: var(--gold); font-weight: 400; }
+
+    .btn-plan {
+      display: block;
+      width: 100%;
+      padding: .88rem;
+      border-radius: var(--radius);
+      font-family: var(--font-b);
+      font-weight: 600;
+      font-size: .92rem;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: background .2s, transform .15s;
+    }
+    .btn-plan-primary { background: var(--gold); color: #0a0a0a; font-weight: 700; }
+    .btn-plan-primary:hover { opacity: .88; transform: translateY(-1px); }
+    .btn-plan-ghost { background: transparent; color: var(--ivory); border: 1px solid rgba(255,255,255,.25); }
+    .btn-plan-ghost:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.05); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    footer p {
+      font-size: .8rem;
+      color: var(--faint);
+      line-height: 1.8;
+    }
+    footer a { color: var(--faint); text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 780px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 420px;
+      }
+      .form-row { flex-direction: column; }
+      .stat-sep { display: none; }
+    }
+    @media (max-width: 480px) {
+      .hero-title { font-size: 2.1rem; }
+      .stats { gap: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <a href="https://grecolatinovivo.it" class="nav-brand">ΓΛ <span>GrecoLatinoVivo</span></a>
+    <span class="nav-tag">Early Access</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <span class="hero-eyebrow">Portale in arrivo · Iscriviti ora</span>
+    <h1 class="hero-title">
+      Lingue e culture<br>del <em>Mondo Classico.</em><br>In abbonamento.
+    </h1>
+    <p class="hero-sub">
+      +60 corsi, docenti specializzati, attestati MIM.<br>
+      Un abbonamento per accedere all'intero catalogo.
+    </p>
+
+    <!-- FORM -->
+    <div class="form-wrap">
+      <div id="form-area">
+        <div class="form-row">
+          <input type="email" id="email-input" class="form-input" placeholder="La tua email" autocomplete="email">
+          <button type="button" id="submit-btn" class="form-btn">Avvisami →</button>
+        </div>
+        <p class="form-note">Nessuna carta richiesta · Ti avvisiamo in anteprima</p>
+      </div>
+      <div class="form-success" id="form-success">
+        ✓ &nbsp;Sei nella lista. Ti contatteremo per primi.
+      </div>
+      <div class="form-error" id="form-error"></div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div><span class="stat-n">12.447</span><span class="stat-l">Studenti formati</span></div>
+      <div class="stat-sep"></div>
+      <div><span class="stat-n">+60</span><span class="stat-l">Corsi nel catalogo</span></div>
+      <div class="stat-sep"></div>
+      <div><span class="stat-n">+2/mese</span><span class="stat-l">Nuovi corsi garantiti</span></div>
+      <div class="stat-sep"></div>
+      <div><span class="stat-n">2015</span><span class="stat-l">Fondato a Firenze</span></div>
+    </div>
+  </section>
+
+  <!-- PIANI -->
+  <section class="pricing">
+    <div class="section-header">
+      <p class="section-tag">Un piano per ogni percorso</p>
+      <h2 class="section-heading">Scegli il piano <em>giusto per te</em></h2>
+      <p class="section-sub">Il catalogo cresce ogni mese. Cancella quando vuoi.</p>
+    </div>
+
+    <div class="billing-toggle">
+      <button class="billing-tab active" id="tog-monthly">Mensile</button>
+      <button class="billing-tab" id="tog-annual">Annuale <span class="annual-badge">−30%</span></button>
+    </div>
+
+    <div class="pricing-grid">
+
+      <!-- CULTURA -->
+      <div class="plan-card">
+        <div class="plan-name">Cultura</div>
+        <div class="plan-desc">Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.</div>
+        <div class="plan-price">
+          <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
+          <div class="plan-old" id="old-cultura"></div>
+        </div>
+        <ul class="plan-features">
+          <li>Corsi Brevi di cultura classica</li>
+          <li>Corsi e attestati riconosciuti dal MIM</li>
+          <li>Attestati digitali con codice univoco verificabile</li>
+          <li class="off">Corsi di lingua (Latino, Greco Antico, Egiziano, Ebraico Biblico)</li>
+          <li class="off">Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
+          <li class="off">Test autocorrettivi per misurare i propri progressi</li>
+          <li class="off">Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
+          <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+          <li class="off">Possibilità di pagamento con Bonus Docenti</li>
+        </ul>
+        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+      </div>
+
+      <!-- LINGUAE -->
+      <div class="plan-card featured">
+        <div class="plan-badge">Il più scelto</div>
+        <div class="plan-name">Linguae</div>
+        <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
+        <div class="plan-price">
+          <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
+          <div class="plan-old" id="old-linguae"></div>
+        </div>
+        <ul class="plan-features">
+          <li class="tutto-in">Tutto in <em>Cultura</em></li>
+          <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
+          <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
+          <li>Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
+          <li>Test autocorrettivi per misurare i propri progressi</li>
+          <li class="off">Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
+          <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+          <li class="off">Possibilità di pagamento con Bonus Docenti</li>
+        </ul>
+        <button type="button" class="btn-plan btn-plan-primary" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+      </div>
+
+      <!-- ACCADEMIA -->
+      <div class="plan-card">
+        <div class="plan-name">Accademia</div>
+        <div class="plan-desc">Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti attivo (piano annuale).</div>
+        <div class="plan-price">
+          <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
+          <div class="plan-old" id="old-accademia"></div>
+        </div>
+        <ul class="plan-features">
+          <li class="tutto-in">Tutto in <em>Linguae</em></li>
+          <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
+          <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
+          <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
+        </ul>
+        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>
+      <strong style="font-family:'Playfair Display',Georgia,serif;color:rgba(245,245,245,0.5);">GrecoLatinoVivo</strong><br>
+      Centro Nazionale di Studi Classici · Accreditato MIM · Fondato a Firenze nel 2015<br>
+      <a href="mailto:info@grecolatinovivo.it">info@grecolatinovivo.it</a>
+      &nbsp;·&nbsp;
+      <a href="https://grecolatinovivo.it/privacy.html">Privacy</a>
+    </p>
+  </footer>
+
+  <script>
+    const API = 'https://portale.grecolatinovivo.it/api/early-access';
+
+    // ── Form submit ──────────────────────────────────────────
+    document.getElementById('submit-btn').addEventListener('click', async () => {
+      const email = document.getElementById('email-input').value.trim();
+      const btn   = document.getElementById('submit-btn');
+      const errEl = document.getElementById('form-error');
+
+      errEl.style.display = 'none';
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errEl.textContent = 'Inserisci un indirizzo email valido.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Invio…';
+
+      try {
+        const res  = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          document.getElementById('form-area').style.display   = 'none';
+          document.getElementById('form-success').style.display = 'block';
+        } else {
+          throw new Error(data.error || 'Errore sconosciuto');
+        }
+      } catch (e) {
+        errEl.textContent = e.message || 'Errore di rete. Riprova.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Avvisami →';
+      }
+    });
+
+    // Invio con Enter
+    document.getElementById('email-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('submit-btn').click();
+    });
+
+    // ── Scroll to form ───────────────────────────────────────
+    function scrollToForm() {
+      document.getElementById('email-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => document.getElementById('email-input').focus(), 500);
+    }
+
+    // ── Billing toggle ───────────────────────────────────────
+    const PLANS = {
+      cultura:   { m: '€5,90',  mL: '/mese', a: '€49',  aL: '/anno', aOld: 'anziché €70,80'  },
+      linguae:   { m: '€12,90', mL: '/mese', a: '€99',  aL: '/anno', aOld: 'anziché €154,80' },
+      accademia: { m: '€19,90', mL: '/mese', a: '€179', aL: '/anno', aOld: 'anziché €238,80' },
+    };
+    let annual = false;
+
+    function applyPricing() {
+      Object.entries(PLANS).forEach(([key, p]) => {
+        const amt = document.getElementById(`amt-${key}`);
+        const per = document.getElementById(`per-${key}`);
+        const old = document.getElementById(`old-${key}`);
+        if (!amt) return;
+        if (annual) {
+          amt.textContent = p.a;
+          per.textContent = p.aL;
+          old.textContent = p.aOld;
+          old.style.display = 'block';
+        } else {
+          amt.textContent = p.m;
+          per.textContent = p.mL;
+          old.style.display = 'none';
+        }
+      });
+      // Bonus Docenti: ✕ mensile → ✓ annuale
+      const bonus = document.getElementById('feat-bonus-docenti');
+      if (bonus) {
+        if (annual) { bonus.classList.remove('off'); }
+        else        { bonus.classList.add('off'); }
+      }
+      document.getElementById('tog-monthly').classList.toggle('active', !annual);
+      document.getElementById('tog-annual').classList.toggle('active',  annual);
+    }
+
+    applyPricing();
+    document.getElementById('tog-monthly').addEventListener('click', () => { if (annual)  { annual = false; applyPricing(); } });
+    document.getElementById('tog-annual').addEventListener('click',  () => { if (!annual) { annual = true;  applyPricing(); } });
+  </script>
+
+</body>
+</html>
