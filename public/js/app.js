@@ -1016,7 +1016,7 @@ function initPricing(){
 
   togM.addEventListener('click', () => applyPlan('monthly'));
   togA.addEventListener('click', () => applyPlan('annual'));
-  applyPlan('annual'); // default annuale
+  applyPlan('monthly'); // default mensile — allineato con l'inline script di index.html
 }
 
 /* ── FAQ ─────────────────────────────────────────────────────── */

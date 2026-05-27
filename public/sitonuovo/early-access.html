@@ -116,6 +116,42 @@
       margin: 0 auto 2.8rem;
     }
 
+    /* ── SPOTS COUNTER ── */
+    .spots-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: rgba(201,150,42,.1);
+      border: 1px solid rgba(201,150,42,.35);
+      border-radius: 2rem;
+      padding: .4rem 1rem;
+      margin-bottom: 1.6rem;
+      font-size: .82rem;
+      color: var(--gold-lt);
+      font-weight: 500;
+    }
+    .spots-dot {
+      width: 7px; height: 7px;
+      background: var(--gold);
+      border-radius: 50%;
+      flex-shrink: 0;
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: .4; transform: scale(.75); }
+    }
+    .spots-n {
+      font-family: var(--font-h);
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--gold);
+      transition: transform .3s ease;
+    }
+    .spots-n.bump {
+      transform: scale(1.25);
+    }
+
     /* ── FORM ── */
     .form-wrap {
       width: 100%;
@@ -425,7 +461,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <span class="hero-eyebrow">Portale in arrivo · Iscriviti ora</span>
+    <span class="hero-eyebrow">Accesso anticipato · Posti limitati</span>
     <h1 class="hero-title">
       Lingue e culture<br>del <em>Mondo Classico.</em><br>In abbonamento.
     </h1>
@@ -434,17 +470,23 @@
       Un abbonamento per accedere all'intero catalogo.
     </p>
 
+    <!-- SPOTS COUNTER -->
+    <div class="spots-badge" id="spots-badge" style="display:none;">
+      <span class="spots-dot"></span>
+      <span>Rimasti <span class="spots-n" id="spots-n">—</span> posti su 100</span>
+    </div>
+
     <!-- FORM -->
     <div class="form-wrap">
       <div id="form-area">
         <div class="form-row">
           <input type="email" id="email-input" class="form-input" placeholder="La tua email" autocomplete="email">
-          <button type="button" id="submit-btn" class="form-btn">Avvisami →</button>
+          <button type="button" id="submit-btn" class="form-btn">Prenota il mio posto →</button>
         </div>
-        <p class="form-note">Nessuna carta richiesta · Ti avvisiamo in anteprima</p>
+        <p class="form-note">Gratuito · Cancellabile in qualsiasi momento</p>
       </div>
       <div class="form-success" id="form-success">
-        ✓ &nbsp;Sei nella lista. Ti contatteremo per primi.
+        ✓ &nbsp;Sei dentro. Ti scriviamo per primi.
       </div>
       <div class="form-error" id="form-error"></div>
     </div>
@@ -464,14 +506,9 @@
   <!-- PIANI -->
   <section class="pricing">
     <div class="section-header">
-      <p class="section-tag">Un piano per ogni percorso</p>
-      <h2 class="section-heading">Scegli il piano <em>giusto per te</em></h2>
-      <p class="section-sub">Il catalogo cresce ogni mese. Cancella quando vuoi.</p>
-    </div>
-
-    <div class="billing-toggle">
-      <button class="billing-tab active" id="tog-monthly">Mensile</button>
-      <button class="billing-tab" id="tog-annual">Annuale <span class="annual-badge">−30%</span></button>
+      <p class="section-tag">Cosa trovi nel portale</p>
+      <h2 class="section-heading">Tre piani, <em>un catalogo intero</em></h2>
+      <p class="section-sub">Prezzi mensili indicativi · Piano annuale disponibile con sconto −30%</p>
     </div>
 
     <div class="pricing-grid">
@@ -481,8 +518,7 @@
         <div class="plan-name">Cultura</div>
         <div class="plan-desc">Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.</div>
         <div class="plan-price">
-          <span class="plan-amount" id="amt-cultura">€5,90</span><span class="plan-period" id="per-cultura">/mese</span>
-          <div class="plan-old" id="old-cultura"></div>
+          <span class="plan-amount">€5,90</span><span class="plan-period">/mese</span>
         </div>
         <ul class="plan-features">
           <li>Corsi Brevi di cultura classica</li>
@@ -495,7 +531,7 @@
           <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
           <li class="off">Possibilità di pagamento con Bonus Docenti</li>
         </ul>
-        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio questo piano →</button>
       </div>
 
       <!-- LINGUAE -->
@@ -504,8 +540,7 @@
         <div class="plan-name">Linguae</div>
         <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
         <div class="plan-price">
-          <span class="plan-amount" id="amt-linguae">€12,90</span><span class="plan-period" id="per-linguae">/mese</span>
-          <div class="plan-old" id="old-linguae"></div>
+          <span class="plan-amount">€12,90</span><span class="plan-period">/mese</span>
         </div>
         <ul class="plan-features">
           <li class="tutto-in">Tutto in <em>Cultura</em></li>
@@ -517,7 +552,7 @@
           <li class="off">Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
           <li class="off">Possibilità di pagamento con Bonus Docenti</li>
         </ul>
-        <button type="button" class="btn-plan btn-plan-primary" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+        <button type="button" class="btn-plan btn-plan-primary" onclick="scrollToForm()">Voglio questo piano →</button>
       </div>
 
       <!-- ACCADEMIA -->
@@ -525,16 +560,15 @@
         <div class="plan-name">Accademia</div>
         <div class="plan-desc">Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti attivo (piano annuale).</div>
         <div class="plan-price">
-          <span class="plan-amount" id="amt-accademia">€19,90</span><span class="plan-period" id="per-accademia">/mese</span>
-          <div class="plan-old" id="old-accademia"></div>
+          <span class="plan-amount">€19,90</span><span class="plan-period">/mese</span>
         </div>
         <ul class="plan-features">
           <li class="tutto-in">Tutto in <em>Linguae</em></li>
           <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
           <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
-          <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti</li>
+          <li>Possibilità di pagamento con Bonus Docenti (piano annuale)</li>
         </ul>
-        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio l'accesso anticipato</button>
+        <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Voglio questo piano →</button>
       </div>
 
     </div>
@@ -552,7 +586,37 @@
   </footer>
 
   <script>
-    const API = 'https://portale.grecolatinovivo.it/api/early-access';
+    const API       = 'https://portale.grecolatinovivo.it/api/early-access';
+    const API_COUNT = 'https://portale.grecolatinovivo.it/api/early-access-count';
+
+    // ── Carica il counter posti rimasti ──────────────────────
+    let currentRemaining = null;
+
+    async function loadSpotsCounter() {
+      try {
+        const res  = await fetch(API_COUNT);
+        const data = await res.json();
+        currentRemaining = data.remaining;
+        setSpots(currentRemaining);
+      } catch (e) {
+        // In caso di errore di rete, nascondiamo il badge senza rompere la pagina
+      }
+    }
+
+    function setSpots(n) {
+      const badge = document.getElementById('spots-badge');
+      const el    = document.getElementById('spots-n');
+      if (!badge || !el) return;
+      el.textContent = n;
+      badge.style.display = 'inline-flex';
+      // Animazione bump
+      el.classList.remove('bump');
+      void el.offsetWidth; // reflow
+      el.classList.add('bump');
+      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+
+    loadSpotsCounter();
 
     // ── Form submit ──────────────────────────────────────────
     document.getElementById('submit-btn').addEventListener('click', async () => {
@@ -582,6 +646,11 @@
         if (res.ok && data.ok) {
           document.getElementById('form-area').style.display   = 'none';
           document.getElementById('form-success').style.display = 'block';
+          // Decrementa il counter visivamente
+          if (currentRemaining !== null && currentRemaining > 0) {
+            currentRemaining--;
+            setSpots(currentRemaining);
+          }
         } else {
           throw new Error(data.error || 'Errore sconosciuto');
         }
@@ -604,44 +673,8 @@
       setTimeout(() => document.getElementById('email-input').focus(), 500);
     }
 
-    // ── Billing toggle ───────────────────────────────────────
-    const PLANS = {
-      cultura:   { m: '€5,90',  mL: '/mese', a: '€49',  aL: '/anno', aOld: 'anziché €70,80'  },
-      linguae:   { m: '€12,90', mL: '/mese', a: '€99',  aL: '/anno', aOld: 'anziché €154,80' },
-      accademia: { m: '€19,90', mL: '/mese', a: '€179', aL: '/anno', aOld: 'anziché €238,80' },
-    };
-    let annual = false;
-
-    function applyPricing() {
-      Object.entries(PLANS).forEach(([key, p]) => {
-        const amt = document.getElementById(`amt-${key}`);
-        const per = document.getElementById(`per-${key}`);
-        const old = document.getElementById(`old-${key}`);
-        if (!amt) return;
-        if (annual) {
-          amt.textContent = p.a;
-          per.textContent = p.aL;
-          old.textContent = p.aOld;
-          old.style.display = 'block';
-        } else {
-          amt.textContent = p.m;
-          per.textContent = p.mL;
-          old.style.display = 'none';
-        }
-      });
-      // Bonus Docenti: ✕ mensile → ✓ annuale
-      const bonus = document.getElementById('feat-bonus-docenti');
-      if (bonus) {
-        if (annual) { bonus.classList.remove('off'); }
-        else        { bonus.classList.add('off'); }
-      }
-      document.getElementById('tog-monthly').classList.toggle('active', !annual);
-      document.getElementById('tog-annual').classList.toggle('active',  annual);
-    }
-
-    applyPricing();
-    document.getElementById('tog-monthly').addEventListener('click', () => { if (annual)  { annual = false; applyPricing(); } });
-    document.getElementById('tog-annual').addEventListener('click',  () => { if (!annual) { annual = true;  applyPricing(); } });
+    // Prezzi mensili statici — il toggle annuale non è necessario su questa pagina
+    // I prezzi annuali vengono comunicati al momento dell'iscrizione vera e propria
   </script>
 
 </body>
