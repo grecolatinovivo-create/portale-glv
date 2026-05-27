@@ -8,8 +8,10 @@ const AUDIENCE_ID = process.env.RESEND_EARLY_ACCESS_AUDIENCE_ID;
 const MAX_SPOTS   = 100;
 
 export default async function handler(req, res) {
-  // CORS — la richiesta arriva da grecolatinovivo.it
-  res.setHeader('Access-Control-Allow-Origin', 'https://grecolatinovivo.it');
+  // CORS — accetta richieste da entrambi i domini
+  const origin = req.headers.origin || '';
+  const allowed = ['https://grecolatinovivo.it', 'https://portale.grecolatinovivo.it'];
+  if (allowed.includes(origin)) res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Cache-Control', 'no-store');
