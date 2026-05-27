@@ -1480,7 +1480,13 @@ function applyPricing() {
   });
   // Bonus Docenti: ✕ su mensile, ✓ su annuale
   const bonusFeat = document.getElementById('feat-bonus-docenti');
-  if (bonusFeat) bonusFeat.classList.toggle('off', !annual);
+  if (bonusFeat) {
+    if (annual) {
+      bonusFeat.classList.remove('off');
+    } else {
+      bonusFeat.classList.add('off');
+    }
+  }
   // Aggiorna stato tab: app.js legge tog-annual.classList.contains('active')
   tabMonthly.classList.toggle('active', !annual);
   tabAnnual.classList.toggle('active', annual);
