@@ -4162,7 +4162,12 @@ async function loadLessonResources(lessonId) {
 }
 
 
-// ── Esercizi autocorrettivi ────────────────────────────────────────────────
+// ── Helper HTML escape (usato fuori dall'IIFE ExerciseRunner) ─────────────
+function _glvEsc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Esercizi autocorrettivi — trigger card ─────────────────────────────────
 async function loadLessonExercises(lessonId) {
   const section = document.getElementById('lesson-exercises-section');
   const list    = document.getElementById('lesson-exercises-list');
@@ -4178,31 +4183,81 @@ async function loadLessonExercises(lessonId) {
     if (!tests || tests.length === 0) return;
 
     tests.forEach(test => {
-      const li = document.createElement('li');
-      li.className = 'lesson-exercise-item';
-      li.setAttribute('role', 'listitem');
+      const totalQ   = (test.sections || []).reduce((n, s) => n + (s.questions || []).length, 0);
+      const totalMin = (test.sections || []).reduce((n, s) => n + (s.timeMinutes || 0), 0);
+      const nSec     = (test.sections || []).length;
 
-      const totalQ = test.sections.reduce((n, s) => n + s.questions.length, 0);
-      const nameSpan = document.createElement('span');
-      nameSpan.className = 'lesson-exercise-name';
-      nameSpan.textContent = test.title || 'Esercizi';
+      // Meta info
+      const metaParts = [];
+      if (nSec > 1) metaParts.push(`${nSec} sezioni`);
+      metaParts.push(`${totalQ} domann${totalQ === 1 ? 'da' : 'de'}`);
+      if (totalMin > 0) metaParts.push(`≈ ${totalMin} min`);
 
-      const btn = document.createElement('button');
-      btn.className = 'lesson-exercise-btn';
-      btn.type = 'button';
-      btn.setAttribute('aria-label', `Avvia: ${test.title}`);
-      btn.textContent = `▶ ${totalQ} domande`;
+      // Card container
+      const card = document.createElement('div');
+      card.className = 'ex-test-card';
+      card.setAttribute('role', 'button');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-label', `Inizia esercizio: ${test.title || 'Esercizi'}`);
 
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        ExerciseRunner.open(test);
+      // Icon
+      const icon = document.createElement('div');
+      icon.className = 'ex-test-card-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = '📝';
+
+      // Content
+      const content = document.createElement('div');
+      content.className = 'ex-test-card-content';
+
+      const titleEl = document.createElement('div');
+      titleEl.className = 'ex-test-card-title';
+      titleEl.textContent = test.title || 'Esercizi';
+
+      const metaEl = document.createElement('div');
+      metaEl.className = 'ex-test-card-meta';
+      metaEl.textContent = metaParts.join(' · ');
+
+      content.appendChild(titleEl);
+      content.appendChild(metaEl);
+
+      // Badges
+      if (test.lingua || test.livello) {
+        const badgesEl = document.createElement('div');
+        badgesEl.className = 'ex-test-card-badges';
+        if (test.lingua) {
+          const b = document.createElement('span');
+          b.className = 'ex-badge ex-badge-lingua';
+          b.textContent = test.lingua;
+          badgesEl.appendChild(b);
+        }
+        if (test.livello) {
+          const b = document.createElement('span');
+          b.className = 'ex-badge ex-badge-livello';
+          b.textContent = test.livello;
+          badgesEl.appendChild(b);
+        }
+        content.appendChild(badgesEl);
+      }
+
+      // Start button
+      const startBtn = document.createElement('button');
+      startBtn.className = 'ex-test-start-btn';
+      startBtn.type = 'button';
+      startBtn.setAttribute('aria-label', `Inizia: ${test.title || 'Esercizi'}`);
+      startBtn.innerHTML = 'Inizia <span aria-hidden="true">▶</span>';
+
+      card.appendChild(icon);
+      card.appendChild(content);
+      card.appendChild(startBtn);
+      list.appendChild(card);
+
+      function _launch() { ExerciseRunner.open(test); }
+      startBtn.addEventListener('click', e => { e.stopPropagation(); _launch(); });
+      card.addEventListener('click', _launch);
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); _launch(); }
       });
-      li.addEventListener('click', () => ExerciseRunner.open(test));
-
-      li.appendChild(document.createTextNode('📝 '));
-      li.appendChild(nameSpan);
-      li.appendChild(btn);
-      list.appendChild(li);
     });
 
     section.style.display = 'block';
@@ -4214,14 +4269,16 @@ async function loadLessonExercises(lessonId) {
 // ══ ExerciseRunner ════════════════════════════════════════════════════════
 const ExerciseRunner = (() => {
   // Stato interno
-  let _test       = null;   // test corrente
-  let _questions  = [];     // lista piatta delle domande {q, sectionName}
-  let _idx        = 0;      // indice domanda corrente
-  let _score      = 0;      // risposte corrette (tipi autocorrettivi)
-  let _skipped    = 0;      // risposte aperte / saltate
-  let _answered   = 0;      // risposte date
-  let _dragTarget = null;   // drop target attivo (ClozeDragDrop)
-  let _matchSel   = null;   // elemento selezionato in Abbinamento (lato sinistro)
+  let _test                  = null;   // test corrente
+  let _questions             = [];     // lista piatta delle domande {q, sectionName, secIdx}
+  let _idx                   = 0;      // indice domanda corrente
+  let _score                 = 0;      // risposte corrette (tipi autocorrettivi)
+  let _skipped               = 0;      // risposte aperte / saltate
+  let _answered              = 0;      // risposte date
+  let _dragTarget            = null;   // drop target attivo (ClozeDragDrop)
+  let _matchSel              = null;   // elemento selezionato in Abbinamento (lato sinistro)
+  let _sectionBoundaries     = new Set(); // indici dove inizia una nuova sezione
+  let _origSectionBoundaries = new Set(); // copia per il retry
 
   const _runner  = () => document.getElementById('glv-exercise-runner');
   const _card    = () => document.getElementById('ex-card');
@@ -4235,13 +4292,21 @@ const ExerciseRunner = (() => {
     _questions = [];
     _idx = _score = _skipped = _answered = 0;
     _dragTarget = _matchSel = null;
+    _sectionBoundaries = new Set();
 
-    // Appiattisce sezioni → domande
-    (test.sections || []).forEach(sec => {
+    // Appiattisce sezioni → domande, calcola i boundary di sezione
+    let qIdx = 0;
+    (test.sections || []).forEach((sec, secIdx) => {
+      if ((sec.questions || []).length > 0) {
+        _sectionBoundaries.add(qIdx); // il primo idx di questa sezione
+      }
       (sec.questions || []).forEach(q => {
-        _questions.push({ q, sectionName: sec.name || '' });
+        _questions.push({ q, sectionName: sec.name || '', secIdx });
+        qIdx++;
       });
     });
+    // Salva copia per retry
+    _origSectionBoundaries = new Set(_sectionBoundaries);
 
     if (_questions.length === 0) return;
 
@@ -4249,7 +4314,7 @@ const ExerciseRunner = (() => {
     _runner().classList.remove('hidden');
     _runner().removeAttribute('aria-hidden');
     document.body.style.overflow = 'hidden';
-    _renderQuestion();
+    _showIntro(); // Sempre: mostra schermata intro prima di iniziare
   }
 
   function close() {
@@ -4268,6 +4333,15 @@ const ExerciseRunner = (() => {
 
   function _renderQuestion() {
     if (_idx >= _questions.length) { _showResults(); return; }
+
+    // Transizione di sezione (solo per test con più sezioni)
+    if ((_test.sections || []).length > 1 && _sectionBoundaries.has(_idx)) {
+      _sectionBoundaries.delete(_idx); // consuma: non mostrarla di nuovo
+      const { sectionName, secIdx } = _questions[_idx];
+      _showSectionIntro(sectionName, secIdx + 1, (_test.sections || []).length);
+      return; // L'utente clicca "Continua" → richiama _renderQuestion
+    }
+
     _updateProgress();
     const { q, sectionName } = _questions[_idx];
     const card = _card();
@@ -4860,6 +4934,152 @@ const ExerciseRunner = (() => {
   }
 
   // ── Schermata risultati ──────────────────────────────────────────────
+  // ── Schermata intro — mostrata prima della prima domanda ─────────────
+  function _showIntro() {
+    const card = _card();
+    card.innerHTML = '';
+
+    const totalQ   = _questions.length;
+    const totalMin = (_test.sections || []).reduce((n, s) => n + (s.timeMinutes || 0), 0);
+    const sections = _test.sections || [];
+    const nSec     = sections.length;
+
+    const intro = document.createElement('div');
+    intro.className = 'ex-intro';
+
+    // Icona
+    const iconEl = document.createElement('div');
+    iconEl.className = 'ex-intro-icon';
+    iconEl.setAttribute('aria-hidden', 'true');
+    iconEl.textContent = '📝';
+    intro.appendChild(iconEl);
+
+    // Titolo
+    const titleEl = document.createElement('h2');
+    titleEl.className = 'ex-intro-title';
+    titleEl.textContent = _test.title || 'Esercizi';
+    intro.appendChild(titleEl);
+
+    // Descrizione (se presente)
+    if (_test.description) {
+      const descEl = document.createElement('p');
+      descEl.className = 'ex-intro-desc';
+      descEl.textContent = _test.description;
+      intro.appendChild(descEl);
+    }
+
+    // Statistiche
+    const statsEl = document.createElement('div');
+    statsEl.className = 'ex-intro-stats';
+    statsEl.innerHTML =
+      `<div class="ex-intro-stat"><strong>${totalQ}</strong><span>domann${totalQ === 1 ? 'da' : 'de'}</span></div>` +
+      (nSec > 1 ? `<div class="ex-intro-stat"><strong>${nSec}</strong><span>sezioni</span></div>` : '') +
+      (totalMin > 0 ? `<div class="ex-intro-stat"><strong>≈${totalMin}</strong><span>minuti</span></div>` : '');
+    intro.appendChild(statsEl);
+
+    // Lista sezioni (solo se più di una)
+    if (nSec > 1) {
+      const secList = document.createElement('div');
+      secList.className = 'ex-intro-sections';
+      sections.forEach((sec, i) => {
+        const qCount = (sec.questions || []).length;
+        const mins   = sec.timeMinutes || 0;
+        const row = document.createElement('div');
+        row.className = 'ex-intro-section-row';
+        const numEl = document.createElement('div');
+        numEl.className = 'ex-intro-sec-num';
+        numEl.textContent = i + 1;
+        const infoEl = document.createElement('div');
+        infoEl.className = 'ex-intro-sec-info';
+        const nameEl = document.createElement('div');
+        nameEl.className = 'ex-intro-sec-name';
+        nameEl.textContent = sec.name || `Sezione ${i + 1}`;
+        const metaEl = document.createElement('div');
+        metaEl.className = 'ex-intro-sec-meta';
+        metaEl.textContent = `${qCount} domann${qCount === 1 ? 'da' : 'de'}` + (mins ? ` · ${mins} min` : '');
+        infoEl.appendChild(nameEl);
+        infoEl.appendChild(metaEl);
+        row.appendChild(numEl);
+        row.appendChild(infoEl);
+        secList.appendChild(row);
+      });
+      intro.appendChild(secList);
+    }
+
+    // Badges lingua/livello
+    if (_test.lingua || _test.livello) {
+      const badgeRow = document.createElement('div');
+      badgeRow.className = 'ex-intro-badges';
+      if (_test.lingua) {
+        const b = document.createElement('span');
+        b.className = 'ex-badge ex-badge-lingua';
+        b.textContent = _test.lingua;
+        badgeRow.appendChild(b);
+      }
+      if (_test.livello) {
+        const b = document.createElement('span');
+        b.className = 'ex-badge ex-badge-livello';
+        b.textContent = _test.livello;
+        badgeRow.appendChild(b);
+      }
+      intro.appendChild(badgeRow);
+    }
+
+    // Bottone start
+    const startBtn = document.createElement('button');
+    startBtn.className = 'ex-btn-primary ex-intro-start';
+    startBtn.type = 'button';
+    startBtn.innerHTML = 'Inizia l\'esercizio <span aria-hidden="true">▶</span>';
+    startBtn.addEventListener('click', () => {
+      if (_progFill()) _progFill().style.width = '0%';
+      if (_progLbl())  _progLbl().textContent = `0/${_questions.length}`;
+      _renderQuestion();
+    });
+    intro.appendChild(startBtn);
+
+    card.appendChild(intro);
+
+    // Progress bar resettata su 0 durante intro
+    if (_progFill()) _progFill().style.width = '0%';
+    if (_progLbl())  _progLbl().textContent = `0/${_questions.length}`;
+  }
+
+  // ── Transizione di sezione ────────────────────────────────────────────
+  function _showSectionIntro(sectionName, secNum, totalSec) {
+    const card = _card();
+    card.innerHTML = '';
+
+    const wrap = document.createElement('div');
+    wrap.className = 'ex-section-transition';
+
+    const numEl = document.createElement('div');
+    numEl.className = 'ex-section-transition-num';
+    numEl.textContent = `Sezione ${secNum} di ${totalSec}`;
+
+    const nameEl = document.createElement('h3');
+    nameEl.className = 'ex-section-transition-name';
+    nameEl.textContent = sectionName || `Sezione ${secNum}`;
+
+    // Quante domande in questa sezione
+    const qInSection = _questions.filter(item => item.secIdx === (secNum - 1)).length;
+    const metaEl = document.createElement('div');
+    metaEl.className = 'ex-section-transition-meta';
+    metaEl.textContent = `${qInSection} domann${qInSection === 1 ? 'da' : 'de'}`;
+
+    const contBtn = document.createElement('button');
+    contBtn.className = 'ex-btn-primary';
+    contBtn.type = 'button';
+    contBtn.textContent = 'Continua →';
+    contBtn.addEventListener('click', () => _renderQuestion());
+
+    wrap.appendChild(numEl);
+    wrap.appendChild(nameEl);
+    wrap.appendChild(metaEl);
+    wrap.appendChild(contBtn);
+    card.appendChild(wrap);
+  }
+
+  // ── Schermata risultati ───────────────────────────────────────────────
   function _showResults() {
     const card = _card();
     card.innerHTML = '';
@@ -4867,11 +5087,22 @@ const ExerciseRunner = (() => {
     const autoQ = _questions.filter(({ q }) => q.questionType !== 'RispostaAperta').length;
     const pct   = autoQ > 0 ? Math.round((_score / autoQ) * 100) : 0;
 
+    // Voto + messaggio motivazionale
+    let emoji, grade, msg;
+    if (pct >= 90)      { emoji = '🏆'; grade = 'Eccellente'; msg = 'Ottima padronanza del materiale!'; }
+    else if (pct >= 75) { emoji = '⭐'; grade = 'Molto bene'; msg = 'Risultato solido, continua così.'; }
+    else if (pct >= 60) { emoji = '👍'; grade = 'Buono';       msg = 'Buon lavoro, puoi ancora migliorare.'; }
+    else if (pct >= 40) { emoji = '📚'; grade = 'Sufficiente'; msg = 'Ripassate gli argomenti e riprova.'; }
+    else                { emoji = '🔄'; grade = 'Da rivedere'; msg = 'Riprova dopo aver ristudiate le lezioni.'; }
+
     const results = document.createElement('div');
     results.className = 'ex-results';
+
     results.innerHTML = `
-      <div class="ex-results-score">${pct}%</div>
-      <div class="ex-results-label">Esercizio completato${_test?.title ? ': ' + _escapeHtml(_test.title) : ''}</div>
+      <div class="ex-results-emoji" aria-hidden="true">${emoji}</div>
+      <div class="ex-results-score">${pct}<span class="ex-results-pct">%</span></div>
+      <div class="ex-results-grade">${_escapeHtml(grade)}</div>
+      <p class="ex-results-msg">${_escapeHtml(msg)}</p>
       <div class="ex-results-breakdown">
         <div class="ex-results-stat">
           <div class="ex-results-stat-n c">${_score}</div>
@@ -4888,15 +5119,17 @@ const ExerciseRunner = (() => {
       </div>`;
 
     const actionsDiv = document.createElement('div');
-    actionsDiv.style.cssText = 'display:flex;gap:12px;justify-content:center;flex-wrap:wrap;';
+    actionsDiv.className = 'ex-results-actions';
 
     const retryBtn = document.createElement('button');
     retryBtn.className = 'ex-btn-secondary';
     retryBtn.type = 'button';
-    retryBtn.textContent = '↺ Riprova';
+    retryBtn.innerHTML = '↺ Riprova';
     retryBtn.addEventListener('click', () => {
       _idx = _score = _skipped = _answered = 0;
-      _renderQuestion();
+      _dragTarget = _matchSel = null;
+      _sectionBoundaries = new Set(_origSectionBoundaries); // ripristina boundary
+      _showIntro(); // torna all'intro, non direttamente alle domande
     });
 
     const closeBtn = document.createElement('button');
