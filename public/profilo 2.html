@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Il mio profilo — GrecoLatinoVivo</title>
+  <link rel="icon" href="/resources/glv-favicon.ico"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/style.css"/>
+  <style>
+    :root {
+      --bordeaux: #a01a36;
+      --gold:     #c9962a;
+      --gold-lt:  #e8c875;
+    }
+    body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; }
+
+    /* ── Layout pagina ── */
+    .prf-page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: calc(64px + 40px) 24px 80px;
+    }
+
+    /* ── Header ── */
+    .prf-header { margin-bottom: 36px; }
+    .prf-header h1 {
+      font-family: var(--font-heading);
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 6px;
+    }
+    .prf-header p { color: var(--text-secondary); font-size: .9rem; margin: 0; }
+
+    /* ── Grid 2 colonne ── */
+    .prf-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 720px) {
+      .prf-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Card base ── */
+    .prf-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .prf-card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .prf-card-body { padding: 24px 20px; }
+
+    /* ── Avatar ── */
+    .prf-avatar-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+    .prf-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold) 0%, #7b0d1e 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-heading); font-size: 2rem; font-weight: 700;
+      color: #fff;
+    }
+    .prf-fullname {
+      font-size: 1.05rem; font-weight: 600; color: var(--text-primary);
+      margin: 0;
+    }
+    .prf-email-text {
+      font-size: .82rem; color: var(--text-muted);
+      margin: 2px 0 0;
+    }
+    .prf-plan-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: .72rem; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      background: rgba(201,150,42,.12);
+      color: var(--gold);
+      border: 1px solid rgba(201,150,42,.25);
+    }
+    .prf-plan-badge.admin { background: rgba(201,150,42,.18); border-color: rgba(201,150,42,.5); }
+
+    /* ── Sezione info ── */
+    .prf-info-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      font-size: .88rem;
+    }
+    .prf-info-row:last-child { border-bottom: none; }
+    .prf-info-label { color: var(--text-muted); }
+    .prf-info-value { color: var(--text-primary); font-weight: 500; text-align: right; }
+
+    /* ── Azioni profilo ── */
+    .prf-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
+    .prf-btn {
+      display: block; width: 100%;
+      padding: 11px 16px;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: .84rem; font-weight: 600;
+      cursor: pointer; text-align: center;
+      border: none; text-decoration: none;
+      transition: background .2s, border-color .2s, opacity .2s;
+    }
+    .prf-btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+    .prf-btn-secondary:hover { border-color: rgba(245,245,245,.35); color: var(--text-primary); }
+    .prf-btn-danger {
+      background: transparent;
+      border: 1px solid rgba(160,26,54,.5);
+      color: #f5a0ae;
+    }
+    .prf-btn-danger:hover { background: rgba(160,26,54,.1); border-color: rgba(160,26,54,.8); }
+    .prf-btn-primary {
+      background: var(--gold);
+      color: #0a0a0a;
+    }
+    .prf-btn-primary:hover { background: var(--gold-lt); }
+    .prf-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Stato piano ── */
+    .prf-plan-box {
+      background: rgba(255,255,255,.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .prf-plan-box.admin { border-color: rgba(201,150,42,.3); background: rgba(201,150,42,.04); }
+    .prf-plan-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .prf-plan-label.admin { color: rgba(201,150,42,.7); }
+    .prf-plan-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .prf-plan-renew { font-size: .8rem; color: var(--text-muted); margin-top: 5px; }
+    .prf-plan-renew strong { color: rgba(245,245,245,.75); }
+
+    /* ── Feature list ── */
+    .prf-features-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--text-muted);
+      margin: 0 0 10px;
+    }
+    .prf-features-list { list-style: none; padding: 0; margin: 0 0 20px; }
+    .prf-feat-item {
+      display: flex; align-items: baseline; gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      font-size: .84rem; line-height: 1.4;
+    }
+    .prf-feat-item:last-child { border-bottom: none; }
+    .prf-feat-icon {
+      flex-shrink: 0; width: 14px;
+      font-size: .72rem; font-weight: 700;
+    }
+    .prf-feat-icon.on  { color: #6fcf97; }
+    .prf-feat-icon.off { color: rgba(245,245,245,.2); }
+    .prf-feat-text.on  { color: rgba(245,245,245,.82); }
+    .prf-feat-text.off { color: rgba(245,245,245,.3); }
+    .prf-feat-hint {
+      font-size: .7rem; color: rgba(245,245,245,.22);
+      margin-left: 4px;
+    }
+    .prf-feat-badge {
+      font-size: .65rem;
+      background: rgba(201,150,42,.12);
+      color: var(--gold);
+      border: 1px solid rgba(201,150,42,.25);
+      border-radius: 3px;
+      padding: 1px 5px;
+      margin-left: 5px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    /* ── Nudge annuale ── */
+    .prf-annual-nudge {
+      display: flex; align-items: center; gap: 12px;
+      background: rgba(201,150,42,.06);
+      border: 1px solid rgba(201,150,42,.2);
+      border-radius: 8px;
+      padding: 13px 16px;
+      margin-bottom: 18px;
+    }
+    .prf-annual-nudge-icon { font-size: 1.2rem; flex-shrink: 0; }
+    .prf-annual-nudge-text { flex: 1; font-size: .82rem; color: rgba(245,245,245,.6); line-height: 1.5; }
+    .prf-annual-nudge-text strong { color: var(--gold); }
+
+    /* ── Sezione cambio piano ── */
+    .prf-change-section { margin-bottom: 20px; }
+    .prf-change-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(245,245,245,.3);
+      margin: 0 0 10px;
+    }
+    .prf-change-list { display: flex; flex-direction: column; gap: 8px; }
+    .prf-change-btn {
+      display: flex; justify-content: space-between; align-items: center;
+      width: 100%;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(201,150,42,.3);
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: .84rem; font-weight: 600;
+      color: var(--gold);
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .prf-change-btn:hover { background: rgba(201,150,42,.1); border-color: rgba(201,150,42,.6); }
+    .prf-change-btn.downgrade {
+      border-color: rgba(245,245,245,.15);
+      color: rgba(245,245,245,.5);
+    }
+    .prf-change-btn.downgrade:hover { background: rgba(255,255,255,.04); border-color: rgba(245,245,245,.3); color: rgba(245,245,245,.75); }
+    .prf-change-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .prf-change-price { font-weight: 400; color: rgba(201,150,42,.65); font-size: .8rem; }
+    .prf-change-btn.downgrade .prf-change-price { color: rgba(245,245,245,.3); }
+
+    /* ── Separator ── */
+    .prf-sep { height: 1px; background: var(--border); margin: 20px 0; }
+
+    /* ── Stato annullato ── */
+    .prf-canceled-notice {
+      background: rgba(245,160,174,.06);
+      border: 1px solid rgba(245,160,174,.2);
+      border-radius: 8px;
+      padding: 13px 16px;
+      font-size: .84rem; color: rgba(245,245,245,.65);
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+    .prf-canceled-notice strong { color: #f5a0ae; }
+
+    /* ── Toast ── */
+    .prf-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      background: #1e1e1e; border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: 12px 20px;
+      font-size: .84rem; color: var(--text-primary);
+      box-shadow: 0 4px 24px rgba(0,0,0,.6);
+      z-index: 999;
+      opacity: 0; transition: opacity .3s;
+      white-space: nowrap;
+    }
+    .prf-toast.show { opacity: 1; }
+    .prf-toast.success { border-color: rgba(111,207,151,.3); }
+    .prf-toast.error   { border-color: rgba(245,160,174,.3); }
+
+    /* ── Loading skeleton ── */
+    .prf-skeleton {
+      background: rgba(255,255,255,.06);
+      border-radius: 4px;
+      animation: prf-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes prf-pulse {
+      0%, 100% { opacity: .4; }
+      50%       { opacity: .8; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navbar (identica a dashboard) ── -->
+  <nav class="glv-nav" id="prf-glv-nav" role="navigation" aria-label="Navigazione principale">
+    <div class="nav-inner">
+      <a href="/dashboard.html" class="nav-logo" aria-label="GrecoLatinoVivo — torna alla dashboard">
+        <div class="nav-logo-icon">ΓΛ</div>
+        <div>
+          <div class="nav-logo-name">Centro Nazionale di Studi Classici</div>
+          <div class="nav-logo-sub">GrecoLatinoVivo</div>
+        </div>
+      </a>
+      <div class="nav-links" id="prfNavLinks">
+        <a href="/index.html#prezzi" id="prf-nav-abbonamento">Abbonamento</a>
+        <a href="/dashboard.html">I miei corsi</a>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-plan-badge" id="prf-nav-plan-badge" style="display:none;">—</span>
+        <div class="nav-profile-dropdown">
+          <div class="nav-avatar" id="prf-nav-avatar" role="button" tabindex="0"
+               aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
+               onclick="togglePrfMenu()">U</div>
+          <div class="nav-dropdown-menu" id="prf-profile-menu" role="menu">
+            <div id="prf-menu-email"
+                 style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;padding:10px 16px;">—</div>
+            <a class="nav-dropdown-item" role="menuitem" href="/profilo.html"
+               style="text-decoration:none;display:block;color:inherit;font-weight:600;">Profilo &amp; abbonamento</a>
+            <a class="nav-dropdown-item" role="menuitem" href="/attestati.html"
+               style="text-decoration:none;display:block;">I miei attestati</a>
+            <!-- Sezione admin — visibile solo se iniettata da JS -->
+            <div id="prf-admin-tier-group" style="display:none">
+              <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+              <a class="nav-dropdown-item" role="menuitem" href="/admin.html"
+                 style="text-decoration:none;display:block;color:#c9962a;font-weight:600;">
+                ⚙️ Pannello admin
+              </a>
+              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;">
+                Anteprima piano
+              </div>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Cultura</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Linguae</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Accademia</button>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+            <button class="nav-dropdown-item danger" role="menuitem" id="prf-nav-logout">Esci dall'account</button>
+          </div>
+        </div>
+        <button class="nav-hamburger" id="prfNavToggle" aria-label="Menu"
+                aria-expanded="false" aria-controls="prfNavLinks"
+                onclick="const l=document.getElementById('prfNavLinks');l.classList.toggle('open');this.setAttribute('aria-expanded',l.classList.contains('open'))">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── Contenuto principale ── -->
+  <main id="main-content" class="prf-page">
+
+    <div class="prf-header">
+      <h1>Il mio profilo</h1>
+      <p>Gestisci il tuo account e il tuo abbonamento.</p>
+    </div>
+
+    <div class="prf-grid">
+
+      <!-- ── Colonna sinistra: profilo ── -->
+      <div>
+        <div class="prf-card" id="profile-card">
+          <div class="prf-card-header">Profilo</div>
+          <div class="prf-card-body">
+            <div class="prf-avatar-wrap">
+              <div class="prf-avatar" id="prf-avatar" aria-hidden="true">U</div>
+              <div>
+                <p class="prf-fullname" id="prf-fullname">—</p>
+                <p class="prf-email-text" id="prf-email">—</p>
+                <span class="prf-plan-badge" id="prf-plan-badge">—</span>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px;">
+              <div class="prf-info-row">
+                <span class="prf-info-label">Email</span>
+                <span class="prf-info-value" id="prf-info-email">—</span>
+              </div>
+              <div class="prf-info-row">
+                <span class="prf-info-label">Piano</span>
+                <span class="prf-info-value" id="prf-info-piano">—</span>
+              </div>
+              <div class="prf-info-row" id="prf-row-rinnovo" style="display:none;">
+                <span class="prf-info-label">Prossimo rinnovo</span>
+                <span class="prf-info-value" id="prf-info-rinnovo">—</span>
+              </div>
+              <div class="prf-info-row" id="prf-row-scadenza" style="display:none;">
+                <span class="prf-info-label">Accesso attivo fino al</span>
+                <span class="prf-info-value" id="prf-info-scadenza" style="color:#f5a0ae;">—</span>
+              </div>
+            </div>
+
+            <div class="prf-actions">
+              <a href="/dashboard.html" class="prf-btn prf-btn-secondary">
+                ← I miei corsi
+              </a>
+              <button class="prf-btn prf-btn-danger" id="prf-logout-btn" type="button">
+                Esci dall'account
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Colonna destra: abbonamento ── -->
+      <div>
+        <div class="prf-card">
+          <div class="prf-card-header">Abbonamento</div>
+          <div class="prf-card-body" id="sub-body">
+            <!-- Contenuto iniettato da JS -->
+            <div class="prf-skeleton" style="height:80px;border-radius:8px;margin-bottom:16px;"></div>
+            <div class="prf-skeleton" style="height:16px;width:60%;margin-bottom:20px;"></div>
+            <div class="prf-skeleton" style="height:260px;border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.prf-grid -->
+
+  </main><!-- /main -->
+
+  <!-- Toast notifiche -->
+  <div class="prf-toast" id="prf-toast" role="alert" aria-live="polite"></div>
+
+  <script>
+  /* ── Utilità ── */
+  function esc(s) {
+    return String(s || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function fmt(iso) {
+    return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' });
+  }
+  function showToast(msg, type) {
+    const t = document.getElementById('prf-toast');
+    t.textContent = msg;
+    t.className = 'prf-toast show ' + (type || '');
+    clearTimeout(t._tid);
+    t._tid = setTimeout(() => t.classList.remove('show'), 3800);
+  }
+
+  /* ── Toggle menu navbar ── */
+  function togglePrfMenu() {
+    const menu   = document.getElementById('prf-profile-menu');
+    const avatar = document.getElementById('prf-nav-avatar');
+    const isOpen = menu.classList.toggle('open');
+    avatar.setAttribute('aria-expanded', isOpen);
+  }
+  document.addEventListener('click', e => {
+    const dropdown = document.querySelector('.nav-profile-dropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      document.getElementById('prf-profile-menu')?.classList.remove('open');
+      document.getElementById('prf-nav-avatar')?.setAttribute('aria-expanded','false');
+    }
+  });
+
+  /* ── Feature matrix ── */
+  const ALL_FEATURES = [
+    { text: 'Corsi Brevi di cultura classica',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Webinar asincroni',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Attestati digitali riconosciuti MIM',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Corsi di lingua: Latino, Greco, Egiziano, Ebraico',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Magistro AI — tutor contestuale e quiz generativi',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Test autocorrettivi per ogni lezione',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Certificazione linguistica di Latino e Greco',
+      plans: ['linguae-annuale','accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Linguae Annuale' },
+    { text: 'Formazione docenti — accredito MIM',
+      plans: ['accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Accademia' },
+    { text: 'Corsi specialistici mensili (docenti e ricercatori univ.)',
+      plans: ['accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Accademia' },
+    { text: 'Batterie di test per la classe',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+    { text: 'Live mensile con i docenti (1 ora)',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+    { text: 'Pagamento con Bonus Docenti',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+  ];
+
+  function buildFeatureList(planId) {
+    const items = ALL_FEATURES.map(f => {
+      const active = f.plans.includes(planId);
+      let badge = '';
+      if (f.annualOnly && !active) {
+        badge = `<span class="prf-feat-badge">solo annuale</span>`;
+      }
+      const hint = !active && f.upgradeLabel
+        ? `<span class="prf-feat-hint">→ ${esc(f.upgradeLabel)}</span>`
+        : '';
+      return `<li class="prf-feat-item">
+        <span class="prf-feat-icon ${active?'on':'off'}">${active?'✓':'✗'}</span>
+        <span class="prf-feat-text ${active?'on':'off'}">${esc(f.text)}${badge}${hint}</span>
+      </li>`;
+    }).join('');
+    return `<ul class="prf-features-list">${items}</ul>`;
+  }
+
+  /* ── Etichette piani ── */
+  const PLAN_LABELS = {
+    'cultura-mensile':   'Cultura — €5,90/mese',
+    'cultura-annuale':   'Cultura — €49/anno',
+    'linguae-mensile':   'Linguae — €12,90/mese',
+    'linguae-annuale':   'Linguae — €99/anno',
+    'accademia-mensile': 'Accademia — €19,90/mese',
+    'accademia-annuale': 'Accademia — €179/anno',
+  };
+  const PLAN_BADGE_LABELS = {
+    'cultura-mensile':   'Cultura',   'cultura-annuale':   'Cultura',
+    'linguae-mensile':   'Linguae',   'linguae-annuale':   'Linguae',
+    'accademia-mensile': 'Accademia', 'accademia-annuale': 'Accademia',
+  };
+
+  /* ── Opzioni upgrade (tier superiore) ── */
+  const UPGRADE_OPTIONS = {
+    'cultura-mensile':   [
+      { planId:'linguae-mensile',   label:'Linguae',   price:'€12,90/mese', configKey:'linguae_monthly'   },
+      { planId:'accademia-mensile', label:'Accademia', price:'€19,90/mese', configKey:'accademia_monthly' },
+    ],
+    'cultura-annuale':   [
+      { planId:'linguae-annuale',   label:'Linguae',   price:'€99/anno',    configKey:'linguae_annual'    },
+      { planId:'accademia-annuale', label:'Accademia', price:'€179/anno',   configKey:'accademia_annual'  },
+    ],
+    'linguae-mensile':   [
+      { planId:'accademia-mensile', label:'Accademia', price:'€19,90/mese', configKey:'accademia_monthly' },
+    ],
+    'linguae-annuale':   [
+      { planId:'accademia-annuale', label:'Accademia', price:'€179/anno',   configKey:'accademia_annual'  },
+    ],
+    'accademia-mensile': [],
+    'accademia-annuale': [],
+  };
+
+  /* ── Opzioni downgrade (tier inferiore) ── */
+  const DOWNGRADE_OPTIONS = {
+    'cultura-mensile':   [],
+    'cultura-annuale':   [],
+    'linguae-mensile':   [
+      { planId:'cultura-mensile',   label:'Cultura',   price:'€5,90/mese',  configKey:'cultura_monthly'   },
+    ],
+    'linguae-annuale':   [
+      { planId:'cultura-annuale',   label:'Cultura',   price:'€49/anno',    configKey:'cultura_annual'    },
+    ],
+    'accademia-mensile': [
+      { planId:'linguae-mensile',   label:'Linguae',   price:'€12,90/mese', configKey:'linguae_monthly'   },
+      { planId:'cultura-mensile',   label:'Cultura',   price:'€5,90/mese',  configKey:'cultura_monthly'   },
+    ],
+    'accademia-annuale': [
+      { planId:'linguae-annuale',   label:'Linguae',   price:'€99/anno',    configKey:'linguae_annual'    },
+      { planId:'cultura-annuale',   label:'Cultura',   price:'€49/anno',    configKey:'cultura_annual'    },
+    ],
+  };
+
+  /* ── Render sezione abbonamento ── */
+  function renderSubBody(sub, isAdmin) {
+    const body = document.getElementById('sub-body');
+
+    if (isAdmin) {
+      body.innerHTML = `
+        <div class="prf-plan-box admin">
+          <div class="prf-plan-label admin">Account amministratore</div>
+          <div class="prf-plan-name">Accademia Annuale</div>
+          <div class="prf-plan-renew">Accesso completo a tutte le funzionalità.</div>
+        </div>
+        <p class="prf-features-title">Cosa include il tuo piano</p>
+        ${buildFeatureList('accademia-annuale')}`;
+      return;
+    }
+
+    if (!sub) {
+      body.innerHTML = `
+        <div class="prf-plan-box" style="text-align:center;padding:28px;">
+          <div style="font-size:2rem;margin-bottom:12px;">📦</div>
+          <div style="font-size:.95rem;font-weight:600;color:var(--text-primary);margin-bottom:8px;">Nessun abbonamento attivo</div>
+          <div style="font-size:.84rem;color:var(--text-muted);margin-bottom:20px;">Scegli un piano per accedere al catalogo completo.</div>
+          <a href="/index.html#prezzi" class="prf-btn prf-btn-primary" style="display:inline-block;max-width:220px;">
+            Scopri i piani →
+          </a>
+        </div>`;
+      return;
+    }
+
+    const planLabel  = PLAN_LABELS[sub.plan] || esc(sub.plan);
+    const dateLabel  = fmt(sub.currentPeriodEnd);
+    const isAnnual   = sub.plan?.includes('annuale');
+    const upgrades   = UPGRADE_OPTIONS[sub.plan]   || [];
+    const downgrades = DOWNGRADE_OPTIONS[sub.plan] || [];
+
+    /* Nudge annuale */
+    const annualNudge = !isAnnual ? `
+      <div class="prf-annual-nudge">
+        <span class="prf-annual-nudge-icon">⭐</span>
+        <div class="prf-annual-nudge-text">
+          <strong>Passa all'annuale</strong> — risparmi il 30% e sblocchi le funzionalità
+          <em>solo annuale</em>.
+        </div>
+      </div>` : '';
+
+    /* Stato abbonamento */
+    let statusBlock;
+    if (sub.cancelAtPeriodEnd) {
+      statusBlock = `
+        <div class="prf-canceled-notice">
+          Il tuo abbonamento è stato annullato.<br>
+          Hai accesso completo fino al <strong>${esc(dateLabel)}</strong>.
+        </div>
+        <a href="/index.html#prezzi" class="prf-btn prf-btn-primary" style="display:block;margin-bottom:20px;">
+          Riattiva abbonamento →
+        </a>`;
+    } else {
+      /* Pulsanti upgrade */
+      const upgradeBlock = upgrades.length ? `
+        <div class="prf-change-section">
+          <p class="prf-change-title">Upgrade piano</p>
+          <div class="prf-change-list">
+            ${upgrades.map(u => `
+              <button class="prf-change-btn"
+                data-plan-id="${esc(u.planId)}" data-config-key="${esc(u.configKey)}"
+                data-label="${esc(u.label)}" data-direction="upgrade" type="button">
+                <span>Passa a ${esc(u.label)}</span>
+                <span class="prf-change-price">${esc(u.price)}</span>
+              </button>`).join('')}
+          </div>
+          <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:8px 0 0;line-height:1.5;">
+            Cambio immediato. Paghi solo la differenza proporzionale al periodo rimanente.
+          </p>
+        </div>` : '';
+
+      /* Pulsanti downgrade */
+      const downgradeBlock = downgrades.length ? `
+        <div class="prf-change-section" style="margin-top:${upgrades.length?'0':'0'}">
+          <p class="prf-change-title">Downgrade piano</p>
+          <div class="prf-change-list">
+            ${downgrades.map(d => `
+              <button class="prf-change-btn downgrade"
+                data-plan-id="${esc(d.planId)}" data-config-key="${esc(d.configKey)}"
+                data-label="${esc(d.label)}" data-direction="downgrade" type="button">
+                <span>Passa a ${esc(d.label)}</span>
+                <span class="prf-change-price">${esc(d.price)}</span>
+              </button>`).join('')}
+          </div>
+          <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:8px 0 0;line-height:1.5;">
+            Il downgrade è attivo dal prossimo ciclo di fatturazione.
+          </p>
+        </div>` : '';
+
+      statusBlock = `
+        ${upgradeBlock}
+        ${downgradeBlock}
+        <div class="prf-sep"></div>
+        <button class="prf-btn prf-btn-danger" id="prf-cancel-btn" type="button">
+          Annulla abbonamento
+        </button>
+        <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:8px 0 0;line-height:1.5;">
+          Continuerai ad avere accesso fino al ${esc(dateLabel)}.
+        </p>`;
+    }
+
+    body.innerHTML = `
+      <div class="prf-plan-box">
+        <div class="prf-plan-label">Piano attivo</div>
+        <div class="prf-plan-name">${esc(planLabel)}</div>
+        ${sub.cancelAtPeriodEnd
+          ? `<div class="prf-plan-renew" style="color:#f5a0ae;">Scade il <strong>${esc(dateLabel)}</strong></div>`
+          : `<div class="prf-plan-renew">Si rinnova il <strong>${esc(dateLabel)}</strong></div>`}
+      </div>
+      ${annualNudge}
+      <p class="prf-features-title">Cosa include il tuo piano</p>
+      ${buildFeatureList(sub.plan)}
+      ${statusBlock}`;
+
+    /* Event: pulsanti cambio piano (upgrade + downgrade) */
+    document.querySelectorAll('.prf-change-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleChangePlan(btn));
+    });
+
+    /* Event: cancel */
+    const cancelBtn = document.getElementById('prf-cancel-btn');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => handleCancel(sub, dateLabel));
+    }
+  }
+
+  /* ── Cambio piano (upgrade o downgrade) ── */
+  async function handleChangePlan(btn) {
+    const planId    = btn.dataset.planId;
+    const configKey = btn.dataset.configKey;
+    const label     = btn.dataset.label;
+    const direction = btn.dataset.direction;
+
+    const confirmMsg = direction === 'downgrade'
+      ? `Confermi il passaggio a ${label}?\n\nAttenzione: perderai le funzionalità non incluse in questo piano. Il cambio sarà attivo dal prossimo ciclo.`
+      : `Confermi il passaggio al piano ${label}?\n\nPagherai solo la differenza proporzionale al periodo rimanente.`;
+
+    if (!confirm(confirmMsg)) return;
+
+    btn.disabled = true;
+    btn.querySelectorAll('span')[0].textContent = 'Elaborazione…';
+
+    let priceId;
+    try {
+      const cfgRes = await fetch('/api/config/prices');
+      const cfg    = await cfgRes.json();
+      priceId = cfg[configKey] || null;
+    } catch { priceId = null; }
+
+    if (!priceId) {
+      btn.disabled = false;
+      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+      showToast('Errore: prezzo non disponibile. Riprova.', 'error');
+      return;
+    }
+
+    try {
+      const r    = await fetch('/api/stripe/upgrade-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ priceId }),
+      });
+      const resp = await r.json();
+      if (r.ok && resp.ok) {
+        showToast(direction === 'downgrade'
+          ? '✓ Piano aggiornato. Cambio attivo dal prossimo ciclo.'
+          : '✓ Piano aggiornato con successo!', 'success');
+        setTimeout(() => location.reload(), 1800);
+      } else {
+        btn.disabled = false;
+        btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+        showToast(resp.error || 'Errore durante il cambio piano. Riprova.', 'error');
+      }
+    } catch {
+      btn.disabled = false;
+      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+      showToast('Errore di rete. Riprova tra qualche secondo.', 'error');
+    }
+  }
+
+  /* ── Annulla abbonamento ── */
+  async function handleCancel(sub, dateLabel) {
+    if (!confirm(`Sei sicuro di voler annullare?\n\nContinuerai ad avere accesso fino al ${dateLabel}.`)) return;
+
+    const btn = document.getElementById('prf-cancel-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Annullamento…'; }
+
+    try {
+      const r    = await fetch('/api/stripe/cancel-subscription', { method: 'POST' });
+      const resp = await r.json();
+      if (r.ok && resp.ok) {
+        showToast('Abbonamento annullato. Accesso attivo fino al ' + dateLabel, 'success');
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = 'Annulla abbonamento'; }
+        showToast(resp.error || 'Errore. Riprova.', 'error');
+      }
+    } catch {
+      if (btn) { btn.disabled = false; btn.textContent = 'Annulla abbonamento'; }
+      showToast('Errore di rete. Riprova tra qualche secondo.', 'error');
+    }
+  }
+
+  /* ── Popola navbar ── */
+  function populateNavbar(user) {
+    const sub = user.subscription;
+
+    /* Avatar iniziali */
+    const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
+    document.getElementById('prf-nav-avatar').textContent = initials;
+    document.getElementById('prf-menu-email').textContent = user.email;
+
+    /* Plan badge */
+    const planBadge = document.getElementById('prf-nav-plan-badge');
+    if (user.isAdmin) {
+      planBadge.textContent = 'Admin';
+      planBadge.style.display = 'inline-block';
+      document.getElementById('prf-admin-tier-group').style.display = 'block';
+      /* Nascondi link "Abbonamento" per admin */
+      document.getElementById('prf-nav-abbonamento').style.display = 'none';
+    } else if (sub?.status === 'active') {
+      planBadge.textContent = PLAN_BADGE_LABELS[sub.plan] || sub.plan;
+      planBadge.style.display = 'inline-block';
+      /* Nascondi link "Abbonamento" esterno per utenti attivi */
+      document.getElementById('prf-nav-abbonamento').style.display = 'none';
+    }
+  }
+
+  /* ── Init ── */
+  async function init() {
+    /* 1. Auth check */
+    let user;
+    try {
+      const r = await fetch('/api/auth/me');
+      if (!r.ok) { window.location.href = '/index.html'; return; }
+      const d = await r.json();
+      user = d.user;
+    } catch {
+      window.location.href = '/index.html';
+      return;
+    }
+
+    /* 2. Popola navbar */
+    populateNavbar(user);
+
+    /* 3. Dati profilo */
+    const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
+    document.getElementById('prf-avatar').textContent   = initials;
+    document.getElementById('prf-fullname').textContent = user.fullName || '—';
+    document.getElementById('prf-email').textContent    = user.email;
+    document.getElementById('prf-info-email').textContent = user.email;
+
+    /* Piano badge */
+    const sub    = user.subscription;
+    const badgeEl = document.getElementById('prf-plan-badge');
+    if (user.isAdmin) {
+      badgeEl.textContent = 'Amministratore';
+      badgeEl.classList.add('admin');
+    } else if (sub?.status === 'active') {
+      badgeEl.textContent = PLAN_BADGE_LABELS[sub.plan] || sub.plan;
+    } else {
+      badgeEl.textContent = 'Nessun piano';
+    }
+
+    /* Info piano */
+    const TIER_LABELS = {
+      'cultura-mensile':   'Cultura (mensile)',   'cultura-annuale':   'Cultura (annuale)',
+      'linguae-mensile':   'Linguae (mensile)',    'linguae-annuale':   'Linguae (annuale)',
+      'accademia-mensile': 'Accademia (mensile)',  'accademia-annuale': 'Accademia (annuale)',
+    };
+    if (user.isAdmin) {
+      document.getElementById('prf-info-piano').textContent = 'Accademia Annuale (admin)';
+    } else if (sub?.status === 'active') {
+      document.getElementById('prf-info-piano').textContent = TIER_LABELS[sub.plan] || sub.plan;
+      const dateLabel = fmt(sub.currentPeriodEnd);
+      if (sub.cancelAtPeriodEnd) {
+        document.getElementById('prf-row-scadenza').style.display = 'flex';
+        document.getElementById('prf-info-scadenza').textContent   = dateLabel;
+      } else {
+        document.getElementById('prf-row-rinnovo').style.display = 'flex';
+        document.getElementById('prf-info-rinnovo').textContent   = dateLabel;
+      }
+    } else {
+      document.getElementById('prf-info-piano').textContent = 'Nessun piano attivo';
+    }
+
+    /* 4. Abbonamento — dati freschi da Stripe (fallback a auth/me se errore) */
+    let subFresh = null;
+    if (!user.isAdmin) {
+      try {
+        const sr = await fetch('/api/subscription/status');
+        if (sr.ok) {
+          const sd = await sr.json();
+          subFresh = sd.subscription || null;
+        } else {
+          // API ha risposto con errore (4xx/5xx) → usa dati da auth/me
+          subFresh = sub;
+        }
+      } catch {
+        // Errore di rete → usa dati da auth/me
+        subFresh = sub;
+      }
+    }
+    renderSubBody(subFresh, user.isAdmin);
+
+    /* 5. Logout (colonna profilo + navbar) */
+    const logoutHandler = async () => {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      window.location.href = '/index.html';
+    };
+    document.getElementById('prf-logout-btn').addEventListener('click', logoutHandler);
+    document.getElementById('prf-nav-logout').addEventListener('click', logoutHandler);
+  }
+
+  init();
+  </script>
+</body>
+</html>

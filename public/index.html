@@ -1160,6 +1160,11 @@
         <li id="feat-bonus-docenti" class="off">Possibilità di pagamento con Bonus Docenti<span class="only-annual">(solo annuale)</span></li>
       </ul>
       <button type="button" data-open-register data-plan="accademia" class="btn-plan btn-plan-ghost">Inizia con Accademia</button>
+      <button type="button" id="btn-carta-docente"
+        onclick="if(typeof window.openBonusDocentiModal==='function') window.openBonusDocentiModal()"
+        style="display:none;margin-top:8px;width:100%;padding:.7rem;background:rgba(201,150,42,.1);border:1px solid rgba(201,150,42,.4);border-radius:8px;color:#e8c875;font-size:.82rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:background .2s;">
+        🎓 Paga con Carta del Docente
+      </button>
     </div>
 
   </div>
@@ -1486,6 +1491,10 @@ function applyPricing() {
     }
   });
   // Annuale-only features: Live mensile + Bonus Docenti
+  // Bottone Carta del Docente: visibile solo su Accademia Annuale
+  const btnCartaDocente = document.getElementById('btn-carta-docente');
+  if (btnCartaDocente) btnCartaDocente.style.display = annual ? 'block' : 'none';
+
   const certFeat  = document.getElementById('feat-cert-linguistica');
   const testFeat  = document.getElementById('feat-test-classe');
   const liveFeat  = document.getElementById('feat-live-mensile');
@@ -1582,5 +1591,128 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 </script>
 
 </main><!-- /#main-content -->
+
+<!-- ── MODAL BONUS DOCENTI ────────────────────────────────────── -->
+<div id="bonus-docenti-modal" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem;">
+  <div style="background:#111;border:1px solid rgba(255,255,255,.12);border-radius:16px;width:100%;max-width:480px;padding:36px 32px;position:relative;">
+
+    <!-- Chiudi -->
+    <button id="bd-modal-close" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.4);font-size:22px;cursor:pointer;line-height:1;" aria-label="Chiudi">✕</button>
+
+    <!-- Header -->
+    <p style="font-family:'Georgia',serif;font-size:11px;font-weight:700;color:rgba(245,245,245,.4);letter-spacing:.14em;text-transform:uppercase;margin:0 0 16px;">Accademia Annuale · €199</p>
+    <h2 style="font-family:'Georgia',serif;font-size:20px;font-weight:700;color:#f5f5f5;margin:0 0 24px;line-height:1.2;">Come vuoi pagare?</h2>
+
+    <!-- STEP A: scelta metodo -->
+    <div id="bd-step-choice">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:8px;">
+
+        <button id="bd-btn-stripe" style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:18px 12px;cursor:pointer;text-align:center;transition:border-color .2s;">
+          <div style="font-size:22px;margin-bottom:8px;">💳</div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#f5f5f5;">Carta di credito</div>
+          <div style="font-size:11px;color:rgba(245,245,245,.4);margin-top:4px;">Pagamento immediato</div>
+        </button>
+
+        <button id="bd-btn-bonus" style="background:rgba(201,150,42,.07);border:1px solid rgba(201,150,42,.35);border-radius:10px;padding:18px 12px;cursor:pointer;text-align:center;transition:border-color .2s;">
+          <div style="font-size:22px;margin-bottom:8px;">🎓</div>
+          <div style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#e8c875;">Bonus Docenti</div>
+          <div style="font-size:11px;color:rgba(201,150,42,.65);margin-top:4px;">Carta del Docente</div>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- STEP B: form dati docente -->
+    <div id="bd-step-form" style="display:none;">
+      <p style="font-size:13px;color:rgba(245,245,245,.6);margin:0 0 20px;line-height:1.6;">Inserisci i tuoi dati: ti invieremo le istruzioni per generare il buono su Carta del Docente.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+        <input id="bd-nome" type="text" placeholder="Nome" autocomplete="given-name"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.75rem 1rem;font-size:.9rem;color:#f5f5f5;outline:none;width:100%;box-sizing:border-box;">
+        <input id="bd-cognome" type="text" placeholder="Cognome" autocomplete="family-name"
+          style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.75rem 1rem;font-size:.9rem;color:#f5f5f5;outline:none;width:100%;box-sizing:border-box;">
+      </div>
+      <input id="bd-email" type="email" placeholder="Email" autocomplete="email"
+        style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:.75rem 1rem;font-size:.9rem;color:#f5f5f5;outline:none;width:100%;box-sizing:border-box;margin-bottom:16px;">
+      <div id="bd-form-error" style="display:none;font-size:.82rem;color:#f08080;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:10px;">
+        <button id="bd-btn-back" style="background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.75rem 1.2rem;font-size:.88rem;color:rgba(245,245,245,.7);cursor:pointer;">← Indietro</button>
+        <button id="bd-btn-send" style="flex:1;background:#c9962a;border:none;border-radius:8px;padding:.75rem;font-size:.9rem;font-weight:700;color:#0a0a0a;cursor:pointer;">Invia istruzioni →</button>
+      </div>
+    </div>
+
+    <!-- STEP C: conferma -->
+    <div id="bd-step-done" style="display:none;text-align:center;padding:8px 0;">
+      <div style="font-size:40px;margin-bottom:16px;">✓</div>
+      <h3 style="font-family:'Georgia',serif;font-size:18px;color:#e8c875;margin:0 0 12px;">Istruzioni inviate.</h3>
+      <p style="font-size:13px;color:rgba(245,245,245,.6);line-height:1.7;margin:0;">
+        Controlla la tua email: trovi il percorso passo per passo per generare il buono su Carta del Docente.<br>
+        Una volta che ci invii il PDF, attiviamo il tuo account entro 24 ore.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const modal      = document.getElementById('bonus-docenti-modal');
+  const stepChoice = document.getElementById('bd-step-choice');
+  const stepForm   = document.getElementById('bd-step-form');
+  const stepDone   = document.getElementById('bd-step-done');
+
+  function openModal()  { modal.style.display = 'flex'; showStep('choice'); }
+  function closeModal() { modal.style.display = 'none'; }
+
+  function showStep(s) {
+    stepChoice.style.display = s === 'choice' ? 'block' : 'none';
+    stepForm.style.display   = s === 'form'   ? 'block' : 'none';
+    stepDone.style.display   = s === 'done'   ? 'block' : 'none';
+  }
+
+  document.getElementById('bd-modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  // Carta di credito → Stripe normale
+  document.getElementById('bd-btn-stripe').addEventListener('click', async () => {
+    closeModal();
+    await Payments.subscribeDirectly('accademia', 'annual');
+  });
+
+  // Bonus Docenti → form
+  document.getElementById('bd-btn-bonus').addEventListener('click', () => showStep('form'));
+  document.getElementById('bd-btn-back').addEventListener('click',  () => showStep('choice'));
+
+  // Submit form
+  document.getElementById('bd-btn-send').addEventListener('click', async () => {
+    const nome    = document.getElementById('bd-nome').value.trim();
+    const cognome = document.getElementById('bd-cognome').value.trim();
+    const email   = document.getElementById('bd-email').value.trim();
+    const errEl   = document.getElementById('bd-form-error');
+    const btn     = document.getElementById('bd-btn-send');
+    errEl.style.display = 'none';
+
+    if (!nome || !cognome) { errEl.textContent = 'Inserisci nome e cognome.'; errEl.style.display = 'block'; return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Inserisci un\'email valida.'; errEl.style.display = 'block'; return; }
+
+    btn.disabled = true; btn.textContent = 'Invio…';
+    try {
+      const res  = await fetch('/api/bonus-docenti-request', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, cognome, email }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) { showStep('done'); }
+      else { throw new Error(data.error || 'Errore sconosciuto'); }
+    } catch(e) {
+      errEl.textContent = e.message; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Invia istruzioni →';
+    }
+  });
+
+  // Espone la funzione openModal globalmente
+  window.openBonusDocentiModal = openModal;
+})();
+</script>
+
 </body>
 </html>

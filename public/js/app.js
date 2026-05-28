@@ -1359,6 +1359,12 @@ function initAuthModals(){
     console.log('[GLV] Pulsante abbonamento cliccato — piano:', plan || '(nessuno)');
     // Se il pulsante ha un piano → vai diretto a Stripe (auth non richiesta)
     if (plan) {
+      // Accademia Annuale → modal scelta pagamento (Stripe o Bonus Docenti)
+      const period = getCurrentBillingPeriod();
+      if (plan === 'accademia' && period === 'annual' && typeof window.openBonusDocentiModal === 'function') {
+        window.openBonusDocentiModal();
+        return;
+      }
       const origText = btn.textContent;
       btn.textContent = 'Caricamento…';
       btn.disabled = true;
