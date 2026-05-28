@@ -2512,6 +2512,48 @@ body.has-corso-cta { padding-bottom: 80px; }
 .ex-test-start-btn:hover { background: var(--gold-lt, #e8c875); transform: translateY(-1px); }
 .ex-test-card:hover .ex-test-start-btn { background: var(--gold-lt, #e8c875); }
 
+/* ── TEASER LOCKED (Cultura → upgrade Linguae) ───────────────────────── */
+.ex-locked-teaser {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(201,150,42,.07);
+  border: 1px solid rgba(201,150,42,.22);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 4px 0;
+}
+.ex-locked-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  opacity: .6;
+}
+.ex-locked-text {
+  flex: 1;
+  font-size: 13px;
+  color: rgba(245,245,245,.7);
+  line-height: 1.5;
+}
+.ex-locked-text strong { color: rgba(245,245,245,.9); }
+.ex-locked-upgrade {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(201,150,42,.55);
+  color: #c9962a;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background .2s, border-color .2s;
+}
+.ex-locked-upgrade:hover {
+  background: rgba(201,150,42,.12);
+  border-color: rgba(201,150,42,.8);
+}
+
 /* ── INTRO SCREEN ────────────────────────────────────────────────────── */
 .ex-intro {
   display: flex;

@@ -2866,6 +2866,71 @@ async function openSubscriptionModal() {
     'accademia-annuale': 'Accademia — €179/anno',
   };
 
+  // ── Feature matrix: ogni piano → quali funzionalità sblocca ───────────
+  // plans: array di planId su cui la feature è attiva
+  // annualOnly: true = disponibile solo su piani annuali (dello stesso tier o superiore)
+  // upgradeLabel: etichetta del piano minimo richiesto (mostrata ai piani inferiori)
+  const ALL_FEATURES = [
+    { text: 'Corsi Brevi di cultura classica',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Webinar asincroni',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Attestati digitali riconosciuti MIM',
+      plans: ['cultura-mensile','cultura-annuale','linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'] },
+    { text: 'Corsi di lingua: Latino, Greco, Egiziano, Ebraico',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Magistro AI — tutor contestuale e quiz generativi',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Test autocorrettivi per ogni lezione',
+      plans: ['linguae-mensile','linguae-annuale','accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Linguae' },
+    { text: 'Certificazione linguistica di Latino e Greco',
+      plans: ['linguae-annuale','accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Linguae Annuale' },
+    { text: 'Formazione docenti — accredito MIM',
+      plans: ['accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Accademia' },
+    { text: 'Corsi specialistici mensili (ricercatori e docenti univ.)',
+      plans: ['accademia-mensile','accademia-annuale'],
+      upgradeLabel: 'Accademia' },
+    { text: 'Batterie di test per la classe',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+    { text: 'Live mensile con i docenti (1 ora)',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+    { text: 'Pagamento con Bonus Docenti',
+      plans: ['accademia-annuale'],
+      annualOnly: true, upgradeLabel: 'Accademia Annuale' },
+  ];
+
+  // Genera HTML della feature list per il piano corrente
+  function buildFeatureList(currentPlanId) {
+    const isAnnual = currentPlanId?.includes('annuale');
+    const rows = ALL_FEATURES.map(f => {
+      const active = f.plans.includes(currentPlanId);
+      const icon   = active ? '✓' : '✗';
+      const iconClr = active ? '#6fcf97' : 'rgba(245,245,245,.25)';
+      const textClr = active ? 'rgba(245,245,245,.85)' : 'rgba(245,245,245,.35)';
+      // Badge "solo annuale" se attivo ma solo per l'annuale del proprio tier,
+      // o se l'utente è su mensile e dovrebbe switchare ad annuale per ottenerla
+      let badge = '';
+      if (f.annualOnly && !active && !isAnnual) {
+        badge = `<span style="font-size:10px;background:rgba(201,150,42,.15);color:#c9962a;border:1px solid rgba(201,150,42,.3);padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">solo annuale</span>`;
+      }
+      const upgradeHint = !active && f.upgradeLabel
+        ? `<span style="font-size:10px;color:rgba(245,245,245,.25);margin-left:6px;">→ ${_esc(f.upgradeLabel)}</span>`
+        : '';
+      return `<li style="display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;line-height:1.4;">
+        <span style="flex-shrink:0;font-size:11px;font-weight:700;color:${iconClr};width:12px;">${icon}</span>
+        <span style="color:${textClr};">${_esc(f.text)}${badge}${upgradeHint}</span>
+      </li>`;
+    }).join('');
+    return `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`;
+  }
+
   function fmtDate(iso) {
     return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' });
   }
@@ -2879,7 +2944,7 @@ async function openSubscriptionModal() {
   overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;`;
 
   overlay.innerHTML = `
-    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:36px;width:100%;max-width:440px;position:relative;">
+    <div style="background:#141414;border:1px solid #2a2a2a;border-radius:8px;padding:36px;width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;position:relative;">
       <button id="sub-modal-close" aria-label="Chiudi"
         style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(245,245,245,.55);font-size:22px;cursor:pointer;line-height:1;padding:4px;">×</button>
       <h2 id="sub-modal-title" style="font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:#f5f5f5;margin-bottom:24px;">Il tuo abbonamento</h2>
@@ -2923,9 +2988,13 @@ async function openSubscriptionModal() {
     if (sub.cancelAtPeriodEnd) {
       // Abbonamento in scadenza programmata
       body.innerHTML = `
-        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:20px;border:1px solid #2a2a2a;">
+        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:16px;border:1px solid #2a2a2a;">
           <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.45);margin-bottom:4px;">Piano attivo</p>
           <p style="font-size:16px;font-weight:600;color:#f5f5f5;">${planLabel}</p>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.35);margin-bottom:8px;">Cosa include il tuo piano</p>
+          ${buildFeatureList(sub.plan)}
         </div>
         <p style="color:rgba(245,245,245,.7);font-size:14px;line-height:1.6;margin-bottom:20px;">
           Il tuo abbonamento è stato annullato.<br>
@@ -2976,14 +3045,30 @@ async function openSubscriptionModal() {
       }
 
       // Abbonamento attivo e in rinnovo
+      const featureListHTML = buildFeatureList(sub.plan);
+      // Nudge annuale: se l'utente è su mensile, mostra quante feature extra ottiene passando all'annuale
+      const isAnnual = sub.plan?.includes('annuale');
+      const annualNudgeHTML = !isAnnual ? `
+        <div style="background:rgba(201,150,42,.06);border:1px solid rgba(201,150,42,.2);border-radius:6px;padding:12px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">⭐</span>
+          <div style="flex:1;font-size:12px;color:rgba(245,245,245,.65);line-height:1.5;">
+            <strong style="color:#c9962a;">Passa all'annuale</strong> — risparmi il 30% e sblocchi le funzionalità <em>solo annuale</em>.
+          </div>
+        </div>` : '';
+
       body.innerHTML = `
-        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:20px;border:1px solid #2a2a2a;">
+        <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:16px;border:1px solid #2a2a2a;">
           <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.45);margin-bottom:4px;">Piano attivo</p>
           <p style="font-size:16px;font-weight:600;color:#f5f5f5;">${planLabel}</p>
           <p style="font-size:13px;color:rgba(245,245,245,.55);margin-top:6px;">
             Si rinnoverà il <strong style="color:rgba(245,245,245,.85);">${_esc(dateLabel)}</strong>
           </p>
         </div>
+        <div style="margin-bottom:16px;">
+          <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.35);margin-bottom:8px;">Cosa include il tuo piano</p>
+          ${featureListHTML}
+        </div>
+        ${annualNudgeHTML}
         ${upgradeHTML}
         <p style="color:rgba(245,245,245,.5);font-size:12px;line-height:1.6;margin-bottom:20px;">
           Annullando ora, continuerai ad avere accesso fino al ${_esc(dateLabel)}. Dopo quella data l'abbonamento non si rinnoverà.
@@ -4176,9 +4261,53 @@ async function loadLessonExercises(lessonId) {
   list.innerHTML = '';
   section.style.display = 'none';
 
+  // ── Gate front-end: Cultura non ha test autocorrettivi ────────────────
+  // _currentTier: 0=nessun piano, 1=Cultura, 2=Linguae, 3=Accademia
+  // _adminTierActive sovrascrive il tier per l'admin.
+  const effectiveTier = (_adminTierActive !== null && _adminTierActive !== undefined)
+    ? _adminTierActive
+    : _currentTier;
+  if (effectiveTier < 2 && !_glvIsAdmin) {
+    // Mostra teaser upgrade — non blocco silenzioso
+    list.innerHTML = `
+      <div class="ex-locked-teaser" role="presentation">
+        <div class="ex-locked-icon" aria-hidden="true">📝</div>
+        <div class="ex-locked-text">
+          <strong>Test autocorrettivi</strong><br>
+          Disponibili dal piano <strong>Linguae</strong>. Misura i tuoi progressi con esercizi interattivi per ogni lezione.
+        </div>
+        <button class="ex-locked-upgrade" type="button"
+          onclick="showUpgradeModal('Latino')"
+          aria-label="Scopri il piano Linguae">
+          Scopri Linguae →
+        </button>
+      </div>`;
+    section.style.display = 'block';
+    return;
+  }
+
   try {
     const res = await fetch(`/api/exercises?lessonId=${encodeURIComponent(lessonId)}`);
-    if (!res.ok) return;
+    if (!res.ok) {
+      // Se 403 da API (doppia garanzia), mostra teaser
+      if (res.status === 403) {
+        list.innerHTML = `
+          <div class="ex-locked-teaser" role="presentation">
+            <div class="ex-locked-icon" aria-hidden="true">📝</div>
+            <div class="ex-locked-text">
+              <strong>Test autocorrettivi</strong><br>
+              Disponibili dal piano <strong>Linguae</strong>.
+            </div>
+            <button class="ex-locked-upgrade" type="button"
+              onclick="showUpgradeModal('Latino')"
+              aria-label="Scopri il piano Linguae">
+              Scopri Linguae →
+            </button>
+          </div>`;
+        section.style.display = 'block';
+      }
+      return;
+    }
     const { tests } = await res.json();
     if (!tests || tests.length === 0) return;
 
