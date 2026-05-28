@@ -1,0 +1,282 @@
+/* ═══════════════════════════════════════════════════════════════════
+   COURSE CARDS — CSS IDENTICO ALLE FAN-CARD DI INDEX.HTML
+   Copiato pixel per pixel dalla sezione .catalog-preview di index.html
+═══════════════════════════════════════════════════════════════════ */
+
+/* Wrapper esterno — IDENTICO a .fan-card (home) tranne position:absolute e rotation */
+.course-card {
+  flex-shrink: 0;
+  width: 210px;
+  height: 280px;                                    /* = fan-card height */
+  background: #111111;                              /* = fan-card bg (--dark-2) */
+  border-radius: 14px;                              /* = fan-card */
+  border: 1px solid rgba(255,255,255,.12);          /* = fan-card */
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);            /* = fan-card */
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.65);
+  border-color: rgba(255,255,255,.26);
+  z-index: 2;
+}
+
+/* Header — = .fan-card-header */
+.fan-card-header {
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: .75rem 1rem;
+  position: relative;
+}
+
+/* Livello — = .fan-card-level */
+.fan-card-level {
+  font-family: 'Inter', sans-serif;
+  font-size: .68rem; /* era .6rem (9.6px) — portato a 10.9px per WCAG 1.4.4 */
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.78); /* era .65 (4.33:1 su Egiziano) — .78 → 5.20:1 */
+  margin-bottom: .3rem;
+}
+
+/* Nome lingua — = .fan-card-lang */
+.fan-card-lang {
+  font-family: 'Inter', sans-serif;
+  font-size: .72rem; /* era .68rem (10.9px) — portato a 11.5px per WCAG 1.4.4 */
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.9);
+}
+
+/* Body — = .fan-card-body */
+.fan-card-body {
+  padding: .9rem 1rem;
+  flex: 1;
+}
+
+/* Titolo — = .fan-card-title
+   WCAG: cambiato da Playfair Display (serif display, leggibilità ridotta a 14px per titoli lunghi)
+   a Inter (sans-serif, stroke uniforme, molto più leggibile a piccole dimensioni). */
+.fan-card-title {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: .9rem; /* era .88rem — portato a ~14.4px */
+  font-weight: 600; /* Inter 700 è pesante su dark bg; 600 è più equilibrato */
+  color: #f5f5f5;
+  line-height: 1.4; /* era 1.35 — migliorato per leggibilità multi-riga */
+  margin-bottom: .55rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: break-word;
+}
+
+/* Meta testo — = .fan-card-meta */
+.fan-card-meta {
+  font-size: .75rem; /* era .7rem (11.2px) — portato a 12px per WCAG 1.4.4 */
+  color: rgba(245,245,245,.60); /* era .40 (3.59:1) — .60 → 6.71:1 per WCAG 1.4.3 */
+  line-height: 1.5;
+}
+
+/* Footer — = .fan-card-footer */
+.fan-card-footer {
+  padding: .7rem 1rem;
+  border-top: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+/* Punto colorato — = .fan-card-dot */
+.fan-card-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Etichetta lingua — = .fan-card-status */
+.fan-card-status {
+  font-family: 'Inter', sans-serif;
+  font-size: .72rem; /* era .65rem (10.4px) — portato a 11.5px per WCAG 1.4.4 */
+  color: rgba(245,245,245,.55); /* era .38 (3.39:1) — .55 → 5.76:1 per WCAG 1.4.3 */
+  letter-spacing: .04em;
+}
+
+/* Badge "NUOVO" opzionale */
+.fan-card-badge-new {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: var(--gold);
+  color: #0a0a0a;
+  font-family: 'Inter', sans-serif;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .18rem .5rem;
+  border-radius: 2rem;
+  line-height: 1.4;
+}
+
+/* Badge "BLOCCATO" */
+.fan-card-locked {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 26px; height: 26px;
+  background: rgba(0,0,0,.45);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,.75);
+  backdrop-filter: blur(4px);
+}
+
+/* Barra progressi in fondo all'header */
+.fan-card-progress {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: rgba(255,255,255,.15);
+}
+.fan-card-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,.5), rgba(255,255,255,.9));
+  transition: width .6s ease;
+}
+
+/* Alias: card-title punta a fan-card-title (compatibilità filtro catalogo) */
+.card-title { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+
+/* Grid catalogo — override larghezza */
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 20px;
+}
+.course-grid .course-card { width: 100%; flex-shrink: unset; }
+
+/* Badge (retrocompatibilità) */
+.card-badge {
+  font-family: 'Inter', sans-serif;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: .5px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: var(--r-sm); line-height: 1.4;
+}
+.badge-lang { background: rgba(201,150,42,.12); color: var(--gold-lt); }
+.badge-level { background: var(--bg-card-2); color: var(--text-secondary); }
+.badge-new { background: var(--gold); color: #0a0a0a; font-weight: 700; }
+.badge-locked { background: var(--bg-card-2); color: var(--text-muted); }
+.badge-expired { background: rgba(139,26,26,.2); color: #f87171; }
+.badge-urgency {
+  background: #fef3c7; color: #92400e;
+  animation: urgency-pulse 2s ease-in-out infinite;
+}
+@keyframes urgency-pulse { 0%,100%{opacity:1} 50%{opacity:.65} }
+
+/* ═══════════════════════════════════════════════════════════════════
+   COURSE ROWS (scroll orizzontale)
+═══════════════════════════════════════════════════════════════════ */
+.section-row { padding: 0 80px 48px; }
+.row-header {
+  display: flex; align-items: center;
+  gap: 16px; margin-bottom: 20px;
+}
+.row-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; font-weight: 700;
+  color: var(--text-primary);
+}
+.row-explore {
+  margin-left: auto;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600;
+  color: var(--gold-lt);
+  white-space: nowrap;
+  transition: opacity var(--t-fast);
+}
+.row-explore:hover { opacity: .75; text-decoration: underline; text-underline-offset: 2px; }
+
+.courses-row {
+  display: flex; gap: 16px;
+  flex-wrap: nowrap;          /* una sola riga, sempre */
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-top: 8px;    /* spazio per hover lift (translateY -4px) senza clipping */
+  padding-bottom: 12px;
+  margin-top: -8px;    /* compensa il padding nel layout */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.courses-row::-webkit-scrollbar { display: none; }
+
+/* Preview row landing */
+#row-preview {
+  display: flex; gap: 16px;
+  overflow-x: auto; padding-bottom: 12px;
+  scrollbar-width: none;
+}
+#row-preview::-webkit-scrollbar { display: none; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   CATALOG LAYOUT — Sidebar + Grid (Coursera-style)
+═══════════════════════════════════════════════════════════════════ */
+.catalog-layout {
+  display: flex; gap: 40px;
+  padding: 32px 80px 80px;
+  align-items: flex-start;
+}
+.catalog-sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--nav-height) + 20px);
+}
+.catalog-sidebar-section { margin-bottom: 28px; }
+.catalog-sidebar-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 12px;
+}
+.catalog-filters {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.filter-tab {
+  display: flex; align-items: center;
+  width: 100%; padding: 10px 14px;
+  border-radius: var(--r-md);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 500;
+  color: var(--text-secondary);
+  text-align: left;
+  transition: all var(--t-fast);
+  border: none; background: transparent; cursor: pointer;
+}
+.filter-tab:hover { background: var(--bg-card-2); color: var(--text-primary); }
+.filter-tab.active {
+  background: var(--gold-light);
+  color: var(--gold-lt); font-weight: 700;
+}
+.filter-count { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+
+.catalog-main { flex: 1; min-width: 0; }
+.catalog-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px; flex-wrap: wrap; gap: 12px;
+}
+.catalog-count {
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; color: var(--text-muted);
+}
+.catalog-content { }
+
