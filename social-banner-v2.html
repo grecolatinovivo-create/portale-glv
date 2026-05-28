@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Banner Social — Variante 2 · Provocatoria</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .banner {
+    width: 1200px;
+    height: 630px;
+    background: #0a0a0a;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Sfondo con pattern greco sottile */
+  .banner::before {
+    content: 'ΑΒΓΔΕΖΗΘ ΙΚΛΜΝΞΟΠ ΡΣΤΥΦΧΨΩ ΑΒΓΔΕΖΗΘ ΙΚΛΜΝΞΟΠ ΡΣΤΥΦΧΨΩ ΑΒΓΔΕΖΗΘ ΙΚΛΜΝΞΟΠ';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 11rem;
+    font-weight: 700;
+    color: rgba(255,255,255,.018);
+    letter-spacing: .1em;
+    line-height: 1;
+    word-break: break-all;
+    overflow: hidden;
+    padding: 20px;
+    z-index: 0;
+  }
+
+  /* Glow rosso laterale sinistro */
+  .glow-left {
+    position: absolute;
+    left: -80px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(160,26,54,0.12) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow dorato a destra */
+  .glow-right {
+    position: absolute;
+    right: 80px;
+    top: 30%;
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, rgba(201,150,42,0.09) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SINISTRA ── */
+  .left {
+    width: 500px;
+    height: 100%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .left::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 80px; height: 100%;
+    background: linear-gradient(to right, #0a0a0a, transparent);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .fan-wrap {
+    position: relative;
+    width: 260px;
+    height: 340px;
+  }
+
+  .fan-card {
+    position: absolute;
+    width: 220px;
+    height: 295px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.1);
+    background: #141414;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,.8), 0 4px 12px rgba(0,0,0,.5);
+    transform-origin: 50% 115%;
+    display: flex;
+    flex-direction: column;
+    left: 20px;
+    top: 20px;
+  }
+
+  .fan-card:nth-child(1) { transform: rotate(-13deg); z-index: 1; }
+  .fan-card:nth-child(2) { transform: rotate(-4.5deg); z-index: 2; }
+  .fan-card:nth-child(3) { transform: rotate(4deg);   z-index: 3; }
+  .fan-card:nth-child(4) { transform: rotate(13deg);  z-index: 2; opacity: .78; }
+
+  /* Highlight bordo dorato sulla card in primo piano */
+  .fan-card:nth-child(3) {
+    border-color: rgba(201,150,42,.3);
+    box-shadow: 0 20px 60px rgba(0,0,0,.8), 0 0 0 1px rgba(201,150,42,.2), 0 0 30px rgba(201,150,42,.08);
+  }
+
+  .fan-card-header {
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: .8rem 1rem;
+  }
+  .fan-card-level {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.55);
+    margin-bottom: .28rem;
+  }
+  .fan-card-lang {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.9);
+  }
+  .fan-card-body {
+    padding: .85rem 1rem;
+    flex: 1;
+  }
+  .fan-card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    line-height: 1.35;
+    margin-bottom: .5rem;
+  }
+  .fan-card-meta {
+    font-size: .68rem;
+    color: rgba(245,245,245,.35);
+  }
+  .fan-card-footer {
+    padding: .65rem 1rem;
+    border-top: 1px solid rgba(255,255,255,.07);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .fan-card-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .fan-card-status {
+    font-size: .63rem;
+    color: rgba(245,245,245,.32);
+    letter-spacing: .04em;
+  }
+
+  /* ── DESTRA ── */
+  .right {
+    flex: 1;
+    padding: 0 60px 0 52px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .right::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 80px; height: 100%;
+    background: linear-gradient(to left, #0a0a0a, transparent);
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: #a01a36;
+    margin-bottom: 1.4rem;
+  }
+
+  .headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 3.1rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    line-height: 1.14;
+    margin-bottom: 1.6rem;
+  }
+  .headline em {
+    font-style: italic;
+    color: #e8c875;
+    display: block;
+  }
+
+  /* Ornamento tipografico */
+  .ornament {
+    width: 48px;
+    height: 2px;
+    background: linear-gradient(to right, #c9962a, #e8c875);
+    margin-bottom: 1.4rem;
+    border-radius: 1px;
+  }
+
+  .subline {
+    font-size: .95rem;
+    color: rgba(245,245,245,.52);
+    line-height: 1.75;
+    margin-bottom: 2.2rem;
+    max-width: 320px;
+  }
+  .subline strong {
+    color: rgba(245,245,245,.78);
+    font-weight: 500;
+  }
+
+  .pill-row {
+    display: flex;
+    gap: .6rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .pill {
+    font-size: .65rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(245,245,245,.55);
+    border: 1px solid rgba(255,255,255,.12);
+    padding: .35rem .85rem;
+    border-radius: 2px;
+  }
+
+  .bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+  }
+  .cta {
+    background: #c9962a;
+    color: #0a0a0a;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: .8rem 1.8rem;
+    border-radius: 3px;
+    text-decoration: none;
+  }
+  .domain {
+    font-size: .7rem;
+    color: rgba(245,245,245,.28);
+    letter-spacing: .05em;
+  }
+
+  /* Logo */
+  .logo {
+    position: absolute;
+    top: 28px;
+    right: 36px;
+    z-index: 10;
+    text-align: right;
+    opacity: .5;
+  }
+  .logo-icon {
+    font-family: 'Playfair Display', serif;
+    font-size: .8rem;
+    font-weight: 700;
+    color: #c9962a;
+    letter-spacing: .1em;
+  }
+  .logo-name {
+    font-size: .55rem;
+    color: rgba(245,245,245,.38);
+    letter-spacing: .06em;
+    margin-top: 1px;
+  }
+
+  /* Bordo rosso laterale sinistro */
+  .accent-bar {
+    position: absolute;
+    left: 0;
+    top: 15%;
+    width: 3px;
+    height: 70%;
+    background: linear-gradient(to bottom, transparent, #a01a36 30%, #a01a36 70%, transparent);
+    opacity: .6;
+    border-radius: 0 2px 2px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <div class="glow-left"></div>
+  <div class="glow-right"></div>
+  <div class="accent-bar"></div>
+
+  <!-- ── SINISTRA ── -->
+  <div class="left">
+    <div class="fan-wrap">
+
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#162416,#0a120a)">
+          <div class="fan-card-level">Ebraico Biblico · A1</div>
+          <div class="fan-card-lang">Livello Base</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">L'alfabeto e i primi paradigmi</div>
+          <div class="fan-card-meta">8 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#2a4028"></div>
+          <span class="fan-card-status">Ebraico Biblico</span>
+        </div>
+      </div>
+
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#0e1e35,#060f1c)">
+          <div class="fan-card-level">Greco Antico · A2</div>
+          <div class="fan-card-lang">Livello Elementare</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">La Tragedia dei Greci</div>
+          <div class="fan-card-meta">Giampiero Marchi · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#1a3258"></div>
+          <span class="fan-card-status">Greco Antico</span>
+        </div>
+      </div>
+
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#3d1e10,#1c0d06)">
+          <div class="fan-card-level">Latino · B1</div>
+          <div class="fan-card-lang">Livello Intermedio</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">Cicerone e la prosa classica</div>
+          <div class="fan-card-meta">16 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#5a2e18"></div>
+          <span class="fan-card-status">Latino</span>
+        </div>
+      </div>
+
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#3a2a08,#1c1404)">
+          <div class="fan-card-level">Egiziano Geroglifico · A1</div>
+          <div class="fan-card-lang">Livello Base</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">Scrittura e lettura dei geroglifici</div>
+          <div class="fan-card-meta">10 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#c9962a"></div>
+          <span class="fan-card-status">Egiziano Geroglifico</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── DESTRA ── -->
+  <div class="right">
+    <div class="eyebrow">Centro Nazionale di Studi Classici</div>
+    <h1 class="headline">
+      Non impari<br>
+      una lingua morta.<br>
+      <em>Risvegli un mondo.</em>
+    </h1>
+    <div class="ornament"></div>
+    <p class="subline">
+      <strong>60+ corsi</strong> con docenti universitari.<br>
+      Un abbonamento, l'intero catalogo.
+    </p>
+    <div class="pill-row">
+      <span class="pill">Latino</span>
+      <span class="pill">Greco Antico</span>
+      <span class="pill">Egiziano</span>
+      <span class="pill">Ebraico</span>
+    </div>
+    <div class="bottom-row">
+      <span class="cta">Abbonati ora →</span>
+      <span class="domain">grecolatino.vivo</span>
+    </div>
+  </div>
+
+  <div class="logo">
+    <div class="logo-icon">ΓΛ</div>
+    <div class="logo-name">GrecoLatinoVivo</div>
+  </div>
+
+</div>
+
+</body>
+</html>

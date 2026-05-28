@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1200">
+<title>Banner Social — Variante 1 · Drammatica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Banner ── */
+  .banner {
+    width: 1200px;
+    height: 630px;
+    background: #0a0a0a;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  /* Rumore di texture sottile */
+  .banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity: .4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow dorato centrale */
+  .banner::after {
+    content: '';
+    position: absolute;
+    left: 42%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(201,150,42,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LATO SINISTRO — Fan Cards ── */
+  .left {
+    width: 520px;
+    height: 100%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Vignetta bordo sinistro */
+  .left::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 120px; height: 100%;
+    background: linear-gradient(to right, #0a0a0a, transparent);
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .fan-wrap {
+    position: relative;
+    width: 260px;
+    height: 340px;
+  }
+
+  .fan-card {
+    position: absolute;
+    width: 220px;
+    height: 295px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.12);
+    background: #141414;
+    overflow: hidden;
+    box-shadow: 0 16px 48px rgba(0,0,0,.7), 0 4px 12px rgba(0,0,0,.5);
+    transform-origin: 50% 115%;
+    display: flex;
+    flex-direction: column;
+    left: 20px;
+    top: 20px;
+    transition: transform .3s;
+  }
+
+  .fan-card:nth-child(1) { transform: rotate(-12deg); z-index: 1; }
+  .fan-card:nth-child(2) { transform: rotate(-4deg);  z-index: 2; }
+  .fan-card:nth-child(3) { transform: rotate(4deg);   z-index: 3; }
+  .fan-card:nth-child(4) { transform: rotate(13deg);  z-index: 2; opacity: .8; }
+
+  .fan-card-header {
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: .8rem 1rem;
+    position: relative;
+  }
+
+  .fan-card-header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.45));
+    pointer-events: none;
+  }
+
+  .fan-card-level {
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.6);
+    margin-bottom: .28rem;
+    position: relative; z-index: 1;
+  }
+  .fan-card-lang {
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.92);
+    position: relative; z-index: 1;
+  }
+  .fan-card-body {
+    padding: .85rem 1rem;
+    flex: 1;
+  }
+  .fan-card-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    line-height: 1.35;
+    margin-bottom: .5rem;
+  }
+  .fan-card-meta {
+    font-size: .68rem;
+    color: rgba(245,245,245,.38);
+  }
+  .fan-card-footer {
+    padding: .65rem 1rem;
+    border-top: 1px solid rgba(255,255,255,.07);
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .fan-card-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+  .fan-card-status {
+    font-size: .63rem;
+    color: rgba(245,245,245,.35);
+    letter-spacing: .04em;
+  }
+
+  /* Bagliore card frontale */
+  .fan-card:nth-child(3)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    box-shadow: inset 0 0 0 1px rgba(201,150,42,.25);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* ── SEPARATORE ── */
+  .divider {
+    width: 1px;
+    height: 320px;
+    background: linear-gradient(to bottom, transparent, rgba(255,255,255,.08) 30%, rgba(255,255,255,.08) 70%, transparent);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── LATO DESTRO — Copy ── */
+  .right {
+    flex: 1;
+    padding: 0 64px 0 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .right::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 0;
+    width: 100px; height: 100%;
+    background: linear-gradient(to left, #0a0a0a, transparent);
+    pointer-events: none;
+  }
+
+  .tag {
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: #c9962a;
+    margin-bottom: 1.6rem;
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .tag::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 1px;
+    background: #c9962a;
+  }
+
+  .headline {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 2.9rem;
+    font-weight: 700;
+    color: #f5f5f5;
+    line-height: 1.18;
+    margin-bottom: 1.5rem;
+  }
+  .headline em {
+    font-style: italic;
+    color: #e8c875;
+  }
+
+  .subline {
+    font-size: .97rem;
+    color: rgba(245,245,245,.55);
+    line-height: 1.7;
+    max-width: 340px;
+    margin-bottom: 2.4rem;
+  }
+
+  .cta-row {
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    background: #c9962a;
+    color: #0a0a0a;
+    font-family: 'Inter', sans-serif;
+    font-size: .82rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: .75rem 1.6rem;
+    border-radius: 4px;
+    text-decoration: none;
+  }
+  .cta-arrow { font-size: 1rem; }
+
+  .url {
+    font-size: .72rem;
+    color: rgba(245,245,245,.3);
+    letter-spacing: .04em;
+  }
+
+  /* ── Logo angolo ── */
+  .logo {
+    position: absolute;
+    bottom: 28px;
+    right: 40px;
+    z-index: 10;
+    text-align: right;
+    opacity: .55;
+  }
+  .logo-icon {
+    font-family: 'Playfair Display', serif;
+    font-size: .75rem;
+    font-weight: 700;
+    color: #c9962a;
+    letter-spacing: .1em;
+  }
+  .logo-name {
+    font-size: .58rem;
+    color: rgba(245,245,245,.4);
+    letter-spacing: .06em;
+  }
+
+  /* ── Linea greca decorativa ── */
+  .greek-border {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(to right, transparent 5%, #c9962a 30%, #e8c875 50%, #c9962a 70%, transparent 95%);
+    opacity: .35;
+  }
+</style>
+</head>
+<body>
+
+<div class="banner">
+
+  <!-- ── SINISTRA: Fan Cards ── -->
+  <div class="left">
+    <div class="fan-wrap">
+
+      <!-- Card 1: Ebraico -->
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#162416,#0a120a)">
+          <div class="fan-card-level">Ebraico Biblico · A1</div>
+          <div class="fan-card-lang">Livello Base</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">L'alfabeto e i primi paradigmi</div>
+          <div class="fan-card-meta">8 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#2a4028"></div>
+          <span class="fan-card-status">Ebraico Biblico</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Greco -->
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#0e1e35,#060f1c)">
+          <div class="fan-card-level">Greco Antico · A2</div>
+          <div class="fan-card-lang">Livello Elementare</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">La Tragedia dei Greci</div>
+          <div class="fan-card-meta">Giampiero Marchi · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#1a3258"></div>
+          <span class="fan-card-status">Greco Antico</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Latino (in primo piano) -->
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#3d1e10,#1c0d06)">
+          <div class="fan-card-level">Latino · B1</div>
+          <div class="fan-card-lang">Livello Intermedio</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">Cicerone e la prosa classica</div>
+          <div class="fan-card-meta">16 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#5a2e18"></div>
+          <span class="fan-card-status">Latino</span>
+        </div>
+      </div>
+
+      <!-- Card 4: Egiziano -->
+      <div class="fan-card">
+        <div class="fan-card-header" style="background: linear-gradient(155deg,#3a2a08,#1c1404)">
+          <div class="fan-card-level">Egiziano Geroglifico · A1</div>
+          <div class="fan-card-lang">Livello Base</div>
+        </div>
+        <div class="fan-card-body">
+          <div class="fan-card-title">Scrittura e lettura dei geroglifici</div>
+          <div class="fan-card-meta">10 lezioni · Attestato incluso</div>
+        </div>
+        <div class="fan-card-footer">
+          <div class="fan-card-dot" style="background:#c9962a"></div>
+          <span class="fan-card-status">Egiziano Geroglifico</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Divisore -->
+  <div class="divider"></div>
+
+  <!-- ── DESTRA: Copy ── -->
+  <div class="right">
+    <div class="tag">GrecoLatinoVivo</div>
+    <h1 class="headline">
+      Le lingue che<br>
+      hanno costruito<br>
+      <em>la tua cultura.</em>
+    </h1>
+    <p class="subline">
+      Latino, Greco, Egiziano, Ebraico.<br>
+      Corsi con docenti specializzati.<br>
+      Un abbonamento, l'intero catalogo.
+    </p>
+    <div class="cta-row">
+      <span class="cta">Inizia ora <span class="cta-arrow">→</span></span>
+      <span class="url">grecolatino.vivo</span>
+    </div>
+  </div>
+
+  <!-- Logo angolo -->
+  <div class="logo">
+    <div class="logo-icon">ΓΛ</div>
+    <div class="logo-name">Centro Nazionale di Studi Classici</div>
+  </div>
+
+  <!-- Linea dorata base -->
+  <div class="greek-border"></div>
+
+</div>
+
+</body>
+</html>
