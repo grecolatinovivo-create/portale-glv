@@ -277,6 +277,182 @@
       0%, 100% { opacity: .4; }
       50%       { opacity: .8; }
     }
+
+    /* ── Modal cambio piano ── */
+    .plan-modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s;
+    }
+    .plan-modal-overlay.open { opacity: 1; pointer-events: all; }
+    .plan-modal {
+      background: #111;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      max-height: 90dvh;
+      overflow-y: auto;
+      padding: 0;
+      transform: translateY(12px) scale(.98);
+      transition: transform .22s;
+    }
+    .plan-modal-overlay.open .plan-modal { transform: none; }
+
+    /* Intestazione modal */
+    .pm-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .pm-header-title {
+      font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(245,245,245,.4);
+    }
+    .pm-close {
+      background: transparent; border: none;
+      color: rgba(245,245,245,.4); font-size: 1.4rem; line-height: 1;
+      cursor: pointer; padding: 2px 6px; border-radius: 4px;
+      transition: color .2s;
+    }
+    .pm-close:hover { color: rgba(245,245,245,.85); }
+
+    /* Plan card — stile uguale alla home */
+    .pm-card {
+      padding: 24px 24px 20px;
+    }
+    .pm-card.featured { border-top: 2px solid rgba(201,150,42,.5); }
+    .pm-plan-badge {
+      display: inline-block;
+      background: var(--gold);
+      color: #0a0a0a;
+      font-size: .65rem; font-weight: 700; letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: .22rem .85rem;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .pm-plan-name {
+      font-family: var(--font-heading);
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--ivory);
+      margin-bottom: 6px;
+    }
+    .pm-plan-desc {
+      font-size: .82rem; color: rgba(245,245,245,.6);
+      line-height: 1.55; margin-bottom: 18px;
+    }
+    .pm-plan-price {
+      margin-bottom: 20px;
+    }
+    .pm-price-amount {
+      font-family: var(--font-heading);
+      font-size: 2.4rem; font-weight: 700;
+      color: var(--ivory); line-height: 1;
+    }
+    .pm-price-period {
+      font-size: .82rem; color: rgba(245,245,245,.5);
+      margin-left: .2rem;
+    }
+    .pm-features {
+      list-style: none; padding: 0; margin: 0 0 24px;
+      border-top: 1px solid rgba(255,255,255,.06);
+    }
+    .pm-features li {
+      font-size: .83rem; color: rgba(245,245,245,.82);
+      padding: .42rem 0;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: flex-start;
+      gap: .55rem; line-height: 1.45;
+    }
+    .pm-features li:last-child { border-bottom: none; }
+    .pm-features li::before {
+      content: '✓';
+      color: var(--gold);
+      font-size: .82rem; font-weight: 700;
+      flex-shrink: 0; margin-top: .05rem;
+    }
+    .pm-features li.off { color: rgba(245,245,245,.38); }
+    .pm-features li.off::before { content: '✕'; color: rgba(245,245,245,.3); }
+    .pm-features li.tutto-in {
+      color: var(--gold); font-weight: 600;
+      border-bottom: 1px solid rgba(201,150,42,.18);
+    }
+    .pm-features li.tutto-in::before { content: '↳'; font-weight: 400; }
+
+    /* Footer modal */
+    .pm-footer {
+      padding: 0 24px 24px;
+      display: flex; gap: 10px;
+    }
+    .pm-btn-cancel {
+      flex: 1; padding: 11px;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 8px;
+      color: rgba(245,245,245,.6);
+      font-family: 'Inter', sans-serif;
+      font-size: .84rem; font-weight: 600;
+      cursor: pointer;
+      transition: border-color .2s, color .2s;
+    }
+    .pm-btn-cancel:hover { border-color: rgba(255,255,255,.35); color: var(--text-primary); }
+    .pm-btn-confirm {
+      flex: 2; padding: 11px;
+      background: var(--gold);
+      border: none; border-radius: 8px;
+      color: #0a0a0a;
+      font-family: 'Inter', sans-serif;
+      font-size: .84rem; font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+    .pm-btn-confirm:hover { background: var(--gold-lt); }
+    .pm-btn-confirm:disabled { opacity: .5; cursor: not-allowed; }
+    .pm-btn-confirm.downgrade {
+      background: transparent;
+      border: 1px solid rgba(245,245,245,.3);
+      color: rgba(245,245,245,.75);
+    }
+    .pm-btn-confirm.downgrade:hover { background: rgba(255,255,255,.06); border-color: rgba(245,245,245,.5); color: var(--text-primary); }
+
+    /* Toggle mensile/annuale nel modal */
+    .pm-billing-toggle {
+      display: flex;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 8px;
+      padding: 3px;
+      margin-bottom: 18px;
+      gap: 3px;
+    }
+    .pm-billing-btn {
+      flex: 1; padding: 7px 10px;
+      background: transparent; border: none;
+      border-radius: 5px;
+      font-family: 'Inter', sans-serif;
+      font-size: .8rem; font-weight: 600;
+      color: rgba(245,245,245,.45);
+      cursor: pointer;
+      transition: background .18s, color .18s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .pm-billing-btn.active {
+      background: rgba(255,255,255,.1);
+      color: var(--text-primary);
+    }
+    .pm-billing-save {
+      font-size: .68rem; font-weight: 700;
+      background: rgba(201,150,42,.18);
+      color: var(--gold);
+      border-radius: 4px;
+      padding: 1px 5px;
+      letter-spacing: .02em;
+    }
   </style>
 </head>
 <body>
@@ -406,6 +582,23 @@
     </div><!-- /.prf-grid -->
 
   </main><!-- /main -->
+
+  <!-- Modal cambio piano -->
+  <div class="plan-modal-overlay" id="plan-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="pm-plan-name">
+    <div class="plan-modal" id="plan-modal">
+      <div class="pm-header">
+        <span class="pm-header-title" id="pm-header-label">Stai passando a</span>
+        <button class="pm-close" id="pm-close-btn" aria-label="Chiudi" type="button">✕</button>
+      </div>
+      <div class="pm-card" id="pm-card-body">
+        <!-- Popolato da JS -->
+      </div>
+      <div class="pm-footer">
+        <button class="pm-btn-cancel" id="pm-cancel-btn" type="button">Annulla</button>
+        <button class="pm-btn-confirm" id="pm-confirm-btn" type="button">Conferma</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Toast notifiche -->
   <div class="prf-toast" id="prf-toast" role="alert" aria-live="polite"></div>
@@ -675,21 +868,185 @@
     }
   }
 
-  /* ── Cambio piano (upgrade o downgrade) ── */
-  async function handleChangePlan(btn) {
-    const planId    = btn.dataset.planId;
-    const configKey = btn.dataset.configKey;
-    const label     = btn.dataset.label;
-    const direction = btn.dataset.direction;
+  /* ── Dati piani — specchio della home ── */
+  // annualOnly: true  → off su mensile, ON su annuale
+  // off: true         → sempre off per questo tier
+  const PLAN_CARDS = {
+    'cultura': {
+      name: 'Cultura',
+      desc: 'Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.',
+      price:     { mensile: '€5,90',  annuale: '€49'  },
+      configKey: { mensile: 'cultura_monthly', annuale: 'cultura_annual' },
+      featured: false, badge: null,
+      features: [
+        { text: 'Corsi Brevi di cultura classica' },
+        { text: 'Webinar asincroni' },
+        { text: 'Corsi e attestati riconosciuti dal MIM' },
+        { text: 'Attestati digitali con codice univoco verificabile' },
+        { text: 'Corsi di lingua: Latino, Greco, Egiziano, Ebraico', off: true },
+        { text: 'Magistro AI — tutor contestuale e quiz generativi', off: true },
+        { text: 'Test autocorrettivi per ogni lezione', off: true },
+        { text: 'Formazione docenti — accredito MIM', off: true },
+        { text: 'Corsi specialistici mensili (docenti e ricercatori univ.)', off: true },
+        { text: 'Pagamento con Bonus Docenti', off: true },
+      ],
+    },
+    'linguae': {
+      name: 'Linguae',
+      desc: 'Per imparare davvero: corsi di lingua + tutto il catalogo cultura.',
+      price:     { mensile: '€12,90', annuale: '€99'  },
+      configKey: { mensile: 'linguae_monthly', annuale: 'linguae_annual' },
+      featured: true, badge: 'Il più scelto',
+      features: [
+        { text: 'Tutto in Cultura', tuttoIn: true },
+        { text: 'Corsi di lingua: Latino, Greco Antico, Egiziano, Ebraico' },
+        { text: 'Tutti i livelli: A1, A2, B1 — dall\'inizio al testo autentico' },
+        { text: 'Magistro AI — tutor contestuale e quiz generativi' },
+        { text: 'Test autocorrettivi per ogni lezione' },
+        { text: 'Certificazione linguistica di Latino e Greco', annualOnly: true },
+        { text: 'Formazione docenti — accredito MIM', off: true },
+        { text: 'Corsi specialistici mensili (docenti e ricercatori univ.)', off: true },
+        { text: 'Pagamento con Bonus Docenti', off: true },
+      ],
+    },
+    'accademia': {
+      name: 'Accademia',
+      desc: 'Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti (piano annuale).',
+      price:     { mensile: '€19,90', annuale: '€179' },
+      configKey: { mensile: 'accademia_monthly', annuale: 'accademia_annual' },
+      featured: false, badge: null,
+      features: [
+        { text: 'Tutto in Linguae', tuttoIn: true },
+        { text: 'Formazione docenti — accredito MIM' },
+        { text: 'Corsi di formazione tematici di pratica didattica' },
+        { text: 'Corsi specialistici mensili (docenti e ricercatori univ.)' },
+        { text: 'Batterie di test per la classe', annualOnly: true },
+        { text: 'Live mensile di 1 ora con i docenti', annualOnly: true },
+        { text: 'Pagamento con Bonus Docenti', annualOnly: true },
+      ],
+    },
+  };
 
-    const confirmMsg = direction === 'downgrade'
-      ? `Confermi il passaggio a ${label}?\n\nAttenzione: perderai le funzionalità non incluse in questo piano. Il cambio sarà attivo dal prossimo ciclo.`
-      : `Confermi il passaggio al piano ${label}?\n\nPagherai solo la differenza proporzionale al periodo rimanente.`;
+  /* ── Modal cambio piano ── */
+  let _pendingChangeFn = null;
+  let _modalState = {}; // { tierKey, billing, direction }
 
-    if (!confirm(confirmMsg)) return;
+  /* Renderizza il contenuto della card nel modal in base al billing corrente */
+  function renderModalCard() {
+    const { tierKey, billing, direction } = _modalState;
+    const card = PLAN_CARDS[tierKey];
+    if (!card) return;
 
-    btn.disabled = true;
-    btn.querySelectorAll('span')[0].textContent = 'Elaborazione…';
+    const isAnnuale = billing === 'annuale';
+
+    /* Toggle */
+    document.querySelectorAll('.pm-billing-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.billing === billing);
+    });
+
+    /* Prezzo */
+    document.getElementById('pm-price-amount').textContent = card.price[billing];
+    document.getElementById('pm-price-period').textContent =
+      '/' + (isAnnuale ? 'anno' : 'mese');
+
+    /* Feature list */
+    const ul = document.getElementById('pm-feat-list');
+    ul.innerHTML = card.features.map(f => {
+      let cls = '';
+      if (f.tuttoIn)       cls = 'tutto-in';
+      else if (f.off)      cls = 'off';
+      else if (f.annualOnly && !isAnnuale) cls = 'off';
+      // annualOnly + isAnnuale → nessuna classe = attivo (✓)
+      const suffix = f.annualOnly && !isAnnuale ? ' <span style="font-size:.68rem;color:rgba(201,150,42,.6);font-style:italic;">(solo annuale)</span>' : '';
+      return `<li class="${cls}">${esc(f.text)}${suffix}</li>`;
+    }).join('');
+
+    /* Confirm button */
+    const confirmBtn = document.getElementById('pm-confirm-btn');
+    const planLabel  = card.name + (isAnnuale ? ' Annuale' : ' Mensile');
+    confirmBtn.textContent = direction === 'downgrade'
+      ? `Passa a ${planLabel}`
+      : `Passa a ${planLabel} →`;
+    confirmBtn.className = 'pm-btn-confirm' + (direction === 'downgrade' ? ' downgrade' : '');
+    confirmBtn.disabled  = false;
+
+    /* Aggiorna callback pendente con il billing scelto */
+    const configKey = card.configKey[billing];
+    _pendingChangeFn = () => executePlanChange(configKey, planLabel, direction, confirmBtn);
+  }
+
+  function openPlanModal(planId, _unused, label, direction) {
+    const tierKey = planId.replace('-mensile','').replace('-annuale','');
+    const billing = planId.includes('annuale') ? 'annuale' : 'mensile';
+    const card    = PLAN_CARDS[tierKey];
+    if (!card) return;
+
+    _modalState = { tierKey, billing, direction };
+
+    /* Intestazione */
+    document.getElementById('pm-header-label').textContent =
+      direction === 'downgrade' ? 'Passa a un piano inferiore' : 'Esplora il piano';
+
+    /* Card: struttura fissa (il contenuto dinamico viene da renderModalCard) */
+    const cardEl = document.getElementById('pm-card-body');
+    cardEl.className = 'pm-card' + (card.featured ? ' featured' : '');
+    cardEl.innerHTML = `
+      ${card.badge ? `<div class="pm-plan-badge">${esc(card.badge)}</div>` : ''}
+      <div class="pm-plan-name">${esc(card.name)}</div>
+      <div class="pm-plan-desc">${esc(card.desc)}</div>
+
+      <!-- Toggle mensile/annuale -->
+      <div class="pm-billing-toggle">
+        <button class="pm-billing-btn" data-billing="mensile" type="button">Mensile</button>
+        <button class="pm-billing-btn" data-billing="annuale" type="button">
+          Annuale <span class="pm-billing-save">−30%</span>
+        </button>
+      </div>
+
+      <div class="pm-plan-price">
+        <span class="pm-price-amount" id="pm-price-amount"></span>
+        <span class="pm-price-period" id="pm-price-period"></span>
+      </div>
+      <ul class="pm-features" id="pm-feat-list"></ul>`;
+
+    /* Event toggle */
+    cardEl.querySelectorAll('.pm-billing-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        _modalState.billing = btn.dataset.billing;
+        renderModalCard();
+      });
+    });
+
+    /* Primo render */
+    renderModalCard();
+
+    /* Apri */
+    document.getElementById('plan-modal-overlay').classList.add('open');
+    document.getElementById('pm-confirm-btn').focus();
+  }
+
+  function closePlanModal() {
+    document.getElementById('plan-modal-overlay').classList.remove('open');
+    _pendingChangeFn = null;
+  }
+
+  /* Chiudi cliccando fuori o sul bottone × */
+  document.getElementById('plan-modal-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('plan-modal-overlay')) closePlanModal();
+  });
+  document.getElementById('pm-close-btn').addEventListener('click', closePlanModal);
+  document.getElementById('pm-cancel-btn').addEventListener('click', closePlanModal);
+  document.getElementById('pm-confirm-btn').addEventListener('click', () => {
+    if (_pendingChangeFn) _pendingChangeFn();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePlanModal();
+  });
+
+  /* ── Esegue il cambio piano (chiamata API) ── */
+  async function executePlanChange(configKey, label, direction, confirmBtn) {
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Elaborazione…';
 
     let priceId;
     try {
@@ -699,8 +1056,7 @@
     } catch { priceId = null; }
 
     if (!priceId) {
-      btn.disabled = false;
-      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+      closePlanModal();
       showToast('Errore: prezzo non disponibile. Riprova.', 'error');
       return;
     }
@@ -713,20 +1069,28 @@
       });
       const resp = await r.json();
       if (r.ok && resp.ok) {
+        closePlanModal();
         showToast(direction === 'downgrade'
           ? '✓ Piano aggiornato. Cambio attivo dal prossimo ciclo.'
           : '✓ Piano aggiornato con successo!', 'success');
         setTimeout(() => location.reload(), 1800);
       } else {
-        btn.disabled = false;
-        btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+        closePlanModal();
         showToast(resp.error || 'Errore durante il cambio piano. Riprova.', 'error');
       }
     } catch {
-      btn.disabled = false;
-      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+      closePlanModal();
       showToast('Errore di rete. Riprova tra qualche secondo.', 'error');
     }
+  }
+
+  /* ── Cambio piano (upgrade o downgrade) — ora apre modal ── */
+  async function handleChangePlan(btn) {
+    const planId    = btn.dataset.planId;
+    const configKey = btn.dataset.configKey;
+    const label     = btn.dataset.label;
+    const direction = btn.dataset.direction;
+    openPlanModal(planId, configKey, label, direction);
   }
 
   /* ── Annulla abbonamento ── */
