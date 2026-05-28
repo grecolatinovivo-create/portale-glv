@@ -1812,6 +1812,7 @@ body.has-corso-cta { padding-bottom: 80px; }
 }
 @media (max-width: 900px) {
   .glv-nav { padding: 0 24px; gap: 16px; }
+  .nav-inner { padding: 0 24px; gap: 16px; }
   .nav-links { display: none; }
   .landing-hero { padding: calc(var(--nav-height) + 40px) 32px 60px; }
   .value-props { grid-template-columns: 1fr; padding: 0 32px 60px; }
@@ -1847,8 +1848,15 @@ body.has-corso-cta { padding-bottom: 80px; }
   .landing-section { padding: 60px 32px; }
 }
 @media (max-width: 640px) {
-  .glv-nav { padding: 0 16px; }
+  .glv-nav { padding: 0 12px; }
+  .nav-inner { padding: 0 12px; gap: 8px; }
   .nav-right { gap: 8px; }
+  /* Badge piano: nascosto su mobile piccolo — l'info è nel dropdown */
+  .nav-plan-badge { display: none; }
+  /* Logo più compatto */
+  .nav-logo-icon { width: 30px; height: 30px; font-size: 1rem; }
+  .nav-logo-name { font-size: .82rem; }
+  .nav-logo-sub { display: none; }
   .landing-hero { padding: calc(var(--nav-height) + 24px) 16px 48px; }
   .landing-hero-actions { flex-direction: column; }
   .landing-hero-stats { gap: 20px; }
