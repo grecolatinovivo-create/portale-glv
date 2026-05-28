@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>OG Image Preview — GrecoLatinoVivo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    font-family: 'Inter', Arial, sans-serif;
+    gap: 20px;
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .controls span { color: #888; font-size: 13px; }
+  .claim-btn {
+    font-size: 12px;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 20px;
+    background: transparent;
+    color: #ccc;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .claim-btn:hover { background: rgba(255,255,255,0.06); }
+  .claim-btn.active { border-color: #a01a36; color: #e8c875; background: rgba(160,26,54,0.12); }
+
+  /* ══ OG FRAME: 1200×630 ══ */
+  .og {
+    width: 1200px;
+    height: 630px;
+    background: #0a0a0a;
+    border-radius: 12px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* ── LEFT: cards ── */
+  .og-left {
+    width: 720px;
+    padding: 44px 28px 0 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .og-cards {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+  }
+
+  /* ── RIGHT: claim ── */
+  .og-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 44px 44px 44px 32px;
+    position: relative;
+  }
+  .og-right::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 14%;
+    bottom: 14%;
+    width: 1px;
+    background: rgba(255,255,255,0.07);
+  }
+  .og-logo {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #a01a36;
+    margin-bottom: 4px;
+  }
+  .og-sub {
+    font-size: 9px;
+    color: rgba(245,245,245,0.28);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .og-claim {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24px;
+    line-height: 1.45;
+    color: #f5f5f5;
+    font-weight: 400;
+  }
+  .og-claim em {
+    color: #e8c875;
+    font-style: normal;
+  }
+  .og-url {
+    position: absolute;
+    bottom: 18px;
+    right: 24px;
+    font-size: 9px;
+    color: rgba(245,245,245,0.16);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ══ PLAN CARD ══ */
+  .plan-card {
+    flex: 1;
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 14px;
+    padding: 22px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .plan-card.featured {
+    border-color: rgba(201,150,42,.4);
+  }
+
+  .plan-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c9962a;
+    background: rgba(201,150,42,0.12);
+    border: 1px solid rgba(201,150,42,0.3);
+    border-radius: 4px;
+    padding: 3px 8px;
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .plan-name {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: #f5f5f5;
+    margin-bottom: 6px;
+  }
+  .plan-desc {
+    font-size: 11px;
+    color: rgba(245,245,245,.45);
+    line-height: 1.55;
+    margin-bottom: 14px;
+    min-height: 34px;
+  }
+  .plan-price {
+    margin-bottom: 16px;
+  }
+  .plan-amount {
+    font-size: 28px;
+    font-weight: 700;
+    color: #f5f5f5;
+    letter-spacing: -0.5px;
+  }
+  .plan-period {
+    font-size: 13px;
+    color: rgba(245,245,245,.4);
+    font-weight: 400;
+  }
+
+  .plan-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .plan-features li {
+    font-size: 11px;
+    color: rgba(245,245,245,.82);
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    line-height: 1.45;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+  .plan-features li::before {
+    content: '✓';
+    color: #c9962a;
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-size: 10px;
+  }
+  .plan-features li.off {
+    color: rgba(245,245,245,.35);
+  }
+  .plan-features li.off::before {
+    content: '✕';
+    color: rgba(245,245,245,.22);
+  }
+  .plan-features li.tutto-in {
+    color: #c9a84c;
+    font-weight: 600;
+    font-style: italic;
+    border-bottom: 1px solid rgba(201,150,42,.2);
+  }
+  .plan-features li.tutto-in::before {
+    content: '↳';
+    color: #c9a84c;
+  }
+
+  /* fade bottom delle card */
+  .plan-fade {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, #0a0a0a);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+  <div class="controls">
+    <span>Claim:</span>
+    <button class="claim-btn active" onclick="setClaim(0,this)">A — Identità</button>
+    <button class="claim-btn" onclick="setClaim(1,this)">B — Trasformazione</button>
+    <button class="claim-btn" onclick="setClaim(2,this)">C — Perdita</button>
+    <button class="claim-btn" onclick="setClaim(3,this)">D — Docenti</button>
+  </div>
+
+  <div class="og">
+
+    <!-- ══ SINISTRA: le 3 card reali della home ══ -->
+    <div class="og-left">
+      <div class="og-cards">
+
+        <!-- CULTURA -->
+        <div class="plan-card">
+          <div class="plan-name">Cultura</div>
+          <div class="plan-desc">Per chi vuole esplorare il mondo antico. Corsi brevi di storia, civiltà e testi.</div>
+          <div class="plan-price">
+            <span class="plan-amount">€5,90</span><span class="plan-period">/mese</span>
+          </div>
+          <ul class="plan-features">
+            <li>Corsi Brevi di cultura classica</li>
+            <li>Webinar asincroni</li>
+            <li>Corsi e attestati riconosciuti dal MIM</li>
+            <li>Attestati digitali con codice univoco verificabile</li>
+            <li class="off">Corsi di lingua (Latino, Greco, Egiziano, Ebraico Biblico)</li>
+            <li class="off">Magistro AI — tutor contestuale e quiz generativi</li>
+            <li class="off">Test autocorrettivi per misurare i progressi</li>
+            <li class="off">Formazione docenti — accredito MIM</li>
+            <li class="off">Possibilità di pagamento con Bonus Docenti</li>
+          </ul>
+          <div class="plan-fade"></div>
+        </div>
+
+        <!-- LINGUAE -->
+        <div class="plan-card featured">
+          <div class="plan-badge">Il più scelto</div>
+          <div class="plan-name">Linguae</div>
+          <div class="plan-desc">Per imparare davvero: corsi di lingua + tutto il catalogo cultura.</div>
+          <div class="plan-price">
+            <span class="plan-amount">€12,90</span><span class="plan-period">/mese</span>
+          </div>
+          <ul class="plan-features">
+            <li class="tutto-in">Tutto in Cultura</li>
+            <li>Corsi di lingua: Latino, Greco Antico, Egiziano Geroglifico, Ebraico Biblico</li>
+            <li>Tutti i livelli: A1, A2, B1 — dall'inizio al testo autentico</li>
+            <li>Magistro AI — tutor contestuale e quiz generativi sulla lezione</li>
+            <li>Test autocorrettivi per misurare i propri progressi</li>
+            <li class="off">Esame di certificazione linguistica di Latino e Greco</li>
+            <li class="off">Formazione docenti — accredito MIM</li>
+            <li class="off">Possibilità di pagamento con Bonus Docenti</li>
+          </ul>
+          <div class="plan-fade"></div>
+        </div>
+
+        <!-- ACCADEMIA -->
+        <div class="plan-card">
+          <div class="plan-name">Accademia</div>
+          <div class="plan-desc">Per docenti e ricercatori. Formazione accreditata MIM, Bonus Docenti attivo.</div>
+          <div class="plan-price">
+            <span class="plan-amount">€19,90</span><span class="plan-period">/mese</span>
+          </div>
+          <ul class="plan-features">
+            <li class="tutto-in">Tutto in Linguae</li>
+            <li>Formazione docenti in metodologie didattiche — accredito MIM</li>
+            <li>Corsi di formazione tematici di pratica didattica</li>
+            <li>Un nuovo corso specialistico al mese (docenti e ricercatori)</li>
+            <li class="off">Batterie di test per la classe — solo annuale</li>
+            <li class="off">Live mensile di 1 ora con i docenti — solo annuale</li>
+            <li class="off">Possibilità di pagamento con Bonus Docenti — solo annuale</li>
+          </ul>
+          <div class="plan-fade"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══ DESTRA: claim ══ -->
+    <div class="og-right">
+      <div class="og-logo">GrecoLatinoVivo</div>
+      <div class="og-sub">Centro Nazionale di Studi Classici</div>
+      <div class="og-claim" id="og-claim">
+        Le lingue classiche non sono morte.<br>Le hai solo <em>dimenticate.</em>
+      </div>
+    </div>
+
+    <div class="og-url">portale.grecolatinovivo.it</div>
+  </div>
+
+<script>
+const claims = [
+  { html: 'Le lingue classiche non sono morte.<br>Le hai solo <em>dimenticate.</em>' },
+  { html: 'Leggi Virgilio in originale.<br><em>In abbonamento.</em>' },
+  { html: 'Le lingue classiche si imparano.<br><em>O si rimpiangono.</em>' },
+  { html: 'Il portale che i tuoi studenti<br><em>ti ringrazieranno.</em>' },
+];
+function setClaim(i, btn) {
+  document.querySelectorAll('.claim-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('og-claim').innerHTML = claims[i].html;
+}
+</script>
+
+</body>
+</html>
