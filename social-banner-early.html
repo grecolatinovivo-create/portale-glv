@@ -52,7 +52,7 @@
 
   /* ── SINISTRA ── */
   .left {
-    width: 480px;
+    width: 520px;
     height: 100%;
     flex-shrink: 0;
     display: flex;
@@ -82,14 +82,14 @@
 
   .fan-wrap {
     position: relative;
-    width: 260px;
-    height: 330px;
+    width: 310px;
+    height: 420px;
   }
 
   .fan-card {
     position: absolute;
-    width: 215px;
-    height: 285px;
+    width: 260px;
+    height: 360px;
     border-radius: 13px;
     border: 1px solid rgba(255,255,255,.11);
     background: #141414;
@@ -98,8 +98,8 @@
     transform-origin: 50% 115%;
     display: flex;
     flex-direction: column;
-    left: 22px;
-    top: 22px;
+    left: 26px;
+    top: 26px;
   }
 
   .fan-card:nth-child(1) { transform: rotate(-12deg); z-index: 1; filter: brightness(.82); }
@@ -108,35 +108,35 @@
   .fan-card:nth-child(4) { transform: rotate(13deg);  z-index: 2; opacity: .75; filter: brightness(.8); }
 
   .fan-card-header {
-    height: 90px;
+    height: 115px;
     display: flex; flex-direction: column;
     justify-content: flex-end;
-    padding: .75rem 1rem;
+    padding: .9rem 1.1rem;
   }
   .fan-card-level {
-    font-size: .57rem; font-weight: 700;
+    font-size: .72rem; font-weight: 700;
     letter-spacing: .12em; text-transform: uppercase;
     color: rgba(255,255,255,.52); margin-bottom: .28rem;
   }
   .fan-card-lang {
-    font-size: .67rem; font-weight: 700;
+    font-size: .85rem; font-weight: 700;
     letter-spacing: .08em; text-transform: uppercase;
     color: rgba(255,255,255,.9);
   }
   .fan-card-body { padding: .8rem 1rem; flex: 1; }
   .fan-card-title {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: .88rem; font-weight: 700;
+    font-size: 1.1rem; font-weight: 700;
     color: #f5f5f5; line-height: 1.33; margin-bottom: .45rem;
   }
-  .fan-card-meta { font-size: .66rem; color: rgba(245,245,245,.34); }
+  .fan-card-meta { font-size: .82rem; color: rgba(245,245,245,.34); }
   .fan-card-footer {
     padding: .6rem 1rem;
     border-top: 1px solid rgba(255,255,255,.07);
     display: flex; align-items: center; gap: .4rem;
   }
   .fan-card-dot { width: 7px; height: 7px; border-radius: 50%; }
-  .fan-card-status { font-size: .62rem; color: rgba(245,245,245,.3); letter-spacing: .04em; }
+  .fan-card-status { font-size: .78rem; color: rgba(245,245,245,.3); letter-spacing: .04em; }
 
   /* ── DESTRA ── */
   .right {
@@ -165,13 +165,13 @@
     background: rgba(160,26,54,0.18);
     border: 1px solid rgba(160,26,54,0.4);
     color: #e87a8a;
-    font-size: .6rem;
+    font-size: .72rem;
     font-weight: 700;
     letter-spacing: .18em;
     text-transform: uppercase;
-    padding: .35rem .85rem;
+    padding: .4rem .95rem;
     border-radius: 2px;
-    margin-bottom: 1.6rem;
+    margin-bottom: .8rem;
     align-self: flex-start;
   }
   .early-badge::before {
@@ -188,7 +188,7 @@
 
   .headline {
     font-family: 'Playfair Display', Georgia, serif;
-    font-size: 2.45rem;
+    font-size: 2.94rem;
     font-weight: 700;
     color: #f5f5f5;
     line-height: 1.18;
@@ -200,7 +200,7 @@
   }
 
   .body-text {
-    font-size: .88rem;
+    font-size: 1.05rem;
     color: rgba(245,245,245,.52);
     line-height: 1.82;
     margin-bottom: 1.8rem;
@@ -214,13 +214,13 @@
   .stats {
     display: flex;
     gap: 2rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1.6rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 1.2rem;
     border-bottom: 1px solid rgba(255,255,255,.07);
   }
   .stat-n {
     font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     font-weight: 700;
     color: #e8c875;
     line-height: 1;
@@ -228,7 +228,7 @@
     margin-bottom: .2rem;
   }
   .stat-l {
-    font-size: .58rem;
+    font-size: .68rem;
     font-weight: 600;
     letter-spacing: .1em;
     text-transform: uppercase;
@@ -238,16 +238,25 @@
   .cta {
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
-    background: #a01a36;
-    color: #f5f5f5;
+    gap: .6rem;
+    background: rgba(160,26,54,0.18);
+    border: 1px solid rgba(160,26,54,0.4);
+    color: #e87a8a;
     font-size: .78rem;
-    font-weight: 800;
-    letter-spacing: .08em;
+    font-weight: 700;
+    letter-spacing: .18em;
     text-transform: uppercase;
-    padding: .78rem 1.8rem;
-    border-radius: 3px;
+    padding: .72rem 1.6rem;
+    border-radius: 2px;
     align-self: flex-start;
+  }
+  .cta::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #e87a8a;
+    flex-shrink: 0;
+    animation: pulse 1.8s ease-in-out infinite;
   }
 
   /* ── FOOTER ── */
@@ -263,7 +272,7 @@
   }
   .footer-logo-icon {
     font-family: 'Playfair Display', serif;
-    font-size: .72rem;
+    font-size: .9rem;
     font-weight: 700;
     color: #c9962a;
     letter-spacing: .1em;
@@ -271,7 +280,7 @@
     margin-right: .6rem;
   }
   .footer-text {
-    font-size: .6rem;
+    font-size: .75rem;
     font-weight: 500;
     letter-spacing: .06em;
     color: rgba(245,245,245,.35);
@@ -367,7 +376,6 @@
 
     <!-- DESTRA -->
     <div class="right">
-      <div class="early-badge">Early Access</div>
       <h1 class="headline">
         E se capissi davvero<br>
         cosa c'è scritto<br>
@@ -383,7 +391,7 @@
         <div><span class="stat-n">+12k</span><span class="stat-l">Studenti in 10 anni</span></div>
         <div><span class="stat-n">3</span><span class="stat-l">Abbonamenti diversi</span></div>
       </div>
-      <span class="cta">Accedi in anteprima →</span>
+      <span class="cta">Early Access →</span>
     </div>
 
   </div>

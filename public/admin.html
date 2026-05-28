@@ -750,76 +750,21 @@
       </section>
 
       <!-- ══════════════════════════════════════
-           SEZIONE: FAMILIA ROMANA / CONTENT STATS
+           SEZIONE: COMMISSIONE EDITORE
            ══════════════════════════════════════ -->
       <section id="section-content-stats" class="section">
 
-        <!-- Intestazione -->
-        <div style="margin-bottom:20px;">
+        <div style="margin-bottom:24px;">
           <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:700;color:var(--bordeaux);margin-bottom:4px;">
-            Familia Romana — Statistiche contenuto
+            Commissione editore — Familia Romana
           </h2>
           <p style="font-size:13px;color:var(--gray-400);">
-            Corsi di Latino livelli A1.1 · A1.2 · A2.1 · A2.2 · B1.1 · B1.2 · B1.3 — disponibili dal piano <strong>Linguae</strong> in poi.
+            Latino A1.1 → B1.3 · 20% sulla quota di MRR proporzionale al minutaggio
           </p>
         </div>
 
-        <!-- Card metriche principali -->
-        <div class="metrics-grid" id="cs-metrics-grid" style="margin-bottom:24px;">
-          <div class="metric-card" style="opacity:.4">
-            <div class="metric-label">📹 Video Familia Romana</div>
-            <div class="metric-value">…</div>
-            <div class="metric-sub">su … totali</div>
-          </div>
-        </div>
-
-        <!-- Due colonne: breakdown livelli + abbonati -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;" class="admin-two-col">
-
-          <!-- Breakdown per livello -->
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title">Distribuzione per livello</div>
-              <div style="font-size:12px;color:var(--gray-400)" id="cs-fr-total-sub">—</div>
-            </div>
-            <div class="panel-body">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Livello</th>
-                    <th>Corsi</th>
-                    <th>Video</th>
-                    <th>Ore</th>
-                    <th>%&nbsp;video</th>
-                  </tr>
-                </thead>
-                <tbody id="cs-breakdown-table">
-                  <tr class="loading-row"><td colspan="5">Caricamento…</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Abbonati che hanno accesso -->
-          <div class="panel">
-            <div class="panel-header">
-              <div class="panel-title">Abbonati con accesso (attivi)</div>
-            </div>
-            <div class="panel-body" style="padding:20px;display:flex;flex-direction:column;gap:16px;" id="cs-subs-body">
-              <div style="text-align:center;color:var(--gray-400);font-style:italic;">Caricamento…</div>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Confronto con il totale portale -->
-        <div class="panel" style="margin-top:4px;">
-          <div class="panel-header">
-            <div class="panel-title">Confronto con il totale portale</div>
-          </div>
-          <div class="panel-body" style="padding:20px;" id="cs-compare-body">
-            <div style="text-align:center;color:var(--gray-400);font-style:italic;">Caricamento…</div>
-          </div>
+        <div id="cs-body">
+          <div style="text-align:center;padding:40px;color:var(--gray-400);">Caricamento…</div>
         </div>
 
       </section>
@@ -1694,158 +1639,103 @@ function formatDateShort(iso) {
 }
 
 /* ─────────────────────────────────────────────────────────────
-   CONTENT STATS — Familia Romana
+   COMMISSIONE EDITORE — Familia Romana
 ───────────────────────────────────────────────────────────── */
 let _csLoaded = false;
 
+function fmt(n) {
+  return n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 async function loadContentStats() {
-  if (_csLoaded) return; // evita ricaricamenti inutili
+  if (_csLoaded) return;
+  const body = document.getElementById('cs-body');
   try {
     const r = await fetch('/api/admin/content-stats');
     if (!r.ok) throw new Error(await r.text());
-    const { total, familiaRomana: fr, subscribers } = await r.json();
+    const d = await r.json();
     _csLoaded = true;
 
-    // ── Metriche principali ────────────────────────────────────
-    document.getElementById('cs-metrics-grid').innerHTML = `
-      <div class="metric-card accent">
-        <div class="metric-label">📹 Video Familia Romana</div>
-        <div class="metric-value">${fr.lessons}</div>
-        <div class="metric-sub">${fr.pctLessons}% dei ${total.lessons} video totali</div>
-      </div>
-      <div class="metric-card gold">
-        <div class="metric-label">⏱ Ore di contenuto</div>
-        <div class="metric-value">${fr.hours}h</div>
-        <div class="metric-sub">${fr.minutes.toLocaleString('it-IT')} min · ${fr.pctMinutes}% del totale portale</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">📚 Corsi Latino</div>
-        <div class="metric-value">${fr.courses}</div>
-        <div class="metric-sub">Livelli A1.1 → B1.3</div>
-      </div>
-      <div class="metric-card" style="border-color:var(--bordeaux)">
-        <div class="metric-label">👥 Abbonati con accesso</div>
-        <div class="metric-value">${subscribers.total}</div>
-        <div class="metric-sub">Linguae (${subscribers.linguae}) + Accademia (${subscribers.accademia})</div>
-      </div>
-    `;
+    const plans = [
+      { key: 'linguae-mensile',   label: 'Linguae Mensile',   price: 12.90,             tier: 'linguae' },
+      { key: 'linguae-annuale',   label: 'Linguae Annuale',   price: +(99/12).toFixed(2), tier: 'linguae' },
+      { key: 'accademia-mensile', label: 'Accademia Mensile', price: 19.90,             tier: 'accademia' },
+      { key: 'accademia-annuale', label: 'Accademia Annuale', price: +(179/12).toFixed(2), tier: 'accademia' },
+    ];
 
-    // ── Sub-label breakdown ────────────────────────────────────
-    document.getElementById('cs-fr-total-sub').textContent =
-      `${fr.lessons} video · ${fr.hours}h`;
-
-    // ── Tabella breakdown per livello ──────────────────────────
-    const tbody = document.getElementById('cs-breakdown-table');
-    if (!fr.breakdown || fr.breakdown.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nessun dato trovato</td></tr>';
-    } else {
-      const pctOf = (n) => fr.lessons > 0 ? ((n / fr.lessons) * 100).toFixed(0) + '%' : '—';
-      tbody.innerHTML = fr.breakdown.map(row => `
+    const planRows = plans.map(p => {
+      const n   = d.subCounts[p.key] || 0;
+      const rev = n * p.price;
+      const comm = rev * (d.pctMinutes / 100) * 0.20;
+      return `
         <tr>
-          <td><strong>${escHtml(row.level)}</strong></td>
-          <td>${row.courses}</td>
-          <td>${row.lessons}</td>
-          <td>${Math.round(row.minutes / 60)}h ${row.minutes % 60}min</td>
-          <td>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:6px;background:var(--gray-100);border-radius:3px;overflow:hidden;">
-                <div style="height:100%;width:${fr.lessons > 0 ? Math.round((row.lessons/fr.lessons)*100) : 0}%;background:var(--bordeaux);border-radius:3px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--gray-400);white-space:nowrap;">${pctOf(row.lessons)}</span>
-            </div>
-          </td>
-        </tr>
-      `).join('');
+          <td>${escHtml(p.label)}</td>
+          <td style="text-align:right">${n}</td>
+          <td style="text-align:right">€${fmt(p.price)}</td>
+          <td style="text-align:right">€${fmt(rev)}</td>
+          <td style="text-align:right;font-weight:600;color:var(--bordeaux)">€${fmt(comm)}</td>
+        </tr>`;
+    }).join('');
 
-      // Riga totale
-      tbody.innerHTML += `
-        <tr style="background:var(--gray-50);">
-          <td><strong>Totale FR</strong></td>
-          <td><strong>${fr.courses}</strong></td>
-          <td><strong>${fr.lessons}</strong></td>
-          <td><strong>${fr.hours}h ${(fr.minutes - fr.hours * 60) > 0 ? (fr.minutes - fr.hours * 60) + 'min' : ''}</strong></td>
-          <td><strong>100%</strong></td>
-        </tr>
-      `;
-    }
+    body.innerHTML = `
+      <!-- Totale in evidenza -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px;" class="metrics-grid">
 
-    // ── Abbonati card ──────────────────────────────────────────
-    document.getElementById('cs-subs-body').innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-100);">
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-900);">Piano Linguae</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Mensile + Annuale · status active</div>
+        <div class="panel" style="margin:0;padding:20px 24px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px;">Linguae (${(d.subCounts['linguae-mensile']||0)+(d.subCounts['linguae-annuale']||0)} abb.)</div>
+          <div style="font-size:28px;font-weight:700;color:var(--bordeaux);">€${fmt(d.commLinguae)}</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">MRR: €${fmt(d.mrrLinguae)}</div>
         </div>
-        <div style="font-size:28px;font-weight:700;color:var(--bordeaux);">${subscribers.linguae}</div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--gray-100);">
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-900);">Piano Accademia</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Mensile + Annuale · status active</div>
-        </div>
-        <div style="font-size:28px;font-weight:700;color:var(--bordeaux);">${subscribers.accademia}</div>
-      </div>
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;">
-        <div>
-          <div style="font-size:14px;font-weight:600;color:var(--gray-900);">Totale con accesso Familia Romana</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Linguae + Accademia</div>
-        </div>
-        <div style="font-size:32px;font-weight:700;color:var(--gold);">${subscribers.total}</div>
-      </div>
-    `;
 
-    // ── Confronto con totale portale ───────────────────────────
-    const pctL = fr.pctLessons;
-    const pctM = fr.pctMinutes;
-    document.getElementById('cs-compare-body').innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:32px;">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:10px;">Video (lezioni)</div>
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-            <span style="font-size:13px;color:var(--gray-400);width:120px;">Familia Romana</span>
-            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:5px;overflow:hidden;">
-              <div style="height:100%;width:${pctL}%;background:var(--bordeaux);border-radius:5px;transition:width .6s;"></div>
-            </div>
-            <span style="font-size:13px;font-weight:600;color:var(--bordeaux);width:40px;text-align:right;">${pctL}%</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:13px;color:var(--gray-400);width:120px;">Altri contenuti</span>
-            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:5px;overflow:hidden;">
-              <div style="height:100%;width:${(100 - parseFloat(pctL)).toFixed(1)}%;background:var(--gray-200);border-radius:5px;"></div>
-            </div>
-            <span style="font-size:13px;font-weight:600;color:var(--gray-400);width:40px;text-align:right;">${(100 - parseFloat(pctL)).toFixed(1)}%</span>
-          </div>
-          <div style="margin-top:12px;font-size:12px;color:var(--gray-400);">
-            ${fr.lessons} su ${total.lessons} video totali
-          </div>
+        <div class="panel" style="margin:0;padding:20px 24px;">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--gray-400);margin-bottom:8px;">Accademia (${(d.subCounts['accademia-mensile']||0)+(d.subCounts['accademia-annuale']||0)} abb.)</div>
+          <div style="font-size:28px;font-weight:700;color:var(--bordeaux);">€${fmt(d.commAccademia)}</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">MRR: €${fmt(d.mrrAccademia)}</div>
         </div>
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:10px;">Minutaggio</div>
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
-            <span style="font-size:13px;color:var(--gray-400);width:120px;">Familia Romana</span>
-            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:5px;overflow:hidden;">
-              <div style="height:100%;width:${pctM}%;background:var(--gold);border-radius:5px;transition:width .6s;"></div>
-            </div>
-            <span style="font-size:13px;font-weight:600;color:var(--gold);width:40px;text-align:right;">${pctM}%</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:13px;color:var(--gray-400);width:120px;">Altri contenuti</span>
-            <div style="flex:1;height:10px;background:var(--gray-100);border-radius:5px;overflow:hidden;">
-              <div style="height:100%;width:${(100 - parseFloat(pctM)).toFixed(1)}%;background:var(--gray-200);border-radius:5px;"></div>
-            </div>
-            <span style="font-size:13px;font-weight:600;color:var(--gray-400);width:40px;text-align:right;">${(100 - parseFloat(pctM)).toFixed(1)}%</span>
-          </div>
-          <div style="margin-top:12px;font-size:12px;color:var(--gray-400);">
-            ${fr.hours}h su ${total.hours}h totali (${total.minutes.toLocaleString('it-IT')} min)
-          </div>
+
+        <div class="panel" style="margin:0;padding:20px 24px;border:2px solid var(--bordeaux);background:rgba(107,39,55,0.04);">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--bordeaux);margin-bottom:8px;">Totale commissione/mese</div>
+          <div style="font-size:32px;font-weight:700;color:var(--bordeaux);">€${fmt(d.commission)}</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">€${fmt(d.commissionAnnual)}/anno · MRR base €${fmt(d.mrr)}</div>
+        </div>
+
+      </div>
+
+      <!-- Dettaglio per piano -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Dettaglio per piano</div>
+          <div style="font-size:12px;color:var(--gray-400);">MRR × ${d.pctMinutes}% minutaggio FR × 20%</div>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead>
+              <tr>
+                <th>Piano</th>
+                <th style="text-align:right">Abbonati</th>
+                <th style="text-align:right">Prezzo/mese eq.</th>
+                <th style="text-align:right">MRR piano</th>
+                <th style="text-align:right">Commissione</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${planRows}
+              <tr style="background:var(--gray-50);">
+                <td><strong>Totale</strong></td>
+                <td style="text-align:right"><strong>${d.totalSubs}</strong></td>
+                <td></td>
+                <td style="text-align:right"><strong>€${fmt(d.mrr)}</strong></td>
+                <td style="text-align:right;font-weight:700;color:var(--bordeaux);">€${fmt(d.commission)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     `;
 
   } catch (err) {
     console.error('[content-stats]', err);
-    document.getElementById('cs-metrics-grid').innerHTML =
-      `<div class="alert alert-error" style="grid-column:1/-1">Errore nel caricamento statistiche: ${escHtml(err.message)}</div>`;
+    body.innerHTML = `<div class="alert alert-error">Errore: ${escHtml(err.message)}</div>`;
   }
 }
 
