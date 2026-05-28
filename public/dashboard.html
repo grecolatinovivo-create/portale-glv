@@ -2904,24 +2904,14 @@ async function openSubscriptionModal() {
 
   // Genera HTML della feature list per il piano corrente
   function buildFeatureList(currentPlanId) {
-    const isAnnual = currentPlanId?.includes('annuale');
     const rows = ALL_FEATURES.map(f => {
-      const active = f.plans.includes(currentPlanId);
-      const icon   = active ? '✓' : '✗';
+      const active  = f.plans.includes(currentPlanId);
+      const icon    = active ? '✓' : '✗';
       const iconClr = active ? '#6fcf97' : 'rgba(245,245,245,.25)';
       const textClr = active ? 'rgba(245,245,245,.85)' : 'rgba(245,245,245,.35)';
-      // Badge "solo annuale" se attivo ma solo per l'annuale del proprio tier,
-      // o se l'utente è su mensile e dovrebbe switchare ad annuale per ottenerla
-      let badge = '';
-      if (f.annualOnly && !active && !isAnnual) {
-        badge = `<span style="font-size:10px;background:rgba(201,150,42,.15);color:#c9962a;border:1px solid rgba(201,150,42,.3);padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle;">solo annuale</span>`;
-      }
-      const upgradeHint = !active && f.upgradeLabel
-        ? `<span style="font-size:10px;color:rgba(245,245,245,.25);margin-left:6px;">→ ${_esc(f.upgradeLabel)}</span>`
-        : '';
       return `<li style="display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;line-height:1.4;">
         <span style="flex-shrink:0;font-size:11px;font-weight:700;color:${iconClr};width:12px;">${icon}</span>
-        <span style="color:${textClr};">${_esc(f.text)}${badge}${upgradeHint}</span>
+        <span style="color:${textClr};">${_esc(f.text)}</span>
       </li>`;
     }).join('');
     return `<ul style="list-style:none;padding:0;margin:0;">${rows}</ul>`;

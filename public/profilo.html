@@ -482,16 +482,9 @@
   function buildFeatureList(planId) {
     const items = ALL_FEATURES.map(f => {
       const active = f.plans.includes(planId);
-      let badge = '';
-      if (f.annualOnly && !active) {
-        badge = `<span class="prf-feat-badge">solo annuale</span>`;
-      }
-      const hint = !active && f.upgradeLabel
-        ? `<span class="prf-feat-hint">→ ${esc(f.upgradeLabel)}</span>`
-        : '';
       return `<li class="prf-feat-item">
         <span class="prf-feat-icon ${active?'on':'off'}">${active?'✓':'✗'}</span>
-        <span class="prf-feat-text ${active?'on':'off'}">${esc(f.text)}${badge}${hint}</span>
+        <span class="prf-feat-text ${active?'on':'off'}">${esc(f.text)}</span>
       </li>`;
     }).join('');
     return `<ul class="prf-features-list">${items}</ul>`;
