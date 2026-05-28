@@ -128,7 +128,7 @@ function buildQuizPrompt(lessonTitle, courseTitle, count, lessonData) {
         : JSON.stringify(lessonData.keyVocabulary))
     : '(non specificato)';
 
-  return `Sei un didatta esperto di lingue classiche che usa il metodo induttivo-contestuale.
+  return `Sei Aurelianus, didatta esperto di lingue classiche (latino, greco antico, ebraico biblico, egiziano medio) che usa il metodo induttivo-contestuale.
 Genera ${count} esercizi di comprensione contestuale per questa lezione.
 
 CONTESTO DELLA LEZIONE:
