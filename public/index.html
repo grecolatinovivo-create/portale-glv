@@ -791,36 +791,40 @@
       border-bottom: 1px solid rgba(255,255,255,.08);
     }
     .faq-item:first-of-type { border-top: 1px solid rgba(255,255,255,.08); }
-    .faq-item summary {
-      list-style: none;
+    .faq-q {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 1rem;
+      width: 100%;
+      background: none;
+      border: none;
+      cursor: pointer;
       padding: 1.2rem 0;
       font-size: .95rem;
       font-weight: 500;
       color: var(--text-main);
-      cursor: pointer;
-      user-select: none;
+      text-align: left;
     }
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary::after {
-      content: '+';
+    .faq-icon {
       color: var(--gold);
       font-size: 1.4rem;
       font-weight: 300;
-      line-height: 1;
-      flex-shrink: 0;
       transition: transform .2s;
+      display: inline-block;
+      flex-shrink: 0;
     }
-    .faq-item[open] summary::after { transform: rotate(45deg); }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .faq-item.open .faq-a { max-height: 600px; }
     .faq-answer {
       font-size: .88rem;
       color: rgba(245,245,245,.62);
       line-height: 1.75;
       padding-bottom: 1.2rem;
-      max-width: 620px;
     }
     .faq-answer strong { color: rgba(245,245,245,.85); font-weight: 500; }
 
@@ -1291,7 +1295,8 @@
     <div class="pricing-veil-box">
       <p class="pricing-veil-tag">Apertura iscrizioni</p>
       <h3 class="pricing-veil-title">Stiamo aprendo le porte.<br>Vuoi essere tra i primi?</h3>
-      <p class="pricing-veil-sub">Lascia la tua email: ti avvisiamo non appena puoi abbonarti. Nessuno spam.</p>
+      <p class="pricing-veil-sub">Lascia la tua email: ti avvisiamo non appena puoi abbonarti. Niente spam.</p>
+      <p class="pricing-veil-spots" id="veil-spots" style="font-size:.78rem;color:var(--gold);margin-bottom:1.2rem;min-height:1.2em;"></p>
 
       <!-- Step 1: email -->
       <form class="pricing-veil-form" id="veil-form-step1">
@@ -1633,40 +1638,55 @@
   <div class="faq-inner">
     <h2 class="faq-heading">Domande <em>frequenti</em></h2>
 
-    <details class="faq-item">
-      <summary>Cosa include il portale?</summary>
-      <p class="faq-answer">
-        Videocorsi strutturati di Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico — dal livello base al testo autentico. Ogni corso è tenuto da docenti e ricercatori specializzati. Trovi anche webinar tematici, materiali di approfondimento, test autocorrettivi e <strong>Magistro</strong>, il tutor AI che ti affianca lezione per lezione. Il catalogo cresce ogni mese.
-      </p>
-    </details>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Cosa include il portale?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" role="region">
+        <p class="faq-answer">Videocorsi strutturati di Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico — dal livello base al testo autentico. Ogni corso è tenuto da docenti e ricercatori specializzati. Trovi anche webinar tematici, materiali di approfondimento, test autocorrettivi e <strong>Magistro</strong>, il tutor AI che ti affianca lezione per lezione. Il catalogo cresce ogni mese.</p>
+      </div>
+    </div>
 
-    <details class="faq-item">
-      <summary>Sono un docente, posso pagare con il Bonus Docenti?</summary>
-      <p class="faq-answer">
-        Sì, nel piano <strong>Accademia Annuale</strong>. Seleziona "Carta del Docente" al momento dell'iscrizione: riceverai via email le istruzioni per generare il buono sul portale del Ministero (sezione <em>Formazione → Enti accreditati ai sensi della direttiva 170/2016</em>) e inviarcelo a <strong>info@grecolatinovivo.it</strong>. Attiviamo l'abbonamento entro 24 ore lavorative dalla ricezione del PDF.
-      </p>
-    </details>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Sono un docente, posso pagare con il Bonus Docenti?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" role="region">
+        <p class="faq-answer">Sì, nel piano <strong>Accademia Annuale</strong>. Seleziona "Carta del Docente" al momento dell'iscrizione: riceverai via email le istruzioni per generare il buono sul portale del Ministero (sezione <em>Formazione → Enti accreditati ai sensi della direttiva 170/2016</em>) e inviarcelo a <strong>info@grecolatinovivo.it</strong>. Attiviamo l'abbonamento entro 24 ore lavorative dalla ricezione del PDF.</p>
+      </div>
+    </div>
 
-    <details class="faq-item">
-      <summary>I corsi rilasciano un attestato?</summary>
-      <p class="faq-answer">
-        Sì. Al completamento di ogni corso ricevi un <strong>attestato digitale firmato dal docente</strong>, con codice univoco verificabile online. È utile per il portfolio accademico e per la formazione continua. Nel piano Accademia, i corsi di formazione docenti sono validi anche ai fini dell'accredito MIM.
-      </p>
-    </details>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        I corsi rilasciano un attestato?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" role="region">
+        <p class="faq-answer">Sì. Al completamento di ogni corso ricevi un <strong>attestato digitale firmato dal docente</strong>, con codice univoco verificabile online. È utile per il portfolio accademico e per la formazione continua. Nel piano Accademia, i corsi di formazione docenti sono validi anche ai fini dell'accredito MIM.</p>
+      </div>
+    </div>
 
-    <details class="faq-item">
-      <summary>Posso disdire l'abbonamento?</summary>
-      <p class="faq-answer">
-        Sì, in qualsiasi momento, direttamente dal tuo profilo — senza moduli da compilare né email da mandare. L'accesso resta attivo fino alla fine del periodo già pagato. Nessun addebito successivo.
-      </p>
-    </details>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        Posso disdire l'abbonamento?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" role="region">
+        <p class="faq-answer">Sì, in qualsiasi momento, direttamente dal tuo profilo — senza moduli da compilare né email da mandare. L'accesso resta attivo fino alla fine del periodo già pagato. Nessun addebito successivo.</p>
+      </div>
+    </div>
 
-    <details class="faq-item">
-      <summary>I corsi danno punteggio per le graduatorie scolastiche?</summary>
-      <p class="faq-answer">
-        No, e non è un'omissione. È una scelta consapevole. Crediamo che la formazione abbia valore per quello che insegna, non per il punteggio che assegna. In un panorama dove molti enti vendono crediti più che conoscenza, abbiamo preferito starne fuori. Chi si iscrive lo fa perché vuole davvero imparare le lingue classiche — e questo, per noi, è già tutto.
-      </p>
-    </details>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">
+        I corsi danno punteggio per le graduatorie scolastiche?
+        <span class="faq-icon" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a" role="region">
+        <p class="faq-answer">No, e non è un'omissione. È una scelta consapevole. Crediamo che la formazione abbia valore per quello che insegna, non per il punteggio che assegna. In un panorama dove molti enti vendono crediti più che conoscenza, abbiamo preferito starne fuori. Chi si iscrive lo fa perché vuole davvero imparare le lingue classiche — e questo, per noi, è già tutto.</p>
+      </div>
+    </div>
 
   </div>
 </section>
@@ -1852,6 +1872,22 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
 
   if (!form1) return;
 
+  // Carica il counter posti
+  const spotsEl = document.getElementById('veil-spots');
+  function loadSpots() {
+    if (!spotsEl) return;
+    fetch('/api/early-access-count')
+      .then(r => r.json())
+      .then(d => {
+        if (typeof d.remaining === 'number') {
+          spotsEl.textContent = `Rimasti ${d.remaining} posti su ${d.total}`;
+        }
+      })
+      .catch(() => {});
+  }
+  loadSpots();
+  setInterval(loadSpots, 30000);
+
   form1.addEventListener('submit', async e => {
     e.preventDefault();
     const email = document.getElementById('veil-email').value.trim();
@@ -1913,6 +1949,14 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     } catch (_) { /* selettore non valido — ignora */ }
+  });
+});
+
+document.querySelectorAll('.faq-item').forEach(item => {
+  const btn = item.querySelector('.faq-q');
+  btn.addEventListener('click', () => {
+    const isOpen = item.classList.toggle('open');
+    btn.setAttribute('aria-expanded', isOpen);
   });
 });
 </script>
