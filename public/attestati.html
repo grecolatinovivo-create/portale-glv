@@ -591,11 +591,23 @@
       document.getElementById('att-nav-avatar').textContent = initials;
       document.getElementById('att-menu-email').textContent = user.email;
 
-      /* Plan badge */
+      /* Plan badge + admin link */
       const planBadge = document.getElementById('att-nav-plan-badge');
       if (user.isAdmin) {
         planBadge.textContent    = 'Admin';
         planBadge.style.display  = 'inline-block';
+        /* Inietta link pannello admin nel dropdown */
+        const menu = document.getElementById('att-profile-menu');
+        const sep  = menu.querySelector('[role="separator"]');
+        if (sep) {
+          const adminLink = document.createElement('a');
+          adminLink.className = 'nav-dropdown-item';
+          adminLink.role = 'menuitem';
+          adminLink.href = '/admin.html';
+          adminLink.style.cssText = 'text-decoration:none;display:block;color:#c9962a;font-weight:600;';
+          adminLink.textContent = '⚙️ Pannello admin';
+          menu.insertBefore(adminLink, sep);
+        }
       } else if (sub?.status === 'active') {
         planBadge.textContent   = PLAN_BADGE[sub.plan] || sub.plan;
         planBadge.style.display = 'inline-block';

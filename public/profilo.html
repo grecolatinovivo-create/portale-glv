@@ -308,9 +308,14 @@
                style="text-decoration:none;display:block;color:inherit;font-weight:600;">Profilo &amp; abbonamento</a>
             <a class="nav-dropdown-item" role="menuitem" href="/attestati.html"
                style="text-decoration:none;display:block;">I miei attestati</a>
-            <!-- Sezione admin preview — visibile solo se iniettata da JS -->
+            <!-- Sezione admin — visibile solo se iniettata da JS -->
             <div id="prf-admin-tier-group" style="display:none">
-              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;">
+              <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+              <a class="nav-dropdown-item" role="menuitem" href="/admin.html"
+                 style="text-decoration:none;display:block;color:#c9962a;font-weight:600;">
+                ⚙️ Pannello admin
+              </a>
+              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;">
                 Anteprima piano
               </div>
               <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Cultura</button>
@@ -837,7 +842,7 @@
       document.getElementById('prf-info-piano').textContent = 'Nessun piano attivo';
     }
 
-    /* 4. Abbonamento — dati freschi da Stripe */
+    /* 4. Abbonamento — dati freschi da Stripe (fallback a auth/me se errore) */
     let subFresh = null;
     if (!user.isAdmin) {
       try {
@@ -845,8 +850,14 @@
         if (sr.ok) {
           const sd = await sr.json();
           subFresh = sd.subscription || null;
+        } else {
+          // API ha risposto con errore (4xx/5xx) → usa dati da auth/me
+          subFresh = sub;
         }
-      } catch { subFresh = sub; }
+      } catch {
+        // Errore di rete → usa dati da auth/me
+        subFresh = sub;
+      }
     }
     renderSubBody(subFresh, user.isAdmin);
 
