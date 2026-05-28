@@ -10,54 +10,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/style.css"/>
   <style>
-    /* ── Variabili base ── */
     :root {
       --bordeaux: #a01a36;
       --gold:     #c9962a;
       --gold-lt:  #e8c875;
     }
     body { background: var(--bg); color: var(--text-primary); font-family: 'Inter', sans-serif; }
-
-    /* ── Navbar ── */
-    .prf-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 64px;
-      background: rgba(10,10,10,0.94);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 28px; gap: 16px;
-    }
-    .prf-nav-logo {
-      display: flex; align-items: center; gap: 10px;
-      text-decoration: none; flex: 1;
-    }
-    .prf-nav-logo-icon {
-      width: 34px; height: 34px;
-      background: var(--gold);
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-heading); font-size: 13px; font-weight: 700;
-      color: #0a0a0a; flex-shrink: 0;
-    }
-    .prf-nav-logo-name {
-      font-size: .72rem; font-weight: 600;
-      color: rgba(245,245,245,.5);
-      letter-spacing: .04em;
-      text-transform: uppercase;
-    }
-    .prf-nav-logo-sub {
-      font-family: var(--font-heading);
-      font-size: .88rem; font-weight: 700;
-      color: var(--gold-lt);
-      line-height: 1.1;
-    }
-    .prf-nav-back {
-      display: flex; align-items: center; gap: 6px;
-      color: var(--text-secondary); font-size: .84rem;
-      text-decoration: none; white-space: nowrap;
-      transition: color .2s;
-    }
-    .prf-nav-back:hover { color: var(--gold-lt); }
 
     /* ── Layout pagina ── */
     .prf-page {
@@ -120,7 +78,7 @@
       font-size: 1.05rem; font-weight: 600; color: var(--text-primary);
       margin: 0;
     }
-    .prf-email {
+    .prf-email-text {
       font-size: .82rem; color: var(--text-muted);
       margin: 2px 0 0;
     }
@@ -248,14 +206,15 @@
     .prf-annual-nudge-text { flex: 1; font-size: .82rem; color: rgba(245,245,245,.6); line-height: 1.5; }
     .prf-annual-nudge-text strong { color: var(--gold); }
 
-    /* ── Upgrade options ── */
-    .prf-upgrade-title {
+    /* ── Sezione cambio piano ── */
+    .prf-change-section { margin-bottom: 20px; }
+    .prf-change-title {
       font-size: 10px; font-weight: 700; letter-spacing: .1em;
       text-transform: uppercase; color: rgba(245,245,245,.3);
       margin: 0 0 10px;
     }
-    .prf-upgrade-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-    .prf-upgrade-btn {
+    .prf-change-list { display: flex; flex-direction: column; gap: 8px; }
+    .prf-change-btn {
       display: flex; justify-content: space-between; align-items: center;
       width: 100%;
       background: rgba(255,255,255,.03);
@@ -268,9 +227,15 @@
       cursor: pointer;
       transition: background .2s, border-color .2s;
     }
-    .prf-upgrade-btn:hover { background: rgba(201,150,42,.1); border-color: rgba(201,150,42,.6); }
-    .prf-upgrade-btn:disabled { opacity: .5; cursor: not-allowed; }
-    .prf-upgrade-price { font-weight: 400; color: rgba(201,150,42,.65); font-size: .8rem; }
+    .prf-change-btn:hover { background: rgba(201,150,42,.1); border-color: rgba(201,150,42,.6); }
+    .prf-change-btn.downgrade {
+      border-color: rgba(245,245,245,.15);
+      color: rgba(245,245,245,.5);
+    }
+    .prf-change-btn.downgrade:hover { background: rgba(255,255,255,.04); border-color: rgba(245,245,245,.3); color: rgba(245,245,245,.75); }
+    .prf-change-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .prf-change-price { font-weight: 400; color: rgba(201,150,42,.65); font-size: .8rem; }
+    .prf-change-btn.downgrade .prf-change-price { color: rgba(245,245,245,.3); }
 
     /* ── Separator ── */
     .prf-sep { height: 1px; background: var(--border); margin: 20px 0; }
@@ -312,38 +277,57 @@
       0%, 100% { opacity: .4; }
       50%       { opacity: .8; }
     }
-
-    /* ── Note legali ── */
-    .prf-legal {
-      margin-top: 16px; padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,.05);
-    }
-    .prf-legal a {
-      font-size: .76rem; color: rgba(245,245,245,.3);
-      text-decoration: none; display: block; padding: 4px 0;
-      transition: color .2s;
-    }
-    .prf-legal a:hover { color: rgba(245,245,245,.65); }
   </style>
 </head>
 <body>
 
-  <!-- ── Navbar ── -->
-  <nav class="prf-nav" role="navigation" aria-label="Navigazione principale">
-    <a href="/dashboard.html" class="prf-nav-logo" aria-label="Torna alla dashboard">
-      <div class="prf-nav-logo-icon" aria-hidden="true">ΓΛ</div>
-      <div>
-        <div class="prf-nav-logo-name">Centro Nazionale di Studi Classici</div>
-        <div class="prf-nav-logo-sub">GrecoLatinoVivo</div>
+  <!-- ── Navbar (identica a dashboard) ── -->
+  <nav class="glv-nav" id="prf-glv-nav" role="navigation" aria-label="Navigazione principale">
+    <div class="nav-inner">
+      <a href="/dashboard.html" class="nav-logo" aria-label="GrecoLatinoVivo — torna alla dashboard">
+        <div class="nav-logo-icon">ΓΛ</div>
+        <div>
+          <div class="nav-logo-name">Centro Nazionale di Studi Classici</div>
+          <div class="nav-logo-sub">GrecoLatinoVivo</div>
+        </div>
+      </a>
+      <div class="nav-links" id="prfNavLinks">
+        <a href="/index.html#prezzi" id="prf-nav-abbonamento">Abbonamento</a>
+        <a href="/dashboard.html">I miei corsi</a>
       </div>
-    </a>
-    <a href="/dashboard.html" class="prf-nav-back" aria-label="Torna alla dashboard">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M19 12H5M12 5l-7 7 7 7" stroke="currentColor" stroke-width="1.8"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Il mio portale
-    </a>
+      <div class="nav-actions">
+        <span class="nav-plan-badge" id="prf-nav-plan-badge" style="display:none;">—</span>
+        <div class="nav-profile-dropdown">
+          <div class="nav-avatar" id="prf-nav-avatar" role="button" tabindex="0"
+               aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
+               onclick="togglePrfMenu()">U</div>
+          <div class="nav-dropdown-menu" id="prf-profile-menu" role="menu">
+            <div id="prf-menu-email"
+                 style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;padding:10px 16px;">—</div>
+            <a class="nav-dropdown-item" role="menuitem" href="/profilo.html"
+               style="text-decoration:none;display:block;color:inherit;font-weight:600;">Profilo &amp; abbonamento</a>
+            <a class="nav-dropdown-item" role="menuitem" href="/attestati.html"
+               style="text-decoration:none;display:block;">I miei attestati</a>
+            <!-- Sezione admin preview — visibile solo se iniettata da JS -->
+            <div id="prf-admin-tier-group" style="display:none">
+              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;border-top:1px solid rgba(255,255,255,.1);margin-top:4px;">
+                Anteprima piano
+              </div>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="1" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Cultura</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="2" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Linguae</button>
+              <button class="nav-dropdown-item admin-tier-btn" data-tier="3" role="menuitem" onclick="alert('Anteprima disponibile solo nella dashboard.')">Accademia</button>
+            </div>
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+            <button class="nav-dropdown-item danger" role="menuitem" id="prf-nav-logout">Esci dall'account</button>
+          </div>
+        </div>
+        <button class="nav-hamburger" id="prfNavToggle" aria-label="Menu"
+                aria-expanded="false" aria-controls="prfNavLinks"
+                onclick="const l=document.getElementById('prfNavLinks');l.classList.toggle('open');this.setAttribute('aria-expanded',l.classList.contains('open'))">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
   </nav>
 
   <!-- ── Contenuto principale ── -->
@@ -365,7 +349,7 @@
               <div class="prf-avatar" id="prf-avatar" aria-hidden="true">U</div>
               <div>
                 <p class="prf-fullname" id="prf-fullname">—</p>
-                <p class="prf-email"   id="prf-email">—</p>
+                <p class="prf-email-text" id="prf-email">—</p>
                 <span class="prf-plan-badge" id="prf-plan-badge">—</span>
               </div>
             </div>
@@ -393,24 +377,9 @@
               <a href="/dashboard.html" class="prf-btn prf-btn-secondary">
                 ← I miei corsi
               </a>
-              <a href="/attestati.html" class="prf-btn prf-btn-secondary">
-                🏅 I miei attestati
-              </a>
               <button class="prf-btn prf-btn-danger" id="prf-logout-btn" type="button">
                 Esci dall'account
               </button>
-            </div>
-
-            <!-- Note legali GDPR -->
-            <div class="prf-legal">
-              <a href="mailto:privacy@grecolatinovivo.it?subject=Richiesta%20cancellazione%20account&body=Gentili%2C%20richiedo%20la%20cancellazione%20del%20mio%20account%20e%20di%20tutti%20i%20dati%20personali%20ai%20sensi%20dell%27art.%2017%20GDPR."
-                 title="Diritto alla cancellazione — art. 17 GDPR">
-                Cancella i miei dati (art. 17 GDPR)
-              </a>
-              <a href="mailto:privacy@grecolatinovivo.it?subject=Richiesta%20portabilit%C3%A0%20dati&body=Gentili%2C%20richiedo%20una%20copia%20dei%20miei%20dati%20personali%20ai%20sensi%20dell%27art.%2020%20GDPR."
-                 title="Diritto alla portabilità — art. 20 GDPR">
-                Scarica i miei dati (art. 20 GDPR)
-              </a>
             </div>
           </div>
         </div>
@@ -440,10 +409,7 @@
   /* ── Utilità ── */
   function esc(s) {
     return String(s || '')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;');
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function fmt(iso) {
     return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' });
@@ -455,6 +421,21 @@
     clearTimeout(t._tid);
     t._tid = setTimeout(() => t.classList.remove('show'), 3800);
   }
+
+  /* ── Toggle menu navbar ── */
+  function togglePrfMenu() {
+    const menu   = document.getElementById('prf-profile-menu');
+    const avatar = document.getElementById('prf-nav-avatar');
+    const isOpen = menu.classList.toggle('open');
+    avatar.setAttribute('aria-expanded', isOpen);
+  }
+  document.addEventListener('click', e => {
+    const dropdown = document.querySelector('.nav-profile-dropdown');
+    if (dropdown && !dropdown.contains(e.target)) {
+      document.getElementById('prf-profile-menu')?.classList.remove('open');
+      document.getElementById('prf-nav-avatar')?.setAttribute('aria-expanded','false');
+    }
+  });
 
   /* ── Feature matrix ── */
   const ALL_FEATURES = [
@@ -494,7 +475,6 @@
   ];
 
   function buildFeatureList(planId) {
-    const isAnnual = planId?.includes('annuale');
     const items = ALL_FEATURES.map(f => {
       const active = f.plans.includes(planId);
       let badge = '';
@@ -522,12 +502,12 @@
     'accademia-annuale': 'Accademia — €179/anno',
   };
   const PLAN_BADGE_LABELS = {
-    'cultura-mensile':   'Cultura', 'cultura-annuale':   'Cultura',
-    'linguae-mensile':   'Linguae', 'linguae-annuale':   'Linguae',
+    'cultura-mensile':   'Cultura',   'cultura-annuale':   'Cultura',
+    'linguae-mensile':   'Linguae',   'linguae-annuale':   'Linguae',
     'accademia-mensile': 'Accademia', 'accademia-annuale': 'Accademia',
   };
 
-  /* ── Upgrade options per piano corrente ── */
+  /* ── Opzioni upgrade (tier superiore) ── */
   const UPGRADE_OPTIONS = {
     'cultura-mensile':   [
       { planId:'linguae-mensile',   label:'Linguae',   price:'€12,90/mese', configKey:'linguae_monthly'   },
@@ -545,6 +525,26 @@
     ],
     'accademia-mensile': [],
     'accademia-annuale': [],
+  };
+
+  /* ── Opzioni downgrade (tier inferiore) ── */
+  const DOWNGRADE_OPTIONS = {
+    'cultura-mensile':   [],
+    'cultura-annuale':   [],
+    'linguae-mensile':   [
+      { planId:'cultura-mensile',   label:'Cultura',   price:'€5,90/mese',  configKey:'cultura_monthly'   },
+    ],
+    'linguae-annuale':   [
+      { planId:'cultura-annuale',   label:'Cultura',   price:'€49/anno',    configKey:'cultura_annual'    },
+    ],
+    'accademia-mensile': [
+      { planId:'linguae-mensile',   label:'Linguae',   price:'€12,90/mese', configKey:'linguae_monthly'   },
+      { planId:'cultura-mensile',   label:'Cultura',   price:'€5,90/mese',  configKey:'cultura_monthly'   },
+    ],
+    'accademia-annuale': [
+      { planId:'linguae-annuale',   label:'Linguae',   price:'€99/anno',    configKey:'linguae_annual'    },
+      { planId:'cultura-annuale',   label:'Cultura',   price:'€49/anno',    configKey:'cultura_annual'    },
+    ],
   };
 
   /* ── Render sezione abbonamento ── */
@@ -579,7 +579,8 @@
     const planLabel  = PLAN_LABELS[sub.plan] || esc(sub.plan);
     const dateLabel  = fmt(sub.currentPeriodEnd);
     const isAnnual   = sub.plan?.includes('annuale');
-    const upgrades   = UPGRADE_OPTIONS[sub.plan] || [];
+    const upgrades   = UPGRADE_OPTIONS[sub.plan]   || [];
+    const downgrades = DOWNGRADE_OPTIONS[sub.plan] || [];
 
     /* Nudge annuale */
     const annualNudge = !isAnnual ? `
@@ -605,24 +606,43 @@
     } else {
       /* Pulsanti upgrade */
       const upgradeBlock = upgrades.length ? `
-        <p class="prf-upgrade-title">Cambia piano</p>
-        <div class="prf-upgrade-list" id="prf-upgrade-list">
-          ${upgrades.map(u => `
-            <button class="prf-upgrade-btn"
-              data-plan-id="${esc(u.planId)}"
-              data-config-key="${esc(u.configKey)}"
-              data-label="${esc(u.label)}"
-              type="button">
-              <span>Passa a ${esc(u.label)}</span>
-              <span class="prf-upgrade-price">${esc(u.price)}</span>
-            </button>`).join('')}
-        </div>
-        <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:-4px 0 20px;line-height:1.5;">
-          Il cambio è immediato. Paghi solo la differenza proporzionale al periodo rimanente.
-        </p>` : '';
+        <div class="prf-change-section">
+          <p class="prf-change-title">Upgrade piano</p>
+          <div class="prf-change-list">
+            ${upgrades.map(u => `
+              <button class="prf-change-btn"
+                data-plan-id="${esc(u.planId)}" data-config-key="${esc(u.configKey)}"
+                data-label="${esc(u.label)}" data-direction="upgrade" type="button">
+                <span>Passa a ${esc(u.label)}</span>
+                <span class="prf-change-price">${esc(u.price)}</span>
+              </button>`).join('')}
+          </div>
+          <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:8px 0 0;line-height:1.5;">
+            Cambio immediato. Paghi solo la differenza proporzionale al periodo rimanente.
+          </p>
+        </div>` : '';
+
+      /* Pulsanti downgrade */
+      const downgradeBlock = downgrades.length ? `
+        <div class="prf-change-section" style="margin-top:${upgrades.length?'0':'0'}">
+          <p class="prf-change-title">Downgrade piano</p>
+          <div class="prf-change-list">
+            ${downgrades.map(d => `
+              <button class="prf-change-btn downgrade"
+                data-plan-id="${esc(d.planId)}" data-config-key="${esc(d.configKey)}"
+                data-label="${esc(d.label)}" data-direction="downgrade" type="button">
+                <span>Passa a ${esc(d.label)}</span>
+                <span class="prf-change-price">${esc(d.price)}</span>
+              </button>`).join('')}
+          </div>
+          <p style="font-size:.75rem;color:rgba(245,245,245,.25);margin:8px 0 0;line-height:1.5;">
+            Il downgrade è attivo dal prossimo ciclo di fatturazione.
+          </p>
+        </div>` : '';
 
       statusBlock = `
         ${upgradeBlock}
+        ${downgradeBlock}
         <div class="prf-sep"></div>
         <button class="prf-btn prf-btn-danger" id="prf-cancel-btn" type="button">
           Annulla abbonamento
@@ -645,9 +665,9 @@
       ${buildFeatureList(sub.plan)}
       ${statusBlock}`;
 
-    /* Event: upgrade buttons */
-    document.querySelectorAll('.prf-upgrade-btn').forEach(btn => {
-      btn.addEventListener('click', () => handleUpgrade(btn));
+    /* Event: pulsanti cambio piano (upgrade + downgrade) */
+    document.querySelectorAll('.prf-change-btn').forEach(btn => {
+      btn.addEventListener('click', () => handleChangePlan(btn));
     });
 
     /* Event: cancel */
@@ -657,16 +677,21 @@
     }
   }
 
-  /* ── Upgrade ── */
-  async function handleUpgrade(btn) {
+  /* ── Cambio piano (upgrade o downgrade) ── */
+  async function handleChangePlan(btn) {
     const planId    = btn.dataset.planId;
     const configKey = btn.dataset.configKey;
     const label     = btn.dataset.label;
+    const direction = btn.dataset.direction;
 
-    if (!confirm(`Confermi il passaggio al piano ${label}?\n\nPagherai solo la differenza proporzionale al periodo rimanente.`)) return;
+    const confirmMsg = direction === 'downgrade'
+      ? `Confermi il passaggio a ${label}?\n\nAttenzione: perderai le funzionalità non incluse in questo piano. Il cambio sarà attivo dal prossimo ciclo.`
+      : `Confermi il passaggio al piano ${label}?\n\nPagherai solo la differenza proporzionale al periodo rimanente.`;
+
+    if (!confirm(confirmMsg)) return;
 
     btn.disabled = true;
-    btn.querySelector('span').textContent = 'Elaborazione…';
+    btn.querySelectorAll('span')[0].textContent = 'Elaborazione…';
 
     let priceId;
     try {
@@ -677,7 +702,7 @@
 
     if (!priceId) {
       btn.disabled = false;
-      btn.querySelector('span').textContent = 'Passa a ' + label;
+      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
       showToast('Errore: prezzo non disponibile. Riprova.', 'error');
       return;
     }
@@ -690,16 +715,18 @@
       });
       const resp = await r.json();
       if (r.ok && resp.ok) {
-        showToast('✓ Piano aggiornato con successo!', 'success');
+        showToast(direction === 'downgrade'
+          ? '✓ Piano aggiornato. Cambio attivo dal prossimo ciclo.'
+          : '✓ Piano aggiornato con successo!', 'success');
         setTimeout(() => location.reload(), 1800);
       } else {
         btn.disabled = false;
-        btn.querySelector('span').textContent = 'Passa a ' + label;
-        showToast(resp.error || 'Errore durante l\'upgrade. Riprova.', 'error');
+        btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
+        showToast(resp.error || 'Errore durante il cambio piano. Riprova.', 'error');
       }
     } catch {
       btn.disabled = false;
-      btn.querySelector('span').textContent = 'Passa a ' + label;
+      btn.querySelectorAll('span')[0].textContent = 'Passa a ' + label;
       showToast('Errore di rete. Riprova tra qualche secondo.', 'error');
     }
   }
@@ -727,6 +754,31 @@
     }
   }
 
+  /* ── Popola navbar ── */
+  function populateNavbar(user) {
+    const sub = user.subscription;
+
+    /* Avatar iniziali */
+    const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
+    document.getElementById('prf-nav-avatar').textContent = initials;
+    document.getElementById('prf-menu-email').textContent = user.email;
+
+    /* Plan badge */
+    const planBadge = document.getElementById('prf-nav-plan-badge');
+    if (user.isAdmin) {
+      planBadge.textContent = 'Admin';
+      planBadge.style.display = 'inline-block';
+      document.getElementById('prf-admin-tier-group').style.display = 'block';
+      /* Nascondi link "Abbonamento" per admin */
+      document.getElementById('prf-nav-abbonamento').style.display = 'none';
+    } else if (sub?.status === 'active') {
+      planBadge.textContent = PLAN_BADGE_LABELS[sub.plan] || sub.plan;
+      planBadge.style.display = 'inline-block';
+      /* Nascondi link "Abbonamento" esterno per utenti attivi */
+      document.getElementById('prf-nav-abbonamento').style.display = 'none';
+    }
+  }
+
   /* ── Init ── */
   async function init() {
     /* 1. Auth check */
@@ -741,15 +793,18 @@
       return;
     }
 
-    /* 2. Dati profilo */
+    /* 2. Popola navbar */
+    populateNavbar(user);
+
+    /* 3. Dati profilo */
     const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
-    document.getElementById('prf-avatar').textContent  = initials;
+    document.getElementById('prf-avatar').textContent   = initials;
     document.getElementById('prf-fullname').textContent = user.fullName || '—';
-    document.getElementById('prf-email').textContent   = user.email;
+    document.getElementById('prf-email').textContent    = user.email;
     document.getElementById('prf-info-email').textContent = user.email;
 
     /* Piano badge */
-    const sub = user.subscription;
+    const sub    = user.subscription;
     const badgeEl = document.getElementById('prf-plan-badge');
     if (user.isAdmin) {
       badgeEl.textContent = 'Amministratore';
@@ -762,9 +817,9 @@
 
     /* Info piano */
     const TIER_LABELS = {
-      'cultura-mensile':   'Cultura (mensile)',  'cultura-annuale':   'Cultura (annuale)',
-      'linguae-mensile':   'Linguae (mensile)',   'linguae-annuale':   'Linguae (annuale)',
-      'accademia-mensile': 'Accademia (mensile)', 'accademia-annuale': 'Accademia (annuale)',
+      'cultura-mensile':   'Cultura (mensile)',   'cultura-annuale':   'Cultura (annuale)',
+      'linguae-mensile':   'Linguae (mensile)',    'linguae-annuale':   'Linguae (annuale)',
+      'accademia-mensile': 'Accademia (mensile)',  'accademia-annuale': 'Accademia (annuale)',
     };
     if (user.isAdmin) {
       document.getElementById('prf-info-piano').textContent = 'Accademia Annuale (admin)';
@@ -772,19 +827,17 @@
       document.getElementById('prf-info-piano').textContent = TIER_LABELS[sub.plan] || sub.plan;
       const dateLabel = fmt(sub.currentPeriodEnd);
       if (sub.cancelAtPeriodEnd) {
-        const rowSc = document.getElementById('prf-row-scadenza');
-        rowSc.style.display = 'flex';
-        document.getElementById('prf-info-scadenza').textContent = dateLabel;
+        document.getElementById('prf-row-scadenza').style.display = 'flex';
+        document.getElementById('prf-info-scadenza').textContent   = dateLabel;
       } else {
-        const rowRi = document.getElementById('prf-row-rinnovo');
-        rowRi.style.display = 'flex';
-        document.getElementById('prf-info-rinnovo').textContent = dateLabel;
+        document.getElementById('prf-row-rinnovo').style.display = 'flex';
+        document.getElementById('prf-info-rinnovo').textContent   = dateLabel;
       }
     } else {
       document.getElementById('prf-info-piano').textContent = 'Nessun piano attivo';
     }
 
-    /* 3. Abbonamento — carica dati freschi */
+    /* 4. Abbonamento — dati freschi da Stripe */
     let subFresh = null;
     if (!user.isAdmin) {
       try {
@@ -793,15 +846,17 @@
           const sd = await sr.json();
           subFresh = sd.subscription || null;
         }
-      } catch { /* usa sub da /api/auth/me */ subFresh = sub; }
+      } catch { subFresh = sub; }
     }
     renderSubBody(subFresh, user.isAdmin);
 
-    /* 4. Logout */
-    document.getElementById('prf-logout-btn').addEventListener('click', async () => {
+    /* 5. Logout (colonna profilo + navbar) */
+    const logoutHandler = async () => {
       try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
       window.location.href = '/index.html';
-    });
+    };
+    document.getElementById('prf-logout-btn').addEventListener('click', logoutHandler);
+    document.getElementById('prf-nav-logout').addEventListener('click', logoutHandler);
   }
 
   init();

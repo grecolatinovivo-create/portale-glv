@@ -18,29 +18,7 @@
 
     body { background: var(--bg); color: var(--text-primary); }
 
-    /* ── Nav ── */
-    .att-nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      height: 64px;
-      background: rgba(10,10,10,0.92);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; padding: 0 24px; gap: 16px;
-    }
-    .att-nav-logo {
-      font-family: var(--font-heading);
-      font-size: 1.2rem; font-weight: 700;
-      color: var(--gold-lt);
-      text-decoration: none;
-    }
-    .att-nav-back {
-      display: flex; align-items: center; gap: 6px;
-      color: var(--text-secondary); font-size: .85rem;
-      text-decoration: none; margin-left: auto;
-      transition: color .2s;
-    }
-    .att-nav-back:hover { color: var(--gold-lt); }
-    .att-nav-back svg { flex-shrink: 0; }
+    /* ── Stili navbar ereditati da style.css (glv-nav) ── */
 
     /* ── Layout ── */
     .att-page {
@@ -292,17 +270,44 @@
 </head>
 <body>
 
-  <!-- ── Navigazione ── -->
-  <nav class="att-nav" role="navigation" aria-label="Navigazione principale">
-    <a href="/dashboard.html" class="att-nav-logo" aria-label="GrecoLatinoVivo — vai alla dashboard">
-      GrecoLatinoVivo
-    </a>
-    <a href="/dashboard.html" class="att-nav-back" aria-label="Torna alla dashboard">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M19 12H5M5 12l7 7M5 12l7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Dashboard
-    </a>
+  <!-- ── Navbar (identica a dashboard e profilo) ── -->
+  <nav class="glv-nav" id="att-glv-nav" role="navigation" aria-label="Navigazione principale">
+    <div class="nav-inner">
+      <a href="/dashboard.html" class="nav-logo" aria-label="GrecoLatinoVivo — torna alla dashboard">
+        <div class="nav-logo-icon">ΓΛ</div>
+        <div>
+          <div class="nav-logo-name">Centro Nazionale di Studi Classici</div>
+          <div class="nav-logo-sub">GrecoLatinoVivo</div>
+        </div>
+      </a>
+      <div class="nav-links" id="attNavLinks">
+        <a href="/dashboard.html">I miei corsi</a>
+        <a href="/profilo.html">Il mio profilo</a>
+      </div>
+      <div class="nav-actions">
+        <span class="nav-plan-badge" id="att-nav-plan-badge" style="display:none;">—</span>
+        <div class="nav-profile-dropdown">
+          <div class="nav-avatar" id="att-nav-avatar" role="button" tabindex="0"
+               aria-label="Apri menu profilo" aria-haspopup="true" aria-expanded="false"
+               onclick="toggleAttMenu()">U</div>
+          <div class="nav-dropdown-menu" id="att-profile-menu" role="menu">
+            <div id="att-menu-email"
+                 style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;padding:10px 16px;">—</div>
+            <a class="nav-dropdown-item" role="menuitem" href="/profilo.html"
+               style="text-decoration:none;display:block;color:inherit;">Profilo &amp; abbonamento</a>
+            <a class="nav-dropdown-item" role="menuitem" href="/attestati.html"
+               style="text-decoration:none;display:block;font-weight:600;">I miei attestati</a>
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+            <button class="nav-dropdown-item danger" role="menuitem" id="att-nav-logout">Esci dall'account</button>
+          </div>
+        </div>
+        <button class="nav-hamburger" id="attNavToggle" aria-label="Menu"
+                aria-expanded="false" aria-controls="attNavLinks"
+                onclick="const l=document.getElementById('attNavLinks');l.classList.toggle('open');this.setAttribute('aria-expanded',l.classList.contains('open'))">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
   </nav>
 
   <!-- ── Contenuto ── -->
@@ -545,6 +550,63 @@
     // ── Avvio ─────────────────────────────────────────────────────────
     loadCertificates();
 
+  })();
+  </script>
+
+  <script>
+  /* ── Navbar: popola avatar, badge, email e logout ── */
+  (function initAttNav() {
+    const PLAN_BADGE = {
+      'cultura-mensile':'Cultura','cultura-annuale':'Cultura',
+      'linguae-mensile':'Linguae','linguae-annuale':'Linguae',
+      'accademia-mensile':'Accademia','accademia-annuale':'Accademia',
+    };
+
+    function toggleAttMenu() {
+      const menu   = document.getElementById('att-profile-menu');
+      const avatar = document.getElementById('att-nav-avatar');
+      const isOpen = menu.classList.toggle('open');
+      avatar.setAttribute('aria-expanded', isOpen);
+    }
+    window.toggleAttMenu = toggleAttMenu;
+
+    document.addEventListener('click', e => {
+      const dropdown = document.querySelector('#att-glv-nav .nav-profile-dropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        document.getElementById('att-profile-menu')?.classList.remove('open');
+        document.getElementById('att-nav-avatar')?.setAttribute('aria-expanded','false');
+      }
+    });
+
+    fetch('/api/auth/me').then(r => {
+      if (!r.ok) return null;
+      return r.json();
+    }).then(d => {
+      if (!d?.user) return;
+      const user = d.user;
+      const sub  = user.subscription;
+
+      /* Avatar */
+      const initials = (user.fullName || user.email || 'U')[0].toUpperCase();
+      document.getElementById('att-nav-avatar').textContent = initials;
+      document.getElementById('att-menu-email').textContent = user.email;
+
+      /* Plan badge */
+      const planBadge = document.getElementById('att-nav-plan-badge');
+      if (user.isAdmin) {
+        planBadge.textContent    = 'Admin';
+        planBadge.style.display  = 'inline-block';
+      } else if (sub?.status === 'active') {
+        planBadge.textContent   = PLAN_BADGE[sub.plan] || sub.plan;
+        planBadge.style.display = 'inline-block';
+      }
+    }).catch(() => {});
+
+    /* Logout */
+    document.getElementById('att-nav-logout').addEventListener('click', async () => {
+      try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+      window.location.href = '/index.html';
+    });
   })();
   </script>
 </body>
