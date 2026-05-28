@@ -424,6 +424,60 @@
     .btn-plan-ghost { background: transparent; color: var(--ivory); border: 1px solid rgba(255,255,255,.25); }
     .btn-plan-ghost:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.05); }
 
+    /* ── FAQ ── */
+    .faq {
+      padding: 4rem 1.5rem;
+    }
+    .faq-inner {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .faq-heading {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 2.5rem;
+      text-align: center;
+    }
+    .faq-heading em { font-style: italic; color: var(--gold); }
+    .faq-item {
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    .faq-item:first-of-type { border-top: 1px solid rgba(255,255,255,.08); }
+    .faq-item summary {
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem 0;
+      font-size: .95rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after {
+      content: '+';
+      color: var(--gold);
+      font-size: 1.4rem;
+      font-weight: 300;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: transform .2s;
+    }
+    .faq-item[open] summary::after { transform: rotate(45deg); }
+    .faq-answer {
+      font-size: .88rem;
+      color: rgba(245,245,245,.62);
+      line-height: 1.75;
+      padding-bottom: 1.2rem;
+      max-width: 620px;
+    }
+    .faq-answer strong { color: rgba(245,245,245,.85); font-weight: 500; }
+
     /* ── FOOTER ── */
     footer {
       background: var(--dark);
@@ -612,6 +666,49 @@
         </ul>
         <button type="button" class="btn-plan btn-plan-ghost" onclick="scrollToForm()">Lascia la tua email →</button>
       </div>
+
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="faq-inner">
+      <h2 class="faq-heading">Domande <em>frequenti</em></h2>
+
+      <details class="faq-item">
+        <summary>Cosa include il portale?</summary>
+        <p class="faq-answer">
+          Videocorsi strutturati di Latino, Greco Antico, Egiziano Geroglifico ed Ebraico Biblico — dal livello base al testo autentico. Ogni corso è tenuto da docenti e ricercatori specializzati. Trovi anche webinar tematici, materiali di approfondimento, test autocorrettivi e <strong>Magistro</strong>, il tutor AI che ti affianca lezione per lezione. Il catalogo cresce ogni mese.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Sono un docente, posso pagare con il Bonus Docenti?</summary>
+        <p class="faq-answer">
+          Sì, nel piano <strong>Accademia Annuale</strong>. Seleziona "Carta del Docente" al momento dell'iscrizione: riceverai via email le istruzioni per generare il buono sul portale del Ministero (sezione <em>Formazione → Enti accreditati ai sensi della direttiva 170/2016</em>) e inviarcelo a <strong>info@grecolatinovivo.it</strong>. Attiviamo l'abbonamento entro 24 ore lavorative dalla ricezione del PDF.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>I corsi rilasciano un attestato?</summary>
+        <p class="faq-answer">
+          Sì. Al completamento di ogni corso ricevi un <strong>attestato digitale firmato dal docente</strong>, con codice univoco verificabile online. È utile per il portfolio accademico e per la formazione continua. Nel piano Accademia, i corsi di formazione docenti sono validi anche ai fini dell'accredito MIM.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>Posso disdire l'abbonamento?</summary>
+        <p class="faq-answer">
+          Sì, in qualsiasi momento, direttamente dal tuo profilo — senza moduli da compilare né email da mandare. L'accesso resta attivo fino alla fine del periodo già pagato. Nessun addebito successivo.
+        </p>
+      </details>
+
+      <details class="faq-item">
+        <summary>I corsi danno punteggio per le graduatorie scolastiche?</summary>
+        <p class="faq-answer">
+          No, e non è un'omissione. È una scelta consapevole. Crediamo che la formazione abbia valore per quello che insegna, non per il punteggio che assegna. In un panorama dove molti enti vendono crediti più che conoscenza, abbiamo preferito starne fuori. Chi si iscrive lo fa perché vuole davvero imparare le lingue classiche — e questo, per noi, è già tutto.
+        </p>
+      </details>
 
     </div>
   </section>
