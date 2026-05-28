@@ -2970,6 +2970,21 @@ async function openSubscriptionModal() {
     const body = document.getElementById('sub-modal-body');
 
     if (!sub) {
+      // Admin: nessun abbonamento Stripe ma accesso completo
+      if (_glvIsAdmin) {
+        body.innerHTML = `
+          <div style="background:#1e1e1e;border-radius:6px;padding:16px 18px;margin-bottom:16px;border:1px solid rgba(201,150,42,.3);">
+            <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(201,150,42,.7);margin-bottom:4px;">Account amministratore</p>
+            <p style="font-size:16px;font-weight:600;color:#f5f5f5;">Accademia Annuale</p>
+            <p style="font-size:13px;color:rgba(245,245,245,.45);margin-top:6px;">Accesso completo a tutte le funzionalità del portale.</p>
+          </div>
+          <div style="margin-bottom:16px;">
+            <p style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(245,245,245,.35);margin-bottom:8px;">Cosa include il tuo piano</p>
+            ${buildFeatureList('accademia-annuale')}
+          </div>`;
+        return;
+      }
+      // Utente senza abbonamento
       body.innerHTML = `
         <p style="color:rgba(245,245,245,.7);font-size:14px;line-height:1.6;margin-bottom:20px;">
           Nessun abbonamento attivo.<br>
