@@ -777,26 +777,43 @@
      MODAL: Modifica scadenza corso
      ══════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-course">
-  <div class="modal">
-    <div class="modal-title">Modifica scadenza corso</div>
-    <div id="modal-course-name" style="font-size:14px;color:var(--gray-600);margin-bottom:20px;font-weight:500;"></div>
+  <div class="modal" style="width:620px;max-height:85vh;overflow-y:auto;display:flex;flex-direction:column;">
+    <div class="modal-title">Modifica corso</div>
 
+    <!-- Titolo corso -->
+    <div class="form-group">
+      <label class="form-label">Titolo corso</label>
+      <input type="text" class="form-control" id="field-title" placeholder="Titolo del corso" />
+    </div>
+
+    <!-- Tier -->
+    <div class="form-group">
+      <label class="form-label">Tier abbonamento richiesto</label>
+      <select class="form-control" id="field-tier">
+        <option value="cultura">Cultura</option>
+        <option value="linguae">Linguae</option>
+        <option value="accademia">Accademia</option>
+      </select>
+      <div class="form-hint">Tier minimo per accedere via abbonamento. Non influisce sugli acquisti singoli.</div>
+    </div>
+
+    <!-- Scadenza -->
     <div class="form-group">
       <label class="form-label">Data di scadenza accesso abbonati</label>
       <input type="datetime-local" class="form-control" id="field-expiresAt" />
       <div class="form-hint">
-        Dopo questa data, gli utenti con abbonamento perdono l'accesso a questo corso.
-        Gli acquirenti singoli NON sono mai limitati da questa data.
-        Lascia vuoto per nessuna scadenza.
+        Lascia vuoto per nessuna scadenza. Gli acquirenti singoli non sono mai limitati da questa data.
       </div>
     </div>
 
+    <!-- Etichetta urgenza -->
     <div class="form-group">
       <label class="form-label">Etichetta di urgenza (opzionale)</label>
       <input type="text" class="form-control" id="field-label" placeholder="es. Disponibile fino al 30 giugno 2025" />
-      <div class="form-hint">Testo che appare nel catalogo e nella dashboard utente. Se vuoto, viene generato automaticamente dalla data.</div>
+      <div class="form-hint">Testo nel catalogo e dashboard utente. Se vuoto, viene generato dalla data automaticamente.</div>
     </div>
 
+    <!-- Visibilità / Badge -->
     <div class="form-group" style="display:flex;gap:16px;align-items:center;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;">
         <input type="checkbox" id="field-isAvailable" style="width:16px;height:16px;" />
@@ -808,7 +825,17 @@
       </label>
     </div>
 
-    <div id="modal-course-alert" style="display:none"></div>
+    <!-- Lezioni -->
+    <div class="form-group" style="margin-top:4px;">
+      <label class="form-label">Titoli lezioni</label>
+      <div id="field-lessons"
+        style="display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;
+               border:1px solid var(--gray-200);border-radius:8px;padding:10px;">
+        <!-- popolato da JS -->
+      </div>
+    </div>
+
+    <div id="modal-course-alert" style="display:none;margin-top:4px;"></div>
 
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-course')">Annulla</button>
@@ -1044,6 +1071,15 @@ async function loadCourses() {
       const now = new Date();
       let expiryCell, expiryBadge;
 
+      // Tier badge
+      const tierColors = {
+        'cultura':   { bg: '#e0f2fe', text: '#0369a1', label: 'Cultura' },
+        'linguae':   { bg: '#ede9fe', text: '#6d28d9', label: 'Linguae' },
+        'accademia': { bg: '#fef3c7', text: '#92400e', label: 'Accademia' },
+      };
+      const tc = tierColors[c.tierRequired] || { bg: '#f3f4f6', text: '#374151', label: c.tierRequired || '—' };
+      const tierBadge = `<span style="background:${tc.bg};color:${tc.text};font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;">${tc.label}</span>`;
+
       if (!c.expiresAt) {
         expiryCell  = '<span style="color:var(--gray-400);font-size:13px">Nessuna scadenza</span>';
         expiryBadge = '';
@@ -1075,7 +1111,7 @@ async function loadCourses() {
         <tr class="course-row">
           <td>
             <strong>${escHtml(c.title)}</strong>
-            <div class="course-meta">${escHtml(c.lang)} · ${escHtml(c.level)} · ${c.stats.lessonCount} lezioni</div>
+            <div class="course-meta">${escHtml(c.lang)} · ${escHtml(c.level)} · ${c.stats.lessonCount} lezioni · ${tierBadge}</div>
             ${ancoraBadge}
           </td>
           <td>
@@ -1114,27 +1150,60 @@ function openCourseModal(courseId) {
   if (!c) return;
 
   editingCourseId = courseId;
-  document.getElementById('modal-course-name').textContent = c.title;
 
-  // Imposta valori
+  // Titolo corso
+  document.getElementById('field-title').value = c.title || '';
+
+  // Tier
+  document.getElementById('field-tier').value = c.tierRequired || 'cultura';
+
+  // Scadenza
   document.getElementById('field-expiresAt').value = c.expiresAt
     ? new Date(c.expiresAt).toISOString().slice(0, 16)
     : '';
+
+  // Etichetta
   document.getElementById('field-label').value = c.availableUntilLabel || '';
+
+  // Checkbox
   document.getElementById('field-isAvailable').checked = c.isAvailable;
   document.getElementById('field-isNew').checked = c.isNew;
-  document.getElementById('modal-course-alert').style.display = 'none';
 
+  // Lezioni
+  const lessonsContainer = document.getElementById('field-lessons');
+  if (c.lessons && c.lessons.length > 0) {
+    lessonsContainer.innerHTML = c.lessons.map((l, i) => `
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:11px;color:var(--gray-400);min-width:22px;text-align:right;font-weight:600;">${i + 1}.</span>
+        <input type="text" class="form-control"
+          style="flex:1;padding:6px 10px;font-size:13px;"
+          data-lesson-id="${l.id}"
+          value="${escHtml(l.title)}" />
+      </div>
+    `).join('');
+  } else {
+    lessonsContainer.innerHTML = '<div style="color:var(--gray-400);font-size:13px;text-align:center;padding:10px;">Nessuna lezione trovata</div>';
+  }
+
+  document.getElementById('modal-course-alert').style.display = 'none';
   openModal('modal-course');
 }
 
 async function saveCourse() {
   if (!editingCourseId) return;
 
+  const title        = document.getElementById('field-title').value.trim();
+  const tierRequired = document.getElementById('field-tier').value;
   const expiresAtVal = document.getElementById('field-expiresAt').value;
   const label        = document.getElementById('field-label').value.trim();
   const isAvailable  = document.getElementById('field-isAvailable').checked;
   const isNew        = document.getElementById('field-isNew').checked;
+
+  // Raccoglie i titoli delle lezioni modificati
+  const lessonInputs = document.querySelectorAll('#field-lessons input[data-lesson-id]');
+  const lessons = Array.from(lessonInputs)
+    .map(inp => ({ id: inp.dataset.lessonId, title: inp.value.trim() }))
+    .filter(l => l.title);
 
   const alertEl = document.getElementById('modal-course-alert');
   alertEl.style.display = 'none';
@@ -1144,11 +1213,14 @@ async function saveCourse() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        courseId: editingCourseId,
-        expiresAt: expiresAtVal || null,
+        courseId:            editingCourseId,
+        title:               title || undefined,
+        tierRequired,
+        expiresAt:           expiresAtVal || null,
         availableUntilLabel: label || null,
         isAvailable,
         isNew,
+        lessons:             lessons.length > 0 ? lessons : undefined,
       }),
     });
 
@@ -1272,13 +1344,16 @@ async function loadUsers() {
 
       // Piano: label leggibile e colore
       const planLabels = {
-        'cultura-mensile':   { label: 'Cultura',  sub: 'mensile',  color: '#e0f2fe', text: '#0369a1' },
-        'cultura-annuale':   { label: 'Cultura',  sub: 'annuale',  color: '#e0f2fe', text: '#0369a1' },
-        'cultura-manuale':   { label: 'Cultura',  sub: 'manuale',  color: '#dcfce7', text: '#15803d' },
-        'linguae-mensile':   { label: 'Linguae',  sub: 'mensile',  color: '#ede9fe', text: '#6d28d9' },
-        'linguae-annuale':   { label: 'Linguae',  sub: 'annuale',  color: '#ede9fe', text: '#6d28d9' },
-        'accademia-mensile': { label: 'Accademia',sub: 'mensile',  color: '#fef3c7', text: '#92400e' },
-        'accademia-annuale': { label: 'Accademia',sub: 'annuale',  color: '#fef3c7', text: '#92400e' },
+        'cultura-mensile':    { label: 'Cultura',   sub: 'mensile',     color: '#e0f2fe', text: '#0369a1' },
+        'cultura-annuale':    { label: 'Cultura',   sub: 'annuale',     color: '#e0f2fe', text: '#0369a1' },
+        'cultura-manuale':    { label: 'Cultura',   sub: 'manuale',     color: '#dcfce7', text: '#15803d' },
+        'linguae-mensile':    { label: 'Linguae',   sub: 'mensile',     color: '#ede9fe', text: '#6d28d9' },
+        'linguae-annuale':    { label: 'Linguae',   sub: 'annuale',     color: '#ede9fe', text: '#6d28d9' },
+        'linguae-manuale':    { label: 'Linguae',   sub: 'manuale',     color: '#ede9fe', text: '#6d28d9' },
+        'accademia-mensile':  { label: 'Accademia', sub: 'mensile',     color: '#fef3c7', text: '#92400e' },
+        'accademia-annuale':  { label: 'Accademia', sub: 'annuale',     color: '#fef3c7', text: '#92400e' },
+        'accademia-manuale':  { label: 'Accademia', sub: 'manuale',     color: '#fef3c7', text: '#92400e' },
+        'accademia-free':     { label: 'Free',      sub: '✦ gratuito',  color: '#f0fdf4', text: '#15803d' },
       };
       let subCell;
       if (sub) {
@@ -1305,11 +1380,36 @@ async function loadUsers() {
         ? `<button class="btn btn-success btn-sm" onclick="promptUserAction('${u.id}', 'restore', '${escAttr(u.email)}')">Riattiva</button>`
         : `<button class="btn btn-danger btn-sm" onclick="promptUserAction('${u.id}', 'suspend', '${escAttr(u.email)}')">Sospendi</button>`;
 
-      // Pulsanti gestione piano manuale
-      const hasManualSub = sub && sub.plan === 'cultura-manuale' && sub.status === 'active';
-      const planBtn = hasManualSub
-        ? `<button class="btn btn-outline btn-sm" style="color:#dc2626;border-color:#dc2626;" onclick="adminGrantPlan('${u.id}', 'revoke-plan', '${escAttr(u.email)}')">Revoca</button>`
-        : `<button class="btn btn-outline btn-sm" style="color:#0369a1;border-color:#0369a1;" onclick="adminGrantPlan('${u.id}', 'grant-cultura', '${escAttr(u.email)}')">+ Cultura</button>`;
+      // Dropdown tier manuale (admin override)
+      const MANUAL_PLANS_SET = new Set(['cultura-manuale','linguae-manuale','accademia-manuale','accademia-free']);
+      const isAdminUser = u.email === 'grecolatinovivo@gmail.com';
+
+      // Calcola tier corrente del piano manuale (se esiste)
+      function manualTierOf(plan) {
+        if (!plan) return 'none';
+        if (plan === 'accademia-free')    return 'free';
+        if (plan === 'accademia-manuale') return 'accademia';
+        if (plan === 'linguae-manuale')   return 'linguae';
+        if (plan === 'cultura-manuale')   return 'cultura';
+        return 'none';
+      }
+      const currentManualTier = MANUAL_PLANS_SET.has(sub?.plan) ? manualTierOf(sub.plan) : 'none';
+
+      let tierControl;
+      if (isAdminUser) {
+        tierControl = `<span style="background:#6b2737;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;letter-spacing:.06em;">ADMIN</span>`;
+      } else {
+        const opts = [
+          { value:'none',      label:'— nessuno' },
+          { value:'cultura',   label:'Cultura' },
+          { value:'linguae',   label:'Linguae' },
+          { value:'accademia', label:'Accademia' },
+          { value:'free',      label:'Free ✦' },
+        ].map(o => `<option value="${o.value}"${currentManualTier===o.value?' selected':''}>${o.label}</option>`).join('');
+        tierControl = `<select
+          style="padding:4px 8px;font-size:12px;border:1px solid var(--gray-200);border-radius:6px;background:var(--white);color:var(--gray-700);cursor:pointer;"
+          onchange="adminSetTier('${u.id}', this.value, '${escAttr(u.email)}', this)">${opts}</select>`;
+      }
 
       const purchases = u.purchases?.length || 0;
       const certs = u.certificates?.length || 0;
@@ -1339,9 +1439,9 @@ async function loadUsers() {
           <td><span style="font-size:13px;color:var(--gray-600)">${formatDateShort(u.createdAt)}</span></td>
           <td>${statusBadge}</td>
           <td>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-start;">
               ${actionBtn}
-              ${planBtn}
+              ${tierControl}
             </div>
           </td>
         </tr>
@@ -1419,30 +1519,38 @@ async function confirmUserAction() {
   }
 }
 
-// ── Assegna / revoca piano manuale dall'admin ─────────────────
-async function adminGrantPlan(userId, action, email) {
-  const label = action === 'grant-cultura'
-    ? `Assegnare piano Cultura gratuito a ${email}?`
-    : `Revocare il piano manuale di ${email}?`;
+// ── Cambia tier manuale utente (admin override) ───────────────
+const TIER_LABELS = { none:'— nessuno', cultura:'Cultura', linguae:'Linguae', accademia:'Accademia', free:'Free ✦' };
 
-  if (!confirm(label)) return;
+async function adminSetTier(userId, tier, email, selectEl) {
+  const label = tier === 'none'
+    ? `Revocare il tier manuale di ${email}?`
+    : `Assegnare tier ${TIER_LABELS[tier]} a ${email}?`;
+
+  if (!confirm(label)) {
+    // Ripristina il valore precedente nel select se l'utente annulla
+    loadUsers();
+    return;
+  }
 
   try {
     const r = await fetch('/api/admin/users', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, action }),
+      body: JSON.stringify({ userId, action: 'set-tier', tier }),
     });
 
     if (!r.ok) {
       const err = await r.json();
       alert('Errore: ' + (err.error || 'riprova'));
+      loadUsers();
       return;
     }
 
-    loadUsers(); // ricarica la tabella
+    loadUsers(); // ricarica la tabella con i dati aggiornati
   } catch {
     alert('Errore di rete');
+    loadUsers();
   }
 }
 

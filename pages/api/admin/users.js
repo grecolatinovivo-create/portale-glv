@@ -12,6 +12,22 @@ const { withAuth } = require('../../../lib/auth');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 
+// Piani assegnati manualmente dall'admin (non Stripe)
+const MANUAL_PLANS = [
+  'cultura-manuale',
+  'linguae-manuale',
+  'accademia-manuale',
+  'accademia-free',
+];
+
+// Cancella tutti i piani manuali attivi di un utente
+async function cancelAllManualSubs(userId) {
+  await prisma.subscription.updateMany({
+    where: { userId, plan: { in: MANUAL_PLANS }, status: 'active' },
+    data:  { status: 'canceled' },
+  });
+}
+
 export default withAuth(async function handler(req, res) {
   if (!req.user || req.user.email !== ADMIN_EMAIL) {
     return res.status(403).json({ error: 'Accesso non autorizzato' });
@@ -93,8 +109,16 @@ export default withAuth(async function handler(req, res) {
   if (req.method === 'POST') {
     const { userId, action } = req.body || {};
 
-    if (!userId || !['suspend', 'restore', 'grant-cultura', 'revoke-plan'].includes(action)) {
-      return res.status(400).json({ error: 'userId e action (suspend|restore|grant-cultura|revoke-plan) sono obbligatori' });
+    const VALID_ACTIONS = ['suspend', 'restore', 'grant-cultura', 'revoke-plan', 'set-tier'];
+    if (!userId || !VALID_ACTIONS.includes(action)) {
+      return res.status(400).json({ error: `userId e action (${VALID_ACTIONS.join('|')}) sono obbligatori` });
+    }
+
+    // Tier da assegnare (solo per set-tier)
+    const { tier } = req.body;   // 'cultura' | 'linguae' | 'accademia' | 'free' | 'none'
+    const VALID_TIERS = ['cultura', 'linguae', 'accademia', 'free', 'none'];
+    if (action === 'set-tier' && !VALID_TIERS.includes(tier)) {
+      return res.status(400).json({ error: `tier non valido: usa ${VALID_TIERS.join('|')}` });
     }
 
     if (action === 'suspend' && userId === req.user.userId) {
@@ -160,20 +184,9 @@ export default withAuth(async function handler(req, res) {
         return res.status(200).json({ ok: true });
       }
 
-      // ── Revoca piano manuale ─────────────────────────────────────
+      // ── Revoca piano manuale (legacy — usare set-tier: none) ────
       if (action === 'revoke-plan') {
-        const syntheticSubId = `admin_cultura_${userId}`;
-
-        await prisma.subscription.updateMany({
-          where: {
-            userId,
-            OR: [
-              { stripeSubscriptionId: syntheticSubId },
-              { plan: 'cultura-manuale' },
-            ],
-          },
-          data: { status: 'canceled' },
-        });
+        await cancelAllManualSubs(userId);
 
         await prisma.adminLog.create({
           data: {
@@ -182,6 +195,60 @@ export default withAuth(async function handler(req, res) {
             targetType: 'user',
             targetId:   userId,
             payload:    JSON.stringify({ note: "piano manuale revocato dall'admin" }),
+          },
+        });
+
+        return res.status(200).json({ ok: true });
+      }
+
+      // ── Set tier manuale (nuovo) ──────────────────────────────────
+      if (action === 'set-tier') {
+        // Non si può cambiare il tier dell'account admin
+        if (user.email === ADMIN_EMAIL) {
+          return res.status(400).json({ error: "Non puoi modificare il tier dell'account admin" });
+        }
+
+        // Mappa tier → plan name
+        const TIER_TO_PLAN = {
+          cultura:   'cultura-manuale',
+          linguae:   'linguae-manuale',
+          accademia: 'accademia-manuale',
+          free:      'accademia-free',   // stessa gerarchia di accademia, gratuito
+        };
+
+        // Cancella tutti i piani manuali esistenti per questo utente
+        await cancelAllManualSubs(userId);
+
+        if (tier !== 'none') {
+          const planName      = TIER_TO_PLAN[tier];
+          const syntheticSubId = `admin_${tier}_${userId}`;
+          const farFuture     = new Date('2099-12-31T23:59:59Z');
+
+          await prisma.subscription.upsert({
+            where: { stripeSubscriptionId: syntheticSubId },
+            create: {
+              userId,
+              plan:                 planName,
+              stripeSubscriptionId: syntheticSubId,
+              stripeCustomerId:     `admin_${userId}`,
+              status:               'active',
+              currentPeriodEnd:     farFuture,
+            },
+            update: {
+              plan:             planName,
+              status:           'active',
+              currentPeriodEnd: farFuture,
+            },
+          });
+        }
+
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: req.user.email,
+            action:     tier === 'none' ? 'REVOKE_TIER' : 'SET_TIER',
+            targetType: 'user',
+            targetId:   userId,
+            payload:    JSON.stringify({ tier, email: user.email }),
           },
         });
 

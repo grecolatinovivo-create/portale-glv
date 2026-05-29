@@ -11,13 +11,21 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 // cultura (1) < linguae (2) < accademia (3)
 const TIER_RANK = { cultura: 1, linguae: 2, accademia: 3 };
 
+// Piani assegnati manualmente dall'admin (override sui piani Stripe)
+const MANUAL_PLANS = [
+  'cultura-manuale',
+  'linguae-manuale',
+  'accademia-manuale',
+  'accademia-free',   // stesso accesso di accademia, gratuito
+];
+
 // Estrae il nome del tier da un planId (es. 'cultura-mensile' → 'cultura')
 // Gestisce anche il caso in cui il plan sia un Stripe priceId (price_xxx)
 function planToTier(plan) {
   if (!plan || typeof plan !== 'string') return null;
   if (plan.startsWith('cultura'))   return 'cultura';
   if (plan.startsWith('linguae'))   return 'linguae';
-  if (plan.startsWith('accademia')) return 'accademia';
+  if (plan.startsWith('accademia')) return 'accademia'; // copre anche 'accademia-free'
   return null; // plan non riconosciuto (es. price_xxx da checkout legacy)
 }
 
@@ -75,13 +83,15 @@ export default withAuth(async function handler(req, res) {
       }
 
       // 2. Controlla abbonamento attivo per corsi linguae / accademia
+      // I piani manuali assegnati dall'admin (es. free, accademia-manuale) hanno
+      // precedenza sui piani Stripe, così un override admin è sempre rispettato.
       if (!hasAccess) {
-        const subscription = await prisma.subscription.findFirst({
-          where: {
-            userId: req.user.userId,
-            status: 'active',
-          },
+        const allActiveSubs = await prisma.subscription.findMany({
+          where: { userId: req.user.userId, status: 'active' },
         });
+        const subscription = allActiveSubs.find(s => MANUAL_PLANS.includes(s.plan))
+          || allActiveSubs[0]
+          || null;
 
         if (subscription) {
           // Abbonamento valido: verifica tier + scadenza

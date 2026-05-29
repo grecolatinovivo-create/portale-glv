@@ -802,20 +802,23 @@ const Courses = {
 
 // Cache dei 6 price ID caricati da /api/config/prices
 // NULL = non ancora caricato | {} = caricato ma vuoto (env vars mancanti) | {key: 'price_...'} = ok
+// NOTA: il fetch è lazy (on-demand) — non parte al caricamento del modulo per non
+// consumare una connessione serverless durante l'inizializzazione della dashboard.
 window.__GLV_PRICES = null;
-fetch('/api/config/prices')
-  .then(r => {
+
+// Funzione helper: carica i prezzi solo la prima volta che servono.
+async function _ensurePricesLoaded() {
+  if (window.__GLV_PRICES !== null) return; // già caricati o tentativo precedente
+  try {
+    const r = await fetch('/api/config/prices');
     if (!r.ok) throw new Error(`/api/config/prices ha risposto con HTTP ${r.status}`);
-    return r.json();
-  })
-  .then(d => {
-    window.__GLV_PRICES = d;
-    console.log('[GLV] Price ID caricati:', d);
-  })
-  .catch(err => {
+    window.__GLV_PRICES = await r.json();
+    console.log('[GLV] Price ID caricati:', window.__GLV_PRICES);
+  } catch (err) {
     console.error('[GLV] Impossibile caricare i price ID:', err.message);
     window.__GLV_PRICES = {}; // segna come "tentativo fatto, fallito"
-  });
+  }
+}
 
 // Restituisce il period attivo in base al toggle (mensile/annuale)
 function getCurrentBillingPeriod() {
@@ -826,15 +829,11 @@ function getCurrentBillingPeriod() {
 const Payments = {
   // Avvia checkout per un piano specifico con il periodo corrente del toggle
   async subscribe(plan) {
-    // Carica i prezzi se non ancora disponibili
-    if (!window.__GLV_PRICES) {
-      try {
-        const d = await fetch('/api/config/prices').then(r => r.json());
-        window.__GLV_PRICES = d;
-      } catch {
-        showToast('⚠️ Errore di connessione. Riprova tra qualche secondo.', '#8b1a1a');
-        return;
-      }
+    // Carica i prezzi on-demand (lazy)
+    await _ensurePricesLoaded();
+    if (!window.__GLV_PRICES || Object.keys(window.__GLV_PRICES).length === 0) {
+      showToast('⚠️ Errore di connessione. Riprova tra qualche secondo.', '#8b1a1a');
+      return;
     }
     const period = getCurrentBillingPeriod();
     const key = `${plan}_${period}`;
@@ -858,19 +857,8 @@ const Payments = {
       return;
     }
 
-    // Se i prezzi non sono ancora stati caricati, aspetta o riprova
-    if (window.__GLV_PRICES === null) {
-      console.log('[GLV] Prezzi non ancora caricati, aspetto...');
-      try {
-        const r = await fetch('/api/config/prices');
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        window.__GLV_PRICES = await r.json();
-      } catch (err) {
-        console.error('[GLV] Errore fetch prezzi:', err);
-        showToast('⚠️ Errore caricamento prezzi. Riprova.', '#8b1a1a');
-        return;
-      }
-    }
+    // Carica i prezzi on-demand (lazy)
+    await _ensurePricesLoaded();
 
     const key = `${plan}_${period}`;
     const priceId = window.__GLV_PRICES[key];
@@ -884,8 +872,14 @@ const Payments = {
     return Payments._checkout({ type:'subscription', priceId });
   },
   // Legacy — usati da [data-subscribe-monthly/annual] nel dashboard
-  async subscribeMonthly() { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_monthly'] || '' }); },
-  async subscribeAnnual()  { return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_annual']  || '' }); },
+  async subscribeMonthly() {
+    await _ensurePricesLoaded();
+    return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_monthly'] || '' });
+  },
+  async subscribeAnnual()  {
+    await _ensurePricesLoaded();
+    return Payments._checkout({ type:'subscription', priceId: (window.__GLV_PRICES||{})['linguae_annual']  || '' });
+  },
   async buyCourse(slug)    { return Payments._checkout({ type:'course', courseSlug:slug }); },
   async openPortal() {
     try { const d = await API.post('/api/stripe/portal',{}); if (d.url) window.location.href = d.url; }
@@ -1325,6 +1319,7 @@ function showAuthModal(mode){
       if(pendingPlan){
         sessionStorage.removeItem('glv_pending_plan');
         sessionStorage.removeItem('glv_pending_period');
+        await _ensurePricesLoaded();
         const key = `${pendingPlan}_${pendingPeriod}`;
         const priceId = window.__GLV_PRICES[key];
         if(priceId){ await Payments._checkout({ type:'subscription', priceId }); return; }

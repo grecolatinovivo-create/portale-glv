@@ -2165,8 +2165,12 @@
   <button class="glv-toast-close" id="glv-toast-close" type="button" aria-label="Chiudi notifica">✕</button>
 </div>
 
-<!-- SDK ufficiale Vimeo Player — necessario per eventi timeupdate/ended -->
-<script src="https://player.vimeo.com/api/player.js"></script>
+<!-- SDK ufficiale Vimeo Player — necessario per eventi timeupdate/ended.
+     async: il SDK viene scaricato in background in parallelo con app.js,
+     senza bloccare il parsing HTML né l'esecuzione del codice dashboard.
+     Il player viene istanziato solo quando l'utente apre una lezione, quindi
+     il SDK è già pronto ampiamente prima di quel momento. -->
+<script async src="https://player.vimeo.com/api/player.js"></script>
 <script src="/js/app.js"></script>
 <script>
 /* ══ DASHBOARD GLV ══════════════════════════════════════════
@@ -3760,17 +3764,18 @@ async function openCourseView(slug, opts) {
   }
 
   // ── STEP 2: FETCH IN PARALLELO — mentre la transizione è già in corso
-  let course, progressData, streakData;
+  // progress/overview NON è nel percorso critico: è usato solo per il widget
+  // streakData (lezioni settimanali). Lo carichiamo in background separato
+  // così corso + progresso lezioni sono disponibili il prima possibile.
+  let course, progressData;
+  let streakData = { weeklyLessons: 0 }; // default fino a quando non arriva il background fetch
   try {
-    const [rCourse, rProgress, rOverview] = await Promise.all([
+    const [rCourse, rProgress] = await Promise.all([
       fetch(`/api/courses/${slug}`),
       fetch(`/api/progress/course/${slug}`),
-      fetch('/api/progress/overview'),
     ]);
     course       = rCourse.ok    ? ((await rCourse.json())?.course ?? null) : null;
     progressData = rProgress.ok  ? await rProgress.json() : { percent: 0, completedLessons: 0, totalLessons: 0, lessons: [] };
-    // streakData ora contiene i dati settimanali (non giorni consecutivi)
-    streakData   = rOverview.ok  ? await rOverview.json() : { weeklyLessons: 0 };
   } catch (err) {
     console.error('[corsoView] Errore fetch:', err);
     if (typeof showToast === 'function') showToast('Impossibile caricare il corso. Riprova.');
@@ -3785,6 +3790,19 @@ async function openCourseView(slug, opts) {
   }
 
   _corsoData = { course, progressData, streakData };
+
+  // Carica overview in background (non blocca il render del corso)
+  fetch('/api/progress/overview')
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data) return;
+      streakData = data;
+      if (_corsoData) _corsoData.streakData = data;
+      // Aggiorna il meta-bar se è già renderizzato (il campo weeklyLessons)
+      const streakEl = document.getElementById('streak-text');
+      if (streakEl) streakEl.textContent = (data.weeklyLessons || 0) + ' questa settimana';
+    })
+    .catch(() => {});
 
   // ── STEP 3: RENDER DEI DATI nella vista già visibile ─────────────
   renderCourseHeader(course, progressData, streakData);

@@ -29,6 +29,10 @@ export default withAuth(async function handler(req, res) {
               certificates: true,
             },
           },
+          lessons: {
+            select: { id: true, title: true, sortOrder: true },
+            orderBy: { sortOrder: 'asc' },
+          },
         },
       });
 
@@ -90,6 +94,9 @@ export default withAuth(async function handler(req, res) {
       isAvailable,
       isNew,
       sortOrder,
+      tierRequired,       // 'cultura' | 'linguae' | 'accademia' | null
+      title,              // titolo del corso
+      lessons,            // [{id, title}] — titoli delle lezioni
     } = req.body || {};
 
     if (!courseId) {
@@ -111,11 +118,27 @@ export default withAuth(async function handler(req, res) {
       if (isAvailable !== undefined) updateData.isAvailable = Boolean(isAvailable);
       if (isNew !== undefined) updateData.isNew = Boolean(isNew);
       if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder) || 0;
+      if (tierRequired !== undefined) updateData.tierRequired = tierRequired || null;
+      if (title !== undefined && title.trim()) updateData.title = title.trim();
 
       const updated = await prisma.course.update({
         where: { id: courseId },
         data: updateData,
       });
+
+      // Aggiorna titoli lezioni se forniti
+      if (lessons && Array.isArray(lessons) && lessons.length > 0) {
+        await Promise.all(
+          lessons
+            .filter(l => l.id && l.title && l.title.trim())
+            .map(l =>
+              prisma.lesson.update({
+                where: { id: l.id },
+                data: { title: l.title.trim() },
+              })
+            )
+        );
+      }
 
       // Scrivi AdminLog
       await prisma.adminLog.create({

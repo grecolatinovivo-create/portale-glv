@@ -5,6 +5,14 @@
 const { prisma } = require('../../../lib/prisma');
 const { withAuth } = require('../../../lib/auth');
 
+// ── Cache in-memory per le thumbnail Vimeo ─────────────────────────────────
+// Le URL Vimeo delle lezioni cambiano rarissimamente (solo quando si aggiungono
+// nuovi corsi). Cachare per 10 minuti evita la query su ogni load della dashboard.
+// Su Vercel la cache vive nel processo Lambda (warm): tipicamente 5-15 minuti.
+let _thumbCache = null;
+let _thumbCacheTs = 0;
+const THUMB_CACHE_TTL_MS = 10 * 60 * 1000; // 10 minuti
+
 export default withAuth(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -33,20 +41,27 @@ export default withAuth(async function handler(req, res) {
       },
     });
 
-    // Recupera la prima lezione con vimeoUrl per ogni corso (per thumbnail Netflix)
-    const courseIds = courses.map(c => c.id);
-    const firstLessonsRaw = await prisma.lesson.findMany({
-      where: { courseId: { in: courseIds }, vimeoUrl: { not: null } },
-      orderBy: { sortOrder: 'asc' },
-      select: { courseId: true, vimeoUrl: true },
-    });
-    // Tieni solo la prima lezione trovata per ogni corso
-    const firstVimeoUrlByCourse = {};
-    for (const l of firstLessonsRaw) {
-      if (!firstVimeoUrlByCourse[l.courseId]) {
-        firstVimeoUrlByCourse[l.courseId] = l.vimeoUrl;
+    // Recupera la prima lezione con vimeoUrl per ogni corso (per thumbnail Netflix).
+    // Usa cache in-memory (TTL 10 min) per evitare la query su ogni load dashboard.
+    const nowMs = Date.now();
+    if (!_thumbCache || (nowMs - _thumbCacheTs) > THUMB_CACHE_TTL_MS) {
+      const courseIds = courses.map(c => c.id);
+      const firstLessonsRaw = await prisma.lesson.findMany({
+        where: { courseId: { in: courseIds }, vimeoUrl: { not: null } },
+        orderBy: { sortOrder: 'asc' },
+        select: { courseId: true, vimeoUrl: true },
+      });
+      // Tieni solo la prima lezione trovata per ogni corso
+      const freshMap = {};
+      for (const l of firstLessonsRaw) {
+        if (!freshMap[l.courseId]) {
+          freshMap[l.courseId] = l.vimeoUrl;
+        }
       }
+      _thumbCache = freshMap;
+      _thumbCacheTs = nowMs;
     }
+    const firstVimeoUrlByCourse = _thumbCache;
 
     // Calcola isExpiringSoon lato server (< 14 giorni dall'accesso abbonato)
     const enriched = courses.map(c => {
