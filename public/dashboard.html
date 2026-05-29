@@ -6331,7 +6331,7 @@ function _updateSidebarTab(isOpen) {
     tab.setAttribute('aria-expanded', 'true');
     tab.setAttribute('aria-label', 'Chiudi lista lezioni');
   } else {
-    tab.style.left = isDesktop ? '72px' : '0';
+    tab.style.left = '0'; // sempre incollata al bordo sinistro dello schermo
     tab.setAttribute('aria-expanded', 'false');
     tab.setAttribute('aria-label', 'Mostra lista lezioni');
   }

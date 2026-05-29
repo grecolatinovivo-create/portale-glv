@@ -35,25 +35,18 @@ export default withAuth(async function handler(req, res) {
       newUsersLast30,
       newUsersLast7,
       suspendedUsers,
-      activeSubscriptions,
-      newSubscriptionsLast30,
       totalCertificates,
       revokedCertificates,
       totalCourses,
       completedCoursesLast30,
       totalPurchases,
-      subscriptionsByPlan,
+      allActiveSubs,
+      newSubscriptionsLast30raw,
     ] = await Promise.all([
       prisma.user.count(),
       prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
       prisma.user.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
       prisma.user.count({ where: { isSuspended: true } }),
-      prisma.subscription.count({
-        where: { status: 'active' },
-      }),
-      prisma.subscription.count({
-        where: { createdAt: { gte: thirtyDaysAgo } },
-      }),
       prisma.certificate.count(),
       prisma.certificate.count({ where: { revokedAt: { not: null } } }),
       prisma.course.count({ where: { isAvailable: true } }),
@@ -61,13 +54,40 @@ export default withAuth(async function handler(req, res) {
         where: { issuedAt: { gte: thirtyDaysAgo }, revokedAt: null },
       }),
       prisma.purchase.count(),
-      prisma.subscription.groupBy({
-        by: ['plan'],
+      // Tutte le subscription attive — deduplicazione lato applicazione
+      prisma.subscription.findMany({
         where: { status: 'active' },
-        _count: { plan: true },
-        orderBy: { _count: { plan: 'desc' } },
+        select: { userId: true, plan: true },
+      }),
+      // Nuove subscription ultimi 30 gg (su piano Stripe, non manuali)
+      prisma.subscription.count({
+        where: { createdAt: { gte: thirtyDaysAgo }, plan: { notIn: MANUAL_PLANS } },
       }),
     ]);
+
+    // ── Deduplicazione: ogni utente conta UNA sola volta
+    // Il piano manuale (free) ha precedenza sul piano Stripe se coesistono.
+    const effectivePlanByUser = {};
+    for (const sub of allActiveSubs) {
+      const existing = effectivePlanByUser[sub.userId];
+      const isManual = MANUAL_PLANS.includes(sub.plan);
+      const existingIsManual = existing && MANUAL_PLANS.includes(existing);
+      if (!existing || (isManual && !existingIsManual)) {
+        effectivePlanByUser[sub.userId] = sub.plan;
+      }
+    }
+    const effectivePlans = Object.values(effectivePlanByUser);
+    const activeSubscriptions = effectivePlans.length;
+    const newSubscriptionsLast30 = newSubscriptionsLast30raw;
+
+    // Breakdown per piano (deduplicato)
+    const planCountMap = {};
+    for (const plan of effectivePlans) {
+      planCountMap[plan] = (planCountMap[plan] || 0) + 1;
+    }
+    const subscriptionsByPlan = Object.entries(planCountMap)
+      .sort((a, b) => b[1] - a[1])
+      .map(([plan, count]) => ({ plan, count }));
 
     // AdminLog e campi nuovi (expiresAt) potrebbero non esistere ancora nel DB
     // se npx prisma db push non è stato eseguito — gestiamo il fallback

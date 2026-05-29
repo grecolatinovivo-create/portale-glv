@@ -9,6 +9,14 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 
 const FR_LEVELS = ['A1.1', 'A1.2', 'A2.1', 'A2.2', 'B1.1', 'B1.2', 'B1.3'];
 
+// Piani manuali/gratuiti — non concorrono alla commissione FR
+const MANUAL_PLANS = [
+  'cultura-manuale',
+  'linguae-manuale',
+  'accademia-manuale',
+  'accademia-free',
+];
+
 // Solo i piani che includono Familia Romana (Latino A1.1–B1.3)
 const PLAN_MONTHLY_PRICE = {
   'linguae-mensile':   12.90,
@@ -47,12 +55,24 @@ export default requireAuth(async function handler(req, res) {
       ? (frMinutes / totalMinutes) * 100
       : 0;
 
-    // ── Abbonati per piano (status active) ───────────────────
+    // ── Utenti con piano manuale/free: esclusi dalla commissione ─
+    const freeUserRows = await prisma.subscription.findMany({
+      where: { status: 'active', plan: { in: MANUAL_PLANS } },
+      select: { userId: true },
+      distinct: ['userId'],
+    });
+    const freeUserIds = freeUserRows.map(r => r.userId);
+
+    // ── Abbonati paganti per piano (Stripe, esclusi free) ─────────
     const plans = Object.keys(PLAN_MONTHLY_PRICE);
     const subCounts = {};
     await Promise.all(plans.map(async (plan) => {
       subCounts[plan] = await prisma.subscription.count({
-        where: { plan, status: 'active' },
+        where: {
+          plan,
+          status: 'active',
+          ...(freeUserIds.length > 0 && { userId: { notIn: freeUserIds } }),
+        },
       });
     }));
 
