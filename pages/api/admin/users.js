@@ -118,8 +118,9 @@ export default withAuth(async function handler(req, res) {
     }
 
     // Tier da assegnare (solo per set-tier)
-    const { tier } = req.body;   // 'cultura' | 'linguae' | 'accademia' | 'free' | 'none'
-    const VALID_TIERS = ['cultura', 'linguae', 'accademia', 'free', 'none'];
+    const { tier } = req.body;
+    const VALID_TIERS = ['cultura-free', 'linguae-free', 'accademia-free',
+                         'cultura', 'linguae', 'accademia', 'none'];
     if (action === 'set-tier' && !VALID_TIERS.includes(tier)) {
       return res.status(400).json({ error: `tier non valido: usa ${VALID_TIERS.join('|')}` });
     }
@@ -213,10 +214,12 @@ export default withAuth(async function handler(req, res) {
 
         // Mappa tier → plan name
         const TIER_TO_PLAN = {
-          cultura:   'cultura-manuale',
-          linguae:   'linguae-manuale',
-          accademia: 'accademia-manuale',
-          free:      'accademia-free',   // stessa gerarchia di accademia, gratuito
+          'cultura-free':   'cultura-free',
+          'linguae-free':   'linguae-free',
+          'accademia-free': 'accademia-free',
+          'cultura':        'cultura-manuale',
+          'linguae':        'linguae-manuale',
+          'accademia':      'accademia-manuale',
         };
 
         // Cancella tutti i piani manuali esistenti per questo utente
