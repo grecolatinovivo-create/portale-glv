@@ -800,9 +800,13 @@
     <!-- Scadenza -->
     <div class="form-group">
       <label class="form-label">Data di scadenza accesso abbonati</label>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;font-size:13px;color:var(--gray-600);">
+        <input type="checkbox" id="field-noExpiry" onchange="toggleExpiryField(this.checked)" style="width:15px;height:15px;cursor:pointer;accent-color:var(--primary);" />
+        Nessuna scadenza
+      </label>
       <input type="datetime-local" class="form-control" id="field-expiresAt" />
       <div class="form-hint">
-        Lascia vuoto per nessuna scadenza. Gli acquirenti singoli non sono mai limitati da questa data.
+        Gli acquirenti singoli non sono mai limitati da questa data.
       </div>
     </div>
 
@@ -1158,9 +1162,12 @@ function openCourseModal(courseId) {
   document.getElementById('field-tier').value = c.tierRequired || 'cultura';
 
   // Scadenza
+  const noExpiry = !c.expiresAt;
+  document.getElementById('field-noExpiry').checked = noExpiry;
   document.getElementById('field-expiresAt').value = c.expiresAt
     ? new Date(c.expiresAt).toISOString().slice(0, 16)
     : '';
+  toggleExpiryField(noExpiry);
 
   // Etichetta
   document.getElementById('field-label').value = c.availableUntilLabel || '';
@@ -1189,12 +1196,20 @@ function openCourseModal(courseId) {
   openModal('modal-course');
 }
 
+function toggleExpiryField(noExpiry) {
+  const input = document.getElementById('field-expiresAt');
+  input.disabled = noExpiry;
+  input.style.opacity = noExpiry ? '0.35' : '1';
+  if (noExpiry) input.value = '';
+}
+
 async function saveCourse() {
   if (!editingCourseId) return;
 
   const title        = document.getElementById('field-title').value.trim();
   const tierRequired = document.getElementById('field-tier').value;
-  const expiresAtVal = document.getElementById('field-expiresAt').value;
+  const noExpiry     = document.getElementById('field-noExpiry').checked;
+  const expiresAtVal = noExpiry ? '' : document.getElementById('field-expiresAt').value;
   const label        = document.getElementById('field-label').value.trim();
   const isAvailable  = document.getElementById('field-isAvailable').checked;
   const isNew        = document.getElementById('field-isNew').checked;
