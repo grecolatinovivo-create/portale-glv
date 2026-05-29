@@ -786,29 +786,26 @@
       <input type="text" class="form-control" id="field-title" placeholder="Titolo del corso" />
     </div>
 
-    <!-- Categoria / Lang -->
+    <!-- Tier -->
     <div class="form-group">
-      <label class="form-label">Categoria (lingua / sezione)</label>
+      <label class="form-label">Tier abbonamento richiesto</label>
+      <select class="form-control" id="field-tier" onchange="onTierChange()">
+        <option value="cultura">Cultura → Corsi Brevi (ardesia)</option>
+        <option value="linguae">Linguae → scegli la lingua</option>
+        <option value="accademia">Accademia → Didattica (viola)</option>
+      </select>
+      <div class="form-hint">Tier minimo per accedere via abbonamento. Non influisce sugli acquisti singoli.</div>
+    </div>
+
+    <!-- Lingua — visibile solo per Linguae -->
+    <div class="form-group" id="field-lang-group" style="display:none;">
+      <label class="form-label">Lingua del corso</label>
       <select class="form-control" id="field-lang">
         <option value="Latino">Latino</option>
         <option value="Greco Antico">Greco Antico</option>
         <option value="Egiziano Geroglifico">Egiziano Geroglifico</option>
         <option value="Ebraico Biblico">Ebraico Biblico</option>
-        <option value="Didattica">Didattica</option>
-        <option value="Corsi Brevi">Corsi Brevi</option>
       </select>
-      <div class="form-hint">Determina il colore della card, la sezione del catalogo e l'accesso per lingua.</div>
-    </div>
-
-    <!-- Tier -->
-    <div class="form-group">
-      <label class="form-label">Tier abbonamento richiesto</label>
-      <select class="form-control" id="field-tier">
-        <option value="cultura">Cultura</option>
-        <option value="linguae">Linguae</option>
-        <option value="accademia">Accademia</option>
-      </select>
-      <div class="form-hint">Tier minimo per accedere via abbonamento. Non influisce sugli acquisti singoli.</div>
     </div>
 
     <!-- Scadenza -->
@@ -1211,6 +1208,22 @@ function openCourseModal(courseId) {
 
   document.getElementById('modal-course-alert').style.display = 'none';
   openModal('modal-course');
+}
+
+// Sincronizza il campo lingua con il tier selezionato.
+// Cultura → Corsi Brevi (nasconde select lingua)
+// Linguae → mostra select lingua
+// Accademia → Didattica (nasconde select lingua)
+function onTierChange() {
+  const tier = document.getElementById('field-tier').value;
+  const langGroup = document.getElementById('field-lang-group');
+  const langSel   = document.getElementById('field-lang');
+  if (tier === 'linguae') {
+    langGroup.style.display = '';
+  } else {
+    langGroup.style.display = 'none';
+    langSel.value = tier === 'accademia' ? 'Didattica' : 'Corsi Brevi';
+  }
 }
 
 function toggleExpiryField(noExpiry) {
