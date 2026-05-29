@@ -626,6 +626,11 @@
           <div class="panel-header">
             <div class="panel-title">Tutti i corsi</div>
             <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="fixAllTiers()"
+                style="color:var(--bordeaux);border-color:var(--bordeaux);"
+                title="Assegna tier automatico: Corsi Brevi→Cultura, Latino/Greco/Egiziano/Ebraico→Linguae, Didattica→Accademia">
+                ⚡ Auto-tier
+              </button>
               <span style="font-size:12px;color:var(--gray-400);margin-right:4px;">Anteprima:</span>
               <button class="btn btn-sm" id="tier-filter-all"
                 style="background:var(--bordeaux);color:#fff;"
@@ -1328,6 +1333,14 @@ async function saveCourse() {
     alertEl.textContent = 'Errore di rete';
     alertEl.style.display = 'flex';
   }
+}
+
+async function fixAllTiers() {
+  const r = await fetch('/api/admin/fix-tiers', { method: 'POST' });
+  const d = await r.json();
+  if (!r.ok) { alert('Errore: ' + (d.error || 'riprova')); return; }
+  alert(`✅ Tier aggiornati: ${d.updated} corsi modificati.\n\nCorsi Brevi → Cultura\nLatino/Greco/Egiziano/Ebraico → Linguae\nDidattica → Accademia`);
+  loadCourses();
 }
 
 /* ─────────────────────────────────────────────────────────────

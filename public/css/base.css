@@ -476,7 +476,7 @@ p { line-height: 1.7; }
 
 /* ── Nav responsive ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .nav-hamburger { display: flex; }
+  .nav-hamburger { display: none; }
   .nav-links {
     display: none;
     flex-direction: column;

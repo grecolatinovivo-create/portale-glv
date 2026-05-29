@@ -97,6 +97,7 @@ export default withAuth(async function handler(req, res) {
       tierRequired,       // 'cultura' | 'linguae' | 'accademia' | null
       title,              // titolo del corso
       description,        // sottotitolo / descrizione del corso
+      lang,               // 'Latino' | 'Greco Antico' | ecc.
       lessons,            // [{id, title}] — titoli delle lezioni
     } = req.body || {};
 
