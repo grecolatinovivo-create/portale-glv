@@ -626,12 +626,6 @@
           <div class="panel-header">
             <div class="panel-title">Tutti i corsi</div>
             <div style="display:flex;align-items:center;gap:6px;">
-              <button class="btn btn-outline btn-sm" onclick="fixAllTiers()"
-                style="color:var(--bordeaux);border-color:var(--bordeaux);"
-                title="Assegna tier automatico: Corsi Brevi→Cultura, Latino/Greco/Egiziano/Ebraico→Linguae, Didattica→Accademia">
-                ⚡ Auto-tier
-              </button>
-              <span style="font-size:12px;color:var(--gray-400);margin-right:4px;">Anteprima:</span>
               <button class="btn btn-sm" id="tier-filter-all"
                 style="background:var(--bordeaux);color:#fff;"
                 onclick="setTierFilter('all')">Tutti</button>
@@ -941,9 +935,11 @@ async function init() {
     const data = await r.json();
     currentUser = data.user;
 
-    // Controlla che sia l'admin
-    if (currentUser.email !== 'grecolatinovivo@gmail.com') {
-      document.querySelector('#gate .gate-msg').textContent = 'Accesso non autorizzato.';
+    // Controlla che sia l'admin (usa isAdmin dal server — non hardcodare email nel client)
+    if (!currentUser.isAdmin) {
+      document.querySelector('#gate .gate-msg').innerHTML =
+        'Accesso non autorizzato per <strong>' + (currentUser.email || 'questo account') + '</strong>.<br>' +
+        '<button onclick="logout()" style="margin-top:14px;padding:8px 18px;background:#6B2737;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">Cambia account</button>';
       document.querySelector('#gate .gate-spinner').style.display = 'none';
       return;
     }
@@ -1092,24 +1088,53 @@ async function loadDashboard() {
 /* ─────────────────────────────────────────────────────────────
    CORSI
 ───────────────────────────────────────────────────────────── */
-async function loadCourses() {
-  const tbody = document.getElementById('courses-table');
-  tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Caricamento…</td></tr>';
+// Tier attivo per il filtro corsi ('all' | 'cultura' | 'linguae' | 'accademia')
+let _activeTierFilter = 'all';
+const TIER_RANK = { cultura: 1, linguae: 2, accademia: 3 };
 
-  try {
-    const r = await fetch('/api/admin/courses');
-    if (!r.ok) throw new Error();
-    const { courses } = await r.json();
-    allCourses = courses;
+function setTierFilter(tier) {
+  _activeTierFilter = tier;
 
-    document.getElementById('courses-count').textContent = `${courses.length} corsi`;
-
-    if (courses.length === 0) {
-      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nessun corso trovato</td></tr>';
-      return;
+  // Aggiorna stile bottoni
+  ['all','cultura','linguae','accademia'].forEach(t => {
+    const btn = document.getElementById('tier-filter-' + t);
+    if (!btn) return;
+    if (t === tier) {
+      btn.style.background = 'var(--bordeaux)';
+      btn.style.color = '#fff';
+      btn.classList.remove('btn-outline');
+    } else {
+      btn.style.background = '';
+      btn.style.color = '';
+      btn.classList.add('btn-outline');
     }
+  });
 
-    tbody.innerHTML = courses.map(c => {
+  // Filtra e ri-renderizza
+  const filtered = tier === 'all'
+    ? allCourses
+    : allCourses.filter(c => {
+        const rank = TIER_RANK[c.tierRequired] || 1;
+        const maxRank = TIER_RANK[tier] || 1;
+        return rank <= maxRank;
+      });
+
+  renderCoursesTable(filtered, tier !== 'all');
+}
+
+function renderCoursesTable(courses, isFiltered) {
+  const tbody = document.getElementById('courses-table');
+  const total = allCourses.length;
+  const shown = courses.length;
+  document.getElementById('courses-count').textContent =
+    isFiltered ? `${shown} di ${total} corsi` : `${total} corsi`;
+
+  if (courses.length === 0) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Nessun corso per questo tier</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = courses.map(c => {
       const now = new Date();
       let expiryCell, expiryBadge;
 
@@ -1181,6 +1206,20 @@ async function loadCourses() {
         </tr>
       `;
     }).join('');
+}
+
+async function loadCourses() {
+  const tbody = document.getElementById('courses-table');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="7">Caricamento…</td></tr>';
+
+  try {
+    const r = await fetch('/api/admin/courses');
+    if (!r.ok) throw new Error();
+    const { courses } = await r.json();
+    allCourses = courses;
+
+    // Applica il filtro corrente (mantiene la scelta se già selezionata)
+    setTierFilter(_activeTierFilter);
 
   } catch (e) {
     tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Errore nel caricamento</td></tr>';
@@ -1333,14 +1372,6 @@ async function saveCourse() {
     alertEl.textContent = 'Errore di rete';
     alertEl.style.display = 'flex';
   }
-}
-
-async function fixAllTiers() {
-  const r = await fetch('/api/admin/fix-tiers', { method: 'POST' });
-  const d = await r.json();
-  if (!r.ok) { alert('Errore: ' + (d.error || 'riprova')); return; }
-  alert(`✅ Tier aggiornati: ${d.updated} corsi modificati.\n\nCorsi Brevi → Cultura\nLatino/Greco/Egiziano/Ebraico → Linguae\nDidattica → Accademia`);
-  loadCourses();
 }
 
 /* ─────────────────────────────────────────────────────────────
