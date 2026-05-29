@@ -1513,16 +1513,18 @@ async function loadUsers() {
         : `<button class="btn btn-danger btn-sm" onclick="promptUserAction('${u.id}', 'suspend', '${escAttr(u.email)}')">Sospendi</button>`;
 
       // Dropdown tier manuale (admin override)
-      const MANUAL_PLANS_SET = new Set(['cultura-manuale','linguae-manuale','accademia-manuale','accademia-free']);
+      const MANUAL_PLANS_SET = new Set(['cultura-free','cultura-manuale','linguae-free','linguae-manuale','accademia-free','accademia-manuale']);
       const isAdminUser = u.email === 'grecolatinovivo@gmail.com';
 
       // Calcola tier corrente del piano manuale (se esiste)
       function manualTierOf(plan) {
         if (!plan) return 'none';
-        if (plan === 'accademia-free')    return 'free';
-        if (plan === 'accademia-manuale') return 'accademia';
-        if (plan === 'linguae-manuale')   return 'linguae';
-        if (plan === 'cultura-manuale')   return 'cultura';
+        if (plan === 'cultura-free')     return 'cultura-free';
+        if (plan === 'linguae-free')     return 'linguae-free';
+        if (plan === 'accademia-free')   return 'accademia-free';
+        if (plan === 'cultura-manuale')  return 'cultura';
+        if (plan === 'linguae-manuale')  return 'linguae';
+        if (plan === 'accademia-manuale')return 'accademia';
         return 'none';
       }
       const currentManualTier = MANUAL_PLANS_SET.has(sub?.plan) ? manualTierOf(sub.plan) : 'none';
@@ -1532,11 +1534,13 @@ async function loadUsers() {
         tierControl = `<span style="background:#6b2737;color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;letter-spacing:.06em;">ADMIN</span>`;
       } else {
         const opts = [
-          { value:'none',      label:'— nessuno' },
-          { value:'cultura',   label:'Cultura' },
-          { value:'linguae',   label:'Linguae' },
-          { value:'accademia', label:'Accademia' },
-          { value:'free',      label:'Free ✦' },
+          { value:'none',           label:'— nessuno' },
+          { value:'cultura-free',   label:'Cultura Free ✦' },
+          { value:'linguae-free',   label:'Linguae Free ✦' },
+          { value:'accademia-free', label:'Accademia Free ✦' },
+          { value:'cultura',        label:'Cultura (manuale)' },
+          { value:'linguae',        label:'Linguae (manuale)' },
+          { value:'accademia',      label:'Accademia (manuale)' },
         ].map(o => `<option value="${o.value}"${currentManualTier===o.value?' selected':''}>${o.label}</option>`).join('');
         tierControl = `<select
           style="padding:4px 8px;font-size:12px;border:1px solid var(--gray-200);border-radius:6px;background:var(--white);color:var(--gray-700);cursor:pointer;"
