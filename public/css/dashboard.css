@@ -1686,6 +1686,15 @@
   }
 }
 
+/* ── Desktop: >1024px ─────────────────────────────────────────────
+   Tab laterale pellicola visibile durante la vista corso,
+   speculare al ai-panel-tab sul lato destro.                      */
+@media (min-width: 1025px) {
+  #glv-dashboard.glv-course-open .sidebar-tab {
+    display: flex;
+  }
+}
+
 /* ── Mobile: <768px ─────────────────────────────────────────────── */
 /* Pellicola sotto il video: bottom-sheet gestita dal CSS inline di dashboard.html */
 

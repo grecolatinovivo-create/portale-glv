@@ -7,6 +7,14 @@ const { withAuth } = require('../../../lib/auth');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 
+// Piani assegnati manualmente (gratuiti) — esclusi da contatori e commissioni
+const MANUAL_PLANS = [
+  'cultura-manuale',
+  'linguae-manuale',
+  'accademia-manuale',
+  'accademia-free',
+];
+
 export default withAuth(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);

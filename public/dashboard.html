@@ -3723,6 +3723,19 @@ async function openCourseView(slug, opts) {
   if (spaWrapper) spaWrapper.classList.add('course-open');
   // Riduce il padding del dashboard a soli 64px (navbar) — elimina gap tra navbar e corso
   const glvDashboard = document.getElementById('glv-dashboard');
+  // Pre-posiziona la sidebar-tab PRIMA di aggiungere glv-course-open (che la rende visibile),
+  // così non parte da left:0 con una transizione indesiderata.
+  {
+    const _sTab = document.getElementById('course-sidebar-tab');
+    if (_sTab && window.innerWidth >= 768) {
+      const _isDesk = window.innerWidth > 1024;
+      _sTab.style.transition = 'none';
+      _sTab.style.left = _isDesk ? '332px' : '260px';
+      _sTab.setAttribute('aria-expanded', 'true');
+      _sTab.setAttribute('aria-label', 'Chiudi lista lezioni');
+      requestAnimationFrame(() => { _sTab.style.transition = ''; });
+    }
+  }
   if (glvDashboard) glvDashboard.classList.add('glv-course-open');
 
   // Pellicola — skeleton subito nel DOM prima dell'animazione
@@ -3809,8 +3822,8 @@ async function openCourseView(slug, opts) {
   renderTierBanner(course);
   renderLessonList(course, progressData);
   // strip-visible già impostato in STEP 1 (sincronizzato con course-view).
-  // Qui solo: aggiorna tab laterale su tablet.
-  { const w = window.innerWidth; if (w >= 768 && w <= 1024) _updateSidebarTab(true); }
+  // Aggiorna tab laterale su tablet e desktop (già pre-posizionata, ma riconferma aria).
+  if (window.innerWidth >= 768) _updateSidebarTab(true);
 
   // FIX SCROLL — aggiorna min-height wrapper al contenuto reale del corso
   // (le viste sono position:absolute, non aggiungono altezza al flusso)
@@ -6306,25 +6319,29 @@ window.addEventListener('popstate', (e) => {
 // ── Bottom-sheet pellicola — toggle mobile ────────────────────────
 // Tap sull'handle: alterna stato peek ↔ espanso.
 // Funzione globale (chiamata da onclick inline nell'HTML).
-// ── Helper: aggiorna posizione tab laterale pellicola (tablet 768-1024px) ─────
+// ── Helper: aggiorna posizione tab laterale pellicola (tablet 768-1024px e desktop) ─────
+// Desktop: sidebar parte da left:72px (nav sidebar) e larga 260px → bordo destro a 332px.
+// Tablet:  sidebar parte da left:0 e larga 260px → bordo destro a 260px.
 function _updateSidebarTab(isOpen) {
   const tab = document.getElementById('course-sidebar-tab');
   if (!tab) return;
+  const isDesktop = window.innerWidth > 1024;
   if (isOpen) {
-    tab.style.left = '260px';
+    tab.style.left = isDesktop ? '332px' : '260px';
     tab.setAttribute('aria-expanded', 'true');
     tab.setAttribute('aria-label', 'Chiudi lista lezioni');
   } else {
-    tab.style.left = '0';
+    tab.style.left = isDesktop ? '72px' : '0';
     tab.setAttribute('aria-expanded', 'false');
     tab.setAttribute('aria-label', 'Mostra lista lezioni');
   }
 }
 
-// ── Toggle pellicola su tablet (768–1024px) ───────────────────────
+// ── Toggle pellicola su tablet (768–1024px) e desktop (>1024px) ───
+// Su mobile (<768px) è gestita da toggleMobileSheet().
 function toggleTabletSidebar() {
   const w = window.innerWidth;
-  if (w < 768 || w > 1024) return;
+  if (w < 768) return;
   const strip = document.getElementById('course-lessons-section');
   if (!strip) return;
   const willOpen = !strip.classList.contains('strip-visible');
