@@ -786,6 +786,20 @@
       <input type="text" class="form-control" id="field-title" placeholder="Titolo del corso" />
     </div>
 
+    <!-- Categoria / Lang -->
+    <div class="form-group">
+      <label class="form-label">Categoria (lingua / sezione)</label>
+      <select class="form-control" id="field-lang">
+        <option value="Latino">Latino</option>
+        <option value="Greco Antico">Greco Antico</option>
+        <option value="Egiziano Geroglifico">Egiziano Geroglifico</option>
+        <option value="Ebraico Biblico">Ebraico Biblico</option>
+        <option value="Didattica">Didattica</option>
+        <option value="Corsi Brevi">Corsi Brevi</option>
+      </select>
+      <div class="form-hint">Determina il colore della card, la sezione del catalogo e l'accesso per lingua.</div>
+    </div>
+
     <!-- Tier -->
     <div class="form-group">
       <label class="form-label">Tier abbonamento richiesto</label>
@@ -1158,6 +1172,9 @@ function openCourseModal(courseId) {
   // Titolo corso
   document.getElementById('field-title').value = c.title || '';
 
+  // Categoria / Lang
+  document.getElementById('field-lang').value = c.lang || 'Corsi Brevi';
+
   // Tier
   document.getElementById('field-tier').value = c.tierRequired || 'cultura';
 
@@ -1207,6 +1224,7 @@ async function saveCourse() {
   if (!editingCourseId) return;
 
   const title        = document.getElementById('field-title').value.trim();
+  const lang         = document.getElementById('field-lang').value;
   const tierRequired = document.getElementById('field-tier').value;
   const noExpiry     = document.getElementById('field-noExpiry').checked;
   const expiresAtVal = noExpiry ? '' : document.getElementById('field-expiresAt').value;
@@ -1230,6 +1248,7 @@ async function saveCourse() {
       body: JSON.stringify({
         courseId:            editingCourseId,
         title:               title || undefined,
+        lang:                lang || undefined,
         tierRequired,
         expiresAt:           expiresAtVal || null,
         availableUntilLabel: label || null,
