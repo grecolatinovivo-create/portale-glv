@@ -1523,15 +1523,8 @@ async function confirmUserAction() {
 const TIER_LABELS = { none:'— nessuno', cultura:'Cultura', linguae:'Linguae', accademia:'Accademia', free:'Free ✦' };
 
 async function adminSetTier(userId, tier, email, selectEl) {
-  const label = tier === 'none'
-    ? `Revocare il tier manuale di ${email}?`
-    : `Assegnare tier ${TIER_LABELS[tier]} a ${email}?`;
-
-  if (!confirm(label)) {
-    // Ripristina il valore precedente nel select se l'utente annulla
-    loadUsers();
-    return;
-  }
+  // Disabilita il select durante la richiesta
+  if (selectEl) selectEl.disabled = true;
 
   try {
     const r = await fetch('/api/admin/users', {
@@ -1541,16 +1534,16 @@ async function adminSetTier(userId, tier, email, selectEl) {
     });
 
     if (!r.ok) {
-      const err = await r.json();
-      alert('Errore: ' + (err.error || 'riprova'));
-      loadUsers();
+      const err = await r.json().catch(() => ({}));
+      console.error('[set-tier]', err.error);
+      if (selectEl) selectEl.disabled = false;
       return;
     }
 
-    loadUsers(); // ricarica la tabella con i dati aggiornati
-  } catch {
-    alert('Errore di rete');
     loadUsers();
+  } catch (e) {
+    console.error('[set-tier] errore di rete', e);
+    if (selectEl) selectEl.disabled = false;
   }
 }
 

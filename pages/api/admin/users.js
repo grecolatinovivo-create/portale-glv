@@ -63,6 +63,7 @@ export default withAuth(async function handler(req, res) {
             subscriptions: {
               where: { status: 'active' },
               select: { id: true, plan: true, status: true, currentPeriodEnd: true },
+              orderBy: { createdAt: 'desc' }, // i piani manuali (creati per ultimi) vengono prima
               take: 1,
             },
             purchases: {
