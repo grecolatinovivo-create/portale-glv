@@ -19,7 +19,9 @@ export default withAuth(async function handler(req, res) {
     // Piani manuali (gratuiti) assegnati dall'admin — hanno precedenza su Stripe
     const MANUAL_PLANS = [
       'cultura-manuale',
+      'cultura-free',
       'linguae-manuale',
+      'linguae-free',
       'accademia-manuale',
       'accademia-free',
     ];

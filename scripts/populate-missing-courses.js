@@ -162,17 +162,20 @@ const COURSES_DATA = [
   },
 
   // ── IDCR=234 · V6EFWX · Egiziano Geroglifico — Letteratura (8 lezioni) ───
+  // ATTENZIONE: tutti gli IDL (1904..2154) sono già in Neon DB come lezioni di eg-a12
+  // (idl-lesson-map: idcr=234 → courseTitle="Corso di Egiziano Geroglifico A1.2")
+  // → latinCertId=null per tutti, come già fatto per lat-a12 e lat-a22
   {
     slug: 'breve-egiziano-geroglifico-letteratura',
     lessons: [
-      { latinCertId: 1904, title: 'Lezione 1 — Sinuhe R 58-71 (9 maggio 2024)',        vimeoUrl: 'https://vimeo.com/944576227',  durationMin: 118, sortOrder: 1 },
-      { latinCertId: 1933, title: 'Lezione 2 — diario di Merer (16 maggio 2024)',       vimeoUrl: 'https://vimeo.com/947144346',  durationMin: 114, sortOrder: 2 },
-      { latinCertId: 1965, title: 'Lezione 3 — Correzione esercizi (23 maggio 2024)',   vimeoUrl: 'https://vimeo.com/949652490',  durationMin: 112, sortOrder: 3 },
-      { latinCertId: 2028, title: 'Lezione 4 — Sinuhe B 146-148 (30 maggio 2024)',      vimeoUrl: 'https://vimeo.com/952075222',  durationMin: 120, sortOrder: 4 },
-      { latinCertId: 2056, title: 'Lezione 5 — Correzione esercizi (6 giugno 2024)',    vimeoUrl: 'https://vimeo.com/954973762',  durationMin: 86,  sortOrder: 5 },
-      { latinCertId: 2087, title: 'Lezione 6 del 13 giugno 2024',                       vimeoUrl: 'https://vimeo.com/957926456',  durationMin: 117, sortOrder: 6 },
-      { latinCertId: 2142, title: 'Lezione 7 — Lettura Sinuhe (27 giugno 2024)',        vimeoUrl: 'https://vimeo.com/970144481',  durationMin: 118, sortOrder: 7 },
-      { latinCertId: 2154, title: 'Lezione 8 — Finale di Sinuhe (4 luglio 2024)',       vimeoUrl: 'https://vimeo.com/977045666',  durationMin: 135, sortOrder: 8 },
+      { latinCertId: null, title: 'Lezione 1 — Sinuhe R 58-71 (9 maggio 2024)',        vimeoUrl: 'https://vimeo.com/944576227',  durationMin: 118, sortOrder: 1 },
+      { latinCertId: null, title: 'Lezione 2 — diario di Merer (16 maggio 2024)',       vimeoUrl: 'https://vimeo.com/947144346',  durationMin: 114, sortOrder: 2 },
+      { latinCertId: null, title: 'Lezione 3 — Correzione esercizi (23 maggio 2024)',   vimeoUrl: 'https://vimeo.com/949652490',  durationMin: 112, sortOrder: 3 },
+      { latinCertId: null, title: 'Lezione 4 — Sinuhe B 146-148 (30 maggio 2024)',      vimeoUrl: 'https://vimeo.com/952075222',  durationMin: 120, sortOrder: 4 },
+      { latinCertId: null, title: 'Lezione 5 — Correzione esercizi (6 giugno 2024)',    vimeoUrl: 'https://vimeo.com/954973762',  durationMin: 86,  sortOrder: 5 },
+      { latinCertId: null, title: 'Lezione 6 del 13 giugno 2024',                       vimeoUrl: 'https://vimeo.com/957926456',  durationMin: 117, sortOrder: 6 },
+      { latinCertId: null, title: 'Lezione 7 — Lettura Sinuhe (27 giugno 2024)',        vimeoUrl: 'https://vimeo.com/970144481',  durationMin: 118, sortOrder: 7 },
+      { latinCertId: null, title: 'Lezione 8 — Finale di Sinuhe (4 luglio 2024)',       vimeoUrl: 'https://vimeo.com/977045666',  durationMin: 135, sortOrder: 8 },
     ],
   },
 
@@ -200,12 +203,12 @@ const COURSES_DATA = [
       { latinCertId: 3743, title: 'Tertia lectio — De Legibus I 58-61 (13/10/2025)',              vimeoUrl: 'https://vimeo.com/1126968619', durationMin: 116, sortOrder: 3 },
       { latinCertId: 3750, title: 'Quarta lectio — De Re publica I (15/10/2025)',                 vimeoUrl: 'https://vimeo.com/1127645240', durationMin: 111, sortOrder: 4 },
       { latinCertId: 3763, title: 'Quinta lectio — De Re publica I + Laelius (20/10/2025)',       vimeoUrl: 'https://vimeo.com/1128978656', durationMin: 106, sortOrder: 5 },
-      { latinCertId: 3783, title: 'Sexta lectio — De Re publica I 7-11 (27/10/2025)',             vimeoUrl: null,                          durationMin: 0,   sortOrder: 6 },
+      { latinCertId: 3783, title: 'Sexta lectio — De Re publica I 7-11 (27/10/2025)',             vimeoUrl: 'https://vimeo.com/1131064010', durationMin: 90,  sortOrder: 6 },
       { latinCertId: 3811, title: 'Septima lectio — Rep. I + Somnium Scipionis (5/11/2025)',      vimeoUrl: 'https://vimeo.com/1133993310', durationMin: 108, sortOrder: 7 },
       { latinCertId: 3823, title: 'Octava lectio — De Re publica III (10/11/2025)',               vimeoUrl: 'https://vimeo.com/1135486367', durationMin: 108, sortOrder: 8 },
       { latinCertId: 3844, title: 'Nona lectio — De finibus + epistole (17/11/2025)',             vimeoUrl: 'https://vimeo.com/1137813078', durationMin: 105, sortOrder: 9 },
       { latinCertId: 3852, title: 'Decima lectio — Epistule Cicerone (19/11/2025)',               vimeoUrl: 'https://vimeo.com/1138573822', durationMin: 56,  sortOrder: 10 },
-      { latinCertId: 3865, title: 'Undecima lectio — De Oratore (24/11/2025)',                    vimeoUrl: null,                          durationMin: 0,   sortOrder: 11 },
+      { latinCertId: 3865, title: 'Undecima lectio — De Oratore (24/11/2025)',                    vimeoUrl: 'https://vimeo.com/1140295793', durationMin: 90,  sortOrder: 11 },
       { latinCertId: 3876, title: 'Duodecima lectio — De inventione (26/11/2025)',                vimeoUrl: 'https://vimeo.com/1140906085', durationMin: 107, sortOrder: 12 },
       { latinCertId: 3889, title: 'Decima tertia lectio — De Oratore (1/12/2025)',                vimeoUrl: 'https://vimeo.com/1142197797', durationMin: 112, sortOrder: 13 },
       { latinCertId: 3894, title: 'Quarta decima lectio — De Oratore I (3/12/2025)',              vimeoUrl: 'https://vimeo.com/1143209534', durationMin: 109, sortOrder: 14 },
@@ -247,23 +250,30 @@ async function main() {
 
     // Crea le nuove lezioni
     let created = 0;
+    let errors  = 0;
     for (const lesson of courseData.lessons) {
-      await prisma.lesson.create({
-        data: {
-          courseId:    course.id,
-          title:       lesson.title,
-          durationMin: lesson.durationMin,
-          isFree:      false,           // REGOLA ASSOLUTA: isFree sempre false
-          sortOrder:   lesson.sortOrder,
-          vimeoUrl:    lesson.vimeoUrl,
-          latinCertId: lesson.latinCertId ?? undefined, // null → non impostare
-        },
-      });
-      created++;
+      try {
+        await prisma.lesson.create({
+          data: {
+            courseId:    course.id,
+            title:       lesson.title,
+            durationMin: lesson.durationMin,
+            isFree:      false,           // REGOLA ASSOLUTA: isFree sempre false
+            sortOrder:   lesson.sortOrder,
+            vimeoUrl:    lesson.vimeoUrl ?? undefined,
+            latinCertId: lesson.latinCertId ?? undefined, // null → non impostare
+          },
+        });
+        created++;
+      } catch (err) {
+        console.error(`    ⚠️  Lezione "${lesson.title}" (IDL ${lesson.latinCertId}) — ${err.message}`);
+        errors++;
+      }
     }
 
     totalLessons += created;
-    console.log(`  ✅  ${courseData.slug} → ${created} lezioni create`);
+    const status = errors > 0 ? `✅  ${created} create, ⚠️  ${errors} errori` : `✅  ${created} lezioni create`;
+    console.log(`  ${status}  →  ${courseData.slug}`);
   }
 
   console.log(`\n✔ Completato: ${totalLessons} lezioni create su ${COURSES_DATA.length - skippedCourses} corsi.`);
