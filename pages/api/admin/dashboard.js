@@ -126,10 +126,9 @@ export default withAuth(async function handler(req, res) {
         activeSubscriptions,
         newSubscriptionsLast30,
         totalPurchases,
-        subscriptionsByPlan: subscriptionsByPlan.map(s => ({
-          plan: s.plan,
-          count: s._count.plan,
-        })),
+        // subscriptionsByPlan è già nel formato { plan, count } (vedi sopra).
+        // FIX: prima rimappava su s._count.plan (undefined) → TypeError → 500.
+        subscriptionsByPlan,
         certificates: {
           total: totalCertificates,
           revoked: revokedCertificates,

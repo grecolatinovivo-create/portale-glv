@@ -2838,6 +2838,7 @@ async function showDashboard() {
   _injectSkeletons();
 
   // Corsi — carica e metti in cache globale
+  _courses = null; // forza fetch fresco — evita dati stantii dopo modifiche admin
   try { _allCourses = await Courses.getAll(); } catch { _allCourses = []; }
 
   // Salva tier corrente per il sistema di filtri

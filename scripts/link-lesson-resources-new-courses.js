@@ -2,11 +2,11 @@
 // Collega i materiali (PDF, audio, immagini) alle lezioni dei 12 nuovi corsi brevi.
 // Replica esattamente il metodo usato per gli altri 56 corsi.
 //
-// Logica:
-//   1. Per ogni IDL che ha file in classroomresources/
-//   2. Trova la lezione Neon con latinCertId = IDL
-//   3. Cancella eventuali LessonResource esistenti (idempotente)
-//   4. Crea LessonResource con blobUrl = https://www.latin-cert.org/classroomresources/{IDL}/{filename}
+// Due modalità di lookup:
+//   A) latinCertId lookup  → per le lezioni che hanno latinCertId nel DB
+//   B) slug + sortOrder    → per le lezioni create senza latinCertId
+//                            (mantenimento Latino A1.1, mantenimento Latino B1/B2 parziale,
+//                             Egiziano Geroglifico-Letteratura)
 //
 // Eseguire con:
 //   node scripts/link-lesson-resources-new-courses.js
@@ -93,7 +93,47 @@ const IDL_FILES = {
   3925: ['Copy of decimus quintus textus.pdf'],
   3928: ['Copy of decimus sextus textus.pdf'],
   3938: ['Copy of decimus septimus textus.pdf'],
+
+  // ── Lezioni create senza latinCertId (IDL già in DB per altri corsi) ──────
+  // breve-mantenimento-latino-a1-1: IDL 656-1046 già in lat-a12
+  656:  ['De fabellis leoninis_Latin-Cert_txzw3k96gmxr61t.m4a','fabulae_deleone_Latin-Cert_x1o9jtindy5ijeq.pdf'],
+  728:  ['Extra: de infantia Iovis_Latin-Cert_5ox2x0zfmbt43dw.m4a','de puero mendace_Latin-Cert_122jtq89mwmyw01.pdf','de_puero_mendace_Latin-Cert_dc05kldxsp7u28z.m4a'],
+  780:  ['De insignibus Martis_Latin-Cert_oslbt94nt34p49u.m4a','Miles_Latin-Cert_8eclwaarl3z53z1.m4a','imago militis_Latin-Cert_t6enaw0bqt5ovqm.pdf','miles_Latin-Cert_e4r9xv0b8yd8j9t.pdf'],
+  812:  ['Snupius_Latin-Cert_l8led59qospqfhj.pdf'],
+  852:  ['De Orpheo_Latin-Cert_3kth76yypffm8um.m4a','de_orpheo_Latin-Cert_6zgyauf4t8rimpa.pdf'],
+  880:  ['Colosseum_audio_Latin-Cert_9lpx76n61o6jbbx.m4a','IMG_1231_Latin-Cert_6bqr1pkc11m8zms.pdf'],
+  892:  ['Aenigma_Latin-Cert_prw75wvfa1cztie.pdf','Coclea_audio_mp3_Latin-Cert_9v1h9hj4cwv0j64.mp3'],
+  932:  ['Dies pueri_Latin-Cert_eei3x3wm6amu6vi.m4a','M1_Latin-Cert_dyp2gbyiqvny8tg.pdf'],
+  1046: ['De Puero et Matre_Latin-Cert_gbsrzr9j0zp3zur.pdf'],
+
+  // breve-mantenimento-latino-b1-b2: IDL 733, 896, 904 già in lat-a22
+  733:  ['De vehic. freq. 1_Latin-Cert_2rqvm71cfgkmb9g.m4a','Extra: Seneca, de otio, II_Latin-Cert_k1u097z2q76v7fo.m4a','de vehiculorum frequentia_Latin-Cert_goc73dxfayvc2px.pdf'],
+  896:  ['Cornelio_Nepote_Latin-Cert_s3757kuxvdowcuw.pdf','De morte Hannibali - audio_Latin-Cert_zx3chfsnrdn3d3p.m4a'],
+  904:  ['BPF1_Latin-Cert_mthob2cjctov0l4.m4a','Documento_2023-08-19_162325_Latin-Cert_vora6g51kg0tvm3.pdf'],
+
+  // breve-egiziano-geroglifico-letteratura: IDL 1904-2154 già in eg-a12
+  1904: ['Dispensa forme ampliate - sDm.in.f_Latin-Cert_ed8stx.pdf','Dispensa frase relativa o attributiva_Latin-Cert_q99x5r.pdf','Esercizi lezione 1 Sinuhe_Latin-Cert_v9gtnm.pdf','Sinuhe parte II - slides riassuntive lez 1_Latin-Cert_1vd04o.pdf'],
+  1933: ['Dispensa lezione 2 (Sinuhe) - frase ed elementi interrogativi_Latin-Cert_t9h824.pdf','Dispensa lezione 2 (Sinuhe) - preposizioni e particelle_Latin-Cert_pbuwyl.pdf','Sinuhe parte II - slides riassuntive lez 2_Latin-Cert_xouin6.pdf'],
+  1965: ['Convenzioni e cambiamenti fonetici - da Allen_Latin-Cert_ayvj14.pdf','Dispensa particelle relative e ausiliare aHa_Latin-Cert_9dhjvj.pdf','Sinuhe parte II - slides riassuntive lez 3_Latin-Cert_k8ekiy.pdf','Stele parte 1_Latin-Cert_1l8c47.jpg'],
 };
+
+// Per le lezioni create senza latinCertId, il lookup avviene per slug + sortOrder.
+// Mapping: { slug → { sortOrder → idl } }
+const SLUG_SORTORDER_IDL = {
+  'breve-mantenimento-latino-a1-1': {
+    1: 656, 2: 728, 3: 780, 4: 812, 5: 852, 6: 880, 7: 892, 8: 932, 9: 1046,
+  },
+  'breve-mantenimento-latino-b1-b2': {
+    2: 733, 7: 896, 8: 904,  // sortOrder 10 (IDL=990) → nessuna cartella
+  },
+  'breve-egiziano-geroglifico-letteratura': {
+    1: 1904, 2: 1933, 3: 1965, 4: 2028, 5: 2056, 6: 2087, 7: 2142, 8: 2154,
+  },
+};
+
+// IDL che NON devono essere cercati per latinCertId (già in DB per altri corsi)
+// → vengono gestiti tramite SLUG_SORTORDER_IDL
+const NULL_IDLS = new Set([656,728,780,812,852,880,892,932,1046,733,896,904,1904,1933,1965]);
 
 // Ricava il fileType dall'estensione
 function getFileType(filename) {
@@ -112,59 +152,90 @@ function cleanTitle(filename) {
     .trim();
 }
 
+// Helper: crea i LessonResource per una lezione
+async function createResources(lesson, idl, files) {
+  await prisma.lessonResource.deleteMany({ where: { lessonId: lesson.id } });
+  let created = 0;
+  for (let i = 0; i < files.length; i++) {
+    const filename = files[i];
+    await prisma.lessonResource.create({
+      data: {
+        lessonId:  lesson.id,
+        title:     cleanTitle(filename) || filename,
+        filename,
+        blobUrl:   `https://www.latin-cert.org/classroomresources/${idl}/${encodeURIComponent(filename)}`,
+        fileType:  getFileType(filename),
+        sortOrder: i,
+      },
+    });
+    created++;
+  }
+  return created;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 async function main() {
   console.log('\n📎 Collegamento materiali alle lezioni dei 12 nuovi corsi brevi...\n');
 
-  const idls = Object.keys(IDL_FILES).map(Number);
   let totalCreated = 0;
   let skipped = 0;
 
-  for (const idl of idls) {
-    // Trova la lezione con questo latinCertId
+  // ── PERCORSO A: lookup per latinCertId ─────────────────────────────────────
+  console.log('── Lookup per latinCertId ──');
+  const regularIdls = Object.keys(IDL_FILES).map(Number).filter(idl => !NULL_IDLS.has(idl));
+
+  for (const idl of regularIdls) {
     const lesson = await prisma.lesson.findUnique({
       where: { latinCertId: idl },
-      select: { id: true, title: true, courseId: true },
+      select: { id: true, title: true },
     });
 
     if (!lesson) {
-      console.log(`  ⚠️  IDL=${idl} — lezione non trovata in Neon (latinCertId non presente)`);
+      console.log(`  ⚠️  IDL=${idl} — lezione non trovata (latinCertId assente)`);
       skipped++;
       continue;
     }
 
-    const files = IDL_FILES[idl];
-
-    // Cancella eventuali LessonResource precedenti (idempotente)
-    await prisma.lessonResource.deleteMany({ where: { lessonId: lesson.id } });
-
-    // Crea un LessonResource per ogni file
-    let created = 0;
-    for (let i = 0; i < files.length; i++) {
-      const filename = files[i];
-      const blobUrl  = `https://www.latin-cert.org/classroomresources/${idl}/${encodeURIComponent(filename)}`;
-      const fileType = getFileType(filename);
-      const title    = cleanTitle(filename) || filename;
-
-      await prisma.lessonResource.create({
-        data: {
-          lessonId:  lesson.id,
-          title,
-          filename,
-          blobUrl,
-          fileType,
-          sortOrder: i,
-        },
-      });
-      created++;
-    }
-
-    totalCreated += created;
-    console.log(`  ✅  IDL=${String(idl).padEnd(4)} → ${created} file  (lezione: "${lesson.title.substring(0, 50)}")`);
+    const n = await createResources(lesson, idl, IDL_FILES[idl]);
+    totalCreated += n;
+    console.log(`  ✅  IDL=${String(idl).padEnd(4)} → ${n} file  "${lesson.title.substring(0, 45)}"`);
   }
 
-  console.log(`\n✔ Completato: ${totalCreated} LessonResource creati su ${idls.length - skipped} lezioni.`);
-  if (skipped > 0) console.log(`  ⚠️  ${skipped} IDL saltati (lezione non trovata in Neon).`);
+  // ── PERCORSO B: lookup per slug + sortOrder ─────────────────────────────────
+  console.log('\n── Lookup per slug + sortOrder (lezioni senza latinCertId) ──');
+
+  for (const [slug, sortMap] of Object.entries(SLUG_SORTORDER_IDL)) {
+    const course = await prisma.course.findUnique({ where: { slug }, select: { id: true } });
+    if (!course) {
+      console.log(`  ⚠️  Corso non trovato: ${slug}`);
+      skipped++;
+      continue;
+    }
+
+    for (const [sortOrderStr, idl] of Object.entries(sortMap)) {
+      const sortOrder = Number(sortOrderStr);
+      const files = IDL_FILES[idl];
+      if (!files || files.length === 0) continue;
+
+      const lesson = await prisma.lesson.findFirst({
+        where: { courseId: course.id, sortOrder },
+        select: { id: true, title: true },
+      });
+
+      if (!lesson) {
+        console.log(`  ⚠️  ${slug} sortOrder=${sortOrder} — lezione non trovata`);
+        skipped++;
+        continue;
+      }
+
+      const n = await createResources(lesson, idl, files);
+      totalCreated += n;
+      console.log(`  ✅  ${slug} [${sortOrder}] IDL=${idl} → ${n} file  "${lesson.title.substring(0, 40)}"`);
+    }
+  }
+
+  console.log(`\n✔ Completato: ${totalCreated} LessonResource creati.`);
+  if (skipped > 0) console.log(`  ⚠️  ${skipped} voci saltate.`);
   console.log('');
 }
 
