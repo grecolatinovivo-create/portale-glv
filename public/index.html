@@ -1182,6 +1182,11 @@
       .pricing    { padding: 3.5rem 1.25rem; }
       .nav-links  { display: none; }
       .nav-hamburger { display: flex; }
+      /* Logo più compatto su mobile: icona ridotta, testo lungo nascosto */
+      .nav-logo-icon { width: 26px; height: 26px; font-size: .85rem; border-radius: 6px; }
+      .nav-logo-name { display: none; }
+      /* Hamburger in oro */
+      .nav-hamburger span { background: var(--gold); }
       .nav-links.open {
         display: flex;
         flex-direction: column;
@@ -1225,7 +1230,7 @@
     <div class="nav-actions">
       <a href="#" data-open-login class="btn-nav-ghost" id="btnLogin" data-if-guest style="display:none">Accedi</a>
       <a href="/dashboard.html" class="btn-nav-ghost" id="btnPortale" data-if-logged style="display:none">Il mio portale</a>
-      <a href="#prezzi" class="btn-nav-primary">Abbonati</a>
+      <a href="#pricing-cards" class="btn-nav-primary">Abbonati</a>
       <button class="nav-hamburger" id="navToggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -1322,7 +1327,7 @@
   </div>
   <!-- / VELATURA -->
 
-  <div class="pricing-grid">
+  <div class="pricing-grid" id="pricing-cards">
 
     <!-- CULTURA -->
     <div class="plan-card">
