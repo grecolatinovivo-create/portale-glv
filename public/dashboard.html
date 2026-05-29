@@ -3746,9 +3746,8 @@ async function openCourseView(slug, opts) {
   {
     const _sTab = document.getElementById('course-sidebar-tab');
     if (_sTab && window.innerWidth >= 768) {
-      const _isDesk = window.innerWidth > 1024;
       _sTab.style.transition = 'none';
-      _sTab.style.left = _isDesk ? '332px' : '260px';
+      _sTab.style.left = '260px';
       _sTab.setAttribute('aria-expanded', 'true');
       _sTab.setAttribute('aria-label', 'Chiudi lista lezioni');
       requestAnimationFrame(() => { _sTab.style.transition = ''; });
@@ -6336,14 +6335,12 @@ window.addEventListener('popstate', (e) => {
 // Tap sull'handle: alterna stato peek ↔ espanso.
 // Funzione globale (chiamata da onclick inline nell'HTML).
 // ── Helper: aggiorna posizione tab laterale pellicola (tablet 768-1024px e desktop) ─────
-// Desktop: sidebar parte da left:72px (nav sidebar) e larga 260px → bordo destro a 332px.
-// Tablet:  sidebar parte da left:0 e larga 260px → bordo destro a 260px.
+// La sidebar è sempre left:0 + width:260px → bordo destro a 260px su tutti i breakpoint.
 function _updateSidebarTab(isOpen) {
   const tab = document.getElementById('course-sidebar-tab');
   if (!tab) return;
-  const isDesktop = window.innerWidth > 1024;
   if (isOpen) {
-    tab.style.left = isDesktop ? '332px' : '260px';
+    tab.style.left = '260px';
     tab.setAttribute('aria-expanded', 'true');
     tab.setAttribute('aria-label', 'Chiudi lista lezioni');
   } else {

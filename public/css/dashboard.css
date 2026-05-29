@@ -1617,7 +1617,7 @@
   cursor: pointer;
   gap: 4px;
   z-index: 460;
-  transition: left 0.35s cubic-bezier(0, 0, 0.2, 1), background 0.2s;
+  transition: left 0.50s cubic-bezier(0, 0, 0.2, 1), background 0.2s;
   padding-bottom: 4px;
 }
 .sidebar-tab:hover,
