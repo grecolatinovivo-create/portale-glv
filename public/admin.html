@@ -1301,11 +1301,20 @@ function onTierChange() {
   const tier = document.getElementById('field-tier').value;
   const langGroup = document.getElementById('field-lang-group');
   const langSel   = document.getElementById('field-lang');
+  const LINGUAE_LANGS = ['Latino','Greco Antico','Egiziano Geroglifico','Ebraico Biblico'];
   if (tier === 'linguae') {
     langGroup.style.display = '';
+    // Se il valore corrente non è una delle 4 lingue (es. il corso era
+    // "Corsi Brevi"/"Didattica"), preseleziona la prima lingua valida.
+    // Senza questo, il select resterebbe su un valore non valido e
+    // saveCourse salverebbe una lingua sbagliata o vuota.
+    if (!LINGUAE_LANGS.includes(langSel.value)) {
+      langSel.value = LINGUAE_LANGS[0];
+    }
   } else {
     langGroup.style.display = 'none';
-    langSel.value = tier === 'accademia' ? 'Didattica' : 'Corsi Brevi';
+    // Nota: la lingua per cultura/accademia è derivata dal tier in saveCourse.
+    // Qui aggiorniamo il select solo per coerenza visiva (campo nascosto).
   }
 }
 
@@ -1321,8 +1330,17 @@ async function saveCourse() {
 
   const title        = document.getElementById('field-title').value.trim();
   const description  = document.getElementById('field-description').value.trim();
-  const lang         = document.getElementById('field-lang').value;
   const tierRequired = document.getElementById('field-tier').value;
+  // La lingua (= "gruppo" mostrato in dashboard, da cui dipendono colore ed
+  // etichette della card) è derivata in modo autoritativo dal tier:
+  //   cultura   → Corsi Brevi
+  //   accademia → Didattica
+  //   linguae   → lingua scelta nel select
+  // Così cambiare il gruppo in admin aggiorna sempre la lingua nel DB e la
+  // card in dashboard prende il colore del gruppo. Niente più lang=undefined.
+  const lang = tierRequired === 'linguae'
+    ? document.getElementById('field-lang').value
+    : (tierRequired === 'accademia' ? 'Didattica' : 'Corsi Brevi');
   const noExpiry     = document.getElementById('field-noExpiry').checked;
   const expiresAtVal = noExpiry ? '' : document.getElementById('field-expiresAt').value;
   const label        = document.getElementById('field-label').value.trim();
