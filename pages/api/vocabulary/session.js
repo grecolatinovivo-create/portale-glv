@@ -77,7 +77,9 @@ async function handler(req, res) {
   /* ── 2. Verifica accesso (replica logica di courses/[id].js) ── */
   const isAdmin = req.user?.email === process.env.ADMIN_EMAIL;
 
-  if (!isAdmin && !lesson.isFree) {
+  // Nessuna lezione gratuita: l'accesso richiede sempre abbonamento/acquisto (o admin).
+  if (!isAdmin) {
+    if (!req.user) return res.status(401).json({ error: 'Non autenticato' });
     const sub = await prisma.subscription.findFirst({
       where: { userId: req.user.userId, status: 'active' }
     });

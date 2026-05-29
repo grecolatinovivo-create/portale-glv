@@ -3460,7 +3460,7 @@ function _findNextLesson(course, progressData) {
   const hasAccess = course.hasAccess;
   let firstFallback = null;
   for (const lesson of (course.lessons || [])) {
-    const accessible = lesson.isFree || hasAccess;
+    const accessible = hasAccess; // nessuna lezione gratuita: accesso solo con abbonamento/admin
     if (!accessible) continue;
     const prog = map.get(lesson.id);
     const completed = prog?.completed ?? false;
@@ -4129,7 +4129,7 @@ function renderLessonList(course, progressData) {
   lessons.forEach((lesson, idx) => {
     const prog       = map.get(lesson.id) || {};
     const completed  = prog.completed ?? false;
-    const accessible = lesson.isFree  || hasAccess;
+    const accessible = hasAccess; // nessuna lezione gratuita: accesso solo con abbonamento/admin
     const durationStr = lesson.durationMin ? lesson.durationMin + ' min' : '';
 
     // Stato
@@ -4155,9 +4155,7 @@ function renderLessonList(course, progressData) {
       </svg>`;
     }
 
-    const freeBadge = lesson.isFree
-      ? `<span class="film-frame-free-badge">FREE</span>`
-      : '';
+    const freeBadge = ''; // nessuna lezione gratuita: badge FREE rimosso
 
     const btn = document.createElement('button');
     btn.className   = `film-frame-btn ${stateClass}`;
@@ -6168,7 +6166,7 @@ function _advanceToLesson(lesson) {
   const overlay = document.getElementById('next-lesson-overlay');
   if (overlay) overlay.classList.add('hidden');
   if (!_corsoData) return;
-  const hasAccess = lesson.isFree || _corsoData.course.hasAccess;
+  const hasAccess = _corsoData.course.hasAccess; // nessuna lezione gratuita
   selectLesson(lesson, hasAccess, _corsoData.course);
 }
 
@@ -6313,7 +6311,7 @@ window.renderLessonList = function(course, progressData) {
     const lesson = (course.lessons || []).find(l => l.id === _pendingPreselectId);
     _pendingPreselectId = null;
     if (lesson) {
-      const hasAccess = lesson.isFree || course.hasAccess;
+      const hasAccess = course.hasAccess; // nessuna lezione gratuita
       setTimeout(() => selectLesson(lesson, hasAccess, course), 80);
     }
   }

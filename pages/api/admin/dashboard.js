@@ -10,7 +10,9 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 // Piani assegnati manualmente (gratuiti) — esclusi da contatori e commissioni
 const MANUAL_PLANS = [
   'cultura-manuale',
+  'cultura-free',
   'linguae-manuale',
+  'linguae-free',
   'accademia-manuale',
   'accademia-free',
 ];

@@ -1204,17 +1204,17 @@ async function initCorsoPage(){
     if (countLabel) countLabel.textContent = `(${lessons.length} lezioni · ${course.hours||'—'} ore)`;
 
     ll.innerHTML=lessons.map((l,i)=>{
-      const canPlay = l.isFree || course.hasAccess;
+      const canPlay = course.hasAccess; // nessuna lezione gratuita: accesso solo con abbonamento/acquisto/admin
       const hasVideo = !!l.vimeoUrl;
       return `
-      <div class="lesson-item ${l.isFree?'free':''}" style="cursor:${canPlay&&hasVideo?'pointer':'default'};"
+      <div class="lesson-item" style="cursor:${canPlay&&hasVideo?'pointer':'default'};"
            data-lesson-id="${l.id||''}"
-           onclick="${canPlay&&hasVideo?`playLesson('${l.vimeoUrl}','${l.title.replace(/'/g,"\\'")}',${l.isFree&&!course.hasAccess},'${l.id||''}',${0})`:''}" >
+           onclick="${canPlay&&hasVideo?`playLesson('${l.vimeoUrl}','${l.title.replace(/'/g,"\\'")}',false,'${l.id||''}',${0})`:''}" >
         <span class="lesson-num">${String(i+1).padStart(2,'0')}</span>
         <span class="lesson-title">${l.title}</span>
         <span class="lesson-duration">${l.durationMin||'90'} min</span>
         ${canPlay&&hasVideo
-          ? `<span class="lesson-lock" style="color:var(--accent);"><i class="fas fa-${l.isFree?'unlock-alt':'play-circle'}"></i></span>`
+          ? `<span class="lesson-lock" style="color:var(--accent);"><i class="fas fa-play-circle"></i></span>`
           : !hasVideo
             ? `<span class="lesson-lock" style="color:var(--text-muted);font-size:11px;">—</span>`
             : '<span class="lesson-lock"><i class="fas fa-lock"></i></span>'
@@ -1224,11 +1224,11 @@ async function initCorsoPage(){
   } else {
     const count=course.lessonCount||24;
     ll.innerHTML=Array.from({length:Math.min(count,8)},(_,i)=>`
-      <div class="lesson-item ${i<2?'free':''}">
+      <div class="lesson-item">
         <span class="lesson-num">${String(i+1).padStart(2,'0')}</span>
         <span class="lesson-title">Lezione ${i+1} — ${course.lang} ${course.level}</span>
         <span class="lesson-duration">90 min</span>
-        <span class="lesson-lock"><i class="fas fa-${i<2?'unlock-alt':'lock'}"></i></span>
+        <span class="lesson-lock"><i class="fas fa-lock"></i></span>
       </div>`).join('')+(count>8?`<p style="padding:16px 0;color:var(--text-muted);font-size:13px;">... e altre ${count-8} lezioni</p>`:'');
   }
   if(params.get('purchased')==='1'){ showToast('✓ Acquisto completato! Hai ora accesso al corso.'); window.history.replaceState({},'',window.location.pathname+'?id='+slug); }

@@ -1,7 +1,16 @@
 // /api/debug/checkout — diagnostica variabili d'ambiente
-// DA ELIMINARE dopo i test.
+// Accessibile SOLO all'admin loggato: espone Price ID Stripe e presenza di chiavi.
+// Per chiunque altro risponde 404 (come se la route non esistesse).
 
-export default function handler(req, res) {
+const { withAuth } = require('../../../lib/auth');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+
+export default withAuth(function handler(req, res) {
+  // Gate admin: nessuna informazione esposta a utenti non admin
+  if (!req.user || req.user.email !== ADMIN_EMAIL) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
   const check = (val) => {
     if (!val) return 'MANCANTE';
     if (val.includes('...')) return 'PLACEHOLDER - valore non reale';
@@ -40,4 +49,4 @@ export default function handler(req, res) {
   const mancanti = Object.entries(env).filter(([, v]) => v === 'MANCANTE').map(([k]) => k);
 
   return res.status(200).json({ variabili: env, mancanti });
-}
+});

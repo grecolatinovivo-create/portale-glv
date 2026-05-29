@@ -66,8 +66,10 @@ async function handler(req, res) {
 
   if (!lesson) return res.status(404).json({ error: 'Lezione non trovata' });
 
+  // Nessuna lezione gratuita: l'accesso richiede sempre abbonamento/acquisto (o admin).
   const isAdmin = req.user?.email === process.env.ADMIN_EMAIL;
-  if (!isAdmin && !lesson.isFree) {
+  if (!isAdmin) {
+    if (!req.user) return res.status(401).json({ error: 'Non autenticato' });
     const sub = await prisma.subscription.findFirst({
       where: { userId: req.user.userId, status: 'active' }
     });

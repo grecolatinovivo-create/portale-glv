@@ -1,6 +1,16 @@
-// pages/api/debug/register.js — Diagnostica completa, nessun require top-level
+// pages/api/debug/register.js — Diagnostica completa
+// Accessibile SOLO all'admin loggato: espone conteggio utenti, presenza chiavi e
+// prefisso del DATABASE_URL. Per chiunque altro risponde 404.
 
-export default async function handler(req, res) {
+const { withAuth } = require('../../../lib/auth');
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+
+export default withAuth(async function handler(req, res) {
+  // Gate admin: nessuna informazione esposta a utenti non admin
+  if (!req.user || req.user.email !== ADMIN_EMAIL) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+
   const checks = {};
 
   // 1. Variabili d'ambiente (non richiede nulla)
@@ -86,4 +96,4 @@ export default async function handler(req, res) {
     status: allOk ? '✓ Tutto OK' : `✗ Fallito: ${failed.join(', ')}`,
     checks,
   });
-};
+});

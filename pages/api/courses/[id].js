@@ -12,11 +12,15 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 const TIER_RANK = { cultura: 1, linguae: 2, accademia: 3 };
 
 // Piani assegnati manualmente dall'admin (override sui piani Stripe)
+// Lista canonica dei piani assegnati manualmente dall'admin (gratuiti, non Stripe).
+// Deve restare identica a quella in auth/me.js e admin/users.js.
 const MANUAL_PLANS = [
   'cultura-manuale',
+  'cultura-free',
   'linguae-manuale',
+  'linguae-free',
   'accademia-manuale',
-  'accademia-free',   // stesso accesso di accademia, gratuito
+  'accademia-free',   // *-free: stesso accesso del tier, gratuito
 ];
 
 // Estrae il nome del tier da un planId (es. 'cultura-mensile' → 'cultura')
@@ -125,7 +129,9 @@ export default withAuth(async function handler(req, res) {
       // eslint-disable-next-line no-unused-vars
       const { textFragment, contentSummary, keyVocabulary, learningObjectives, ...lessonPublic } = lesson;
 
-      if (lesson.isFree || hasAccess) {
+      // Nessuna lezione gratuita: il video è visibile solo con accesso
+      // (abbonamento attivo, acquisto singolo o admin). isFree non è più usato.
+      if (hasAccess) {
         return { ...lessonPublic, hasAiContext };
       }
       return { ...lessonPublic, vimeoUrl: null, hasAiContext };

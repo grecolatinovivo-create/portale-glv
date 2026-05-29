@@ -317,7 +317,7 @@ function makeLessons(course) {
   return Array.from({ length: count }, (_, i) => ({
     title: `Lezione ${i + 1} — ${course.title.replace(' • E-Learning', '')}`,
     durationMin: course.lang === 'Corsi Brevi' ? 55 : 22 + (i % 4) * 5,
-    isFree: i < 2,   // Prime 2 lezioni sempre gratuite come anteprima
+    isFree: false,   // REGOLA ASSOLUTA: nessuna lezione gratuita, mai
     sortOrder: i + 1,
   }));
 }
