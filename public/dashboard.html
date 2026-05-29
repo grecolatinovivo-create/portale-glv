@@ -2309,7 +2309,23 @@ function isLangUnlocked(lang, tier) {
   return false;
 }
 
-function upgradeLabel(lang) {
+// Mappa tierRequired (stringa DB) → numero tier
+const TIER_TO_NUM = { cultura: 1, linguae: 2, accademia: 3 };
+
+// Versione per-corso: usa tierRequired se presente, altrimenti fallback su lang.
+// Questo fa sì che cambiare il tier in admin si rifletta subito sulle card.
+function isCourseUnlocked(course, tier) {
+  if (tier >= 3) return true;
+  if (course.tierRequired) {
+    const required = TIER_TO_NUM[course.tierRequired] ?? 1;
+    return tier >= required;
+  }
+  return isLangUnlocked(course.lang, tier);
+}
+
+function upgradeLabel(lang, tierRequired) {
+  if (tierRequired === 'accademia') return 'Piano Accademia';
+  if (tierRequired === 'cultura')   return 'Piano Cultura';
   return lang === 'Didattica' ? 'Piano Accademia' : 'Piano Linguae';
 }
 
@@ -2333,9 +2349,10 @@ function renderLockedCard(course) {
   card.removeAttribute('data-slug'); // evita apertura corso dal tasto tastiera
 
   const badge = document.createElement('div');
+  const _ulabel = upgradeLabel(course.lang, course.tierRequired);
   badge.className = 'dash-locked-badge';
-  badge.setAttribute('aria-label', `Corso bloccato — richiede ${upgradeLabel(course.lang)}`);
-  badge.innerHTML = `<span class="dash-locked-badge-text">🔒 ${upgradeLabel(course.lang)}</span>`;
+  badge.setAttribute('aria-label', `Corso bloccato — richiede ${_ulabel}`);
+  badge.innerHTML = `<span class="dash-locked-badge-text">🔒 ${_ulabel}</span>`;
   card.appendChild(badge);
   return card.outerHTML;
 }
@@ -2348,7 +2365,7 @@ function renderRow(id, courses, tier) {
     return;
   }
   el.innerHTML = courses.map(c =>
-    isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+    isCourseUnlocked(c, tier) ? buildCard(c, {}) : renderLockedCard(c)
   ).join('');
   // Carica thumbnail Vimeo per tutte le fan-card-header su mobile
   setTimeout(_loadAllDashboardThumbnails, 0);
@@ -2484,7 +2501,7 @@ function renderContinuaRow(id, courses, tier) {
   // Se l'utente è downgraded a Cultura, i corsi Linguae non devono apparire qui.
   const inProg = (courses || []).filter(c => {
     const p = c.progressPercent || 0;
-    return p > 0 && p < 100 && isLangUnlocked(c.lang, tier);
+    return p > 0 && p < 100 && isCourseUnlocked(c, tier);
   });
   if (!inProg.length) {
     el.innerHTML = '';
@@ -2521,7 +2538,7 @@ function renderNuoviRow(id, courses, tier) {
   }
   sec.classList.remove('hidden');
   // Unlocked → card normale; locked → card con lucchetto (invito upgrade)
-  el.innerHTML = list.map(c => isLangUnlocked(c.lang, tier)
+  el.innerHTML = list.map(c => isCourseUnlocked(c, tier)
     ? buildCard(c, {})
     : renderLockedCard(c)
   ).join('');
@@ -2541,7 +2558,7 @@ function renderPerIniziareRow(id, courses, tier) {
     return ENTRY_LEVELS.some(k => lv.includes(k));
   };
 
-  const list = courses.filter(c => isEntry(c) && isLangUnlocked(c.lang, tier));
+  const list = courses.filter(c => isEntry(c) && isCourseUnlocked(c, tier));
 
   if (!list.length) {
     sec.classList.add('hidden');
@@ -2560,7 +2577,7 @@ function renderPerIniziareRow(id, courses, tier) {
   });
 
   sec.classList.remove('hidden');
-  el.innerHTML = list.map(c => isLangUnlocked(c.lang, tier)
+  el.innerHTML = list.map(c => isCourseUnlocked(c, tier)
     ? buildCard(c, {})
     : renderLockedCard(c)
   ).join('');
@@ -2573,7 +2590,7 @@ function renderCompletatiRow(id, courses, tier) {
   const sec = document.getElementById('section-completati');
   if (!el || !sec) return;
 
-  const list = courses.filter(c => (c.progressPercent || 0) >= 100 && isLangUnlocked(c.lang, tier));
+  const list = courses.filter(c => (c.progressPercent || 0) >= 100 && isCourseUnlocked(c, tier));
 
   if (!list.length) {
     sec.classList.add('hidden');
@@ -2608,7 +2625,7 @@ function buildPerTeRow(all, profile, tier) {
     const extra = all.filter(c => c.lang === 'Corsi Brevi' && !top.includes(c)).slice(0, 2 - breviN);
     top = [...top, ...extra];
   }
-  return top.map(c => isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)).join('');
+  return top.map(c => isCourseUnlocked(c, tier) ? buildCard(c, {}) : renderLockedCard(c)).join('');
 }
 
 /* ── Ordina le sezioni in base al tier ───────────────────── */
@@ -3594,7 +3611,7 @@ function renderThemeSection(themeId, courses, tier) {
 
   sec.classList.remove('hidden');
   row.innerHTML = matched.map(c =>
-    isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+    isCourseUnlocked(c, tier) ? buildCard(c, {}) : renderLockedCard(c)
   ).join('');
 
   setTimeout(_loadAllDashboardThumbnails, 0);
@@ -3634,7 +3651,7 @@ function renderAllThemeSections(courses, tier) {
 
     sec.classList.remove('hidden');
     row.innerHTML = matched.map(c =>
-      isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+      isCourseUnlocked(c, tier) ? buildCard(c, {}) : renderLockedCard(c)
     ).join('');
   });
 
@@ -5904,7 +5921,7 @@ async function renderPreferiti() {
     });
 
     row.innerHTML = enriched.map(c =>
-      isLangUnlocked(c.lang, tier) ? buildCard(c, {}) : renderLockedCard(c)
+      isCourseUnlocked(c, tier) ? buildCard(c, {}) : renderLockedCard(c)
     ).join('');
     setTimeout(_loadAllDashboardThumbnails, 0);
     sec.classList.remove('hidden');
