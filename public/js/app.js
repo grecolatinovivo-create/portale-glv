@@ -941,7 +941,6 @@ function buildCard(course, opts={}) {
     ? `${course.hours} ore · Attestato incluso`
     : (course.teacher || '');
 
-  /* ── STRUTTURA IDENTICA A .fan-card (index.html) ── */
   return `
   <div class="course-card" data-slug="${slug}" data-lingua="${(course.lang||'').toLowerCase()}" data-livello="${(course.level||'').toLowerCase()}" onclick="goToCourse('${slug}')">
     <div class="fan-card-header" style="background:${grad};">
