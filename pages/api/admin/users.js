@@ -14,10 +14,12 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
 
 // Piani assegnati manualmente dall'admin (non Stripe)
 const MANUAL_PLANS = [
+  'cultura-free',
   'cultura-manuale',
+  'linguae-free',
   'linguae-manuale',
-  'accademia-manuale',
   'accademia-free',
+  'accademia-manuale',
 ];
 
 // Cancella tutti i piani manuali attivi di un utente
