@@ -96,7 +96,7 @@ export default withAuth(async function handler(req, res) {
       sortOrder,
       tierRequired,       // 'cultura' | 'linguae' | 'accademia' | null
       title,              // titolo del corso
-      lang,               // 'Latino' | 'Greco Antico' | 'Egiziano Geroglifico' | 'Ebraico Biblico' | 'Didattica' | 'Corsi Brevi'
+      description,        // sottotitolo / descrizione del corso
       lessons,            // [{id, title}] — titoli delle lezioni
     } = req.body || {};
 
@@ -121,6 +121,7 @@ export default withAuth(async function handler(req, res) {
       if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder) || 0;
       if (tierRequired !== undefined) updateData.tierRequired = tierRequired || null;
       if (title !== undefined && title.trim()) updateData.title = title.trim();
+      if (description !== undefined) updateData.description = description.trim();
       if (lang  !== undefined && lang.trim())  updateData.lang  = lang.trim();
 
       const updated = await prisma.course.update({

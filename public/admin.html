@@ -786,6 +786,13 @@
       <input type="text" class="form-control" id="field-title" placeholder="Titolo del corso" />
     </div>
 
+    <!-- Sottotitolo / Descrizione -->
+    <div class="form-group">
+      <label class="form-label">Sottotitolo / Descrizione</label>
+      <textarea class="form-control" id="field-description" rows="3"
+        style="resize:vertical;line-height:1.5;" placeholder="Breve descrizione del corso…"></textarea>
+    </div>
+
     <!-- Tier -->
     <div class="form-group">
       <label class="form-label">Tier abbonamento richiesto</label>
@@ -1166,14 +1173,20 @@ function openCourseModal(courseId) {
 
   editingCourseId = courseId;
 
-  // Titolo corso
+  // Titolo corso (assegnazione JS diretta — tutti i caratteri speciali preservati)
   document.getElementById('field-title').value = c.title || '';
 
-  // Categoria / Lang
-  document.getElementById('field-lang').value = c.lang || 'Corsi Brevi';
+  // Sottotitolo / Descrizione
+  document.getElementById('field-description').value = c.description || '';
 
-  // Tier
+  // Tier e lingua — imposta tier prima, poi sincronizza il campo lingua
   document.getElementById('field-tier').value = c.tierRequired || 'cultura';
+  // Se è Linguae, preseleziona la lingua corrente (se valida)
+  const LINGUAE_LANGS = ['Latino','Greco Antico','Egiziano Geroglifico','Ebraico Biblico'];
+  if (c.tierRequired === 'linguae' && LINGUAE_LANGS.includes(c.lang)) {
+    document.getElementById('field-lang').value = c.lang;
+  }
+  onTierChange(); // mostra/nasconde il select lingua in base al tier
 
   // Scadenza
   const noExpiry = !c.expiresAt;
@@ -1190,18 +1203,29 @@ function openCourseModal(courseId) {
   document.getElementById('field-isAvailable').checked = c.isAvailable;
   document.getElementById('field-isNew').checked = c.isNew;
 
-  // Lezioni
+  // Lezioni — creazione via DOM diretto per preservare apostrofi, accenti e caratteri speciali
   const lessonsContainer = document.getElementById('field-lessons');
+  lessonsContainer.innerHTML = '';
   if (c.lessons && c.lessons.length > 0) {
-    lessonsContainer.innerHTML = c.lessons.map((l, i) => `
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:11px;color:var(--gray-400);min-width:22px;text-align:right;font-weight:600;">${i + 1}.</span>
-        <input type="text" class="form-control"
-          style="flex:1;padding:6px 10px;font-size:13px;"
-          data-lesson-id="${l.id}"
-          value="${escHtml(l.title)}" />
-      </div>
-    `).join('');
+    c.lessons.forEach(function(l, i) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:8px;';
+
+      var num = document.createElement('span');
+      num.style.cssText = 'font-size:11px;color:var(--gray-400);min-width:22px;text-align:right;font-weight:600;';
+      num.textContent = (i + 1) + '.';
+
+      var inp = document.createElement('input');
+      inp.type = 'text';
+      inp.className = 'form-control';
+      inp.style.cssText = 'flex:1;padding:6px 10px;font-size:13px;';
+      inp.dataset.lessonId = l.id;
+      inp.value = l.title;   // assegnazione diretta — nessuna codifica HTML
+
+      row.appendChild(num);
+      row.appendChild(inp);
+      lessonsContainer.appendChild(row);
+    });
   } else {
     lessonsContainer.innerHTML = '<div style="color:var(--gray-400);font-size:13px;text-align:center;padding:10px;">Nessuna lezione trovata</div>';
   }
@@ -1237,6 +1261,7 @@ async function saveCourse() {
   if (!editingCourseId) return;
 
   const title        = document.getElementById('field-title').value.trim();
+  const description  = document.getElementById('field-description').value.trim();
   const lang         = document.getElementById('field-lang').value;
   const tierRequired = document.getElementById('field-tier').value;
   const noExpiry     = document.getElementById('field-noExpiry').checked;
@@ -1261,6 +1286,7 @@ async function saveCourse() {
       body: JSON.stringify({
         courseId:            editingCourseId,
         title:               title || undefined,
+        description:         description,
         lang:                lang || undefined,
         tierRequired,
         expiresAt:           expiresAtVal || null,

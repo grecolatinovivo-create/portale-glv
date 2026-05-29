@@ -979,7 +979,9 @@ async function initNavAuth(){
   const user=await Auth.getUser();
   document.querySelectorAll('[data-if-logged]').forEach(el=>el.style.display=user?'':'none');
   document.querySelectorAll('[data-if-guest]').forEach(el=>el.style.display=user?'none':'');
-  if(user) document.querySelectorAll('.nav-avatar-initials').forEach(el=>el.textContent=(user.fullName||user.email||'U')[0].toUpperCase());
+  if(user){
+    document.querySelectorAll('.nav-avatar-initials').forEach(el=>el.textContent=(user.fullName||user.email||'U')[0].toUpperCase());
+  }
 }
 
 /* ── Pricing Toggle ──────────────────────────────────────────── */

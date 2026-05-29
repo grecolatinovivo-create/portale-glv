@@ -667,7 +667,7 @@
 .course-sidebar {
   position: fixed;
   top: calc(var(--nav-height) + 28px);
-  left: 72px;
+  left: 0;
   width: 260px;
   z-index: 450;
   /* Altezza fissa + scroll indipendente — comportamento tipo YouTube */
@@ -682,8 +682,6 @@
   opacity: 0;
   transition: transform 0.50s cubic-bezier(0, 0, 0.2, 1),
               opacity  0.40s ease;
-  /* Safe area mobile */
-  left: max(72px, env(safe-area-inset-left, 0px) + 16px);
 }
 /* Scrollbar WebKit */
 .course-sidebar::-webkit-scrollbar { width: 4px; }
