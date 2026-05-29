@@ -16,14 +16,21 @@ export default withAuth(async function handler(req, res) {
   }
 
   try {
-    // Recupera utente con subscription attiva inclusa
+    // Piani manuali (gratuiti) assegnati dall'admin — hanno precedenza su Stripe
+    const MANUAL_PLANS = [
+      'cultura-manuale',
+      'linguae-manuale',
+      'accademia-manuale',
+      'accademia-free',
+    ];
+
+    // Recupera TUTTE le subscription attive — scegliamo il piano effettivo in JS
     const user = await prisma.user.findUnique({
       where: { id: req.user.userId },
       include: {
         subscriptions: {
           where: { status: 'active' },
           orderBy: { createdAt: 'desc' },
-          take: 1,
         },
       },
     });
@@ -33,8 +40,10 @@ export default withAuth(async function handler(req, res) {
       return res.status(401).json({ error: 'Non autenticato' });
     }
 
-    // Estrae la subscription attiva (se presente)
-    const activeSub = user.subscriptions.length > 0 ? user.subscriptions[0] : null;
+    // Il piano manuale vince sempre sul piano Stripe (stesso utente con doppia sub)
+    const activeSub = user.subscriptions.find(s => MANUAL_PLANS.includes(s.plan))
+      || user.subscriptions[0]
+      || null;
     const subscription = activeSub
       ? {
           plan:              activeSub.plan,

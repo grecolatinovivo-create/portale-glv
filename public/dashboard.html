@@ -2329,10 +2329,10 @@ function upgradeLabel(lang, tierRequired) {
   return lang === 'Didattica' ? 'Piano Accademia' : 'Piano Linguae';
 }
 
-/* ── Sanitizza titolo corso: rimuove slash, backslash e altri caratteri non-standard ── */
+/* ── Sanitizza titolo corso: rimuove solo < > per sicurezza HTML, preserva tutto il resto ── */
 function _sanitizeTitle(t) {
   if (!t) return '';
-  return t.replace(/[^\p{L}\p{N}\s:.,;"\-]/gu, '').trim();
+  return t.replace(/[<>]/g, '').trim();
 }
 
 /* ── Card rendering ───────────────────────────────────────── */
