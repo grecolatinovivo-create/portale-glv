@@ -1,6 +1,7 @@
 // pages/api/lesson-resources.js
-// GET ?lessonId=xxx — ritorna le risorse scaricabili per una lezione
-// Richiede autenticazione
+// GET ?lessonId=xxx — elenca le risorse scaricabili di una lezione.
+// NON espone più l'URL diretto del file: il download passa SEMPRE dal proxy
+// autenticato /api/download-resource?id=... che verifica l'accesso al corso.
 
 const { prisma } = require('../../lib/prisma');
 const { withAuth } = require('../../lib/auth');
@@ -21,20 +22,17 @@ export default withAuth(async function handler(req, res) {
         title: true,
         filename: true,
         fileType: true,
-        blobUrl: true,
+        // blobUrl NON viene restituito: l'URL reale non esce mai dall'API
       },
     });
 
-    // Per ogni risorsa, costruisce l'URL di download tramite proxy autenticato.
-    // Il client fa GET /api/download-resource?id=xxx — l'API verifica l'auth
-    // e proxa il blob privato da Vercel, senza esporre l'URL diretto.
+    // Il client costruisce il link verso il proxy autenticato.
     const result = resources.map(r => ({
       id: r.id,
       title: r.title,
       filename: r.filename,
       fileType: r.fileType,
-      // blobUrl è pubblico su Vercel CDN — restituiamo direttamente per performance
-      url: r.blobUrl,
+      url: `/api/download-resource?id=${encodeURIComponent(r.id)}`,
     }));
 
     return res.status(200).json({ resources: result });

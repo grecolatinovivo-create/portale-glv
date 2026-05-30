@@ -80,6 +80,8 @@ model Lesson {
   isFree       Boolean @default(false)
   sortOrder    Int
   vimeoUrl     String?
+  vimeoStatus  String?           // null | 'processing' | 'ready' | 'error' — stato transcoding Vimeo
+  description  String? @db.Text  // descrizione/note della lezione (opzionale, editabile da admin)
   latinCertId  Int?    @unique  // IDL originale da latin-cert (per mapping risorse)
 
   // Contesto per il pannello AI (metodo induttivo-contestuale)

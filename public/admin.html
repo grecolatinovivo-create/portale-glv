@@ -636,6 +636,7 @@
               <button class="btn btn-sm btn-outline" id="tier-filter-accademia"
                 onclick="setTierFilter('accademia')">Accademia</button>
               <span style="font-size:13px;color:var(--gray-400);margin-left:8px;" id="courses-count">—</span>
+              <button class="btn btn-sm" onclick="openNewCourseModal()" style="background:var(--bordeaux);color:#fff;margin-left:auto;">+ Nuovo corso</button>
             </div>
           </div>
           <div class="panel-body">
@@ -906,6 +907,78 @@
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-cert-action')">Annulla</button>
       <button class="btn btn-danger" id="btn-confirm-cert-action" onclick="confirmCertAction()">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: Nuovo corso
+     ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-new-course">
+  <div class="modal" style="width:560px;max-height:85vh;overflow-y:auto;">
+    <div class="modal-title">Nuovo corso</div>
+    <div class="form-group">
+      <label class="form-label">Titolo corso *</label>
+      <input type="text" class="form-control" id="nc-title" placeholder="es. Latino A1.1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Slug (URL) — lascia vuoto per generarlo dal titolo</label>
+      <input type="text" class="form-control" id="nc-slug" placeholder="es. lat-a11" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descrizione</label>
+      <textarea class="form-control" id="nc-description" rows="2" style="resize:vertical;"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tier richiesto</label>
+      <select class="form-control" id="nc-tier">
+        <option value="cultura">Cultura</option>
+        <option value="linguae">Linguae</option>
+        <option value="accademia">Accademia</option>
+      </select>
+    </div>
+    <div class="form-group" id="nc-lang-group" style="display:none;">
+      <label class="form-label">Lingua</label>
+      <select class="form-control" id="nc-lang">
+        <option value="Latino">Latino</option>
+        <option value="Greco Antico">Greco Antico</option>
+        <option value="Egiziano Geroglifico">Egiziano Geroglifico</option>
+        <option value="Ebraico Biblico">Ebraico Biblico</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Livello (opzionale)</label>
+      <input type="text" class="form-control" id="nc-level" placeholder="es. A1.1" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prezzo acquisto singolo (€, opzionale)</label>
+      <input type="number" class="form-control" id="nc-price" placeholder="es. 90" min="0" />
+    </div>
+    <div class="form-hint" style="margin-bottom:8px;">Il corso viene creato <strong>nascosto</strong>. Lo pubblichi quando è pronto.</div>
+    <div id="nc-alert" style="display:none;margin-top:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-new-course')">Annulla</button>
+      <button class="btn btn-primary" onclick="createCourse()">Crea corso</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: Gestione lezioni (con video e materiali)
+     ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-lessons">
+  <div class="modal" style="width:780px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;">
+    <div class="modal-title" id="lm-title">Lezioni del corso</div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+      <input type="text" class="form-control" id="lm-new-title" placeholder="Titolo nuova lezione" style="flex:1;" />
+      <button class="btn btn-primary btn-sm" onclick="addLesson()">+ Aggiungi lezione</button>
+    </div>
+    <div id="lm-list" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="color:var(--gray-400);text-align:center;padding:14px;">Caricamento…</div>
+    </div>
+    <div id="lm-alert" style="display:none;margin-top:8px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-lessons')">Chiudi</button>
     </div>
   </div>
 </div>
@@ -1201,6 +1274,12 @@ function renderCoursesTable(courses, isFiltered) {
           <td>
             <button class="btn btn-outline btn-sm" onclick="openCourseModal('${c.id}')">
               Modifica
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="openLessonsManager('${c.id}')" style="margin-top:4px;">
+              Lezioni
+            </button>
+            <button class="btn btn-sm" onclick="togglePublish('${c.id}', ${!c.isAvailable})" style="margin-top:4px;background:${c.isAvailable ? '#fef3c7' : '#d1fae5'};color:${c.isAvailable ? '#92400e' : '#065f46'};">
+              ${c.isAvailable ? 'Nascondi' : 'Pubblica'}
             </button>
           </td>
         </tr>
@@ -2020,6 +2099,320 @@ document.querySelectorAll('#sidebar .nav-item').forEach(function (item) {
     if (window.innerWidth <= 768) closeSidebar();
   });
 });
+
+/* ═══════════════════════════════════════════════════════════════
+   GESTIONE CONTENUTI — Nuovo corso, lezioni, video, materiali
+   ═══════════════════════════════════════════════════════════════ */
+
+function openNewCourseModal() {
+  document.getElementById('nc-title').value = '';
+  document.getElementById('nc-slug').value = '';
+  document.getElementById('nc-description').value = '';
+  document.getElementById('nc-tier').value = 'cultura';
+  document.getElementById('nc-level').value = '';
+  document.getElementById('nc-price').value = '';
+  document.getElementById('nc-alert').style.display = 'none';
+  ncSyncLang();
+  openModal('modal-new-course');
+}
+function ncSyncLang() {
+  document.getElementById('nc-lang-group').style.display =
+    document.getElementById('nc-tier').value === 'linguae' ? '' : 'none';
+}
+document.getElementById('nc-tier').addEventListener('change', ncSyncLang);
+
+async function createCourse() {
+  const title = document.getElementById('nc-title').value.trim();
+  const tier  = document.getElementById('nc-tier').value;
+  const lang  = tier === 'linguae'
+    ? document.getElementById('nc-lang').value
+    : (tier === 'accademia' ? 'Didattica' : 'Corsi Brevi');
+  const priceEur = parseInt(document.getElementById('nc-price').value, 10);
+  const alertEl = document.getElementById('nc-alert');
+  alertEl.style.display = 'none';
+  if (!title) {
+    alertEl.className = 'alert alert-error';
+    alertEl.textContent = 'Il titolo è obbligatorio';
+    alertEl.style.display = 'flex';
+    return;
+  }
+  try {
+    const r = await fetch('/api/admin/courses/create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title,
+        slug: document.getElementById('nc-slug').value.trim() || undefined,
+        description: document.getElementById('nc-description').value.trim(),
+        tierRequired: tier, lang,
+        level: document.getElementById('nc-level').value.trim(),
+        priceEur: isNaN(priceEur) ? 0 : priceEur * 100,
+      }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      alertEl.className = 'alert alert-error';
+      alertEl.textContent = data.error || 'Errore nella creazione';
+      alertEl.style.display = 'flex';
+      return;
+    }
+    closeModal('modal-new-course');
+    await loadCourses();
+    openLessonsManager(data.course.id);
+  } catch (e) {
+    alertEl.className = 'alert alert-error';
+    alertEl.textContent = 'Errore di rete';
+    alertEl.style.display = 'flex';
+  }
+}
+
+async function togglePublish(courseId, makeVisible) {
+  try {
+    const r = await fetch('/api/admin/courses/' + courseId + '/publish', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isAvailable: makeVisible }),
+    });
+    if (!r.ok) { alert('Errore nel cambio di visibilità'); return; }
+    await loadCourses();
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function deleteCourse(courseId, title) {
+  if (!confirm('Eliminare definitivamente il corso "' + title + '" e tutte le sue lezioni?')) return;
+  try {
+    const r = await fetch('/api/admin/courses/' + courseId, { method: 'DELETE' });
+    const data = await r.json();
+    if (!r.ok) { alert(data.error || 'Errore'); return; }
+    await loadCourses();
+  } catch (e) { alert('Errore di rete'); }
+}
+
+let _lmCourseId = null;
+let _lmLessons  = [];
+
+async function openLessonsManager(courseId) {
+  _lmCourseId = courseId;
+  const c = allCourses.find(x => x.id === courseId);
+  document.getElementById('lm-title').textContent = 'Lezioni — ' + (c ? c.title : '');
+  document.getElementById('lm-new-title').value = '';
+  document.getElementById('lm-alert').style.display = 'none';
+  openModal('modal-lessons');
+  await reloadLessons();
+}
+
+async function reloadLessons() {
+  const list = document.getElementById('lm-list');
+  list.innerHTML = '<div style="color:var(--gray-400);text-align:center;padding:14px;">Caricamento…</div>';
+  try {
+    const r = await fetch('/api/admin/courses');
+    const { courses } = await r.json();
+    allCourses = courses;
+    const c = courses.find(x => x.id === _lmCourseId);
+    _lmLessons = (c && c.lessons) ? c.lessons.slice().sort((a,b)=>a.sortOrder-b.sortOrder) : [];
+    renderLessonsManager();
+  } catch (e) {
+    list.innerHTML = '<div class="alert alert-error">Errore nel caricamento</div>';
+  }
+}
+
+function renderLessonsManager() {
+  const list = document.getElementById('lm-list');
+  if (_lmLessons.length === 0) {
+    list.innerHTML = '<div style="color:var(--gray-400);text-align:center;padding:14px;">Nessuna lezione. Aggiungine una sopra.</div>';
+    return;
+  }
+  list.innerHTML = '';
+  _lmLessons.forEach((l, i) => {
+    const card = document.createElement('div');
+    card.style.cssText = 'border:1px solid var(--gray-200);border-radius:8px;padding:12px;';
+    const hasVideo = !!l.vimeoUrl;
+    card.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
+        '<span style="font-size:11px;color:var(--gray-400);min-width:20px;font-weight:700;">' + (i+1) + '.</span>' +
+        '<input type="text" class="form-control" data-lid="' + l.id + '" data-fld="title" style="flex:1;padding:6px 10px;font-size:13px;" />' +
+        '<button class="btn btn-sm btn-outline" onclick="moveLesson(\'' + l.id + '\',-1)" ' + (i===0?'disabled':'') + '>↑</button>' +
+        '<button class="btn btn-sm btn-outline" onclick="moveLesson(\'' + l.id + '\',1)" ' + (i===_lmLessons.length-1?'disabled':'') + '>↓</button>' +
+        '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="deleteLesson(\'' + l.id + '\')">Elimina</button>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;">' +
+        '<span style="padding:2px 8px;border-radius:10px;background:' + (hasVideo?'#d1fae5':'#f3f4f6') + ';color:' + (hasVideo?'#065f46':'#6b7280') + ';">' +
+          (hasVideo ? '🎬 Video presente' : 'Nessun video') + (l.vimeoStatus ? ' (' + l.vimeoStatus + ')' : '') +
+        '</span>' +
+        '<button class="btn btn-sm btn-outline" onclick="document.getElementById(\'vid-' + l.id + '\').click()">⬆ Carica/Sostituisci video</button>' +
+        '<input type="file" id="vid-' + l.id + '" accept="video/*" style="display:none;" onchange="uploadVideo(\'' + l.id + '\', this)" />' +
+        '<button class="btn btn-sm btn-outline" onclick="document.getElementById(\'mat-' + l.id + '\').click()">📎 Aggiungi materiale</button>' +
+        '<input type="file" id="mat-' + l.id + '" style="display:none;" onchange="uploadMaterial(\'' + l.id + '\', this)" />' +
+        '<button class="btn btn-sm btn-outline" onclick="saveLessonTitle(\'' + l.id + '\')">Salva titolo</button>' +
+        '<span id="prog-' + l.id + '" style="color:var(--gray-500);"></span>' +
+      '</div>' +
+      '<ul id="res-' + l.id + '" style="margin:8px 0 0;padding-left:18px;font-size:12px;color:var(--gray-600);"></ul>';
+    list.appendChild(card);
+    card.querySelector('input[data-fld="title"]').value = l.title;
+    loadLessonResourcesAdmin(l.id);
+  });
+}
+
+async function addLesson() {
+  const title = document.getElementById('lm-new-title').value.trim();
+  if (!title) return;
+  try {
+    const r = await fetch('/api/admin/lessons/create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseId: _lmCourseId, title }),
+    });
+    if (!r.ok) { const d = await r.json(); alert(d.error || 'Errore'); return; }
+    document.getElementById('lm-new-title').value = '';
+    await reloadLessons();
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function saveLessonTitle(lessonId) {
+  const inp = document.querySelector('#lm-list input[data-lid="' + lessonId + '"][data-fld="title"]');
+  if (!inp) return;
+  try {
+    const r = await fetch('/api/admin/lessons/' + lessonId, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: inp.value.trim() }),
+    });
+    if (!r.ok) { alert('Errore nel salvataggio'); return; }
+    const e = document.getElementById('prog-' + lessonId);
+    if (e) { e.textContent = '✓ salvato'; setTimeout(() => { e.textContent = ''; }, 1500); }
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function deleteLesson(lessonId) {
+  if (!confirm('Eliminare questa lezione? Verranno rimossi anche i progressi e i materiali collegati.')) return;
+  try {
+    const r = await fetch('/api/admin/lessons/' + lessonId, { method: 'DELETE' });
+    if (!r.ok) { alert('Errore'); return; }
+    await reloadLessons();
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function moveLesson(lessonId, dir) {
+  const idx = _lmLessons.findIndex(l => l.id === lessonId);
+  const swap = idx + dir;
+  if (swap < 0 || swap >= _lmLessons.length) return;
+  const tmp = _lmLessons[idx]; _lmLessons[idx] = _lmLessons[swap]; _lmLessons[swap] = tmp;
+  const order = _lmLessons.map((l, i) => ({ id: l.id, sortOrder: i + 1 }));
+  try {
+    await fetch('/api/admin/lessons/reorder', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseId: _lmCourseId, order }),
+    });
+    renderLessonsManager();
+  } catch (e) { alert('Errore di rete'); await reloadLessons(); }
+}
+
+async function loadLessonResourcesAdmin(lessonId) {
+  try {
+    const r = await fetch('/api/lesson-resources?lessonId=' + lessonId);
+    const { resources } = await r.json();
+    const ul = document.getElementById('res-' + lessonId);
+    if (!ul) return;
+    ul.innerHTML = '';
+    (resources || []).forEach(res => {
+      const li = document.createElement('li');
+      li.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      const name = document.createElement('span'); name.textContent = res.title + ' (' + res.fileType + ')';
+      const del = document.createElement('button');
+      del.className = 'btn btn-sm'; del.textContent = '✕';
+      del.style.cssText = 'background:#fee2e2;color:#9b1c1c;padding:0 6px;';
+      del.onclick = () => deleteMaterial(res.id, lessonId);
+      li.appendChild(name); li.appendChild(del);
+      ul.appendChild(li);
+    });
+  } catch (e) { /* silenzioso */ }
+}
+
+async function uploadMaterial(lessonId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const prog = document.getElementById('prog-' + lessonId);
+  prog.textContent = 'Caricamento materiale…';
+  try {
+    const mod = await import('https://esm.sh/@vercel/blob@0.27.0/client');
+    const blob = await mod.upload(file.name, file, {
+      access: 'public',
+      handleUploadUrl: '/api/admin/resources/upload',
+      clientPayload: JSON.stringify({ lessonId }),
+    });
+    const r = await fetch('/api/admin/resources/create', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId, url: blob.url, filename: file.name }),
+    });
+    if (!r.ok) { const d = await r.json(); prog.textContent = 'Errore: ' + (d.error || ''); return; }
+    prog.textContent = '✓ materiale caricato';
+    input.value = '';
+    loadLessonResourcesAdmin(lessonId);
+    setTimeout(() => { const e = document.getElementById('prog-' + lessonId); if (e) e.textContent = ''; }, 2000);
+  } catch (e) {
+    prog.textContent = 'Errore upload: ' + e.message;
+  }
+}
+
+async function deleteMaterial(resourceId, lessonId) {
+  if (!confirm('Eliminare questo materiale?')) return;
+  try {
+    const r = await fetch('/api/admin/resources/' + resourceId, { method: 'DELETE' });
+    if (!r.ok) { alert('Errore'); return; }
+    loadLessonResourcesAdmin(lessonId);
+  } catch (e) { alert('Errore di rete'); }
+}
+
+async function uploadVideo(lessonId, input) {
+  const file = input.files[0];
+  if (!file) return;
+  const prog = document.getElementById('prog-' + lessonId);
+  prog.textContent = 'Preparazione upload video…';
+  try {
+    const cr = await fetch('/api/admin/vimeo/create-upload', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId, name: file.name, size: file.size }),
+    });
+    const cd = await cr.json();
+    if (!cr.ok) { prog.textContent = 'Errore Vimeo: ' + (cd.error || ''); return; }
+    const tus = await import('https://esm.sh/tus-js-client@4.1.0');
+    await new Promise((resolve, reject) => {
+      const up = new tus.Upload(file, {
+        uploadUrl: cd.uploadLink,
+        chunkSize: 50 * 1024 * 1024,
+        retryDelays: [0, 3000, 6000],
+        metadata: { filename: file.name, filetype: file.type },
+        onError: reject,
+        onProgress: (sent, total) => {
+          prog.textContent = 'Upload video: ' + Math.round((sent / total) * 100) + '%';
+        },
+        onSuccess: resolve,
+      });
+      up.start();
+    });
+    const fr = await fetch('/api/admin/vimeo/finalize', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId, vimeoUri: cd.vimeoUri }),
+    });
+    if (!fr.ok) { prog.textContent = 'Errore finalize'; return; }
+    prog.textContent = '✓ video caricato (in elaborazione su Vimeo)';
+    input.value = '';
+    pollVideoStatus(lessonId);
+    await reloadLessons();
+  } catch (e) {
+    prog.textContent = 'Errore upload video: ' + e.message;
+  }
+}
+
+async function pollVideoStatus(lessonId, tries) {
+  tries = tries || 0;
+  if (tries > 40) return;
+  try {
+    const r = await fetch('/api/admin/vimeo/status?lessonId=' + lessonId);
+    const d = await r.json();
+    const prog = document.getElementById('prog-' + lessonId);
+    if (d.status === 'ready') { if (prog) prog.textContent = '✓ video pronto'; reloadLessons(); return; }
+    if (d.status === 'error') { if (prog) prog.textContent = '✗ errore elaborazione video'; return; }
+    if (prog) prog.textContent = 'Elaborazione video su Vimeo…';
+    setTimeout(() => pollVideoStatus(lessonId, tries + 1), 15000);
+  } catch (e) { setTimeout(() => pollVideoStatus(lessonId, tries + 1), 15000); }
+}
 </script>
 </body>
 </html>
