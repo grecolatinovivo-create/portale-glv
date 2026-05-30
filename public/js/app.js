@@ -1014,14 +1014,14 @@ function initPricing(){
   applyPlan('monthly'); // default mensile — allineato con l'inline script di index.html
 }
 
-/* ── FAQ ─────────────────────────────────────────────────────── */
-function initFaq(){
-  document.querySelectorAll('.faq-question').forEach(btn=>btn.addEventListener('click',()=>{
-    const answer=btn.nextElementSibling; const isOpen=btn.classList.contains('open');
-    document.querySelectorAll('.faq-question.open').forEach(b=>{b.classList.remove('open');b.nextElementSibling.style.maxHeight='0';});
-    if(!isOpen){btn.classList.add('open');answer.style.maxHeight=answer.scrollHeight+'px';}
-  }));
-}
+/* ── FAQ ───────────────────────────────────────────────────────
+   Il toggle vero è un blocco <script> isolato in fondo a index.html
+   (classi .faq-item/.faq-q, apertura via classe .open + CSS).
+   Qui NON ri-agganciamo nulla per non creare doppi listener o
+   conflitti di style inline. Lasciata come no-op per compatibilità
+   con la chiamata initFaq() esistente. NON reintrodurre selettori
+   .faq-question/.faq-answer: non esistono più nel markup. */
+function initFaq(){ /* gestito inline in index.html */ }
 
 /* ── Catalog Filters ─────────────────────────────────────────── */
 async function initCatalogFilters(){
