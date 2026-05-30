@@ -7,7 +7,7 @@ export default requireAuth(async function handler(req, res) {
   if (req.method === 'GET') {
     try {
       const user = await prisma.user.findUnique({
-        where: { id: req.user.id },
+        where: { id: req.user.userId },
         select: { id: true, email: true, fullName: true, createdAt: true },
       });
 
@@ -27,7 +27,7 @@ export default requireAuth(async function handler(req, res) {
 
     try {
       const user = await prisma.user.update({
-        where: { id: req.user.id },
+        where: { id: req.user.userId },
         data: { fullName: fullName.trim() },
       });
 

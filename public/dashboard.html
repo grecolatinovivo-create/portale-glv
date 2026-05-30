@@ -2297,7 +2297,7 @@ function getTierLevel(sub) {
   if (p.includes('accademia')) return 3;
   if (p.includes('linguae'))   return 2;
   if (p.includes('cultura'))   return 1;
-  return 1; // subscription attiva ma plan non mappato → accesso base
+  return 0; // plan non riconosciuto → nega (coerente col backend planToTier→null)
 }
 
 const TIER_NAMES = { 3:'Accademia', 2:'Linguae', 1:'Cultura', 0:'—' };

@@ -8,14 +8,27 @@ async function handler(req, res) {
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    // stripeCustomerId vive sul modello Subscription, non su User.
+    // I piani manuali assegnati dall'admin hanno un customer sintetico
+    // (es. "admin_xxx") che NON esiste su Stripe: vanno esclusi, altrimenti
+    // billingPortal.sessions.create fallisce. Cerchiamo un customer Stripe reale
+    // (prefisso "cus_"), prendendo la subscription più recente.
+    const subs = await prisma.subscription.findMany({
+      where: { userId: req.user.userId },
+      orderBy: { createdAt: 'desc' },
+      select: { stripeCustomerId: true },
+    });
 
-    if (!user || !user.stripeCustomerId) {
-      return res.status(400).json({ error: 'Nessun abbonamento trovato' });
+    const realCustomer = subs.find(
+      s => typeof s.stripeCustomerId === 'string' && s.stripeCustomerId.startsWith('cus_')
+    );
+
+    if (!realCustomer) {
+      return res.status(400).json({ error: 'Nessun abbonamento Stripe da gestire' });
     }
 
     const portalSession = await stripe.billingPortal.sessions.create({
-      customer: user.stripeCustomerId,
+      customer: realCustomer.stripeCustomerId,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}/profilo.html`,
     });
 

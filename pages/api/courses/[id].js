@@ -92,14 +92,23 @@ export default withAuth(async function handler(req, res) {
       if (!hasAccess) {
         const allActiveSubs = await prisma.subscription.findMany({
           where: { userId: req.user.userId, status: 'active' },
+          orderBy: { createdAt: 'desc' }, // deterministico + coerente con auth/me
         });
         const subscription = allActiveSubs.find(s => MANUAL_PLANS.includes(s.plan))
           || allActiveSubs[0]
           || null;
 
         if (subscription) {
-          // Abbonamento valido: verifica tier + scadenza
-          if (course.expiresAt && new Date(course.expiresAt) <= now) {
+          // #4 — Guard di sicurezza: se il periodo è scaduto ma lo status è ancora
+          // 'active' nel DB (webhook subscription.deleted/updated perso), nega
+          // comunque l'accesso. I piani manuali hanno currentPeriodEnd 2099 → safe.
+          const periodEnded = subscription.currentPeriodEnd
+            && new Date(subscription.currentPeriodEnd) <= now;
+
+          // Abbonamento valido: verifica scadenza periodo + scadenza corso + tier
+          if (periodEnded) {
+            accessSource = 'subscription-expired';
+          } else if (course.expiresAt && new Date(course.expiresAt) <= now) {
             // Corso scaduto per abbonati
             accessSource = 'subscription-expired';
           } else if (!hasTierAccess(subscription.plan, course.tierRequired)) {
