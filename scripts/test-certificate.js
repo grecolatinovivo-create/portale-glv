@@ -70,6 +70,16 @@ const watchdog = setTimeout(() => {
   }
 
   stage = 'generazione PDF';
+  // Verifica che pdfkit e le sue dipendenze siano installate (in locale a volte
+  // node_modules è incompleto → "Cannot find module 'es-object-atoms'" ecc.)
+  try {
+    require('pdfkit');
+  } catch (depErr) {
+    console.error('\n✗ Dipendenza PDF mancante/rotta:', depErr.message);
+    console.error('  → Esegui:  rm -rf node_modules package-lock.json && npm install');
+    console.error('  (in produzione su Vercel questo non accade: npm install è sempre pulito)');
+    process.exit(3);
+  }
   log('Genero PDF…');
   const pdfBuffer = await generateCertificate({
     studentName: user.fullName || user.email,

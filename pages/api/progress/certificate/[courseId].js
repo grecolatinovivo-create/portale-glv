@@ -5,6 +5,11 @@
 const { prisma } = require('../../../../lib/prisma');
 const { withAuth } = require('../../../../lib/auth');
 
+// Forza il runtime Node.js: pdfkit usa API native (Buffer, stream, fontkit) che
+// NON funzionano sul runtime Edge. Senza questo, in produzione la generazione
+// del PDF potrebbe fallire se Vercel scegliesse Edge.
+export const config = { api: { responseLimit: false }, runtime: 'nodejs' };
+
 export default withAuth(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
