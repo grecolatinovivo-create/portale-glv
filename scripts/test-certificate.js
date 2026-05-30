@@ -1,14 +1,13 @@
 // scripts/test-certificate.js
-// Test di produzione attestato: genera il PDF per un corso e (opzionale) invia l'email.
+// Test produzione attestato con LOG step-by-step (per diagnosticare blocchi).
 //
 // USO:
-//   node scripts/test-certificate.js <emailUtente> <slugCorso>            → genera PDF di prova in /tmp
-//   node scripts/test-certificate.js <emailUtente> <slugCorso> --email    → genera PDF + invia email Resend
+//   node scripts/test-certificate.js <email> <slug>           → solo PDF in /tmp
+//   node scripts/test-certificate.js <email> <slug> --email   → PDF + invio email
+//   node scripts/test-certificate.js <email> <slug> --commit  → salva anche il record Certificate
 //
 // Esempio:
 //   node scripts/test-certificate.js grecolatinovivo@gmail.com gr-b13 --email
-//
-// NB: NON crea un record Certificate "vero" se non vuoi — usa --commit per salvarlo nel DB.
 require('dotenv').config();
 const { Client } = require('pg');
 const fs = require('fs');
@@ -18,40 +17,60 @@ const [, , email, slug, ...flags] = process.argv;
 const DO_EMAIL  = flags.includes('--email');
 const DO_COMMIT = flags.includes('--commit');
 
+function log(...a) { console.log('[test-cert]', ...a); }
+
 if (!email || !slug) {
-  console.error('Uso: node scripts/test-certificate.js <emailUtente> <slugCorso> [--email] [--commit]');
+  console.error('Uso: node scripts/test-certificate.js <email> <slug> [--email] [--commit]');
   process.exit(1);
 }
 
+// Safety net: se qualcosa appende, dopo 30s usciamo dicendo dove eravamo.
+let stage = 'avvio';
+const watchdog = setTimeout(() => {
+  console.error(`\n⏱  TIMEOUT 30s — bloccato nello stage: "${stage}".`);
+  console.error('   (se è "connessione DB" → problema di rete/SSL verso Neon;');
+  console.error('    se è "invio email" → problema con Resend)');
+  process.exit(2);
+}, 30000);
+
 (async () => {
+  log('ENV check:',
+      'DATABASE_URL', !!process.env.DATABASE_URL,
+      '| RESEND_API_KEY', !!process.env.RESEND_API_KEY,
+      '| APP_URL', process.env.NEXT_PUBLIC_APP_URL || '(non impostato)');
+
+  stage = 'connessione DB';
+  log('Connessione al DB…');
   const c = new Client({ connectionString: process.env.DATABASE_URL });
   await c.connect();
+  log('✓ connesso');
 
+  stage = 'lookup utente';
   const [user] = (await c.query('SELECT id, "fullName", email FROM "User" WHERE email=$1', [email])).rows;
-  if (!user) { console.error('Utente non trovato:', email); process.exit(1); }
+  if (!user) { console.error('✗ Utente non trovato:', email); process.exit(1); }
+  log('✓ utente:', user.fullName || user.email);
 
+  stage = 'lookup corso';
   const [course] = (await c.query('SELECT id, slug, title, lang, level FROM "Course" WHERE slug=$1', [slug])).rows;
-  if (!course) { console.error('Corso non trovato:', slug); process.exit(1); }
+  if (!course) { console.error('✗ Corso non trovato:', slug); process.exit(1); }
+  log('✓ corso:', course.title);
 
-  // certCode: riusa esistente o genera di prova
+  stage = 'lookup/crea certCode';
+  const { generateCertCode, generateCertificate } = require('../lib/certificate');
   let [cert] = (await c.query(
     'SELECT "certCode" FROM "Certificate" WHERE "userId"=$1 AND "courseId"=$2', [user.id, course.id])).rows;
+  let certCode = cert?.certCode || generateCertCode();
+  log('✓ certCode:', certCode, cert ? '(esistente)' : '(nuovo)');
 
-  const { generateCertCode, generateCertificate } = require('../lib/certificate');
-  let certCode = cert?.certCode;
-  if (!certCode) {
-    certCode = generateCertCode();
-    if (DO_COMMIT) {
-      await c.query(
-        'INSERT INTO "Certificate" (id, "certCode", "userId", "courseId") VALUES (gen_random_uuid()::text, $1, $2, $3)',
-        [certCode, user.id, course.id]);
-      console.log('Record Certificate creato nel DB.');
-    } else {
-      console.log('(prova: certCode generato ma NON salvato — usa --commit per salvarlo)');
-    }
+  if (!cert && DO_COMMIT) {
+    await c.query(
+      'INSERT INTO "Certificate" (id, "certCode", "userId", "courseId") VALUES (gen_random_uuid()::text, $1, $2, $3)',
+      [certCode, user.id, course.id]);
+    log('✓ record Certificate salvato nel DB');
   }
 
-  console.log('Genero PDF attestato…', { studente: user.fullName || user.email, corso: course.title, certCode });
+  stage = 'generazione PDF';
+  log('Genero PDF…');
   const pdfBuffer = await generateCertificate({
     studentName: user.fullName || user.email,
     courseTitle: course.title,
@@ -60,22 +79,25 @@ if (!email || !slug) {
     completedAt: new Date(),
     certCode,
   });
-
   const out = path.join('/tmp', `attestato_test_${slug}.pdf`);
   fs.writeFileSync(out, pdfBuffer);
-  console.log('✓ PDF generato:', out, `(${(pdfBuffer.length/1024).toFixed(0)} KB)`);
+  log('✓ PDF generato:', out, `(${(pdfBuffer.length/1024).toFixed(0)} KB)`);
 
   if (DO_EMAIL) {
-    try {
-      const { sendCertificateEmail } = require('../lib/resend');
-      await sendCertificateEmail(user, course, certCode);
-      console.log('✓ Email inviata a', email);
-    } catch (e) {
-      console.error('✗ Invio email fallito:', e.message);
-    }
-  } else {
-    console.log('(email non inviata — aggiungi --email per inviarla)');
+    stage = 'invio email';
+    log('Invio email via Resend…');
+    const { sendCertificateEmail } = require('../lib/resend');
+    await sendCertificateEmail(user, course, certCode);
+    log('✓ email inviata a', email);
   }
 
+  stage = 'chiusura';
   await c.end();
-})().catch(e => { console.error('ERRORE:', e.message); process.exit(1); });
+  clearTimeout(watchdog);
+  log('✓ FATTO');
+  process.exit(0);
+})().catch(e => {
+  clearTimeout(watchdog);
+  console.error(`✗ ERRORE nello stage "${stage}":`, e.message);
+  process.exit(1);
+});
