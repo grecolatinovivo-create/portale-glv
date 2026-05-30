@@ -469,6 +469,9 @@
       #content { padding: 12px; }
     }
   </style>
+  <!-- tus-js-client (build browser UMD, locale) — per l'upload resumable dei video su Vimeo.
+       Caricato come file locale (non da CDN) per evitare problemi di CSP e la build Node. -->
+  <script src="/js/vendor/tus.min.js"></script>
 </head>
 <body>
 
@@ -2324,7 +2327,9 @@ async function uploadMaterial(lessonId, input) {
   const prog = document.getElementById('prog-' + lessonId);
   prog.textContent = 'Caricamento materiale…';
   try {
-    const mod = await import('https://esm.sh/@vercel/blob@0.27.0/client');
+    // build BROWSER esplicita (?bundle&target=es2022): evita la variante Node che
+    // richiede Buffer/Readable e causa "source object may only be an instance of Buffer"
+    const mod = await import('https://esm.sh/@vercel/blob@0.27.0/client?bundle&target=es2022');
     const blob = await mod.upload(file.name, file, {
       access: 'public',
       handleUploadUrl: '/api/admin/resources/upload',
@@ -2365,7 +2370,9 @@ async function uploadVideo(lessonId, input) {
     });
     const cd = await cr.json();
     if (!cr.ok) { prog.textContent = 'Errore Vimeo: ' + (cd.error || ''); return; }
-    const tus = await import('https://esm.sh/tus-js-client@4.1.0');
+    // build BROWSER UMD locale (window.tus) — la variante Node vuole Buffer/Readable
+    const tus = window.tus;
+    if (!tus || !tus.Upload) { prog.textContent = 'Errore: libreria tus non caricata'; return; }
     await new Promise((resolve, reject) => {
       const up = new tus.Upload(file, {
         uploadUrl: cd.uploadLink,
