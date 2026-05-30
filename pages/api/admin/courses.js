@@ -30,7 +30,7 @@ export default withAuth(async function handler(req, res) {
             },
           },
           lessons: {
-            select: { id: true, title: true, sortOrder: true },
+            select: { id: true, title: true, sortOrder: true, vimeoUrl: true, vimeoStatus: true, durationMin: true },
             orderBy: { sortOrder: 'asc' },
           },
         },

@@ -2222,6 +2222,8 @@ function renderLessonsManager() {
     const card = document.createElement('div');
     card.style.cssText = 'border:1px solid var(--gray-200);border-radius:8px;padding:12px;';
     const hasVideo = !!l.vimeoUrl;
+    const vMatch = (l.vimeoUrl || '').match(/vimeo\.com\/(?:video\/)?(\d+)/);
+    const vId = vMatch ? vMatch[1] : null;
     card.innerHTML =
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">' +
         '<span style="font-size:11px;color:var(--gray-400);min-width:20px;font-weight:700;">' + (i+1) + '.</span>' +
@@ -2241,9 +2243,26 @@ function renderLessonsManager() {
         '<button class="btn btn-sm btn-outline" onclick="saveLessonTitle(\'' + l.id + '\')">Salva titolo</button>' +
         '<span id="prog-' + l.id + '" style="color:var(--gray-500);"></span>' +
       '</div>' +
+      // Riga: incolla manualmente un link Vimeo già caricato
+      '<div style="display:flex;gap:8px;align-items:center;margin-top:8px;">' +
+        '<span style="font-size:11px;color:var(--gray-400);">oppure incolla link Vimeo:</span>' +
+        '<input type="text" class="form-control" data-lid="' + l.id + '" data-fld="vimeoUrl" placeholder="https://vimeo.com/123456789" style="flex:1;padding:5px 9px;font-size:12px;" />' +
+        '<button class="btn btn-sm btn-outline" onclick="saveLessonVideoUrl(\'' + l.id + '\')">Salva link</button>' +
+        (hasVideo ? '<button class="btn btn-sm btn-outline" onclick="fixVideoPrivacy(\'' + l.id + '\')">Ripara visibilità</button>' : '') +
+        (hasVideo ? '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="removeLessonVideo(\'' + l.id + '\')">Rimuovi video</button>' : '') +
+      '</div>' +
+      // Anteprima video guardabile nell'admin (iframe Vimeo)
+      (hasVideo && vId ?
+        '<div style="margin-top:10px;position:relative;width:100%;max-width:420px;aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden;">' +
+          '<iframe src="https://player.vimeo.com/video/' + vId + '?dnt=1&title=0&byline=0&portrait=0" ' +
+            'style="position:absolute;inset:0;width:100%;height:100%;border:0;" ' +
+            'allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe>' +
+        '</div>' : '') +
       '<ul id="res-' + l.id + '" style="margin:8px 0 0;padding-left:18px;font-size:12px;color:var(--gray-600);"></ul>';
     list.appendChild(card);
     card.querySelector('input[data-fld="title"]').value = l.title;
+    const vinp = card.querySelector('input[data-fld="vimeoUrl"]');
+    if (vinp) vinp.value = l.vimeoUrl || '';
     loadLessonResourcesAdmin(l.id);
   });
 }
@@ -2274,6 +2293,56 @@ async function saveLessonTitle(lessonId) {
     const e = document.getElementById('prog-' + lessonId);
     if (e) { e.textContent = '✓ salvato'; setTimeout(() => { e.textContent = ''; }, 1500); }
   } catch (e) { alert('Errore di rete'); }
+}
+
+async function saveLessonVideoUrl(lessonId) {
+  const inp = document.querySelector('#lm-list input[data-lid="' + lessonId + '"][data-fld="vimeoUrl"]');
+  if (!inp) return;
+  const url = inp.value.trim();
+  const prog = document.getElementById('prog-' + lessonId);
+  // Validazione: deve essere un URL Vimeo con id numerico (accetta anche hash privato)
+  if (url && !/vimeo\.com\/(?:video\/)?\d+/.test(url)) {
+    if (prog) prog.textContent = '✗ link Vimeo non valido (es. https://vimeo.com/123456789)';
+    return;
+  }
+  try {
+    const r = await fetch('/api/admin/lessons/' + lessonId, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      // vimeoUrl vuoto rimuove il video; impostiamo lo stato 'ready' se è un link manuale
+      body: JSON.stringify({ vimeoUrl: url || null, vimeoStatus: url ? 'ready' : null }),
+    });
+    if (!r.ok) { if (prog) prog.textContent = 'Errore nel salvataggio'; return; }
+    if (prog) prog.textContent = '✓ link salvato';
+    await reloadLessons();
+  } catch (e) { if (prog) prog.textContent = 'Errore di rete'; }
+}
+
+async function removeLessonVideo(lessonId) {
+  if (!confirm('Rimuovere il video da questa lezione? (il file su Vimeo non viene cancellato)')) return;
+  try {
+    const r = await fetch('/api/admin/lessons/' + lessonId, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vimeoUrl: null, vimeoStatus: null }),
+    });
+    if (!r.ok) { alert('Errore'); return; }
+    await reloadLessons();
+  } catch (e) { alert('Errore di rete'); }
+}
+
+// Ripara la privacy del video su Vimeo (embed pubblico) — per i video caricati
+// con la vecchia privacy 'whitelist' che bloccava l'embed nel portale.
+async function fixVideoPrivacy(lessonId) {
+  const prog = document.getElementById('prog-' + lessonId);
+  if (prog) prog.textContent = 'Riparo visibilità su Vimeo…';
+  try {
+    const r = await fetch('/api/admin/vimeo/fix-privacy', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lessonId }),
+    });
+    const d = await r.json();
+    if (!r.ok) { if (prog) prog.textContent = 'Errore: ' + (d.error || ''); return; }
+    if (prog) prog.textContent = '✓ visibilità riparata — ricarica il portale per vedere il video';
+  } catch (e) { if (prog) prog.textContent = 'Errore di rete'; }
 }
 
 async function deleteLesson(lessonId) {

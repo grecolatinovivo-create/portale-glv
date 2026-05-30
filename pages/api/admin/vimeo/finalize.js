@@ -6,6 +6,25 @@ const { prisma } = require('../../../../lib/prisma');
 const { withAuth } = require('../../../../lib/auth');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'grecolatinovivo@gmail.com';
+const VIMEO_API = 'https://api.vimeo.com';
+
+// Forza la privacy corretta su un video Vimeo: non visibile su vimeo.com ma
+// embeddabile dal nostro player. Best-effort: se fallisce non blocca il salvataggio.
+async function setVideoPrivacy(token, vimeoId) {
+  try {
+    await fetch(`${VIMEO_API}/videos/${vimeoId}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        Accept: 'application/vnd.vimeo.*+json;version=3.4',
+      },
+      body: JSON.stringify({ privacy: { view: 'disable', embed: 'public' } }),
+    });
+  } catch (e) {
+    console.warn('[vimeo/finalize] setVideoPrivacy fallito (best-effort):', e.message);
+  }
+}
 
 export default withAuth(async function handler(req, res) {
   if (!req.user || req.user.email !== ADMIN_EMAIL) {
@@ -30,6 +49,10 @@ export default withAuth(async function handler(req, res) {
   try {
     const lesson = await prisma.lesson.findUnique({ where: { id: lessonId }, select: { id: true } });
     if (!lesson) return res.status(404).json({ error: 'Lezione non trovata' });
+
+    // Assicura che il video sia embeddabile dal portale (privacy corretta)
+    const token = process.env.VIMEO_ACCESS_TOKEN;
+    if (token) await setVideoPrivacy(token, vimeoId);
 
     const updated = await prisma.lesson.update({
       where: { id: lessonId },

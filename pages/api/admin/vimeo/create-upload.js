@@ -48,9 +48,13 @@ export default withAuth(async function handler(req, res) {
         upload: { approach: 'tus', size: String(size) },
         name: name || 'Lezione',
         description: lesson.course?.title ? `Corso: ${lesson.course.title}` : undefined,
-        // Privacy: visibile solo via embed sui domini whitelistati (impostati su Vimeo).
-        // 'disable' = non accessibile su vimeo.com; embed controllato a livello account.
-        privacy: { view: 'disable', embed: 'whitelist' },
+        // Privacy:
+        //   view: 'disable'  → il video NON è visibile/cercabile su vimeo.com
+        //   embed: 'public'  → MA è embeddabile dal nostro player (iframe)
+        // L'URL/ID non è indovinabile e il portale è dietro paywall: l'accesso
+        // resta protetto. (Con embed:'whitelist' serviva configurare ogni dominio,
+        // e senza domini Vimeo bloccava l'embed ovunque → "impossibile caricare".)
+        privacy: { view: 'disable', embed: 'public' },
       }),
     });
 
