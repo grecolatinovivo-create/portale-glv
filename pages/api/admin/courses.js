@@ -99,6 +99,10 @@ export default withAuth(async function handler(req, res) {
       description,        // sottotitolo / descrizione del corso
       lang,               // 'Latino' | 'Greco Antico' | ecc.
       lessons,            // [{id, title}] — titoli delle lezioni
+      sofiaCode,          // codice SOFIA per l'attestato
+      courseHours,        // ore complessive
+      courseStart,        // ISO string o null
+      courseEnd,          // ISO string o null
     } = req.body || {};
 
     if (!courseId) {
@@ -124,6 +128,11 @@ export default withAuth(async function handler(req, res) {
       if (title !== undefined && title.trim()) updateData.title = title.trim();
       if (description !== undefined) updateData.description = description.trim();
       if (lang  !== undefined && lang.trim())  updateData.lang  = lang.trim();
+      // Dati attestato
+      if (sofiaCode   !== undefined) updateData.sofiaCode   = sofiaCode || null;
+      if (courseHours !== undefined) updateData.courseHours = (courseHours === '' || courseHours == null) ? null : parseInt(courseHours, 10);
+      if (courseStart !== undefined) updateData.courseStart = courseStart ? new Date(courseStart) : null;
+      if (courseEnd   !== undefined) updateData.courseEnd   = courseEnd ? new Date(courseEnd) : null;
 
       const updated = await prisma.course.update({
         where: { id: courseId },

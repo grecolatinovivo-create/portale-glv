@@ -42,3 +42,6 @@ corsi_brevi_vimeo copia.xlsx
 lezioni_per_corso.md
 scan_links.py
 ROLLBACK_QUERIES.sql
+
+# File di preview/anteprima temporanei generati durante lo sviluppo
+_*.png

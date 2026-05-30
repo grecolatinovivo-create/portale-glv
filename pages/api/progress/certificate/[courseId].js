@@ -94,15 +94,17 @@ export default withAuth(async function handler(req, res) {
       }
     }
 
-    // Genera il PDF
+    // Genera il PDF (template fedele latin-cert)
     const { generateCertificate } = require('../../../../lib/certificate');
     const pdfBuffer = await generateCertificate({
       studentName: user?.fullName || user?.email || 'Studente',
       courseTitle: course.title,
-      courseLang: course.lang,
-      courseLevel: course.level,
+      sofiaCode:   course.sofiaCode || '',
+      startDate:   course.courseStart || null,
+      endDate:     course.courseEnd || latestProgress?.completedAt || null,
+      hours:       course.courseHours ?? null,
       completedAt: latestProgress?.completedAt ?? new Date(),
-      certCode: resolvedCert.certCode,
+      certCode:    resolvedCert.certCode,
     });
 
     // Invia il PDF come download

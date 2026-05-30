@@ -856,6 +856,32 @@
       <div class="form-hint">Testo nel catalogo e dashboard utente. Se vuoto, viene generato dalla data automaticamente.</div>
     </div>
 
+    <!-- Dati ATTESTATO (template latin-cert) -->
+    <div class="form-group" style="border-top:1px solid var(--gray-200);padding-top:12px;margin-top:4px;">
+      <label class="form-label" style="font-weight:700;">Dati per l'attestato</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <label class="form-label" style="font-size:12px;">Codice SOFIA</label>
+          <input type="text" class="form-control" id="field-sofia" placeholder="es. 149224" />
+        </div>
+        <div style="width:110px;">
+          <label class="form-label" style="font-size:12px;">Ore</label>
+          <input type="number" class="form-control" id="field-hours" placeholder="es. 4" min="0" />
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
+        <div style="flex:1;min-width:140px;">
+          <label class="form-label" style="font-size:12px;">Data inizio</label>
+          <input type="date" class="form-control" id="field-cstart" />
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <label class="form-label" style="font-size:12px;">Data fine</label>
+          <input type="date" class="form-control" id="field-cend" />
+        </div>
+      </div>
+      <div class="form-hint">Compaiono nell'attestato: SOFIA, "tenutosi dal … al …", "durata complessiva di … ore".</div>
+    </div>
+
     <!-- Visibilità / Badge -->
     <div class="form-group" style="display:flex;gap:16px;align-items:center;">
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;">
@@ -1362,6 +1388,12 @@ function openCourseModal(courseId) {
   // Etichetta
   document.getElementById('field-label').value = c.availableUntilLabel || '';
 
+  // Dati attestato
+  document.getElementById('field-sofia').value  = c.sofiaCode || '';
+  document.getElementById('field-hours').value  = (c.courseHours != null) ? c.courseHours : '';
+  document.getElementById('field-cstart').value = c.courseStart ? new Date(c.courseStart).toISOString().slice(0,10) : '';
+  document.getElementById('field-cend').value   = c.courseEnd ? new Date(c.courseEnd).toISOString().slice(0,10) : '';
+
   // Checkbox
   document.getElementById('field-isAvailable').checked = c.isAvailable;
   document.getElementById('field-isNew').checked = c.isNew;
@@ -1475,6 +1507,10 @@ async function saveCourse() {
         isAvailable,
         isNew,
         lessons:             lessons.length > 0 ? lessons : undefined,
+        sofiaCode:           document.getElementById('field-sofia').value.trim(),
+        courseHours:         document.getElementById('field-hours').value,
+        courseStart:         document.getElementById('field-cstart').value || null,
+        courseEnd:           document.getElementById('field-cend').value || null,
       }),
     });
 
