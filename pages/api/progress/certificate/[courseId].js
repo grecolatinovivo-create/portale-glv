@@ -31,30 +31,7 @@ export default withAuth(async function handler(req, res) {
       return res.status(404).json({ error: 'Corso non trovato' });
     }
 
-    // Verifica che l'utente abbia completato tutte le lezioni
-    const totalLessons = course.lessons.length;
-    if (totalLessons === 0) {
-      return res.status(400).json({ error: 'Il corso non ha lezioni registrate' });
-    }
-
-    const completedCount = await prisma.lessonProgress.count({
-      where: {
-        userId: req.user.userId,
-        courseId: course.id,
-        completed: true,
-      },
-    });
-
-    if (completedCount < totalLessons) {
-      return res.status(403).json({
-        error: 'Corso non ancora completato',
-        completedLessons: completedCount,
-        totalLessons,
-        percent: Math.round((completedCount / totalLessons) * 100),
-      });
-    }
-
-    // Recupera i dati dell'utente, la data di completamento e il record certificato
+    // Recupera i dati utente, l'ultima data di completamento e il record certificato.
     const [user, latestProgress, cert] = await Promise.all([
       prisma.user.findUnique({
         where: { id: req.user.userId },
@@ -67,15 +44,39 @@ export default withAuth(async function handler(req, res) {
       }),
       prisma.certificate.findUnique({
         where: { userId_courseId: { userId: req.user.userId, courseId: course.id } },
-        select: { certCode: true },
+        select: { certCode: true, revokedAt: true },
       }),
     ]);
 
-    // Fallback on-demand: se il corso è completato ma il record Certificate non esiste
-    // (es. completato prima che il sistema fosse attivo, o errore transitorio in update.js),
-    // lo creiamo adesso invece di restituire 404.
     let resolvedCert = cert;
+
+    // ── REGOLA D'ACCESSO AL DOWNLOAD ────────────────────────────────────────
+    // 1) Se ESISTE già un attestato (emesso automaticamente o MANUALMENTE da admin),
+    //    è scaricabile — senza ricontrollare il completamento. L'attestato è la prova.
+    // 2) Se è stato REVOCATO dall'admin → bloccato.
+    // 3) Se NON esiste, lo si può emettere on-demand SOLO se il corso è completato al 100%.
+    if (resolvedCert && resolvedCert.revokedAt) {
+      return res.status(403).json({ error: 'Attestato revocato' });
+    }
+
     if (!resolvedCert) {
+      const totalLessons = course.lessons.length;
+      if (totalLessons === 0) {
+        return res.status(400).json({ error: 'Il corso non ha lezioni registrate' });
+      }
+      const completedCount = await prisma.lessonProgress.count({
+        where: { userId: req.user.userId, courseId: course.id, completed: true },
+      });
+      if (completedCount < totalLessons) {
+        return res.status(403).json({
+          error: 'Corso non ancora completato',
+          completedLessons: completedCount,
+          totalLessons,
+          percent: Math.round((completedCount / totalLessons) * 100),
+        });
+      }
+
+      // Corso completato ma record mancante → crea on-demand
       const { generateCertCode } = require('../../../../lib/certificate');
       const newCertCode = generateCertCode();
       resolvedCert = await prisma.certificate.create({
@@ -83,7 +84,6 @@ export default withAuth(async function handler(req, res) {
       });
       console.log(`[progress/certificate] Certificato creato on-demand per userId=${req.user.userId} courseId=${course.id}`);
 
-      // Tenta di inviare l'email (non bloccante)
       try {
         if (user) {
           const { sendCertificateEmail } = require('../../../../lib/resend');
