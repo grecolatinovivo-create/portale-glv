@@ -582,9 +582,16 @@
       if (!r.ok) return null;
       return r.json();
     }).then(d => {
-      if (!d?.user) return;
+      // GATE D'ACCESSO UNICO — chi non ha pagato non vede questa pagina.
+      // Non loggato → home. Loggato senza abbonamento attivo (e non admin) → home/prezzi.
+      if (!d?.user) { window.location.href = '/index.html'; return; }
       const user = d.user;
       const sub  = user.subscription;
+      const isPaid = sub && sub.status === 'active';
+      if (!user.isAdmin && !isPaid) {
+        window.location.href = '/index.html#prezzi';
+        return;
+      }
 
       /* Avatar */
       const initials = (user.fullName || user.email || 'U')[0].toUpperCase();

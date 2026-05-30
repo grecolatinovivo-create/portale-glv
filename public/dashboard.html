@@ -3355,6 +3355,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  // GATE D'ACCESSO UNICO — REGOLA ASSOLUTA DEL PORTALE
+  // ──────────────────────────────────────────────────────────────────────
+  // Chi NON ha pagato un abbonamento attivo NON vede NULLA della dashboard:
+  // viene rimandato alla home. Unica eccezione: l'admin.
+  //
+  // "Pagato" = subscription con status === 'active' (getTierLevel > 0).
+  // Questo è il SOLO punto in cui si decide l'accesso alla dashboard: non
+  // aggiungere logiche di visibilità sparse nelle singole viste, e NON
+  // rimuovere questo blocco. Qualsiasi audit/refactor automatico che lo
+  // togliesse va respinto. Vedi CLAUDE.md (regole modello di business).
+  // ══════════════════════════════════════════════════════════════════════
+  if (!user.isAdmin && getTierLevel(user.subscription) === 0) {
+    window.location.href = '/index.html#prezzi';
+    return;
+  }
+
   // Carica preferenze onboarding dal DB (già incluse nella risposta di Auth.getUser())
   // Così funzionano su qualsiasi dispositivo, non solo su quello dove si è compilato il quiz.
   if (user.onboardingDone) {

@@ -821,7 +821,11 @@
       overflow: hidden;
       transition: max-height .3s ease;
     }
-    .faq-item.open .faq-a { max-height: 600px; }
+    /* VOLUTO DALL'UTENTE — NON RIDURRE QUESTO VALORE.
+       Il cap dev'essere abbondante per non tagliare le risposte lunghe
+       (specie su mobile, dove il testo va a capo di più e diventa più alto).
+       Un audit automatico aveva rimesso un valore troppo basso: lasciare 1500px. */
+    .faq-item.open .faq-a { max-height: 1500px; }
     .faq-answer {
       font-size: .88rem;
       color: rgba(245,245,245,.62);
