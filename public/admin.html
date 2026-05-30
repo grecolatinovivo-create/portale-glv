@@ -950,10 +950,6 @@
       <label class="form-label">Livello (opzionale)</label>
       <input type="text" class="form-control" id="nc-level" placeholder="es. A1.1" />
     </div>
-    <div class="form-group">
-      <label class="form-label">Prezzo acquisto singolo (€, opzionale)</label>
-      <input type="number" class="form-control" id="nc-price" placeholder="es. 90" min="0" />
-    </div>
     <div class="form-hint" style="margin-bottom:8px;">Il corso viene creato <strong>nascosto</strong>. Lo pubblichi quando è pronto.</div>
     <div id="nc-alert" style="display:none;margin-top:4px;"></div>
     <div class="modal-footer">
@@ -2110,7 +2106,6 @@ function openNewCourseModal() {
   document.getElementById('nc-description').value = '';
   document.getElementById('nc-tier').value = 'cultura';
   document.getElementById('nc-level').value = '';
-  document.getElementById('nc-price').value = '';
   document.getElementById('nc-alert').style.display = 'none';
   ncSyncLang();
   openModal('modal-new-course');
@@ -2127,7 +2122,6 @@ async function createCourse() {
   const lang  = tier === 'linguae'
     ? document.getElementById('nc-lang').value
     : (tier === 'accademia' ? 'Didattica' : 'Corsi Brevi');
-  const priceEur = parseInt(document.getElementById('nc-price').value, 10);
   const alertEl = document.getElementById('nc-alert');
   alertEl.style.display = 'none';
   if (!title) {
@@ -2145,7 +2139,7 @@ async function createCourse() {
         description: document.getElementById('nc-description').value.trim(),
         tierRequired: tier, lang,
         level: document.getElementById('nc-level').value.trim(),
-        priceEur: isNaN(priceEur) ? 0 : priceEur * 100,
+        priceEur: 0,
       }),
     });
     const data = await r.json();
