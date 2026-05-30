@@ -249,3 +249,75 @@ Oggi `/api/lesson-resources` restituisce l'URL **diretto** del file. Per i conte
 conviene servire i materiali **solo a chi ha accesso al corso** e passare dal proxy
 `/api/download-resource` (che può verificare l'abbonamento prima del 302), così come i video sono
 già protetti. Da valutare insieme.
+
+---
+
+## 9. RISCHIO CRITICO: dipendenza da Aruba (latin-cert.org)
+
+**Problema:** ~96% dei materiali (161 file su 168 collegati, ma il pattern vale per tutti i corsi)
+sono serviti da `https://www.latin-cert.org/classroomresources/...`. Se quel dominio/hosting Aruba
+viene dismesso, **tutti quei download si rompono** → utenti paganti senza materiali. Va eliminata la
+dipendenza.
+
+**Buona notizia — i file li abbiamo già in locale.** Nella cartella di progetto
+`latin-cert-files/www.latin-cert.org/classroomresources/{IDL}/...`:
+- **5.438 file** (PDF, audio, immagini) — **~5.8 GB**
+- **3.570 cartelle IDL**
+
+Quindi NON serve scaricare nulla da Aruba: basta **migrarli su uno storage nostro** e riscrivere i
+`blobUrl`.
+
+### 9.1 Piano di messa in sicurezza (migrazione una tantum)
+```
+[latin-cert-files/ (locale, 5.8 GB)]
+   └─ script migrate-materials-to-blob.js
+        per ogni LessonResource con blobUrl che punta a latin-cert.org:
+          1. trova il file locale in classroomresources/{IDL}/{filename}
+          2. put() su Vercel Blob (access controllato) → nuovo URL
+          3. UPDATE LessonResource.blobUrl = nuovo URL
+        log dei file mancanti/non trovati
+[Vercel Blob (nostro)]  ← tutti i materiali, indipendenti da Aruba
+```
+Dopo la migrazione, `latin-cert.org` può sparire senza conseguenze.
+
+> Attenzione costi/limiti: 5.8 GB su Vercel Blob è gestibile, ma valutare il piano Blob. In
+> alternativa storage S3/R2 (Cloudflare R2 ha egress gratuito — buono per file scaricati spesso).
+> Da decidere insieme (vedi §11).
+
+### 9.2 Upload NATIVO dei nuovi materiali (richiesta esplicita)
+Da ora ogni nuovo materiale caricato dall'admin va **direttamente sul nostro storage**, mai più
+link esterni:
+```
+[Admin] dropzone PDF/audio/img nella lezione
+   → POST /api/admin/resources/upload (multipart o presigned)
+   → put() su Vercel Blob/R2  → URL nostro
+   → crea LessonResource { lessonId, title, filename, fileType, blobUrl: <nostro URL> }
+```
+Stessa pipeline `@vercel/blob` già usata per le immagini del vocabolario.
+
+---
+
+## 10. Architettura finale "a prova di Aruba"
+
+```
+                         ┌─────────────────────────────┐
+   VIDEO  ───────────────►  Vimeo (Pro+)  ← upload nativo dal pannello (tus)
+                         └─────────────────────────────┘
+                         ┌─────────────────────────────┐
+   MATERIALI ────────────►  Vercel Blob / R2 (nostro)   ← upload nativo + migrazione 5.8 GB
+                         └─────────────────────────────┘
+                         ┌─────────────────────────────┐
+   DATI (corsi/lezioni) ─►  PostgreSQL Neon (Prisma)    ← CRUD dal pannello admin
+                         └─────────────────────────────┘
+   Nessuna dipendenza residua da latin-cert.org / Aruba.
+```
+
+---
+
+## 11. Da decidere prima di implementare
+
+1. **Storage materiali**: Vercel Blob (semplice, già integrato) o Cloudflare R2 (egress gratis,
+   meglio per 5.8 GB scaricati spesso)? Default consigliato: iniziamo con Vercel Blob.
+2. **Quando migrare i 5.8 GB**: subito (script una tantum) o in parallelo allo sviluppo del pannello?
+3. **Protezione materiali a pagamento**: servirli sempre via proxy autenticato (consigliato) o
+   lasciare URL pubblici opachi come ora?
