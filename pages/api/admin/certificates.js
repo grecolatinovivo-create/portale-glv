@@ -77,6 +77,72 @@ export default withAuth(async function handler(req, res) {
     // Accetta sia certId (ID primario) che certCode (per compatibilità)
     const { action, certId, certCode } = req.body || {};
 
+    // ── EMETTI ATTESTATO MANUALE ───────────────────────────────
+    // { action:'issue', email|userId, courseSlug|courseId }
+    // Crea un Certificate per l'utente+corso anche senza completamento al 100%.
+    // Utile per emissioni manuali e per test. Appare subito nello spazio attestati
+    // dell'utente. Se esiste già (anche revocato), lo ripristina invece di duplicare.
+    if (action === 'issue') {
+      const { email, userId, courseSlug, courseId } = req.body || {};
+      try {
+        const targetUser = userId
+          ? await prisma.user.findUnique({ where: { id: userId }, select: { id: true, fullName: true, email: true } })
+          : email
+            ? await prisma.user.findUnique({ where: { email }, select: { id: true, fullName: true, email: true } })
+            : null;
+        if (!targetUser) return res.status(404).json({ error: 'Utente non trovato (passa email o userId)' });
+
+        const targetCourse = courseId
+          ? await prisma.course.findUnique({ where: { id: courseId }, select: { id: true, slug: true, title: true } })
+          : courseSlug
+            ? await prisma.course.findUnique({ where: { slug: courseSlug }, select: { id: true, slug: true, title: true } })
+            : null;
+        if (!targetCourse) return res.status(404).json({ error: 'Corso non trovato (passa courseSlug o courseId)' });
+
+        const { generateCertCode } = require('../../../lib/certificate');
+
+        // Se esiste già un attestato per questa coppia (vincolo @@unique), riusalo/ripristinalo
+        const existing = await prisma.certificate.findUnique({
+          where: { userId_courseId: { userId: targetUser.id, courseId: targetCourse.id } },
+        });
+
+        let result;
+        if (existing) {
+          result = await prisma.certificate.update({
+            where: { id: existing.id },
+            data: { revokedAt: null, revokedBy: null }, // riattiva se era revocato
+          });
+        } else {
+          result = await prisma.certificate.create({
+            data: { certCode: generateCertCode(), userId: targetUser.id, courseId: targetCourse.id },
+          });
+        }
+
+        await prisma.adminLog.create({
+          data: {
+            adminEmail: ADMIN_EMAIL,
+            action: 'ISSUE_CERT',
+            targetType: 'certificate',
+            targetId: result.id,
+            payload: JSON.stringify({ certCode: result.certCode, user: targetUser.email, course: targetCourse.slug }),
+          },
+        });
+
+        // Email non bloccante
+        try {
+          const { sendCertificateEmail } = require('../../../lib/resend');
+          await sendCertificateEmail(targetUser, targetCourse, result.certCode);
+        } catch (emailErr) {
+          console.error('[admin/certificates issue] Errore email:', emailErr);
+        }
+
+        return res.status(200).json({ ok: true, certCode: result.certCode, reused: !!existing });
+      } catch (err) {
+        console.error('[admin/certificates issue] Errore:', err);
+        return res.status(500).json({ error: 'Errore interno del server' });
+      }
+    }
+
     if (!action || (!certId && !certCode)) {
       return res.status(400).json({ error: 'action e certId (o certCode) sono obbligatori' });
     }

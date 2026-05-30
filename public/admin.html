@@ -727,7 +727,10 @@
         <div class="panel">
           <div class="panel-header">
             <div class="panel-title">Tutti gli attestati</div>
-            <div style="font-size:13px;color:var(--gray-400)" id="certs-count">—</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="font-size:13px;color:var(--gray-400)" id="certs-count">—</span>
+              <button class="btn btn-sm" onclick="openIssueCertModal()" style="background:var(--bordeaux);color:#fff;">+ Emetti attestato</button>
+            </div>
           </div>
           <div class="panel-body">
             <table>
@@ -910,6 +913,29 @@
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('modal-cert-action')">Annulla</button>
       <button class="btn btn-danger" id="btn-confirm-cert-action" onclick="confirmCertAction()">Conferma</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: Emetti attestato manuale
+     ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-issue-cert">
+  <div class="modal" style="width:460px;">
+    <div class="modal-title">Emetti attestato</div>
+    <div class="form-group">
+      <label class="form-label">Email studente *</label>
+      <input type="email" class="form-control" id="ic-email" placeholder="studente@esempio.it" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Corso *</label>
+      <select class="form-control" id="ic-course"><option value="">Caricamento corsi…</option></select>
+    </div>
+    <div class="form-hint" style="margin-bottom:8px;">L'attestato comparirà subito nello spazio attestati dell'utente e gli verrà inviata l'email.</div>
+    <div id="ic-alert" style="display:none;margin-top:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-issue-cert')">Annulla</button>
+      <button class="btn btn-primary" onclick="issueCertificate()">Emetti</button>
     </div>
   </div>
 </div>
@@ -2102,6 +2128,60 @@ document.querySelectorAll('#sidebar .nav-item').forEach(function (item) {
 /* ═══════════════════════════════════════════════════════════════
    GESTIONE CONTENUTI — Nuovo corso, lezioni, video, materiali
    ═══════════════════════════════════════════════════════════════ */
+
+// ── Emissione attestato manuale ────────────────────────────────
+function openIssueCertModal() {
+  document.getElementById('ic-email').value = '';
+  document.getElementById('ic-alert').style.display = 'none';
+  // popola il select corsi da allCourses (già caricati nella tab Corsi)
+  const sel = document.getElementById('ic-course');
+  if (allCourses && allCourses.length) {
+    sel.innerHTML = '<option value="">— scegli un corso —</option>' +
+      allCourses.map(c => '<option value="' + c.slug + '">' + (c.title || c.slug) + '</option>').join('');
+  } else {
+    // fallback: carica i corsi se la tab non è stata aperta
+    fetch('/api/admin/courses').then(r => r.json()).then(d => {
+      allCourses = d.courses || [];
+      sel.innerHTML = '<option value="">— scegli un corso —</option>' +
+        allCourses.map(c => '<option value="' + c.slug + '">' + (c.title || c.slug) + '</option>').join('');
+    });
+  }
+  openModal('modal-issue-cert');
+}
+
+async function issueCertificate() {
+  const email = document.getElementById('ic-email').value.trim();
+  const courseSlug = document.getElementById('ic-course').value;
+  const alertEl = document.getElementById('ic-alert');
+  alertEl.style.display = 'none';
+  if (!email || !courseSlug) {
+    alertEl.className = 'alert alert-error';
+    alertEl.textContent = 'Email e corso sono obbligatori';
+    alertEl.style.display = 'flex';
+    return;
+  }
+  try {
+    const r = await fetch('/api/admin/certificates', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'issue', email, courseSlug }),
+    });
+    const d = await r.json();
+    if (!r.ok) {
+      alertEl.className = 'alert alert-error';
+      alertEl.textContent = d.error || 'Errore';
+      alertEl.style.display = 'flex';
+      return;
+    }
+    alertEl.className = 'alert alert-success';
+    alertEl.textContent = '✓ Attestato emesso: ' + d.certCode + (d.reused ? ' (già esistente, riattivato)' : '');
+    alertEl.style.display = 'flex';
+    if (typeof loadCerts === 'function') loadCerts();
+  } catch (e) {
+    alertEl.className = 'alert alert-error';
+    alertEl.textContent = 'Errore di rete';
+    alertEl.style.display = 'flex';
+  }
+}
 
 function openNewCourseModal() {
   document.getElementById('nc-title').value = '';
