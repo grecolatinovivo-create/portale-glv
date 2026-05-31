@@ -831,6 +831,9 @@
       color: rgba(245,245,245,.62);
       line-height: 1.75;
       padding-bottom: 1.2rem;
+      /* Override regola confliggente da landing.css (.faq-answer eredità da old FAQ) */
+      max-height: none !important;
+      overflow: visible !important;
     }
     .faq-answer strong { color: rgba(245,245,245,.85); font-weight: 500; }
 
@@ -1487,10 +1490,9 @@
         <div class="lang-row">
           <div class="lang-dot doc"></div>
           <span class="lang-name">Formazione docenti</span>
-          <span class="lang-levels">4 moduli accreditati MIM · Bonus Docenti</span>
+          <span class="lang-levels">Corsi di formazione in didattica</span>
         </div>
       </div>
-      <a href="#corsi" class="catalog-link">Sfoglia i corsi &rarr;</a>
     </div>
 
     <!-- Ventaglio carte destra -->

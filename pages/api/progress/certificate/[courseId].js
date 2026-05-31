@@ -123,12 +123,17 @@ export default withAuth(async function handler(req, res) {
     return res.status(200).end(pdfBuffer);
   } catch (err) {
     console.error('[progress/certificate] Errore:', err);
-    // Errore specifico se pdfkit non è installato
+    // Messaggi diagnostici chiari per le cause più comuni in produzione
     if (err.code === 'MODULE_NOT_FOUND') {
-      return res.status(500).json({
-        error: 'Libreria PDF non installata. Esegui: npm install pdfkit',
-      });
+      return res.status(500).json({ error: 'Libreria PDF mancante (pdf-lib). Esegui: npm install pdf-lib @pdf-lib/fontkit' });
     }
-    return res.status(500).json({ error: 'Errore nella generazione del PDF' });
+    if (err.code === 'ENOENT') {
+      return res.status(500).json({ error: 'Asset attestato non trovato sul server (template/font). Verifica il deploy di lib/cert-assets.' });
+    }
+    // Colonna DB mancante (prisma db push non eseguito)
+    if (/column .* does not exist|Unknown arg|sofiaCode|courseHours|courseStart|courseEnd/i.test(err.message || '')) {
+      return res.status(500).json({ error: 'Schema DB non aggiornato (manca prisma db push per i campi attestato).' });
+    }
+    return res.status(500).json({ error: 'Errore nella generazione del PDF: ' + (err.message || 'sconosciuto') });
   }
 });
