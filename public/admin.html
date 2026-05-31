@@ -840,6 +840,10 @@
                 <input type="number" class="form-control" id="live-duration" value="60" min="15" />
               </div>
             </div>
+            <div style="margin-top:10px;">
+              <label class="form-label" style="font-size:12px;">Descrizione (opzionale)</label>
+              <textarea class="form-control" id="live-description" rows="2" placeholder="es. Domande e risposte sulla metodologia, focus sul livello B1…" style="resize:vertical;"></textarea>
+            </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:10px;">
               <div style="flex:1;min-width:260px;">
                 <label class="form-label" style="font-size:12px;">Link Zoom</label>
@@ -2421,13 +2425,16 @@ async function loadLives() {
   }
 }
 
-// Converte una data ISO nel formato richiesto da <input type="datetime-local"> (ora locale)
+// Converte una data ISO nel formato richiesto da <input type="datetime-local">.
+// Usa i componenti UTC di proposito: la creazione (POST) salva l'orario digitato
+// "così com'è" come UTC (il server fa new Date('...T18:30') => 18:30Z). Riproponendo
+// gli stessi componenti UTC, salvare senza modifiche NON sposta l'orario (round-trip stabile).
 function _toLocalInput(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return '';
   const pad = n => String(n).padStart(2, '0');
-  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) +
-         'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) +
+         'T' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
 }
 
 // Entra in modalità modifica: precompila il form con i dati della live
@@ -2435,10 +2442,11 @@ function editLive(id) {
   const l = _livesById[id];
   if (!l) return;
   _editingLiveId = id;
-  document.getElementById('live-title').value    = l.title || '';
-  document.getElementById('live-start').value    = _toLocalInput(l.startAt);
-  document.getElementById('live-duration').value = l.durationMin || 60;
-  document.getElementById('live-zoom').value     = l.zoomLink || '';
+  document.getElementById('live-title').value       = l.title || '';
+  document.getElementById('live-start').value       = _toLocalInput(l.startAt);
+  document.getElementById('live-duration').value    = l.durationMin || 60;
+  document.getElementById('live-zoom').value        = l.zoomLink || '';
+  document.getElementById('live-description').value = l.description || '';
   document.getElementById('live-panel-title').textContent = 'Modifica live';
   document.getElementById('live-submit-btn').textContent  = 'Salva modifiche';
   document.getElementById('live-cancel-btn').style.display = '';
@@ -2454,6 +2462,7 @@ function cancelEditLive() {
   document.getElementById('live-start').value = '';
   document.getElementById('live-duration').value = 60;
   document.getElementById('live-zoom').value = '';
+  document.getElementById('live-description').value = '';
   document.getElementById('live-panel-title').textContent = 'Nuova live';
   document.getElementById('live-submit-btn').textContent  = 'Crea live';
   document.getElementById('live-cancel-btn').style.display = 'none';
@@ -2468,6 +2477,7 @@ async function createLive() {
     startAt:     document.getElementById('live-start').value,
     durationMin: document.getElementById('live-duration').value,
     zoomLink:    document.getElementById('live-zoom').value.trim(),
+    description: document.getElementById('live-description').value.trim(),
   };
   if (!body.title || !body.startAt || !body.zoomLink) {
     alertEl.className = 'alert alert-error'; alertEl.textContent = 'Titolo, data e link Zoom sono obbligatori'; alertEl.style.display = 'flex'; return;
