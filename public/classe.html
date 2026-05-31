@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accedi alla classe — GrecoLatinoVivo</title>
+<style>
+  :root { --bordeaux:#a01a36; --gold:#c9a84c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,system-ui,sans-serif; background:#0d0d0d; color:#f5f5f5; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .box { width:100%; max-width:440px; background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:36px 32px; }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:rgba(245,245,245,.5); letter-spacing:.15em; text-transform:uppercase; margin-bottom:20px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:28px; color:#fff; margin-bottom:8px; }
+  p.sub { color:rgba(245,245,245,.6); font-size:14px; margin-bottom:24px; line-height:1.6; }
+  label { display:block; font-size:12px; color:rgba(245,245,245,.55); margin:14px 0 5px; }
+  input { width:100%; background:#0d0d0d; border:1px solid rgba(255,255,255,.15); border-radius:8px; color:#f5f5f5; padding:11px 13px; font-size:15px; }
+  input:focus { outline:none; border-color:var(--gold); }
+  #code { text-transform:uppercase; letter-spacing:.15em; font-family:monospace; }
+  .btn { width:100%; border:none; border-radius:8px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; background:var(--bordeaux); color:#fff; margin-top:22px; letter-spacing:.03em; }
+  .btn:disabled { opacity:.6; }
+  .msg { margin-top:16px; font-size:14px; padding:12px 14px; border-radius:8px; display:none; }
+  .msg.err { background:rgba(160,26,54,.15); color:#f5a5b5; display:block; }
+  .msg.ok { background:rgba(22,163,74,.15); color:#86efac; display:block; line-height:1.6; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand">GrecoLatinoVivo</div>
+    <h1>Accedi alla tua classe</h1>
+    <p class="sub">Inserisci il codice che ti ha dato il docente e i tuoi dati. Riceverai un'email per confermare l'iscrizione.</p>
+    <label for="code">Codice classe</label>
+    <input type="text" id="code" maxlength="6" placeholder="ES. K7M2QP" />
+    <label for="first">Nome</label>
+    <input type="text" id="first" />
+    <label for="last">Cognome</label>
+    <input type="text" id="last" />
+    <label for="email">Email</label>
+    <input type="email" id="email" placeholder="latua@email.it" />
+    <button class="btn" id="btn" onclick="join()">Iscriviti alla classe</button>
+    <div class="msg" id="msg"></div>
+  </div>
+
+<script>
+function msg(text, kind) { const m=document.getElementById('msg'); m.textContent=text; m.className='msg '+kind; }
+async function join() {
+  const btn = document.getElementById('btn');
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  const firstName = document.getElementById('first').value.trim();
+  const lastName = document.getElementById('last').value.trim();
+  const email = document.getElementById('email').value.trim();
+  if (!code || !firstName || !lastName || !email) { msg('Compila tutti i campi.', 'err'); return; }
+  btn.disabled = true; btn.textContent = 'Invio…';
+  try {
+    const r = await fetch('/api/classroom/join', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ code, firstName, lastName, email }) });
+    const d = await r.json();
+    if (!r.ok) { msg(d.error || 'Errore', 'err'); btn.disabled=false; btn.textContent='Iscriviti alla classe'; return; }
+    msg('✓ Iscrizione registrata! Controlla la tua email (' + email + ') e clicca sul link di conferma per accedere ai test.', 'ok');
+    btn.style.display = 'none';
+  } catch { msg('Errore di rete. Riprova.', 'err'); btn.disabled=false; btn.textContent='Iscriviti alla classe'; }
+}
+// precompila codice da URL ?code=
+const p = new URLSearchParams(location.search);
+if (p.get('code')) document.getElementById('code').value = p.get('code').toUpperCase();
+</script>
+</body>
+</html>

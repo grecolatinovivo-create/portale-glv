@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Le mie classi — GrecoLatinoVivo</title>
+<style>
+  :root { --bordeaux:#a01a36; --gold:#c9a84c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,system-ui,sans-serif; background:#0d0d0d; color:#f5f5f5; min-height:100vh; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:18px 28px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; text-decoration:none; }
+  .brand small { display:block; font-size:11px; color:rgba(245,245,245,.55); letter-spacing:.05em; }
+  .back { color:var(--gold); text-decoration:none; font-size:13px; }
+  .wrap { max-width:920px; margin:0 auto; padding:40px 24px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:34px; color:#fff; margin-bottom:6px; }
+  .subtitle { color:rgba(245,245,245,.6); margin-bottom:28px; font-size:14px; }
+  .card { background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:20px; margin-bottom:14px; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  input, select { background:#0d0d0d; border:1px solid rgba(255,255,255,.15); border-radius:7px; color:#f5f5f5; padding:9px 12px; font-size:14px; }
+  input:focus, select:focus { outline:none; border-color:var(--gold); }
+  .btn { border:none; border-radius:7px; padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:.03em; }
+  .btn-primary { background:var(--bordeaux); color:#fff; }
+  .btn-gold { background:var(--gold); color:#0d0d0d; }
+  .btn-outline { background:rgba(255,255,255,.06); color:#f5f5f5; border:1px solid rgba(255,255,255,.15); }
+  .btn-danger { background:#fee2e2; color:#9b1c1c; }
+  .btn-sm { padding:5px 12px; font-size:12px; }
+  .code-pill { font-family:monospace; font-size:18px; letter-spacing:.18em; color:var(--gold); background:rgba(201,168,76,.1); padding:6px 14px; border-radius:8px; }
+  table { width:100%; border-collapse:collapse; margin-top:10px; }
+  th, td { text-align:left; padding:8px 10px; font-size:13px; border-bottom:1px solid rgba(255,255,255,.07); }
+  th { color:rgba(245,245,245,.5); font-weight:600; font-size:11px; text-transform:uppercase; letter-spacing:.06em; }
+  .gate, .empty { text-align:center; padding:60px 20px; color:rgba(245,245,245,.5); }
+  .gate a { color:var(--gold); }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#222; border:1px solid rgba(255,255,255,.15); padding:12px 20px; border-radius:8px; font-size:14px; opacity:0; transition:opacity .3s; z-index:100; }
+  .toast.show { opacity:1; }
+  .muted { color:rgba(245,245,245,.5); font-size:13px; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/dashboard.html" class="brand">GrecoLatinoVivo<small>Le mie classi</small></a>
+    <a href="/dashboard.html" class="back">← Torna al portale</a>
+  </div>
+  <div class="wrap" id="wrap"><div class="empty">Caricamento…</div></div>
+  <div class="toast" id="toast"></div>
+
+<script>
+const J = (u,o) => fetch(u,o).then(async r => ({ ok:r.ok, status:r.status, data: await r.json().catch(()=>({})) }));
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+let _openClass = null;
+
+async function init() {
+  // Auth
+  const me = await J('/api/auth/me');
+  if (!me.ok) { location.href = '/index.html'; return; }
+  loadList();
+}
+
+async function loadList() {
+  const wrap = document.getElementById('wrap');
+  const r = await J('/api/classroom');
+  if (r.status === 403) {
+    wrap.innerHTML = '<div class="gate"><p>La gestione classi è riservata ai docenti con piano <strong>annuale Accademia</strong>.</p><p style="margin-top:12px;"><a href="/index.html#prezzi">Scopri i piani →</a></p></div>';
+    return;
+  }
+  if (!r.ok) { wrap.innerHTML = '<div class="empty">Errore nel caricamento.</div>'; return; }
+
+  let html = '<h1>Le mie classi</h1><p class="subtitle">Crea una classe, assegna i test e segui i risultati dei tuoi studenti.</p>';
+  html += '<div class="card"><div class="row"><input type="text" id="new-class-name" placeholder="Nome della classe (es. 3ªB Liceo Classico)" style="flex:1;min-width:220px;" /><button class="btn btn-primary" onclick="createClass()">+ Crea classe</button></div></div>';
+
+  if (!r.data.classrooms || !r.data.classrooms.length) {
+    html += '<div class="empty">Nessuna classe ancora. Creane una qui sopra.</div>';
+  } else {
+    r.data.classrooms.forEach(c => {
+      html += '<div class="card">' +
+        '<div class="row" style="justify-content:space-between;">' +
+          '<div><div style="font-size:17px;color:#fff;font-weight:600;">' + esc(c.name) + '</div>' +
+            '<div class="muted">' + (c._count?.students||0) + ' studenti · ' + (c._count?.assignments||0) + ' test assegnati</div></div>' +
+          '<div class="row"><span class="code-pill">' + esc(c.code) + '</span>' +
+            '<button class="btn btn-outline btn-sm" onclick="openClass(\'' + c.id + '\')">Gestisci</button>' +
+            '<button class="btn btn-danger btn-sm" onclick="deleteClass(\'' + c.id + '\',\'' + esc(c.name) + '\')">Elimina</button></div>' +
+        '</div>' +
+        '<div id="detail-' + c.id + '" style="margin-top:14px;"></div>' +
+      '</div>';
+    });
+  }
+  wrap.innerHTML = html;
+  if (_openClass) openClass(_openClass);
+}
+
+async function createClass() {
+  const name = document.getElementById('new-class-name').value.trim();
+  if (!name) return;
+  const r = await J('/api/classroom', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name }) });
+  if (!r.ok) { toast(r.data.error || 'Errore'); return; }
+  toast('Classe creata');
+  loadList();
+}
+
+async function deleteClass(id, name) {
+  if (!confirm('Eliminare la classe "' + name + '"? Verranno rimossi studenti e risultati.')) return;
+  const r = await J('/api/classroom', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id }) });
+  if (!r.ok) { toast('Errore'); return; }
+  _openClass = null; loadList();
+}
+
+async function openClass(id) {
+  _openClass = id;
+  const box = document.getElementById('detail-' + id);
+  if (!box) return;
+  box.innerHTML = '<div class="muted">Caricamento dettaglio…</div>';
+  const [detail, lib] = await Promise.all([
+    J('/api/classroom/' + id),
+    J('/api/exercises/library'),  // libreria test disponibili
+  ]);
+  if (!detail.ok) { box.innerHTML = '<div class="muted">Errore.</div>'; return; }
+  const { students, assignments } = detail.data;
+
+  // Studenti + risultati
+  let html = '<h3 style="font-size:14px;color:var(--gold);margin:6px 0 4px;text-transform:uppercase;letter-spacing:.06em;">Studenti</h3>';
+  if (!students.length) html += '<p class="muted">Nessuno studente iscritto. Condividi il codice classe.</p>';
+  else {
+    html += '<table><thead><tr><th>Studente</th><th>Email</th><th>Confermato</th><th>Test svolti</th></tr></thead><tbody>';
+    students.forEach(s => {
+      const done = (s.submissions||[]).filter(x=>x.completedAt).length;
+      html += '<tr><td>' + esc(s.lastName) + ' ' + esc(s.firstName) + '</td><td>' + esc(s.email) + '</td><td>' +
+        (s.emailConfirmed ? '✓' : '<span class="muted">in attesa</span>') + '</td><td>' + done + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+
+  // Test assegnati
+  html += '<h3 style="font-size:14px;color:var(--gold);margin:18px 0 4px;text-transform:uppercase;letter-spacing:.06em;">Test assegnati</h3>';
+  if (!assignments.length) html += '<p class="muted">Nessun test assegnato.</p>';
+  else {
+    html += '<div class="row" style="flex-direction:column;align-items:stretch;gap:6px;">';
+    assignments.forEach(a => {
+      html += '<div class="row" style="justify-content:space-between;background:rgba(255,255,255,.03);padding:8px 12px;border-radius:7px;">' +
+        '<span>' + esc(a.test.title) + ' <span class="muted">' + esc(a.test.lingua||'') + ' ' + esc(a.test.livello||'') + '</span></span>' +
+        '<button class="btn btn-danger btn-sm" onclick="unassign(\'' + id + '\',\'' + a.test.id + '\')">Rimuovi</button></div>';
+    });
+    html += '</div>';
+  }
+
+  // Assegna nuovo test dalla libreria
+  if (lib.ok && lib.data.tests && lib.data.tests.length) {
+    html += '<div class="row" style="margin-top:12px;"><select id="assign-sel-' + id + '" style="flex:1;min-width:220px;">';
+    const assignedIds = new Set(assignments.map(a => a.test.id));
+    lib.data.tests.filter(t => !assignedIds.has(t.id)).forEach(t => {
+      html += '<option value="' + t.id + '">' + esc(t.title) + (t.lingua ? ' — ' + esc(t.lingua) : '') + '</option>';
+    });
+    html += '</select><button class="btn btn-gold btn-sm" onclick="assign(\'' + id + '\')">Assegna test</button></div>';
+  }
+
+  box.innerHTML = html;
+}
+
+async function assign(classId) {
+  const sel = document.getElementById('assign-sel-' + classId);
+  const testId = sel && sel.value;
+  if (!testId) return;
+  const r = await J('/api/classroom/' + classId, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'assign-test', testId }) });
+  if (!r.ok) { toast('Errore'); return; }
+  toast('Test assegnato'); openClass(classId);
+}
+async function unassign(classId, testId) {
+  const r = await J('/api/classroom/' + classId, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'unassign-test', testId }) });
+  if (!r.ok) { toast('Errore'); return; }
+  openClass(classId);
+}
+
+init();
+</script>
+</body>
+</html>
