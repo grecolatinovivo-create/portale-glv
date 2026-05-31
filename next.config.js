@@ -9,9 +9,14 @@ const nextConfig = {
   // IMPORTANTE: forza l'inclusione degli asset dell'attestato (template PDF + font)
   // nel bundle serverless di Vercel. Senza questo, l'API di download fallisce in
   // produzione con ENOENT perché Next non traccia i file letti via fs.readFileSync.
-  outputFileTracingIncludes: {
-    '/api/progress/certificate/[courseId]': ['./lib/cert-assets/**'],
-    '/api/admin/certificates': ['./lib/cert-assets/**'],
+  //
+  // NB: in Next 14.x questa opzione vive sotto `experimental` (è diventata
+  // top-level solo da Next 15). Il progetto usa Next 14.2.3 → va qui dentro.
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/progress/certificate/[courseId]': ['./lib/cert-assets/**'],
+      '/api/admin/certificates': ['./lib/cert-assets/**'],
+    },
   },
 };
 

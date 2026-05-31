@@ -1391,7 +1391,7 @@
         <div class="plan-old" id="old-accademia"></div>
       </div>
       <ul class="plan-features">
-        <li class="tutto-in">Tutto in <em>Linguae</em></li>
+        <li class="tutto-in" id="acc-tutto-in">Tutto in <em>Linguae mensile</em></li>
         <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
         <li>Corsi di formazione tematici di pratica didattica</li>
         <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
@@ -1490,7 +1490,7 @@
         <div class="lang-row">
           <div class="lang-dot doc"></div>
           <span class="lang-name">Formazione docenti</span>
-          <span class="lang-levels">Corsi di formazione in didattica</span>
+          <span class="lang-levels">Corsi di formazione in didattica per docenti • Bonus Docenti</span>
         </div>
       </div>
     </div>
@@ -1789,6 +1789,14 @@ function applyPricing() {
       old.style.display = 'none';
     }
   });
+  // "Tutto in" di Accademia: cambia con il toggle
+  const accTuttoIn = document.getElementById('acc-tutto-in');
+  if (accTuttoIn) {
+    accTuttoIn.innerHTML = annual
+      ? 'Tutto in <em>Linguae annuale</em>'
+      : 'Tutto in <em>Linguae mensile</em>';
+  }
+
   // Annuale-only features: Live mensile + Bonus Docenti
   // Bottone Carta del Docente: visibile solo su Accademia Annuale
   const btnCartaDocente = document.getElementById('btn-carta-docente');
