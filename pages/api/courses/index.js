@@ -37,6 +37,7 @@ export default withAuth(async function handler(req, res) {
         expiresAt: true,
         availableUntilLabel: true,
         tierRequired: true,
+        isWebinar: true,
         _count: { select: { lessons: true } },
       },
     });

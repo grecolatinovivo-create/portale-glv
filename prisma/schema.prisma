@@ -35,6 +35,8 @@ model User {
   passwordResetTokens  PasswordResetToken[]
   vocabulary           Vocabulary[]
   favorites            Favorite[]
+  examBookings         ExamBooking[]
+  liveBookings         LiveBooking[]
 }
 
 // Corsi disponibili nel catalogo
@@ -67,6 +69,7 @@ model Course {
   // calcolate dai progressi reali (inizio = primo accesso, fine = completamento).
   sofiaCode    String?   // codice SOFIA/MIM del corso (es. "149224")
   courseHours  Int?      // durata complessiva in ore (es. 4)
+  isWebinar    Boolean  @default(false)  // true = webinar (Cultura, ~1h); va nella sezione Webinar
 
   lessons        Lesson[]
   purchases      Purchase[]
@@ -325,6 +328,69 @@ model ExerciseQuestion {
   data         Json              // dati specifici per tipo (vedi commento sopra)
 
   section ExerciseSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+}
+
+// ─── ESAMI DI CERTIFICAZIONE (Linguae annuale) ──────────────────────────────
+// L'admin crea sessioni d'esame (Latino/Greco) con data; gli utenti Linguae
+// annuale (o superiore) vedono le date e si prenotano.
+model ExamSession {
+  id          String   @id @default(cuid())
+  lingua      String              // "Latino" | "Greco Antico"
+  livello     String?             // es. "B1", "A2" (opzionale)
+  title       String              // es. "Esame di certificazione — Latino B1"
+  description String?  @db.Text
+  examDate    DateTime            // data e ora dell'esame
+  location    String?             // "Online" | indirizzo fisico
+  capacity    Int?                // posti massimi (null = illimitato)
+  isOpen      Boolean  @default(true)  // false = prenotazioni chiuse
+  createdAt   DateTime @default(now())
+
+  bookings    ExamBooking[]
+}
+
+model ExamBooking {
+  id         String   @id @default(cuid())
+  sessionId  String
+  userId     String
+  status     String   @default("booked")  // "booked" | "canceled"
+  createdAt  DateTime @default(now())
+
+  session ExamSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])  // una prenotazione per utente per sessione
+}
+
+// ─── LIVE MENSILI (Accademia annuale) ────────────────────────────────────────
+// L'admin inserisce la live (data, ora, link Zoom). Gli utenti Accademia annuale
+// prenotano; ricevono reminder 24h e 2h prima; l'accesso alla diretta si apre 1h prima.
+model LiveSession {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  startAt     DateTime            // data e ora di inizio
+  durationMin Int      @default(60)
+  zoomLink    String              // link alla diretta (visibile solo da 1h prima ai prenotati)
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Reminder già inviati (per evitare doppioni dal cron)
+  remind24Sent Boolean @default(false)
+  remind2Sent  Boolean @default(false)
+
+  bookings    LiveBooking[]
+}
+
+model LiveBooking {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String
+  createdAt DateTime @default(now())
+
+  session LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

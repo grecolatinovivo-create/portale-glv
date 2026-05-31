@@ -101,6 +101,7 @@ export default withAuth(async function handler(req, res) {
       lessons,            // [{id, title}] — titoli delle lezioni
       sofiaCode,          // codice SOFIA per l'attestato
       courseHours,        // ore complessive
+      isWebinar,          // true = webinar (sezione Webinar)
     } = req.body || {};
 
     if (!courseId) {
@@ -129,6 +130,7 @@ export default withAuth(async function handler(req, res) {
       // Dati attestato
       if (sofiaCode   !== undefined) updateData.sofiaCode   = sofiaCode || null;
       if (courseHours !== undefined) updateData.courseHours = (courseHours === '' || courseHours == null) ? null : parseInt(courseHours, 10);
+      if (isWebinar   !== undefined) updateData.isWebinar   = Boolean(isWebinar);
 
       const updated = await prisma.course.update({
         where: { id: courseId },

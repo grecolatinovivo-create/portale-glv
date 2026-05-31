@@ -1637,6 +1637,15 @@
       <div class="courses-row" id="row-brevi"></div>
     </section>
 
+    <section class="dash-section" id="section-webinar" style="display:none">
+      <div class="dash-section-header">
+        <h2 class="dash-section-title">Webinar</h2>
+        <span class="dash-section-subtitle">Incontri tematici sul mondo antico</span>
+        <span class="dash-section-badge">Incluso in tutti i piani</span>
+      </div>
+      <div class="courses-row" id="row-webinar"></div>
+    </section>
+
     <section class="dash-section" id="section-latino">
       <div class="dash-section-header">
         <h2 class="dash-section-title">Latino</h2>
@@ -2713,7 +2722,14 @@ function rerenderRows(tier) {
     if (el) el.style.display = tier < req ? '' : 'none';
   });
 
-  renderRow('row-brevi',     byLang('Corsi Brevi'),  tier);
+  // Corsi Brevi vs Webinar: entrambi lang 'Corsi Brevi', distinti dal flag isWebinar
+  const breviAll = byLang('Corsi Brevi');
+  renderRow('row-brevi',   breviAll.filter(c => !c.isWebinar), tier);
+  const webinars = breviAll.filter(c => c.isWebinar);
+  renderRow('row-webinar', webinars, tier);
+  const secWeb = document.getElementById('section-webinar');
+  if (secWeb) secWeb.style.display = webinars.length ? '' : 'none';
+
   renderRow('row-didattica', byLang('Didattica'),    tier);
 
   // Badge Formazione Docenti
@@ -6254,7 +6270,12 @@ function _applyFilter() {
   renderRow('row-greco',     byLang('Greco Antico'),         tier);
   renderRow('row-egiziano',  byLang('Egiziano Geroglifico'), tier);
   renderRow('row-ebraico',   byLang('Ebraico Biblico'),      tier);
-  renderRow('row-brevi',     byLang('Corsi Brevi'),          tier);
+  const breviF = byLang('Corsi Brevi');
+  renderRow('row-brevi',     breviF.filter(c => !c.isWebinar), tier);
+  const webF = breviF.filter(c => c.isWebinar);
+  renderRow('row-webinar',   webF,                            tier);
+  const secWebF = document.getElementById('section-webinar');
+  if (secWebF) secWebF.style.display = webF.length ? '' : 'none';
   // Sezioni tematiche — filtrate per la stessa query/lingua del filtro attivo
   renderAllThemeSections(filtered, tier);
   renderRow('row-didattica', byLang('Didattica'),            tier);

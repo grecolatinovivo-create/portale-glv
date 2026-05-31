@@ -525,6 +525,14 @@
       </button>
 
       <div class="nav-label">Contenuti</div>
+      <button class="nav-item" data-section="exams" onclick="showSection('exams', this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 16a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 7.677V16h2a1 1 0 110 2H7a1 1 0 110-2h2V7.677l-2.763 1.105 1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 16a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Esami certificazione
+      </button>
+      <button class="nav-item" data-section="lives" onclick="showSection('lives', this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
+        Live mensili
+      </button>
       <button class="nav-item" data-section="content-stats" onclick="showSection('content-stats', this)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
         Familia Romana
@@ -870,6 +878,10 @@
         </div>
       </div>
       <div class="form-hint">SOFIA e ore compaiono nell'attestato. Le date "tenutosi dal … al …" sono automatiche per ogni studente (inizio = primo accesso al corso, fine = completamento). La data sotto la firma è quella di emissione.</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;margin-top:10px;">
+        <input type="checkbox" id="field-webinar" style="width:15px;height:15px;" />
+        È un <strong>webinar</strong> (corso Cultura ~1h) — appare nella sezione Webinar
+      </label>
     </div>
 
     <!-- Visibilità / Badge -->
@@ -1381,6 +1393,7 @@ function openCourseModal(courseId) {
   // Dati attestato
   document.getElementById('field-sofia').value  = c.sofiaCode || '';
   document.getElementById('field-hours').value  = (c.courseHours != null) ? c.courseHours : '';
+  document.getElementById('field-webinar').checked = !!c.isWebinar;
 
   // Checkbox
   document.getElementById('field-isAvailable').checked = c.isAvailable;
@@ -1497,6 +1510,7 @@ async function saveCourse() {
         lessons:             lessons.length > 0 ? lessons : undefined,
         sofiaCode:           document.getElementById('field-sofia').value.trim(),
         courseHours:         document.getElementById('field-hours').value,
+        isWebinar:           document.getElementById('field-webinar').checked,
       }),
     });
 
