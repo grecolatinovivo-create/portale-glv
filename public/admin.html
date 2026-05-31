@@ -869,17 +869,7 @@
           <input type="number" class="form-control" id="field-hours" placeholder="es. 4" min="0" />
         </div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-        <div style="flex:1;min-width:140px;">
-          <label class="form-label" style="font-size:12px;">Data inizio</label>
-          <input type="date" class="form-control" id="field-cstart" />
-        </div>
-        <div style="flex:1;min-width:140px;">
-          <label class="form-label" style="font-size:12px;">Data fine</label>
-          <input type="date" class="form-control" id="field-cend" />
-        </div>
-      </div>
-      <div class="form-hint">Compaiono nell'attestato: SOFIA, "tenutosi dal … al …", "durata complessiva di … ore".</div>
+      <div class="form-hint">SOFIA e ore compaiono nell'attestato. Le date "tenutosi dal … al …" sono automatiche per ogni studente (inizio = primo accesso al corso, fine = completamento). La data sotto la firma è quella di emissione.</div>
     </div>
 
     <!-- Visibilità / Badge -->
@@ -1391,8 +1381,6 @@ function openCourseModal(courseId) {
   // Dati attestato
   document.getElementById('field-sofia').value  = c.sofiaCode || '';
   document.getElementById('field-hours').value  = (c.courseHours != null) ? c.courseHours : '';
-  document.getElementById('field-cstart').value = c.courseStart ? new Date(c.courseStart).toISOString().slice(0,10) : '';
-  document.getElementById('field-cend').value   = c.courseEnd ? new Date(c.courseEnd).toISOString().slice(0,10) : '';
 
   // Checkbox
   document.getElementById('field-isAvailable').checked = c.isAvailable;
@@ -1509,8 +1497,6 @@ async function saveCourse() {
         lessons:             lessons.length > 0 ? lessons : undefined,
         sofiaCode:           document.getElementById('field-sofia').value.trim(),
         courseHours:         document.getElementById('field-hours').value,
-        courseStart:         document.getElementById('field-cstart').value || null,
-        courseEnd:           document.getElementById('field-cend').value || null,
       }),
     });
 

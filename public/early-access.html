@@ -506,12 +506,44 @@
     }
     footer a { color: var(--faint); text-decoration: underline; }
 
+    /* ── Dot indicators per pricing swipe (mobile) ── */
+    .pricing-dots {
+      display: none;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 14px;
+    }
+    .pricing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.25);
+      transition: background .2s, transform .2s;
+    }
+    .pricing-dot.active {
+      background: #c9962a;
+      transform: scale(1.3);
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 780px) {
       .pricing-grid {
-        grid-template-columns: 1fr;
-        max-width: 420px;
+        display: flex;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        gap: 14px;
+        padding: 4px 20px 16px;
+        max-width: none;
+        margin: 0 -20px;
+        scrollbar-width: none;
       }
+      .pricing-grid::-webkit-scrollbar { display: none; }
+      .plan-card {
+        flex: 0 0 82%;
+        max-width: 320px;
+        scroll-snap-align: center;
+      }
+      .pricing-dots { display: flex; }
       .form-row { flex-direction: column; }
       .stat-sep { display: none; }
     }
@@ -613,7 +645,7 @@
       <button class="billing-tab" id="tog-annual">Annuale <span class="annual-badge">−30%</span></button>
     </div>
 
-    <div class="pricing-grid">
+    <div class="pricing-grid" id="pricing-cards">
 
       <!-- CULTURA -->
       <div class="plan-card">
@@ -670,7 +702,7 @@
           <div class="plan-old" id="old-accademia"></div>
         </div>
         <ul class="plan-features">
-          <li class="tutto-in">Tutto in <em>Linguae</em></li>
+          <li class="tutto-in" id="acc-tutto-in">Tutto in <em>Linguae mensile</em></li>
           <li>Formazione docenti in metodologie didattiche delle lingue classiche — accredito MIM</li>
           <li>Corsi di formazione tematici di pratica didattica</li>
           <li>Un nuovo corso specialistico al mese tenuto da docenti e ricercatori universitari</li>
@@ -937,6 +969,12 @@
           old.style.display = 'none';
         }
       });
+      const accTuttoIn = document.getElementById('acc-tutto-in');
+      if (accTuttoIn) {
+        accTuttoIn.innerHTML = annual
+          ? 'Tutto in <em>Linguae annuale</em>'
+          : 'Tutto in <em>Linguae mensile</em>';
+      }
       const cert  = document.getElementById('feat-cert-linguistica');
       const test  = document.getElementById('feat-test-classe');
       const live  = document.getElementById('feat-live-mensile');
@@ -953,6 +991,37 @@
     applyPricing();
     document.getElementById('tog-monthly').addEventListener('click', () => { if (annual)  { annual = false; applyPricing(); } });
     document.getElementById('tog-annual').addEventListener('click',  () => { if (!annual) { annual = true;  applyPricing(); } });
+
+    // ── Pricing swipe: dot indicators (mobile) ────────────────
+    (function initPricingSwipe() {
+      if (window.innerWidth > 780) return;
+      const grid  = document.getElementById('pricing-cards');
+      const cards = grid ? Array.from(grid.querySelectorAll('.plan-card')) : [];
+      if (!grid || cards.length < 2) return;
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'pricing-dots';
+      dotsWrap.setAttribute('aria-hidden', 'true');
+      cards.forEach((_, i) => {
+        const d = document.createElement('span');
+        d.className = 'pricing-dot' + (i === 1 ? ' active' : '');
+        dotsWrap.appendChild(d);
+      });
+      grid.parentElement.insertBefore(dotsWrap, grid.nextSibling);
+      const dots = Array.from(dotsWrap.querySelectorAll('.pricing-dot'));
+      grid.addEventListener('scroll', () => {
+        const center = grid.scrollLeft + grid.clientWidth / 2;
+        let closest = 0;
+        cards.forEach((c, i) => {
+          const cCenter = c.offsetLeft + c.offsetWidth / 2;
+          if (Math.abs(cCenter - center) < Math.abs(cards[closest].offsetLeft + cards[closest].offsetWidth / 2 - center)) closest = i;
+        });
+        dots.forEach((d, i) => d.classList.toggle('active', i === closest));
+      }, { passive: true });
+      // Centra su Linguae (card 1) al caricamento
+      setTimeout(() => {
+        if (cards[1]) grid.scrollLeft = cards[1].offsetLeft - (grid.clientWidth - cards[1].offsetWidth) / 2;
+      }, 50);
+    })();
 
     // ── Scroll to form ───────────────────────────────────────
     function scrollToForm() {

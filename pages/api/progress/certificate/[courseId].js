@@ -31,11 +31,19 @@ export default withAuth(async function handler(req, res) {
       return res.status(404).json({ error: 'Corso non trovato' });
     }
 
-    // Recupera i dati utente, l'ultima data di completamento e il record certificato.
-    const [user, latestProgress, cert] = await Promise.all([
+    // Recupera i dati utente, le date di fruizione e il record certificato.
+    // Le date dell'attestato sono PER-STUDENTE, ricavate dai progressi reali:
+    //   - inizio  = primo LessonProgress creato (quando ha iniziato a vedere il corso)
+    //   - fine    = ultimo completamento (quando ha finito di vederlo)
+    const [user, firstProgress, latestProgress, cert] = await Promise.all([
       prisma.user.findUnique({
         where: { id: req.user.userId },
         select: { fullName: true, email: true },
+      }),
+      prisma.lessonProgress.findFirst({
+        where: { userId: req.user.userId, courseId: course.id },
+        orderBy: { id: 'asc' }, // il primo record = primo accesso al corso
+        select: { updatedAt: true },
       }),
       prisma.lessonProgress.findFirst({
         where: { userId: req.user.userId, courseId: course.id, completed: true },
@@ -44,7 +52,7 @@ export default withAuth(async function handler(req, res) {
       }),
       prisma.certificate.findUnique({
         where: { userId_courseId: { userId: req.user.userId, courseId: course.id } },
-        select: { certCode: true, revokedAt: true },
+        select: { certCode: true, revokedAt: true, issuedAt: true },
       }),
     ]);
 
@@ -95,15 +103,16 @@ export default withAuth(async function handler(req, res) {
     }
 
     // Genera il PDF (template fedele latin-cert)
+    // Date per-studente dai progressi; data emissione = oggi (o issuedAt del cert).
     const { generateCertificate } = require('../../../../lib/certificate');
     const pdfBuffer = await generateCertificate({
       studentName: user?.fullName || user?.email || 'Studente',
       courseTitle: course.title,
       sofiaCode:   course.sofiaCode || '',
-      startDate:   course.courseStart || null,
-      endDate:     course.courseEnd || latestProgress?.completedAt || null,
+      startDate:   firstProgress?.updatedAt || null,        // quando ha iniziato a vedere
+      endDate:     latestProgress?.completedAt || null,     // quando ha finito di vedere
       hours:       course.courseHours ?? null,
-      completedAt: latestProgress?.completedAt ?? new Date(),
+      issueDate:   resolvedCert.issuedAt || new Date(),     // data di emissione (sotto la firma)
       certCode:    resolvedCert.certCode,
     });
 

@@ -63,11 +63,10 @@ model Course {
   availableUntilLabel  String?   // es. "Disponibile fino al 30 giugno 2025"
 
   // ── Dati per l'ATTESTATO (template latin-cert) ───────────────────────────
-  // Compilati dall'admin; usati per generare l'attestato fedele all'originale.
+  // Compilati dall'admin. Le date "dal…al…" NON stanno qui: sono per-studente,
+  // calcolate dai progressi reali (inizio = primo accesso, fine = completamento).
   sofiaCode    String?   // codice SOFIA/MIM del corso (es. "149224")
   courseHours  Int?      // durata complessiva in ore (es. 4)
-  courseStart  DateTime? // data inizio corso (stampata "tenutosi dal ___")
-  courseEnd    DateTime? // data fine corso (stampata "al ___"); fallback su completamento
 
   lessons        Lesson[]
   purchases      Purchase[]
