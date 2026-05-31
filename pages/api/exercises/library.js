@@ -14,9 +14,14 @@ export default withAuth(async function handler(req, res) {
   if (!access.ok) return res.status(403).json({ error: 'Riservato al piano annuale Accademia.' });
 
   try {
+    // L'admin vede tutti i test (per curare/provare); il docente solo quelli
+    // resi assegnabili dall'admin (assignableByTeachers = true).
+    const { ADMIN_EMAIL } = require('../../../lib/courseAccess');
+    const isAdmin = req.user.email === ADMIN_EMAIL;
     const tests = await prisma.exerciseTest.findMany({
+      where: isAdmin ? {} : { assignableByTeachers: true },
       orderBy: [{ lingua: 'asc' }, { ordine: 'asc' }, { title: 'asc' }],
-      select: { id: true, title: true, lingua: true, livello: true },
+      select: { id: true, title: true, lingua: true, livello: true, assignableByTeachers: true },
     });
     return res.status(200).json({ tests });
   } catch (err) {

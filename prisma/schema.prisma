@@ -277,6 +277,7 @@ model ExerciseTest {
   title       String
   description String?  @db.Text
   isPublic    Boolean  @default(false)
+  assignableByTeachers Boolean @default(false)  // true = i docenti possono assegnarlo alle classi (curato dall'admin)
   lingua      String?             // "Latino" | "Greco Antico"
   livello     String?             // "A1.1" | "B1" ecc.
   metodo      String?             // "Induttivo-contestuale" ecc.
