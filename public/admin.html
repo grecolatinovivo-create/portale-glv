@@ -533,6 +533,10 @@
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zm12.553 1.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/></svg>
         Live mensili
       </button>
+      <button class="nav-item" data-section="exercises" onclick="showSection('exercises', this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm3 1a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/></svg>
+        Esercizi
+      </button>
       <button class="nav-item" data-section="content-stats" onclick="showSection('content-stats', this)">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
         Familia Romana
@@ -859,6 +863,25 @@
       </section>
 
       <!-- ══════════════════════════════════════
+           SEZIONE: ESERCIZI
+           ══════════════════════════════════════ -->
+      <section id="section-exercises" class="section">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Esercizi autocorrettivi</div>
+            <input type="text" class="search-box-input" id="ex-search" placeholder="Cerca…" oninput="renderExercises()" />
+          </div>
+          <div class="panel-body">
+            <p class="form-hint" style="margin-bottom:12px;">Attiva "Assegnabile dai docenti" per rendere un test disponibile nelle classi. Usa "Prova" per vederlo e testarlo.</p>
+            <table>
+              <thead><tr><th>Titolo</th><th>Lingua</th><th>Livello</th><th>Assegnabile dai docenti</th><th>Azioni</th></tr></thead>
+              <tbody id="exercises-table"><tr class="loading-row"><td colspan="5">Caricamento…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
            SEZIONE: LOG
            ══════════════════════════════════════ -->
       <section id="section-logs" class="section">
@@ -1044,6 +1067,19 @@
 </div>
 
 <!-- ══════════════════════════════════════
+     MODAL: Editor domande esercizio
+     ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-qeditor">
+  <div class="modal" style="width:780px;max-height:90vh;overflow-y:auto;">
+    <div class="modal-title" id="qe-title">Modifica domande</div>
+    <div id="qe-body"><div style="color:var(--gray-400);padding:14px;text-align:center;">Caricamento…</div></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-qeditor')">Chiudi</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
      MODAL: Emetti attestato manuale
      ══════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-issue-cert">
@@ -1211,6 +1247,7 @@ function showSection(name, btn) {
     certificates:   'Attestati',
     exams:          'Esami di certificazione',
     lives:          'Live mensili',
+    exercises:      'Esercizi',
     logs:           'Log Azioni',
     'content-stats':'Familia Romana — Statistiche',
   };
@@ -1224,6 +1261,7 @@ function showSection(name, btn) {
   if (name === 'certificates')   loadCerts();
   if (name === 'exams')          loadExams();
   if (name === 'lives')          loadLives();
+  if (name === 'exercises')      loadExercises();
   if (name === 'logs')           loadLogs();
   if (name === 'content-stats')  loadContentStats();
 }
@@ -2402,6 +2440,219 @@ async function deleteLive(id) {
   try { await fetch('/api/admin/lives', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); loadLives(); }
   catch (e) { alert('Errore di rete'); }
 }
+
+// ═══════════════════════════════════════════════════════════════
+//  ESERCIZI (admin)
+// ═══════════════════════════════════════════════════════════════
+let _exercises = [];
+async function loadExercises() {
+  const tbody = document.getElementById('exercises-table');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Caricamento…</td></tr>';
+  try {
+    const r = await fetch('/api/admin/exercises');
+    const d = await r.json();
+    _exercises = d.tests || [];
+    renderExercises();
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" class="alert alert-error">Errore nel caricamento</td></tr>';
+  }
+}
+function renderExercises() {
+  const tbody = document.getElementById('exercises-table');
+  const q = (document.getElementById('ex-search')?.value || '').toLowerCase();
+  const list = _exercises.filter(t => !q || (t.title||'').toLowerCase().includes(q) || (t.lingua||'').toLowerCase().includes(q));
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:16px;">Nessun esercizio.</td></tr>'; return; }
+  tbody.innerHTML = '';
+  list.forEach(t => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + escHtml(t.title) + '</td>' +
+      '<td>' + escHtml(t.lingua||'—') + '</td>' +
+      '<td>' + escHtml(t.livello||'—') + '</td>' +
+      '<td><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" ' + (t.assignableByTeachers?'checked':'') + ' onchange="toggleAssignable(\'' + t.id + '\',this.checked)" style="width:16px;height:16px;"/> ' + (t.assignableByTeachers?'Sì':'No') + '</label></td>' +
+      '<td><button class="btn btn-sm btn-outline" onclick="tryExercise(\'' + t.id + '\')">Prova</button> ' +
+        '<button class="btn btn-sm btn-outline" onclick="openQuestionEditor(\'' + t.id + '\',\'' + escHtml(t.title).replace(/\x27/g,"\\x27") + '\')">Modifica domande</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+async function toggleAssignable(id, value) {
+  try {
+    const r = await fetch('/api/admin/exercises', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ action:'toggle-assignable', id, value }) });
+    if (!r.ok) { alert('Errore'); loadExercises(); return; }
+    const t = _exercises.find(x=>x.id===id); if (t) t.assignableByTeachers = value;
+    renderExercises();
+  } catch (e) { alert('Errore di rete'); }
+}
+function tryExercise(testId) {
+  // apre l'anteprima esercizio in una nuova scheda (pagina docente, l'admin passa il gate)
+  window.open('/esercizi.html#test=' + testId, '_blank');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  EDITOR DOMANDE (admin) — aggiungi/modifica/elimina sezioni e domande
+// ═══════════════════════════════════════════════════════════════
+let _qeTestId = null;
+let _qeTest = null;
+const Q_TYPES = ['SceltaMultipla','VeroFalso','Completamento','ClozeDragDrop','ClozeSceltaMultipla','Abbinamento','RiordinoTesto','RispostaAperta'];
+
+async function openQuestionEditor(testId, title) {
+  _qeTestId = testId;
+  document.getElementById('qe-title').textContent = 'Domande — ' + title;
+  openModal('modal-qeditor');
+  await qeReload();
+}
+async function qeReload() {
+  const body = document.getElementById('qe-body');
+  body.innerHTML = '<div style="color:var(--gray-400);padding:14px;text-align:center;">Caricamento…</div>';
+  try {
+    const r = await fetch('/api/admin/exercise-questions?testId=' + _qeTestId);
+    const d = await r.json();
+    if (!r.ok) { body.innerHTML = '<div class="alert alert-error">' + (d.error||'Errore') + '</div>'; return; }
+    _qeTest = d.test;
+    qeRender();
+  } catch (e) { body.innerHTML = '<div class="alert alert-error">Errore di rete</div>'; }
+}
+function qeRender() {
+  const body = document.getElementById('qe-body');
+  let html = '';
+  (_qeTest.sections || []).forEach(sec => {
+    html += '<div style="border:1px solid var(--gray-200);border-radius:8px;padding:12px;margin-bottom:14px;">';
+    html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">' +
+      '<input type="text" class="form-control" value="' + escHtml(sec.name) + '" id="sec-name-' + sec.id + '" style="flex:1;font-weight:600;" />' +
+      '<button class="btn btn-sm btn-outline" onclick="qeSaveSection(\'' + sec.id + '\')">Salva</button>' +
+      '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="qeDeleteSection(\'' + sec.id + '\')">Elimina sezione</button></div>';
+    (sec.questions || []).forEach((q, i) => {
+      html += qeQuestionRow(sec.id, q, i);
+    });
+    // aggiungi domanda
+    html += '<div style="display:flex;gap:8px;margin-top:8px;"><select id="newq-type-' + sec.id + '" class="form-control" style="flex:1;">' +
+      Q_TYPES.map(t => '<option value="' + t + '">' + t + '</option>').join('') + '</select>' +
+      '<button class="btn btn-sm btn-primary" onclick="qeAddQuestion(\'' + sec.id + '\')">+ Aggiungi domanda</button></div>';
+    html += '</div>';
+  });
+  // aggiungi sezione
+  html += '<div style="display:flex;gap:8px;"><input type="text" id="qe-new-section" class="form-control" placeholder="Nome nuova sezione" style="flex:1;" />' +
+    '<button class="btn btn-primary" onclick="qeAddSection()">+ Aggiungi sezione</button></div>';
+  body.innerHTML = html;
+}
+function qeQuestionRow(secId, q, i) {
+  const data = (typeof q.data === 'string') ? safeJSON(q.data) : (q.data || {});
+  let html = '<div style="background:var(--gray-50,#f9fafb);border:1px solid var(--gray-200);border-radius:7px;padding:10px;margin:8px 0;">';
+  html += '<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px;"><span style="font-size:11px;color:var(--gray-400);font-weight:700;">' + (i+1) + '. ' + escHtml(q.questionType) + '</span>' +
+    '<span style="flex:1;"></span>' +
+    '<button class="btn btn-sm btn-outline" onclick="qeSaveQuestion(\'' + q.id + '\',\'' + q.questionType + '\')">Salva</button>' +
+    '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="qeDeleteQuestion(\'' + q.id + '\')">Elimina</button></div>';
+  html += '<label style="font-size:11px;color:var(--gray-500);">Consegna</label>' +
+    '<input type="text" class="form-control" id="q-instr-' + q.id + '" value="' + escHtml(q.instruction||'') + '" style="margin-bottom:6px;" />';
+  html += qeDataEditor(q.id, q.questionType, data);
+  html += '</div>';
+  return html;
+}
+// Editor specifico per tipo
+function qeDataEditor(qid, type, data) {
+  if (type === 'SceltaMultipla') {
+    const items = Array.isArray(data) ? data : [{}];
+    let h = '<div style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">Domande (corretta + distrattori)</div>';
+    items.forEach((it, k) => {
+      h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:4px;" data-sm="' + qid + '">' +
+        '<input class="form-control" placeholder="Domanda" value="' + escHtml(it.question||'') + '" data-f="question" />' +
+        '<input class="form-control" placeholder="Risposta CORRETTA" value="' + escHtml(it.correct||'') + '" data-f="correct" style="border-color:#16a34a;" />' +
+        '<input class="form-control" placeholder="Errata 1" value="' + escHtml(it.wrong_1||'') + '" data-f="wrong_1" />' +
+        '<input class="form-control" placeholder="Errata 2" value="' + escHtml(it.wrong_2||'') + '" data-f="wrong_2" /></div>';
+    });
+    return h;
+  }
+  if (type === 'VeroFalso') {
+    const items = Array.isArray(data) ? data : [{}];
+    let h = '<div style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">Affermazioni (segna se Vero)</div>';
+    items.forEach(it => {
+      h += '<div style="display:flex;gap:6px;margin-bottom:4px;" data-vf="' + qid + '">' +
+        '<input class="form-control" placeholder="Affermazione" value="' + escHtml(it.question||'') + '" data-f="question" style="flex:1;" />' +
+        '<label style="display:flex;align-items:center;gap:4px;font-size:12px;"><input type="checkbox" data-f="correct" ' + (Number(it.correct)===1?'checked':'') + ' /> Vero</label></div>';
+    });
+    return h;
+  }
+  if (type === 'Abbinamento') {
+    const items = Array.isArray(data) ? data : [{}];
+    let h = '<div style="font-size:11px;color:var(--gray-500);margin-bottom:4px;">Coppie da abbinare</div>';
+    items.forEach(it => {
+      h += '<div style="display:flex;gap:6px;margin-bottom:4px;" data-ab="' + qid + '">' +
+        '<input class="form-control" placeholder="Elemento 1" value="' + escHtml(it.w1||'') + '" data-f="w1" style="flex:1;" />' +
+        '<input class="form-control" placeholder="Elemento 2" value="' + escHtml(it.w2||'') + '" data-f="w2" style="flex:1;" /></div>';
+    });
+    return h;
+  }
+  if (type === 'Completamento' || type === 'ClozeDragDrop' || type === 'ClozeSceltaMultipla') {
+    return '<div style="font-size:11px;color:var(--gray-500);">HTML (le risposte vanno tra &lt;span&gt;…&lt;/span&gt;)</div>' +
+      '<textarea class="form-control" id="q-html-' + qid + '" rows="4" style="font-family:monospace;font-size:12px;">' + escHtml(data.html||'') + '</textarea>';
+  }
+  if (type === 'RiordinoTesto') {
+    return '<div style="font-size:11px;color:var(--gray-500);">Blocchi nell\'ordine corretto, ognuno tra {part}…{/part}</div>' +
+      '<textarea class="form-control" id="q-txt-' + qid + '" rows="4" style="font-family:monospace;font-size:12px;">' + escHtml(data.txt||'') + '</textarea>';
+  }
+  if (type === 'RispostaAperta') {
+    return '<div style="font-size:11px;color:var(--gray-500);">Risposta aperta (correzione manuale). Min/Max caratteri opzionali.</div>' +
+      '<div style="display:flex;gap:6px;"><input class="form-control" id="q-min-' + qid + '" type="number" placeholder="Min" value="' + (data.min||'') + '" /><input class="form-control" id="q-max-' + qid + '" type="number" placeholder="Max" value="' + (data.max||'') + '" /></div>';
+  }
+  return '<div style="font-size:11px;color:var(--gray-400);">Tipo non editabile da qui.</div>';
+}
+function qeCollectData(qid, type) {
+  if (type === 'SceltaMultipla') {
+    return [...document.querySelectorAll('[data-sm="' + qid + '"]')].map(row => {
+      const o = {}; row.querySelectorAll('[data-f]').forEach(i => o[i.dataset.f] = i.value); return o;
+    });
+  }
+  if (type === 'VeroFalso') {
+    return [...document.querySelectorAll('[data-vf="' + qid + '"]')].map(row => {
+      const q = row.querySelector('[data-f="question"]').value;
+      const c = row.querySelector('[data-f="correct"]').checked ? 1 : 0;
+      return { question: q, correct: c };
+    });
+  }
+  if (type === 'Abbinamento') {
+    return [...document.querySelectorAll('[data-ab="' + qid + '"]')].map(row => {
+      const o = {}; row.querySelectorAll('[data-f]').forEach(i => o[i.dataset.f] = i.value); return o;
+    });
+  }
+  if (type === 'Completamento' || type === 'ClozeDragDrop' || type === 'ClozeSceltaMultipla') {
+    return { html: document.getElementById('q-html-' + qid).value };
+  }
+  if (type === 'RiordinoTesto') return { txt: document.getElementById('q-txt-' + qid).value };
+  if (type === 'RispostaAperta') return { min: document.getElementById('q-min-' + qid).value || null, max: document.getElementById('q-max-' + qid).value || null };
+  return {};
+}
+function safeJSON(s){ try { return JSON.parse(s); } catch { return {}; } }
+
+async function qePost(body) {
+  const r = await fetch('/api/admin/exercise-questions', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  const d = await r.json(); if (!r.ok) { alert(d.error || 'Errore'); return false; } return true;
+}
+async function qeAddSection() {
+  const name = document.getElementById('qe-new-section').value.trim(); if (!name) return;
+  if (await qePost({ action:'add-section', testId:_qeTestId, name })) qeReload();
+}
+async function qeSaveSection(id) {
+  const name = document.getElementById('sec-name-' + id).value.trim();
+  if (await qePost({ action:'update-section', sectionId:id, name })) toast2('Sezione salvata');
+}
+async function qeDeleteSection(id) {
+  if (!confirm('Eliminare la sezione e tutte le sue domande?')) return;
+  if (await qePost({ action:'delete-section', sectionId:id })) qeReload();
+}
+async function qeAddQuestion(secId) {
+  const type = document.getElementById('newq-type-' + secId).value;
+  if (await qePost({ action:'add-question', sectionId:secId, questionType:type, data:{} })) qeReload();
+}
+async function qeSaveQuestion(qid, type) {
+  const instruction = document.getElementById('q-instr-' + qid).value;
+  const data = qeCollectData(qid, type);
+  if (await qePost({ action:'update-question', questionId:qid, instruction, data })) toast2('Domanda salvata');
+}
+async function qeDeleteQuestion(qid) {
+  if (!confirm('Eliminare questa domanda?')) return;
+  if (await qePost({ action:'delete-question', questionId:qid })) qeReload();
+}
+function toast2(m){ const a=document.getElementById('qe-title'); const old=a.textContent; a.textContent='✓ '+m; setTimeout(()=>a.textContent=old,1200); }
 
 // ── Emissione attestato manuale ────────────────────────────────
 function openIssueCertModal() {

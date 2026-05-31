@@ -1469,9 +1469,15 @@
                  style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
             <a class="nav-dropdown-item" role="menuitem" href="/profilo.html" style="text-decoration:none;display:block;color:inherit;">Gestisci abbonamento</a>
             <a class="nav-dropdown-item" role="menuitem" href="/attestati.html" style="text-decoration:none;display:block;">I miei attestati</a>
-            <a class="nav-dropdown-item" role="menuitem" href="/esami.html" id="menu-link-esami" style="text-decoration:none;display:none;">Esami di certificazione</a>
-            <a class="nav-dropdown-item" role="menuitem" href="/live.html" id="menu-link-live" style="text-decoration:none;display:none;">Live mensili</a>
-            <a class="nav-dropdown-item" role="menuitem" href="/classi.html" id="menu-link-classi" style="text-decoration:none;display:none;">Le mie classi</a>
+            <!-- Gruppo funzioni Accademia Annuale — separato e mostrato solo se abilitato -->
+            <div id="menu-annual-group" style="display:none">
+              <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
+              <div style="padding:8px 16px 4px;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#c9962a;">Accademia Annuale</div>
+              <a class="nav-dropdown-item" role="menuitem" href="/esami.html" id="menu-link-esami" style="text-decoration:none;display:none;">Esami di certificazione</a>
+              <a class="nav-dropdown-item" role="menuitem" href="/live.html" id="menu-link-live" style="text-decoration:none;display:none;">Live mensili</a>
+              <a class="nav-dropdown-item" role="menuitem" href="/classi.html" id="menu-link-classi" style="text-decoration:none;display:none;">Le mie classi</a>
+              <a class="nav-dropdown-item" role="menuitem" href="/esercizi.html" id="menu-link-esercizi" style="text-decoration:none;display:none;">Esercizi</a>
+            </div>
             <!-- Sezione admin preview — visibile solo se iniettata da JS -->
             <div id="admin-tier-group" style="display:none">
               <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
@@ -2853,9 +2859,18 @@ async function showDashboard() {
   const linkEsami = document.getElementById('menu-link-esami');
   const linkLive  = document.getElementById('menu-link-live');
   const linkClassi= document.getElementById('menu-link-classi');
-  if (linkEsami && (user.isAdmin || (tier >= 2 && isAnnual))) linkEsami.style.display = 'block';
-  if (linkLive  && (user.isAdmin || (tier >= 3 && isAnnual))) linkLive.style.display = 'block';
-  if (linkClassi&& (user.isAdmin || (tier >= 3 && isAnnual))) linkClassi.style.display = 'block';
+  const linkEserc = document.getElementById('menu-link-esercizi');
+  const showEsami = user.isAdmin || (tier >= 2 && isAnnual);
+  const showLive  = user.isAdmin || (tier >= 3 && isAnnual);
+  const showClassi= user.isAdmin || (tier >= 3 && isAnnual);
+  const showEserc = user.isAdmin || (tier >= 3 && isAnnual);
+  if (linkEsami)  linkEsami.style.display  = showEsami  ? 'block' : 'none';
+  if (linkLive)   linkLive.style.display   = showLive   ? 'block' : 'none';
+  if (linkClassi) linkClassi.style.display = showClassi ? 'block' : 'none';
+  if (linkEserc)  linkEserc.style.display  = showEserc  ? 'block' : 'none';
+  // Mostra il gruppo "Accademia Annuale" se almeno una voce è visibile
+  const annualGroup = document.getElementById('menu-annual-group');
+  if (annualGroup && (showEsami || showLive || showClassi || showEserc)) annualGroup.style.display = 'block';
 
   // Upgrade banner — rimosso: sostituito da popup contestuale sui corsi bloccati
 

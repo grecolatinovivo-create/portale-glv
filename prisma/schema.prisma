@@ -295,7 +295,7 @@ model ExerciseTest {
 // Una sezione all'interno di un test
 model ExerciseSection {
   id          String @id @default(cuid())
-  latinCertId Int    @unique   // IDS originale
+  latinCertId Int?   @unique   // IDS originale (null = creata nel portale, non da latin-cert)
   testId      String
   name        String
   timeMinutes Int    @default(5)
@@ -319,7 +319,7 @@ model ExerciseSection {
 //   RispostaAperta   → data: {min?, max?}
 model ExerciseQuestion {
   id           String  @id @default(cuid())
-  latinCertId  Int     @unique   // IDQL originale
+  latinCertId  Int?    @unique   // IDQL originale (null = creata nel portale)
   sectionId    String
   questionType String            // uniquename da quiz_type
   sortOrder    Int     @default(0)
