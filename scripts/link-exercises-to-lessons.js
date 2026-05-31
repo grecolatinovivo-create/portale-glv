@@ -1,5 +1,7 @@
-const { Client } = require('/tmp/npm_pg/node_modules/pg');
-const DB = "postgresql://neondb_owner:npg_wRBXT6Azv0Vj@ep-late-sea-aqyed9xw-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
+require('dotenv').config();
+const { Client } = require('pg');
+const DB = process.env.DATABASE_URL;
+if (!DB) { console.error('ERRORE: DATABASE_URL non impostata in .env'); process.exit(1); }
 
 async function main() {
   const client = new Client({ connectionString: DB });

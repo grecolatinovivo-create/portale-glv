@@ -16,7 +16,7 @@
  */
 
 require('dotenv').config();
-const { Client } = require('/tmp/npm_pg/node_modules/pg');
+const { Client } = require('pg');
 const fs = require('fs');
 const path = require('path');
 const { randomBytes } = require('crypto');

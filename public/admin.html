@@ -2318,6 +2318,23 @@ function _fmtDT(d) {
   catch { return String(d); }
 }
 
+// <input type="datetime-local"> dà l'ora LOCALE senza fuso. La convertiamo in ISO UTC
+// così il server salva l'istante esatto e _fmtDT (toLocaleString) lo rimostra giusto.
+// Fix del bug "metto 18, mi dà 20": prima si salvava 18:00 come UTC e si rileggeva +2.
+function localInputToISO(v) {
+  if (!v) return v;
+  const d = new Date(v);                 // interpretato come ora locale del browser
+  return isNaN(d) ? v : d.toISOString();
+}
+// ISO UTC → valore per <input type="datetime-local"> (ora locale del browser)
+function isoToLocalInput(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const off = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - off).toISOString().slice(0, 16);
+}
+
 async function loadExams() {
   const tbody = document.getElementById('exams-table');
   tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Caricamento…</td></tr>';
@@ -2357,7 +2374,7 @@ async function createExam() {
     lingua:   document.getElementById('exam-lingua').value,
     livello:  document.getElementById('exam-livello').value.trim(),
     title:    document.getElementById('exam-title').value.trim(),
-    examDate: document.getElementById('exam-date').value,
+    examDate: localInputToISO(document.getElementById('exam-date').value),
     location: document.getElementById('exam-location').value.trim(),
     capacity: document.getElementById('exam-capacity').value,
   };
@@ -2393,12 +2410,14 @@ async function deleteExam(id) {
 let _livesById = {};       // cache live per id (per la modifica)
 let _editingLiveId = null; // id della live in modifica (null = creazione)
 
+let _lives = [];
 async function loadLives() {
   const tbody = document.getElementById('lives-table');
   tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Caricamento…</td></tr>';
   try {
     const r = await fetch('/api/admin/lives');
     const { lives } = await r.json();
+    _lives = lives || [];
     if (!lives || !lives.length) {
       tbody.innerHTML = '<tr><td colspan="5" style="color:var(--gray-400);text-align:center;padding:16px;">Nessuna live programmata.</td></tr>';
       return;
@@ -2419,6 +2438,12 @@ async function loadLives() {
           '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="deleteLive(\'' + l.id + '\')">Elimina</button>' +
         '</td>';
       tbody.appendChild(tr);
+      // riga editor inline (nascosta) subito SOTTO la riga della live
+      const editRow = document.createElement('tr');
+      editRow.id = 'live-edit-' + l.id;
+      editRow.style.display = 'none';
+      editRow.innerHTML = '<td colspan="5" id="live-edit-cell-' + l.id + '" style="background:rgba(0,0,0,.03);"></td>';
+      tbody.appendChild(editRow);
     });
   } catch (e) {
     tbody.innerHTML = '<tr><td colspan="5" class="alert alert-error">Errore nel caricamento</td></tr>';

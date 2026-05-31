@@ -10,7 +10,9 @@ const { Client } = require('pg');
 const fs = require('fs');
 const crypto = require('crypto');
 
-const CONN = 'postgresql://neondb_owner:npg_wRBXT6Azv0Vj@ep-late-sea-aqyed9xw-pooler.c-8.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require';
+require('dotenv').config();
+const CONN = process.env.DATABASE_URL;
+if (!CONN) { console.error('ERRORE: DATABASE_URL non impostata in .env'); process.exit(1); }
 const DATA = '/tmp/missing_exercises.json';
 
 function genId() {

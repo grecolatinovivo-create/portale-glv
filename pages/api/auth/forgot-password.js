@@ -38,8 +38,8 @@ export default async function handler(req, res) {
     });
 
     try {
-      const { sendSetPasswordEmail } = require('../../../lib/resend');
-      await sendSetPasswordEmail(user, token);
+      const { sendPasswordResetEmail } = require('../../../lib/resend');
+      await sendPasswordResetEmail(user, token);
     } catch (e) {
       console.error('[forgot-password] email:', e.message);
     }

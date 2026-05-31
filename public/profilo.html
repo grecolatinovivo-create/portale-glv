@@ -578,6 +578,23 @@
             <div class="prf-skeleton" style="height:260px;border-radius:8px;"></div>
           </div>
         </div>
+
+        <!-- ── Cambio password ── -->
+        <div class="prf-card" style="margin-top:24px;">
+          <div class="prf-card-header">Cambia password</div>
+          <div class="prf-card-body">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <input type="password" id="pw-current" placeholder="Password attuale" autocomplete="current-password"
+                     style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#f5f5f5;padding:11px 13px;font-size:14px;width:100%;" />
+              <input type="password" id="pw-new" placeholder="Nuova password (min 8 caratteri)" autocomplete="new-password"
+                     style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#f5f5f5;padding:11px 13px;font-size:14px;width:100%;" />
+              <input type="password" id="pw-confirm" placeholder="Conferma nuova password" autocomplete="new-password"
+                     style="background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#f5f5f5;padding:11px 13px;font-size:14px;width:100%;" />
+              <button class="prf-btn prf-btn-primary" id="btn-change-pw" type="button" onclick="changePassword()">Aggiorna password</button>
+              <div id="pw-msg" style="display:none;font-size:13px;padding:10px 12px;border-radius:8px;line-height:1.5;"></div>
+            </div>
+          </div>
+        </div>
       </div>
 
     </div><!-- /.prf-grid -->
@@ -1229,6 +1246,34 @@
   }
 
   init();
+
+  // ── Cambio password ───────────────────────────────────────────
+  async function changePassword() {
+    const cur = document.getElementById('pw-current').value;
+    const nw  = document.getElementById('pw-new').value;
+    const cf  = document.getElementById('pw-confirm').value;
+    const box = document.getElementById('pw-msg');
+    const show = (t, ok) => { box.textContent = t; box.style.display = 'block';
+      box.style.background = ok ? 'rgba(22,163,74,.15)' : 'rgba(160,26,54,.15)';
+      box.style.color = ok ? '#86efac' : '#f5a5b5'; };
+    if (!cur || !nw || !cf) { show('Compila tutti i campi.', false); return; }
+    if (nw.length < 8) { show('La nuova password deve avere almeno 8 caratteri.', false); return; }
+    if (nw !== cf) { show('Le due nuove password non coincidono.', false); return; }
+    const btn = document.getElementById('btn-change-pw');
+    btn.disabled = true; btn.textContent = 'Aggiornamento…';
+    try {
+      const r = await fetch('/api/auth/change-password', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+        body: JSON.stringify({ currentPassword: cur, newPassword: nw }) });
+      const d = await r.json();
+      if (!r.ok) { show(d.error || 'Errore', false); btn.disabled=false; btn.textContent='Aggiorna password'; return; }
+      show('✓ Password aggiornata con successo.', true);
+      document.getElementById('pw-current').value = '';
+      document.getElementById('pw-new').value = '';
+      document.getElementById('pw-confirm').value = '';
+    } catch { show('Errore di rete. Riprova.', false); }
+    btn.disabled = false; btn.textContent = 'Aggiorna password';
+  }
+  window.changePassword = changePassword;
   </script>
 </body>
 </html>

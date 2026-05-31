@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Accedi — GrecoLatinoVivo</title>
+<style>
+  :root { --bordeaux:#a01a36; --gold:#c9a84c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,system-ui,sans-serif; background:#0a0a0a; color:#f5f5f5; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .box { width:100%; max-width:420px; background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:38px 34px; }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:rgba(245,245,245,.5); letter-spacing:.15em; text-transform:uppercase; margin-bottom:22px; text-align:center; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:28px; color:#fff; margin-bottom:24px; text-align:center; }
+  label { display:block; font-size:12px; color:rgba(245,245,245,.55); margin:14px 0 5px; }
+  input { width:100%; background:#0d0d0d; border:1px solid rgba(255,255,255,.15); border-radius:8px; color:#f5f5f5; padding:12px 13px; font-size:15px; }
+  input:focus { outline:none; border-color:var(--gold); }
+  .btn { width:100%; border:none; border-radius:8px; padding:13px; font-size:14px; font-weight:700; cursor:pointer; background:var(--bordeaux); color:#fff; margin-top:22px; letter-spacing:.03em; }
+  .btn:disabled { opacity:.6; }
+  .link { display:block; text-align:center; margin-top:18px; color:var(--gold); font-size:13px; cursor:pointer; text-decoration:none; }
+  .msg { margin-top:16px; font-size:14px; padding:12px 14px; border-radius:8px; display:none; line-height:1.5; }
+  .msg.err { background:rgba(160,26,54,.15); color:#f5a5b5; display:block; }
+  .msg.ok  { background:rgba(22,163,74,.15); color:#86efac; display:block; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+  <div class="box">
+    <div class="brand">GrecoLatinoVivo</div>
+
+    <!-- ── LOGIN ── -->
+    <div id="view-login">
+      <h1>Accedi</h1>
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email" />
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" />
+      <button class="btn" id="btn-login" onclick="doLogin()">Accedi</button>
+      <a class="link" onclick="showView('forgot')">Password dimenticata?</a>
+      <div class="msg" id="msg-login"></div>
+    </div>
+
+    <!-- ── RECUPERO ── -->
+    <div id="view-forgot" class="hidden">
+      <h1>Recupera password</h1>
+      <p style="color:rgba(245,245,245,.6);font-size:14px;text-align:center;margin-bottom:8px;line-height:1.6;">Inserisci la tua email: ti invieremo un link per impostare una nuova password.</p>
+      <label for="forgot-email">Email</label>
+      <input type="email" id="forgot-email" autocomplete="email" onkeydown="if(event.key==='Enter')doForgot()" />
+      <button class="btn" id="btn-forgot" onclick="doForgot()">Invia link di recupero</button>
+      <a class="link" onclick="showView('login')">← Torna al login</a>
+      <div class="msg" id="msg-forgot"></div>
+    </div>
+  </div>
+
+<script>
+function showView(v) {
+  document.getElementById('view-login').classList.toggle('hidden', v !== 'login');
+  document.getElementById('view-forgot').classList.toggle('hidden', v !== 'forgot');
+}
+function msg(id, text, kind) { const m=document.getElementById(id); m.textContent=text; m.className='msg '+kind; }
+
+async function doLogin() {
+  const btn = document.getElementById('btn-login');
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  if (!email || !password) { msg('msg-login','Inserisci email e password.','err'); return; }
+  btn.disabled = true; btn.textContent = 'Accesso…';
+  try {
+    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include', body: JSON.stringify({ email, password }) });
+    const d = await r.json();
+    if (!r.ok) { msg('msg-login', d.error || 'Credenziali non valide', 'err'); btn.disabled=false; btn.textContent='Accedi'; return; }
+    // Redirect: admin → pannello admin, altrimenti dashboard
+    const me = await fetch('/api/auth/me', { credentials:'include' }).then(x=>x.json()).catch(()=>null);
+    location.href = (me && me.user && me.user.isAdmin) ? '/admin.html' : '/dashboard.html';
+  } catch { msg('msg-login','Errore di rete. Riprova.','err'); btn.disabled=false; btn.textContent='Accedi'; }
+}
+
+async function doForgot() {
+  const btn = document.getElementById('btn-forgot');
+  const email = document.getElementById('forgot-email').value.trim();
+  if (!email) { msg('msg-forgot','Inserisci la tua email.','err'); return; }
+  btn.disabled = true; btn.textContent = 'Invio…';
+  try {
+    await fetch('/api/auth/forgot-password', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+    // risposta sempre generica per sicurezza
+    msg('msg-forgot','Se l’email è registrata, riceverai un link per reimpostare la password. Controlla la posta (anche lo spam).','ok');
+    btn.style.display = 'none';
+  } catch { msg('msg-forgot','Errore di rete. Riprova.','err'); btn.disabled=false; btn.textContent='Invia link di recupero'; }
+}
+
+// Se già loggato, vai dritto in area riservata
+(async () => {
+  try {
+    const r = await fetch('/api/auth/me', { credentials:'include' });
+    if (r.ok) { const d = await r.json(); if (d && d.user) location.href = d.user.isAdmin ? '/admin.html' : '/dashboard.html'; }
+  } catch {}
+  // precompila email da ?email=
+  const p = new URLSearchParams(location.search);
+  if (p.get('email')) document.getElementById('email').value = p.get('email');
+})();
+</script>
+</body>
+</html>

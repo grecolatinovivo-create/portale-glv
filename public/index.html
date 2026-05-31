@@ -1759,10 +1759,10 @@ document.getElementById('navToggle').addEventListener('click', function () {
     const r = await fetch('/api/auth/me', { credentials: 'include' });
     if (r.ok) {
       const u = await r.json();
-      if (u && u.email) {
+      if (u && (u.email || (u.user && u.user.email))) {
+        const isAdmin = u.isAdmin || (u.user && u.user.isAdmin);
         const btn = document.getElementById('btnLogin');
-        btn.textContent = 'Area riservata';
-        btn.href = 'admin.html';
+        if (btn) { btn.textContent = 'Area riservata'; btn.href = isAdmin ? '/admin.html' : '/dashboard.html'; }
       }
     }
   } catch (e) { /* non autenticato, normale */ }
