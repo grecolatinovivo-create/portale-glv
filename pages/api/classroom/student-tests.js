@@ -46,7 +46,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // POST — registra svolgimento e calcola punteggio
+  // POST — registra svolgimento e calcola punteggio (modello latin-cert)
   if (req.method === 'POST') {
     const { code, email, testId, answers } = req.body || {};
     const ctx = await resolveStudent(code, email);
@@ -54,46 +54,48 @@ export default async function handler(req, res) {
     if (!testId) return res.status(400).json({ error: 'testId obbligatorio' });
 
     try {
-      // Verifica che il test sia assegnato a questa classe
       const assigned = await prisma.classroomTest.findUnique({
         where: { classroomId_testId: { classroomId: ctx.classroom.id, testId } },
       });
       if (!assigned) return res.status(403).json({ error: 'Test non assegnato a questa classe' });
 
-      // Calcolo punteggio: confronto le risposte con le domande del test.
-      // (Le domande con correzione automatica: SceltaMultipla, VeroFalso, ecc.
-      //  Il client invia { questionId, given }. Qui valutiamo "given" vs data.)
       const test = await prisma.exerciseTest.findUnique({
         where: { id: testId },
         include: { sections: { include: { questions: true } } },
       });
       const allQ = (test?.sections || []).flatMap(s => s.questions);
-      let score = 0;
+
+      // answers: { questionId: <risposta> }  — la forma di <risposta> dipende dal tipo.
+      const ansMap = {};
+      (answers || []).forEach(a => { ansMap[a.questionId] = a.given; });
+
+      const { gradeQuestion } = require('../../../lib/grading');
+
+      // ── Modello latin-cert: ogni domanda → percentuale 0-100 (credito parziale),
+      //    sessione = MEDIA delle percentuali → "N/100".
       const detailed = [];
-      (answers || []).forEach(a => {
-        const q = allQ.find(x => x.id === a.questionId);
-        if (!q) return;
-        let correct = false;
-        // Valutazione minima per i tipi a risposta chiusa; gli altri restano da rivedere a mano.
-        try {
-          const data = typeof q.data === 'string' ? JSON.parse(q.data) : q.data;
-          if (q.questionType === 'VeroFalso' || q.questionType === 'SceltaMultipla') {
-            // data può essere array di item con campo "correct"
-            correct = String(a.given) === String(a.expected ?? '');
-          }
-        } catch (_) { /* ignora */ }
-        if (correct) score++;
-        detailed.push({ questionId: a.questionId, given: a.given, correct });
-      });
-      const maxScore = allQ.length;
+      let sum = 0, graded = 0;
+      for (const q of allQ) {
+        const pct = gradeQuestion(q, ansMap[q.id]);  // null se non autocorreggibile
+        if (pct === null) {
+          detailed.push({ questionId: q.id, type: q.questionType, pct: null, manual: true });
+          continue; // RispostaAperta ecc. non entrano nella media (autoval_flag=0)
+        }
+        sum += pct; graded++;
+        detailed.push({ questionId: q.id, type: q.questionType, pct });
+      }
+      const scorePercent = graded > 0 ? Math.round(sum / graded) : 0;
 
       const submission = await prisma.testSubmission.create({
         data: {
           studentId: ctx.student.id, testId, classroomId: ctx.classroom.id,
-          score, maxScore, completedAt: new Date(), answers: detailed,
+          score: scorePercent,       // percentuale 0-100 (come latin-cert: result = N/100)
+          maxScore: 100,
+          completedAt: new Date(),
+          answers: detailed,
         },
       });
-      return res.status(200).json({ ok: true, score, maxScore, submissionId: submission.id });
+      return res.status(200).json({ ok: true, score: scorePercent, maxScore: 100, submissionId: submission.id });
     } catch (err) {
       console.error('[student-tests POST]', err);
       return res.status(500).json({ error: 'Errore interno' });
