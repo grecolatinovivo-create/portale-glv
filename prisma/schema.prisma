@@ -37,6 +37,7 @@ model User {
   favorites            Favorite[]
   examBookings         ExamBooking[]
   liveBookings         LiveBooking[]
+  classrooms           Classroom[]  @relation("TeacherClassrooms")
 }
 
 // Corsi disponibili nel catalogo
@@ -287,6 +288,7 @@ model ExerciseTest {
   course   Course?           @relation(fields: [courseId], references: [id], onDelete: SetNull)
   lesson   Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
   sections ExerciseSection[]
+  classroomAssignments ClassroomTest[]
 }
 
 // Una sezione all'interno di un test
@@ -391,6 +393,73 @@ model LiveBooking {
   user    User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([sessionId, userId])
+}
+
+// ─── CLASSI E TEST PER DOCENTI (Accademia annuale) ───────────────────────────
+// Replica il modello latin-cert (classroom / user2classroom / test2classroom /
+// autovalSession). Il docente (abbonato Accademia annuale) crea una classe con
+// codice univoco, assegna test della libreria (ExerciseTest), e gli studenti
+// — SENZA account — accedono col codice, si identificano (nome/cognome/email,
+// con conferma email) e svolgono i test. Il docente vede i risultati.
+
+model Classroom {
+  id        String   @id @default(cuid())
+  teacherId String              // User docente proprietario
+  name      String
+  code      String   @unique    // codice univoco (6 caratteri) dato agli studenti
+  isOpen    Boolean  @default(true)   // false = accesso studenti chiuso
+  createdAt DateTime @default(now())
+
+  teacher     User                @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  students    ClassroomStudent[]
+  assignments ClassroomTest[]
+}
+
+// Studente di una classe — NON è un User del portale: si identifica con email.
+model ClassroomStudent {
+  id             String    @id @default(cuid())
+  classroomId    String
+  firstName      String
+  lastName       String
+  email          String
+  emailConfirmed Boolean   @default(false)
+  confirmToken   String    @unique          // token per il link di conferma email
+  createdAt      DateTime  @default(now())
+
+  classroom   Classroom        @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  submissions TestSubmission[]
+
+  @@unique([classroomId, email])   // un'iscrizione per email per classe
+}
+
+// Test (della libreria ExerciseTest) assegnato a una classe.
+model ClassroomTest {
+  id          String   @id @default(cuid())
+  classroomId String
+  testId      String              // -> ExerciseTest.id
+  assignedAt  DateTime @default(now())
+
+  classroom Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  test      ExerciseTest @relation(fields: [testId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, testId])
+}
+
+// Svolgimento di un test da parte di uno studente di classe.
+model TestSubmission {
+  id          String    @id @default(cuid())
+  studentId   String
+  testId      String              // -> ExerciseTest.id
+  classroomId String
+  score       Int?                // punteggio (n. risposte corrette)
+  maxScore    Int?                // domande totali
+  completedAt DateTime?
+  startedAt   DateTime  @default(now())
+  answers     Json?               // risposte dettagliate [{questionId, given, correct}]
+
+  student   ClassroomStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([classroomId, testId])
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
