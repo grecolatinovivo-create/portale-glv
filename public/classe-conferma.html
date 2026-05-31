@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>La tua classe — GrecoLatinoVivo</title>
+<style>
+  :root { --bordeaux:#a01a36; --gold:#c9a84c; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Inter',-apple-system,system-ui,sans-serif; background:#0d0d0d; color:#f5f5f5; min-height:100vh; }
+  .topbar { padding:18px 28px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:13px; font-weight:700; color:rgba(245,245,245,.5); letter-spacing:.15em; text-transform:uppercase; }
+  .wrap { max-width:760px; margin:0 auto; padding:40px 24px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:30px; color:#fff; margin-bottom:6px; }
+  .sub { color:rgba(245,245,245,.6); margin-bottom:28px; font-size:14px; }
+  .card { background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:18px 20px; margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .card .title { font-size:16px; color:#fff; }
+  .card .meta { color:rgba(245,245,245,.5); font-size:13px; }
+  .btn { border:none; border-radius:7px; padding:9px 18px; font-size:13px; font-weight:700; cursor:pointer; background:var(--bordeaux); color:#fff; }
+  .badge-done { background:rgba(22,163,74,.18); color:#86efac; padding:5px 12px; border-radius:20px; font-size:13px; font-weight:700; }
+  .empty,.err { text-align:center; padding:60px 20px; color:rgba(245,245,245,.5); }
+  /* Runner */
+  #runner { display:none; }
+  .q { background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:20px; margin-bottom:14px; }
+  .q-text { font-size:16px; color:#fff; margin-bottom:14px; line-height:1.5; }
+  .opt { display:block; background:#0d0d0d; border:1px solid rgba(255,255,255,.14); border-radius:8px; padding:11px 14px; margin-bottom:8px; cursor:pointer; font-size:14px; }
+  .opt.sel { border-color:var(--gold); background:rgba(201,168,76,.08); }
+</style>
+</head>
+<body>
+  <div class="topbar"><span class="brand">GrecoLatinoVivo · La tua classe</span></div>
+  <div class="wrap" id="wrap"><div class="empty">Verifica in corso…</div></div>
+
+<script>
+let CTX = null; // { code, email, classroom }
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+async function init() {
+  const token = new URLSearchParams(location.search).get('token');
+  const wrap = document.getElementById('wrap');
+  if (!token) { wrap.innerHTML = '<div class="err">Link non valido.</div>'; return; }
+  // Conferma email
+  const r = await fetch('/api/classroom/confirm', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token }) });
+  const d = await r.json();
+  if (!r.ok) { wrap.innerHTML = '<div class="err">' + esc(d.error || 'Link non valido o scaduto.') + '</div>'; return; }
+  CTX = { code: d.code, email: d.student.email, classroom: d.classroom.name, name: d.student.firstName };
+  loadTests();
+}
+
+async function loadTests() {
+  const wrap = document.getElementById('wrap');
+  const r = await fetch('/api/classroom/student-tests?code=' + encodeURIComponent(CTX.code) + '&email=' + encodeURIComponent(CTX.email));
+  const d = await r.json();
+  if (!r.ok) { wrap.innerHTML = '<div class="err">' + esc(d.error||'Errore') + '</div>'; return; }
+  let html = '<h1>Ciao ' + esc(CTX.name) + '</h1><p class="sub">Classe: <strong>' + esc(CTX.classroom) + '</strong> · I test assegnati dal tuo docente</p>';
+  if (!d.tests || !d.tests.length) {
+    html += '<div class="empty">Nessun test assegnato per ora. Torna a controllare.</div>';
+  } else {
+    d.tests.forEach(t => {
+      html += '<div class="card"><div><div class="title">' + esc(t.title) + '</div>' +
+        '<div class="meta">' + esc(t.lingua||'') + ' ' + esc(t.livello||'') + '</div></div>';
+      if (t.done) html += '<span class="badge-done">✓ Svolto — ' + (t.score!=null? t.score+'/'+t.maxScore : 'completato') + '</span>';
+      else html += '<button class="btn" onclick="startTest(\'' + t.testId + '\')">Inizia il test</button>';
+      html += '</div>';
+    });
+  }
+  html += '<div id="runner"></div>';
+  wrap.innerHTML = html;
+}
+
+async function startTest(testId) {
+  const runner = document.getElementById('runner');
+  runner.style.display = 'block';
+  runner.innerHTML = '<div class="empty">Caricamento test…</div>';
+  runner.scrollIntoView({ behavior:'smooth' });
+  // Carica il test pubblico (domande)
+  const r = await fetch('/api/classroom/test-detail?code=' + encodeURIComponent(CTX.code) + '&email=' + encodeURIComponent(CTX.email) + '&testId=' + testId);
+  const d = await r.json();
+  if (!r.ok) { runner.innerHTML = '<div class="err">' + esc(d.error||'Errore') + '</div>'; return; }
+  renderRunner(d.test, testId);
+}
+
+const _answers = {};
+function renderRunner(test, testId) {
+  const runner = document.getElementById('runner');
+  let html = '<h2 style="font-family:Cormorant Garamond,serif;font-size:24px;color:#fff;margin:24px 0 14px;">' + esc(test.title) + '</h2>';
+  const questions = (test.sections||[]).flatMap(s => s.questions||[]);
+  questions.forEach((q, i) => {
+    html += '<div class="q"><div class="q-text">' + (i+1) + '. ' + esc(q.instruction || q.title || '') + '</div>';
+    // Rendering minimo per SceltaMultipla / VeroFalso
+    let opts = [];
+    try {
+      const data = typeof q.data === 'string' ? JSON.parse(q.data) : q.data;
+      if (q.questionType === 'VeroFalso') opts = ['Vero','Falso'];
+      else if (q.questionType === 'SceltaMultipla' && Array.isArray(data)) {
+        // ogni item ha le opzioni; per semplicità prendiamo il primo set
+        const it = data[0] || {};
+        opts = [it.correct, it.wrong_1, it.wrong_2, it.wrong_3].filter(Boolean);
+      }
+    } catch(_){}
+    if (opts.length) {
+      opts.forEach((o, oi) => {
+        html += '<label class="opt" onclick="pick(\'' + q.id + '\',' + oi + ',this)">' + esc(o) + '</label>';
+      });
+    } else {
+      html += '<input type="text" style="width:100%;background:#0d0d0d;border:1px solid rgba(255,255,255,.15);border-radius:8px;color:#fff;padding:10px;" oninput="_answers[\'' + q.id + '\']=this.value" placeholder="La tua risposta" />';
+    }
+    html += '</div>';
+  });
+  html += '<button class="btn" style="width:100%;margin-top:8px;" onclick="submitTest(\'' + testId + '\')">Consegna il test</button>';
+  runner.innerHTML = html;
+}
+
+function pick(qid, oi, el) {
+  _answers[qid] = oi;
+  const parent = el.parentElement;
+  parent.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+async function submitTest(testId) {
+  const answers = Object.entries(_answers).map(([questionId, given]) => ({ questionId, given }));
+  const r = await fetch('/api/classroom/student-tests', { method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ code: CTX.code, email: CTX.email, testId, answers }) });
+  const d = await r.json();
+  if (!r.ok) { alert(d.error || 'Errore'); return; }
+  document.getElementById('runner').innerHTML = '<div class="empty" style="color:#86efac;">✓ Test consegnato! Risultato: ' + (d.score!=null? d.score+'/'+d.maxScore : 'registrato') + '</div>';
+  for (const k in _answers) delete _answers[k];
+  setTimeout(loadTests, 1800);
+}
+
+init();
+</script>
+</body>
+</html>
