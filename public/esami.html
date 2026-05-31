@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Esami di certificazione — GrecoLatinoVivo</title>
+<style>
+  :root { --bordeaux:#a01a36; --gold:#c9a84c; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, system-ui, sans-serif; background:#0d0d0d; color:#f5f5f5; min-height:100vh; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:18px 28px; border-bottom:1px solid rgba(255,255,255,.08); }
+  .brand { font-family:'Cormorant Garamond',serif; font-size:22px; color:#fff; text-decoration:none; }
+  .brand small { display:block; font-size:11px; color:rgba(245,245,245,.55); letter-spacing:.05em; }
+  .back { color:var(--gold); text-decoration:none; font-size:13px; }
+  .wrap { max-width:860px; margin:0 auto; padding:40px 24px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:34px; color:#fff; margin-bottom:6px; }
+  .subtitle { color:rgba(245,245,245,.6); margin-bottom:32px; font-size:14px; }
+  .card { background:#161616; border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:22px; margin-bottom:16px; }
+  .card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+  .card-title { font-size:18px; color:#fff; margin-bottom:4px; }
+  .card-meta { color:var(--gold); font-size:14px; margin-bottom:2px; }
+  .card-sub { color:rgba(245,245,245,.55); font-size:13px; }
+  .btn { border:none; border-radius:6px; padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer; letter-spacing:.04em; }
+  .btn-book { background:var(--bordeaux); color:#fff; }
+  .btn-cancel { background:rgba(255,255,255,.08); color:#f5f5f5; }
+  .btn:disabled { opacity:.5; cursor:not-allowed; }
+  .badge-booked { background:rgba(22,163,74,.18); color:#34d399; padding:4px 10px; border-radius:20px; font-size:12px; font-weight:700; }
+  .empty, .gate { text-align:center; padding:60px 20px; color:rgba(245,245,245,.5); }
+  .gate a { color:var(--gold); }
+  .toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#222; border:1px solid rgba(255,255,255,.15); padding:12px 20px; border-radius:8px; font-size:14px; opacity:0; transition:opacity .3s; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/dashboard.html" class="brand">GrecoLatinoVivo<small>Esami di certificazione</small></a>
+    <a href="/dashboard.html" class="back">← Torna al portale</a>
+  </div>
+  <div class="wrap">
+    <h1>Esami di certificazione</h1>
+    <p class="subtitle">Latino e Greco Antico · prenota una sessione d'esame</p>
+    <div id="content"><div class="empty">Caricamento…</div></div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+<script>
+function fmtDT(d) {
+  try { return new Date(d).toLocaleString('it-IT', { dateStyle:'full', timeStyle:'short' }); }
+  catch { return String(d); }
+}
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function load() {
+  const content = document.getElementById('content');
+  // Auth
+  let me;
+  try { const r = await fetch('/api/auth/me'); if (!r.ok) { location.href = '/index.html'; return; } me = (await r.json()).user; }
+  catch { location.href = '/index.html'; return; }
+
+  try {
+    const r = await fetch('/api/exams');
+    if (r.status === 403) {
+      content.innerHTML = '<div class="gate"><p>Gli esami di certificazione sono riservati ai piani <strong>annuali</strong> Linguae e Accademia.</p><p style="margin-top:12px;"><a href="/index.html#prezzi">Scopri i piani →</a></p></div>';
+      return;
+    }
+    if (!r.ok) { content.innerHTML = '<div class="empty">Errore nel caricamento.</div>'; return; }
+    const { sessions } = await r.json();
+    if (!sessions || !sessions.length) {
+      content.innerHTML = '<div class="empty">Nessuna sessione d\'esame programmata al momento. Torna a controllare presto.</div>';
+      return;
+    }
+    content.innerHTML = '';
+    sessions.forEach(s => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const seats = s.seatsLeft != null ? (s.seatsLeft + ' posti disponibili') : '';
+      const full = s.seatsLeft === 0 && !s.booked;
+      card.innerHTML =
+        '<div class="card-head">' +
+          '<div>' +
+            '<div class="card-title">' + esc(s.title) + '</div>' +
+            '<div class="card-meta">' + fmtDT(s.examDate) + '</div>' +
+            '<div class="card-sub">' + esc(s.location || 'Online') + (seats ? ' · ' + seats : '') + '</div>' +
+          '</div>' +
+          '<div id="action-' + s.id + '"></div>' +
+        '</div>';
+      content.appendChild(card);
+      renderAction(s, full);
+    });
+  } catch (e) {
+    content.innerHTML = '<div class="empty">Errore di rete.</div>';
+  }
+}
+
+function renderAction(s, full) {
+  const el = document.getElementById('action-' + s.id);
+  if (s.booked) {
+    el.innerHTML = '<span class="badge-booked">✓ Prenotato</span><br><button class="btn btn-cancel" style="margin-top:8px;" onclick="cancelBooking(\'' + s.id + '\')">Annulla</button>';
+  } else if (full) {
+    el.innerHTML = '<button class="btn btn-book" disabled>Posti esauriti</button>';
+  } else if (!s.isOpen) {
+    el.innerHTML = '<button class="btn btn-book" disabled>Prenotazioni chiuse</button>';
+  } else {
+    el.innerHTML = '<button class="btn btn-book" onclick="book(\'' + s.id + '\')">Prenota</button>';
+  }
+}
+
+async function book(sessionId) {
+  try {
+    const r = await fetch('/api/exams', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sessionId }) });
+    const d = await r.json();
+    if (!r.ok) { showToast(d.error || 'Errore'); return; }
+    showToast('Prenotazione confermata! Controlla la tua email.');
+    load();
+  } catch { showToast('Errore di rete'); }
+}
+async function cancelBooking(sessionId) {
+  if (!confirm('Annullare la prenotazione?')) return;
+  try {
+    const r = await fetch('/api/exams', { method:'DELETE', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sessionId }) });
+    if (!r.ok) { showToast('Errore'); return; }
+    showToast('Prenotazione annullata');
+    load();
+  } catch { showToast('Errore di rete'); }
+}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+load();
+</script>
+</body>
+</html>

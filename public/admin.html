@@ -761,6 +761,104 @@
       </section>
 
       <!-- ══════════════════════════════════════
+           SEZIONE: ESAMI DI CERTIFICAZIONE
+           ══════════════════════════════════════ -->
+      <section id="section-exams" class="section">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header">
+            <div class="panel-title">Nuova sessione d'esame</div>
+          </div>
+          <div class="panel-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+              <div style="flex:1;min-width:150px;">
+                <label class="form-label" style="font-size:12px;">Lingua</label>
+                <select class="form-control" id="exam-lingua">
+                  <option value="Latino">Latino</option>
+                  <option value="Greco Antico">Greco Antico</option>
+                </select>
+              </div>
+              <div style="width:110px;">
+                <label class="form-label" style="font-size:12px;">Livello</label>
+                <input type="text" class="form-control" id="exam-livello" placeholder="es. B1" />
+              </div>
+              <div style="flex:2;min-width:200px;">
+                <label class="form-label" style="font-size:12px;">Titolo</label>
+                <input type="text" class="form-control" id="exam-title" placeholder="es. Esame di certificazione — Latino B1" />
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:10px;">
+              <div style="flex:1;min-width:180px;">
+                <label class="form-label" style="font-size:12px;">Data e ora</label>
+                <input type="datetime-local" class="form-control" id="exam-date" />
+              </div>
+              <div style="flex:1;min-width:150px;">
+                <label class="form-label" style="font-size:12px;">Luogo</label>
+                <input type="text" class="form-control" id="exam-location" placeholder="Online / indirizzo" />
+              </div>
+              <div style="width:110px;">
+                <label class="form-label" style="font-size:12px;">Posti (vuoto = ∞)</label>
+                <input type="number" class="form-control" id="exam-capacity" min="1" />
+              </div>
+              <button class="btn btn-primary" onclick="createExam()">Crea sessione</button>
+            </div>
+            <div id="exam-alert" style="display:none;margin-top:10px;"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Sessioni d'esame</div></div>
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Data</th><th>Esame</th><th>Luogo</th><th>Prenotati</th><th>Stato</th><th>Azioni</th></tr></thead>
+              <tbody id="exams-table"><tr class="loading-row"><td colspan="6">Caricamento…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
+           SEZIONE: LIVE MENSILI
+           ══════════════════════════════════════ -->
+      <section id="section-lives" class="section">
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header"><div class="panel-title">Nuova live</div></div>
+          <div class="panel-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+              <div style="flex:2;min-width:220px;">
+                <label class="form-label" style="font-size:12px;">Titolo</label>
+                <input type="text" class="form-control" id="live-title" placeholder="es. Live di metodologia didattica" />
+              </div>
+              <div style="flex:1;min-width:180px;">
+                <label class="form-label" style="font-size:12px;">Data e ora inizio</label>
+                <input type="datetime-local" class="form-control" id="live-start" />
+              </div>
+              <div style="width:110px;">
+                <label class="form-label" style="font-size:12px;">Durata (min)</label>
+                <input type="number" class="form-control" id="live-duration" value="60" min="15" />
+              </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:10px;">
+              <div style="flex:1;min-width:260px;">
+                <label class="form-label" style="font-size:12px;">Link Zoom</label>
+                <input type="text" class="form-control" id="live-zoom" placeholder="https://zoom.us/j/..." />
+              </div>
+              <button class="btn btn-primary" onclick="createLive()">Crea live</button>
+            </div>
+            <div class="form-hint">I prenotati ricevono reminder 24h e 2h prima. Il link si attiva 1h prima dell'inizio.</div>
+            <div id="live-alert" style="display:none;margin-top:10px;"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Live programmate</div></div>
+          <div class="panel-body">
+            <table>
+              <thead><tr><th>Data</th><th>Titolo</th><th>Durata</th><th>Prenotati</th><th>Azioni</th></tr></thead>
+              <tbody id="lives-table"><tr class="loading-row"><td colspan="5">Caricamento…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════════
            SEZIONE: LOG
            ══════════════════════════════════════ -->
       <section id="section-logs" class="section">
@@ -1111,6 +1209,8 @@ function showSection(name, btn) {
     subscriptions:  'Abbonamenti',
     users:          'Iscritti',
     certificates:   'Attestati',
+    exams:          'Esami di certificazione',
+    lives:          'Live mensili',
     logs:           'Log Azioni',
     'content-stats':'Familia Romana — Statistiche',
   };
@@ -1122,6 +1222,8 @@ function showSection(name, btn) {
   if (name === 'subscriptions')  loadSubscriptions();
   if (name === 'users')          { usersPage = 1; loadUsers(); }
   if (name === 'certificates')   loadCerts();
+  if (name === 'exams')          loadExams();
+  if (name === 'lives')          loadLives();
   if (name === 'logs')           loadLogs();
   if (name === 'content-stats')  loadContentStats();
 }
@@ -2164,6 +2266,142 @@ document.querySelectorAll('#sidebar .nav-item').forEach(function (item) {
 /* ═══════════════════════════════════════════════════════════════
    GESTIONE CONTENUTI — Nuovo corso, lezioni, video, materiali
    ═══════════════════════════════════════════════════════════════ */
+
+// ═══════════════════════════════════════════════════════════════
+//  ESAMI DI CERTIFICAZIONE
+// ═══════════════════════════════════════════════════════════════
+function _fmtDT(d) {
+  try { return new Date(d).toLocaleString('it-IT', { dateStyle: 'medium', timeStyle: 'short' }); }
+  catch { return String(d); }
+}
+
+async function loadExams() {
+  const tbody = document.getElementById('exams-table');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="6">Caricamento…</td></tr>';
+  try {
+    const r = await fetch('/api/admin/exams');
+    const { sessions } = await r.json();
+    if (!sessions || !sessions.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--gray-400);text-align:center;padding:16px;">Nessuna sessione d\'esame.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    sessions.forEach(s => {
+      const tr = document.createElement('tr');
+      const booked = s._count ? s._count.bookings : (s.bookings ? s.bookings.length : 0);
+      const cap = s.capacity != null ? '/' + s.capacity : '';
+      tr.innerHTML =
+        '<td>' + _fmtDT(s.examDate) + '</td>' +
+        '<td>' + escHtml(s.title) + (s.livello ? ' <span style="color:var(--gray-400)">(' + escHtml(s.livello) + ')</span>' : '') + '</td>' +
+        '<td>' + escHtml(s.location || 'Online') + '</td>' +
+        '<td>' + booked + cap + '</td>' +
+        '<td>' + (s.isOpen ? '<span style="color:#16a34a">Aperto</span>' : '<span style="color:var(--gray-400)">Chiuso</span>') + '</td>' +
+        '<td>' +
+          '<button class="btn btn-sm btn-outline" onclick="toggleExamOpen(\'' + s.id + '\',' + (!s.isOpen) + ')">' + (s.isOpen ? 'Chiudi' : 'Riapri') + '</button> ' +
+          '<button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="deleteExam(\'' + s.id + '\')">Elimina</button>' +
+        '</td>';
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="6" class="alert alert-error">Errore nel caricamento</td></tr>';
+  }
+}
+
+async function createExam() {
+  const alertEl = document.getElementById('exam-alert');
+  alertEl.style.display = 'none';
+  const body = {
+    lingua:   document.getElementById('exam-lingua').value,
+    livello:  document.getElementById('exam-livello').value.trim(),
+    title:    document.getElementById('exam-title').value.trim(),
+    examDate: document.getElementById('exam-date').value,
+    location: document.getElementById('exam-location').value.trim(),
+    capacity: document.getElementById('exam-capacity').value,
+  };
+  if (!body.title || !body.examDate) {
+    alertEl.className = 'alert alert-error'; alertEl.textContent = 'Titolo e data sono obbligatori'; alertEl.style.display = 'flex'; return;
+  }
+  try {
+    const r = await fetch('/api/admin/exams', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) { alertEl.className = 'alert alert-error'; alertEl.textContent = d.error || 'Errore'; alertEl.style.display = 'flex'; return; }
+    document.getElementById('exam-title').value = '';
+    document.getElementById('exam-livello').value = '';
+    document.getElementById('exam-date').value = '';
+    document.getElementById('exam-capacity').value = '';
+    loadExams();
+  } catch (e) { alertEl.className = 'alert alert-error'; alertEl.textContent = 'Errore di rete'; alertEl.style.display = 'flex'; }
+}
+
+async function toggleExamOpen(id, isOpen) {
+  try { await fetch('/api/admin/exams', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, isOpen }) }); loadExams(); }
+  catch (e) { alert('Errore di rete'); }
+}
+
+async function deleteExam(id) {
+  if (!confirm('Eliminare questa sessione d\'esame e tutte le prenotazioni?')) return;
+  try { await fetch('/api/admin/exams', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); loadExams(); }
+  catch (e) { alert('Errore di rete'); }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LIVE MENSILI
+// ═══════════════════════════════════════════════════════════════
+async function loadLives() {
+  const tbody = document.getElementById('lives-table');
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Caricamento…</td></tr>';
+  try {
+    const r = await fetch('/api/admin/lives');
+    const { lives } = await r.json();
+    if (!lives || !lives.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--gray-400);text-align:center;padding:16px;">Nessuna live programmata.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = '';
+    lives.forEach(l => {
+      const tr = document.createElement('tr');
+      const booked = l._count ? l._count.bookings : (l.bookings ? l.bookings.length : 0);
+      tr.innerHTML =
+        '<td>' + _fmtDT(l.startAt) + '</td>' +
+        '<td>' + escHtml(l.title) + '</td>' +
+        '<td>' + (l.durationMin || 60) + ' min</td>' +
+        '<td>' + booked + '</td>' +
+        '<td><button class="btn btn-sm" style="background:#fee2e2;color:#9b1c1c;" onclick="deleteLive(\'' + l.id + '\')">Elimina</button></td>';
+      tbody.appendChild(tr);
+    });
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="5" class="alert alert-error">Errore nel caricamento</td></tr>';
+  }
+}
+
+async function createLive() {
+  const alertEl = document.getElementById('live-alert');
+  alertEl.style.display = 'none';
+  const body = {
+    title:       document.getElementById('live-title').value.trim(),
+    startAt:     document.getElementById('live-start').value,
+    durationMin: document.getElementById('live-duration').value,
+    zoomLink:    document.getElementById('live-zoom').value.trim(),
+  };
+  if (!body.title || !body.startAt || !body.zoomLink) {
+    alertEl.className = 'alert alert-error'; alertEl.textContent = 'Titolo, data e link Zoom sono obbligatori'; alertEl.style.display = 'flex'; return;
+  }
+  try {
+    const r = await fetch('/api/admin/lives', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) { alertEl.className = 'alert alert-error'; alertEl.textContent = d.error || 'Errore'; alertEl.style.display = 'flex'; return; }
+    document.getElementById('live-title').value = '';
+    document.getElementById('live-start').value = '';
+    document.getElementById('live-zoom').value = '';
+    loadLives();
+  } catch (e) { alertEl.className = 'alert alert-error'; alertEl.textContent = 'Errore di rete'; alertEl.style.display = 'flex'; }
+}
+
+async function deleteLive(id) {
+  if (!confirm('Eliminare questa live e tutte le prenotazioni?')) return;
+  try { await fetch('/api/admin/lives', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id }) }); loadLives(); }
+  catch (e) { alert('Errore di rete'); }
+}
 
 // ── Emissione attestato manuale ────────────────────────────────
 function openIssueCertModal() {

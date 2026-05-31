@@ -1469,6 +1469,8 @@
                  style="color:rgba(245,245,245,.55);font-size:.78rem;border-bottom:1px solid rgba(255,255,255,.1);cursor:default;">—</div>
             <a class="nav-dropdown-item" role="menuitem" href="/profilo.html" style="text-decoration:none;display:block;color:inherit;">Gestisci abbonamento</a>
             <a class="nav-dropdown-item" role="menuitem" href="/attestati.html" style="text-decoration:none;display:block;">I miei attestati</a>
+            <a class="nav-dropdown-item" role="menuitem" href="/esami.html" id="menu-link-esami" style="text-decoration:none;display:none;">Esami di certificazione</a>
+            <a class="nav-dropdown-item" role="menuitem" href="/live.html" id="menu-link-live" style="text-decoration:none;display:none;">Live mensili</a>
             <!-- Sezione admin preview — visibile solo se iniettata da JS -->
             <div id="admin-tier-group" style="display:none">
               <div style="height:1px;background:rgba(255,255,255,.07);margin:4px 0;" role="separator"></div>
@@ -2842,6 +2844,15 @@ async function showDashboard() {
   // Link "Abbonamento" in navbar — nascosto se l'utente ha già un piano attivo
   const navLinkAbb = document.getElementById('nav-link-abbonamento');
   if (navLinkAbb && tier > 0) navLinkAbb.style.display = 'none';
+
+  // Voci menu "solo annuale": Esami (Linguae annuale+), Live (Accademia annuale).
+  // Admin le vede sempre. Il controllo vero è server-side; qui è solo visibilità menu.
+  const planStr = (sub?.plan || '').toLowerCase();
+  const isAnnual = planStr.endsWith('-annuale') || planStr.endsWith('-manuale') || planStr.endsWith('-free');
+  const linkEsami = document.getElementById('menu-link-esami');
+  const linkLive  = document.getElementById('menu-link-live');
+  if (linkEsami && (user.isAdmin || (tier >= 2 && isAnnual))) linkEsami.style.display = 'block';
+  if (linkLive  && (user.isAdmin || (tier >= 3 && isAnnual))) linkLive.style.display = 'block';
 
   // Upgrade banner — rimosso: sostituito da popup contestuale sui corsi bloccati
 
