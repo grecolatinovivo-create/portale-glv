@@ -9,9 +9,20 @@ Output: /tmp/fk_data.json
 import re
 import json
 import sys
+import os
 
-DUMP_PATH = '/sessions/epic-keen-cori/mnt/portale-glv/database_latin-cert.sql'
-OUT_PATH = '/tmp/fk_data.json'
+# Percorso del dump SQL di latin-cert:
+#   1) primo argomento da riga di comando, se fornito
+#   2) altrimenti ./database_latin-cert.sql nella cartella corrente
+# Uso:  python3 scripts/extract-fk-data.py [percorso/al/database_latin-cert.sql]
+DUMP_PATH = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), 'database_latin-cert.sql')
+# Output accanto a questo script, così link-exercises-fk.js lo trova senza percorsi assoluti
+OUT_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fk_data.json')
+
+if not os.path.exists(DUMP_PATH):
+    print(f"ERRORE: dump non trovato: {DUMP_PATH}")
+    print("Passa il percorso del file database_latin-cert.sql come argomento.")
+    sys.exit(1)
 
 video_rows = []   # { idl: int, link: str }
 lezione_fk = []   # { idl: int, idt: int } — solo dove FK_IDT non è NULL

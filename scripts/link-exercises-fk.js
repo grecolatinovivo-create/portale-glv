@@ -17,7 +17,7 @@ const fs = require('fs');
 require('dotenv').config();
 const CONN = process.env.DATABASE_URL;
 if (!CONN) { console.error('ERRORE: DATABASE_URL non impostata in .env'); process.exit(1); }
-const FK_DATA = '/tmp/fk_data.json';
+const FK_DATA = require('path').join(__dirname, 'fk_data.json');
 
 (async () => {
   const fkData = JSON.parse(fs.readFileSync(FK_DATA, 'utf-8'));

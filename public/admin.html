@@ -850,7 +850,6 @@
                 <input type="text" class="form-control" id="live-zoom" placeholder="https://zoom.us/j/..." />
               </div>
               <button class="btn btn-primary" id="live-submit-btn" onclick="createLive()">Crea live</button>
-              <button class="btn btn-sm" id="live-cancel-btn" onclick="cancelEditLive()" style="display:none;background:var(--gray-100);color:var(--gray-700);border:1px solid var(--gray-200);">Annulla</button>
             </div>
             <div class="form-hint">I prenotati ricevono reminder 24h e 2h prima. Il link si attiva 1h prima dell'inizio.</div>
             <div id="live-alert" style="display:none;margin-top:10px;"></div>
@@ -1202,6 +1201,8 @@ async function init() {
 
     // Controlla che sia l'admin (usa isAdmin dal server — non hardcodare email nel client)
     if (!currentUser.isAdmin) {
+      // Avvisa l'admin del tentativo di accesso non autorizzato (fire-and-forget)
+      try { fetch('/api/admin/access-alert', { method: 'POST' }); } catch (e) {}
       document.querySelector('#gate .gate-msg').innerHTML =
         'Accesso non autorizzato per <strong>' + (currentUser.email || 'questo account') + '</strong>.<br>' +
         '<button onclick="logout()" style="margin-top:14px;padding:8px 18px;background:#6B2737;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;">Cambia account</button>';
@@ -2407,17 +2408,14 @@ async function deleteExam(id) {
 // ═══════════════════════════════════════════════════════════════
 //  LIVE MENSILI
 // ═══════════════════════════════════════════════════════════════
-let _livesById = {};       // cache live per id (per la modifica)
-let _editingLiveId = null; // id della live in modifica (null = creazione)
+let _livesById = {};       // cache live per id (per la modifica inline)
 
-let _lives = [];
 async function loadLives() {
   const tbody = document.getElementById('lives-table');
   tbody.innerHTML = '<tr class="loading-row"><td colspan="5">Caricamento…</td></tr>';
   try {
     const r = await fetch('/api/admin/lives');
     const { lives } = await r.json();
-    _lives = lives || [];
     if (!lives || !lives.length) {
       tbody.innerHTML = '<tr><td colspan="5" style="color:var(--gray-400);text-align:center;padding:16px;">Nessuna live programmata.</td></tr>';
       return;
@@ -2450,48 +2448,55 @@ async function loadLives() {
   }
 }
 
-// Converte una data ISO nel formato richiesto da <input type="datetime-local">.
-// Usa i componenti UTC di proposito: la creazione (POST) salva l'orario digitato
-// "così com'è" come UTC (il server fa new Date('...T18:30') => 18:30Z). Riproponendo
-// gli stessi componenti UTC, salvare senza modifiche NON sposta l'orario (round-trip stabile).
-function _toLocalInput(iso) {
-  const d = new Date(iso);
-  if (isNaN(d)) return '';
-  const pad = n => String(n).padStart(2, '0');
-  return d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) + '-' + pad(d.getUTCDate()) +
-         'T' + pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes());
-}
 
-// Entra in modalità modifica: precompila il form con i dati della live
+// Modifica INLINE: apre l'editor SOTTO la riga della live (niente scroll su, meno frizione)
 function editLive(id) {
+  const editRow = document.getElementById('live-edit-' + id);
+  if (!editRow) return;
+  if (editRow.style.display !== 'none') { editRow.style.display = 'none'; return; } // toggle chiude
   const l = _livesById[id];
   if (!l) return;
-  _editingLiveId = id;
-  document.getElementById('live-title').value       = l.title || '';
-  document.getElementById('live-start').value       = _toLocalInput(l.startAt);
-  document.getElementById('live-duration').value    = l.durationMin || 60;
-  document.getElementById('live-zoom').value        = l.zoomLink || '';
-  document.getElementById('live-description').value = l.description || '';
-  document.getElementById('live-panel-title').textContent = 'Modifica live';
-  document.getElementById('live-submit-btn').textContent  = 'Salva modifiche';
-  document.getElementById('live-cancel-btn').style.display = '';
-  const alertEl = document.getElementById('live-alert'); alertEl.style.display = 'none';
-  // porta il form in vista
-  document.getElementById('live-title').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  document.getElementById('live-edit-cell-' + id).innerHTML =
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:10px 4px;">' +
+      '<div style="flex:2;min-width:200px;"><label class="form-label" style="font-size:11px;">Titolo</label>' +
+        '<input type="text" class="form-control" id="le-title-' + id + '" /></div>' +
+      '<div style="flex:1;min-width:170px;"><label class="form-label" style="font-size:11px;">Data e ora</label>' +
+        '<input type="datetime-local" class="form-control" id="le-start-' + id + '" /></div>' +
+      '<div style="width:100px;"><label class="form-label" style="font-size:11px;">Durata (min)</label>' +
+        '<input type="number" class="form-control" id="le-dur-' + id + '" /></div>' +
+    '</div>' +
+    '<div style="padding:0 4px 8px;"><label class="form-label" style="font-size:11px;">Descrizione</label>' +
+      '<textarea class="form-control" id="le-desc-' + id + '" rows="2" style="resize:vertical;"></textarea></div>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:0 4px 10px;">' +
+      '<div style="flex:1;min-width:240px;"><label class="form-label" style="font-size:11px;">Link Zoom</label>' +
+        '<input type="text" class="form-control" id="le-zoom-' + id + '" /></div>' +
+      '<button class="btn btn-sm btn-primary" onclick="saveLiveEdit(\'' + id + '\')">Salva modifiche</button>' +
+      '<button class="btn btn-sm btn-outline" onclick="editLive(\'' + id + '\')">Annulla</button>' +
+      '<span id="le-msg-' + id + '" style="font-size:12px;color:var(--gray-500);"></span>' +
+    '</div>';
+  document.getElementById('le-title-' + id).value = l.title || '';
+  document.getElementById('le-start-' + id).value = isoToLocalInput(l.startAt);
+  document.getElementById('le-dur-' + id).value   = l.durationMin || 60;
+  document.getElementById('le-zoom-' + id).value  = l.zoomLink || '';
+  document.getElementById('le-desc-' + id).value  = l.description || '';
+  editRow.style.display = '';
 }
 
-// Annulla la modifica e riporta il form a "Nuova live"
-function cancelEditLive() {
-  _editingLiveId = null;
-  document.getElementById('live-title').value = '';
-  document.getElementById('live-start').value = '';
-  document.getElementById('live-duration').value = 60;
-  document.getElementById('live-zoom').value = '';
-  document.getElementById('live-description').value = '';
-  document.getElementById('live-panel-title').textContent = 'Nuova live';
-  document.getElementById('live-submit-btn').textContent  = 'Crea live';
-  document.getElementById('live-cancel-btn').style.display = 'none';
-  document.getElementById('live-alert').style.display = 'none';
+async function saveLiveEdit(id) {
+  const msg = document.getElementById('le-msg-' + id);
+  const body = {
+    id,
+    title:       document.getElementById('le-title-' + id).value.trim(),
+    startAt:     localInputToISO(document.getElementById('le-start-' + id).value),
+    durationMin: document.getElementById('le-dur-' + id).value,
+    zoomLink:    document.getElementById('le-zoom-' + id).value.trim(),
+    description: document.getElementById('le-desc-' + id).value.trim(),
+  };
+  try {
+    const r = await fetch('/api/admin/lives', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (!r.ok) { const d = await r.json(); if (msg) msg.textContent = d.error || 'Errore'; return; }
+    loadLives();
+  } catch (e) { if (msg) msg.textContent = 'Errore di rete'; }
 }
 
 async function createLive() {
@@ -2499,7 +2504,7 @@ async function createLive() {
   alertEl.style.display = 'none';
   const body = {
     title:       document.getElementById('live-title').value.trim(),
-    startAt:     document.getElementById('live-start').value,
+    startAt:     localInputToISO(document.getElementById('live-start').value),
     durationMin: document.getElementById('live-duration').value,
     zoomLink:    document.getElementById('live-zoom').value.trim(),
     description: document.getElementById('live-description').value.trim(),
@@ -2507,15 +2512,15 @@ async function createLive() {
   if (!body.title || !body.startAt || !body.zoomLink) {
     alertEl.className = 'alert alert-error'; alertEl.textContent = 'Titolo, data e link Zoom sono obbligatori'; alertEl.style.display = 'flex'; return;
   }
-  // In modifica: PUT con id; altrimenti POST per creare
-  const editing = !!_editingLiveId;
-  const method  = editing ? 'PUT' : 'POST';
-  if (editing) body.id = _editingLiveId;
   try {
-    const r = await fetch('/api/admin/lives', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const r = await fetch('/api/admin/lives', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const d = await r.json();
     if (!r.ok) { alertEl.className = 'alert alert-error'; alertEl.textContent = d.error || 'Errore'; alertEl.style.display = 'flex'; return; }
-    cancelEditLive();
+    document.getElementById('live-title').value = '';
+    document.getElementById('live-start').value = '';
+    document.getElementById('live-zoom').value = '';
+    document.getElementById('live-duration').value = '60';
+    document.getElementById('live-description').value = '';
     loadLives();
   } catch (e) { alertEl.className = 'alert alert-error'; alertEl.textContent = 'Errore di rete'; alertEl.style.display = 'flex'; }
 }

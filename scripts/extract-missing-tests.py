@@ -9,8 +9,15 @@ Output: /tmp/missing_exercises.json
 """
 import re, json, sys, os
 
-# Percorso al dump SQL (via volume mount)
-SQL_FILE = '/sessions/epic-keen-cori/mnt/portale-glv/database_latin-cert.sql'
+# Percorso al dump SQL:
+#   1) primo argomento da riga di comando, se fornito
+#   2) altrimenti ./database_latin-cert.sql nella cartella corrente
+# Uso:  python3 scripts/extract-missing-tests.py [percorso/al/database_latin-cert.sql]
+SQL_FILE = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.getcwd(), 'database_latin-cert.sql')
+if not os.path.exists(SQL_FILE):
+    print(f"ERRORE: dump non trovato: {SQL_FILE}")
+    print("Passa il percorso del file database_latin-cert.sql come argomento.")
+    sys.exit(1)
 
 # IDT mancanti (collegati a lezioni Neon via lezione.FK_IDT ma public=0)
 TARGET_IDTS = {
