@@ -3934,6 +3934,7 @@ async function openCourseView(slug, opts) {
   // ── STEP 3: RENDER DEI DATI nella vista già visibile ─────────────
   renderCourseHeader(course, progressData, streakData);
   renderTierBanner(course);
+  renderPrereqNudge(course); // spinta gentile prerequisiti di livello (async, non blocca il render)
   renderLessonList(course, progressData);
   // strip-visible già impostato in STEP 1 (sincronizzato con course-view).
   // Aggiorna tab laterale su tablet e desktop (già pre-posizionata, ma riconferma aria).
@@ -4111,6 +4112,58 @@ function renderTierBanner(course) {
     el.innerHTML = '';
     el.style.display = 'none';
   }
+}
+
+// Spinta gentile sui prerequisiti di livello (sequenza CEFR A1.1 → B1.3).
+// NON blocca. Segnala il PRIMO livello precedente NON completato della catena
+// (es. apri A2.2 ma A1.1 non è fatto → suggerisce A1.1).
+function _isCefrLevel(lv) { return /^[ABC][0-9](\.[0-9])?$/.test(String(lv || '').trim()); }
+
+async function renderPrereqNudge(course) {
+  let box = document.getElementById('course-prereq-nudge');
+  const anchor = document.getElementById('course-tier-banner');
+  if (!box && anchor && anchor.parentNode) {
+    box = document.createElement('div');
+    box.id = 'course-prereq-nudge';
+    box.style.display = 'none';
+    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+  }
+  if (!box) return;
+  box.style.display = 'none';
+
+  if (!course || !_isCefrLevel(course.level) || !Array.isArray(_allCourses)) return;
+
+  const chain = _allCourses
+    .filter(c => c.lang === course.lang && _isCefrLevel(c.level))
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  const idx = chain.findIndex(c => c.slug === course.slug);
+  if (idx <= 0) return; // primo livello o non trovato
+
+  let pctBySlug = {};
+  try {
+    const r = await fetch('/api/progress/my-courses');
+    if (!r.ok) return;
+    const { courses } = await r.json();
+    (courses || []).forEach(c => { pctBySlug[c.slug] = c.percent; });
+  } catch (_) { return; }
+
+  // PRIMO livello precedente non completato (mai iniziato = 0 → incluso)
+  const missing = chain.slice(0, idx).find(c => (pctBySlug[c.slug] || 0) < 100);
+  if (!missing) return;
+
+  box.style.display = 'block';
+  box.innerHTML =
+    '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:14px 16px;margin-bottom:14px;font-size:13.5px;color:rgba(245,245,245,.85);line-height:1.6;position:relative;">' +
+      '<button aria-label="Chiudi" onclick="document.getElementById(\'course-prereq-nudge\').style.display=\'none\'" ' +
+        'style="position:absolute;top:8px;right:10px;background:none;border:none;color:rgba(245,245,245,.4);font-size:18px;cursor:pointer;line-height:1;">×</button>' +
+      '<strong style="color:#c9a84c;">Suggerimento</strong><br>' +
+      'Questo corso è di livello <strong>' + _esc(course.level) + '</strong>. ' +
+      'Per un apprendimento più solido, ti consigliamo di completare prima ' +
+      '<strong>' + _esc(missing.title || (course.lang + ' ' + missing.level)) + '</strong>.' +
+      ' <a href="/dashboard.html?corso=' + encodeURIComponent(missing.slug) + '" ' +
+        'style="color:#c9a84c;text-decoration:underline;">Vai a quel corso →</a>' +
+      '<div style="margin-top:6px;font-size:12px;color:rgba(245,245,245,.5);">Puoi comunque proseguire con questo corso.</div>' +
+    '</div>';
 }
 
 function renderCourseHeader(course, progressData, streakData) {
