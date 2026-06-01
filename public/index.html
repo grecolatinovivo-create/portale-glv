@@ -1304,32 +1304,31 @@
 
   <div class="pricing-gate-wrap">
 
-  <!-- VELATURA — rimuovere quando le iscrizioni aprono -->
+  <!-- VELATURA PRE-APERTURA — mostrata solo PRIMA delle 14:00 di oggi.
+       Dalle 14:00 si nasconde da sola (JS) e i piani diventano acquistabili. -->
   <div class="pricing-veil" id="pricing-veil">
     <div class="pricing-veil-box">
       <p class="pricing-veil-tag">Apertura iscrizioni</p>
-      <h3 class="pricing-veil-title">Stiamo aprendo le porte.<br>Vuoi essere tra i primi?</h3>
-      <p class="pricing-veil-sub">Lascia la tua email: ti avvisiamo non appena puoi abbonarti. Niente spam.</p>
-      <p class="pricing-veil-spots" id="veil-spots" style="font-size:.78rem;color:var(--gold);margin-bottom:1.2rem;min-height:1.2em;"></p>
+      <h3 class="pricing-veil-title">Il portale apre oggi alle 14:00.</h3>
+      <p class="pricing-veil-sub">Da quel momento avrai 24 ore per attivare il tuo abbonamento.</p>
+      <p class="pricing-veil-spots" id="veil-countdown" style="font-size:1.1rem;font-weight:700;color:var(--gold);margin-bottom:.4rem;min-height:1.3em;letter-spacing:.04em;"></p>
+      <p style="font-size:.78rem;color:rgba(245,245,245,.5);margin:0;">Mancano all'apertura</p>
+    </div>
+  </div>
 
-      <!-- Step 1: email -->
-      <form class="pricing-veil-form" id="veil-form-step1">
-        <input type="email" id="veil-email" placeholder="la-tua@email.it" required autocomplete="email">
-        <button type="submit" class="pricing-veil-btn" id="veil-btn1">Avvisami →</button>
-      </form>
+  <!-- BANNER FINESTRA 24h — mostrato DURANTE le iscrizioni aperte (countdown alla chiusura) -->
+  <div id="open-window-banner" style="display:none;text-align:center;background:rgba(201,150,42,.1);border:1px solid rgba(201,150,42,.35);border-radius:12px;padding:16px 20px;margin-bottom:28px;">
+    <p style="font-size:.8rem;color:var(--gold);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:0 0 6px;">Iscrizioni aperte</p>
+    <p style="font-size:1.05rem;color:#f5f5f5;margin:0;">Si chiudono tra <strong id="open-window-countdown" style="color:var(--gold);">—</strong></p>
+  </div>
 
-      <!-- Step 2: codice -->
-      <div class="pricing-veil-code-wrap" id="veil-step2">
-        <p class="pricing-veil-code-label">Inserisci il codice che ti abbiamo inviato via email</p>
-        <div class="pricing-veil-code-row">
-          <input type="text" inputmode="numeric" maxlength="6" class="pricing-veil-code-input" id="veil-code" placeholder="— — — — — —" autocomplete="one-time-code">
-          <button type="button" class="pricing-veil-btn" id="veil-btn2">Conferma</button>
-        </div>
-        <p class="pricing-veil-err" id="veil-err"></p>
-      </div>
-
-      <!-- Conferma finale -->
-      <p class="pricing-veil-ok" id="veil-ok">✓ Sei nella lista. Ti avvisiamo appena si apre.</p>
+  <!-- VELATURA POST-CHIUSURA — mostrata DOPO le 24 ore -->
+  <div class="pricing-veil" id="pricing-closed-veil" style="display:none;">
+    <div class="pricing-veil-box">
+      <p class="pricing-veil-tag">Iscrizioni chiuse</p>
+      <h3 class="pricing-veil-title">Le iscrizioni sono chiuse.</h3>
+      <p class="pricing-veil-sub">Lascia la tua email: ti avvisiamo alla prossima apertura.</p>
+      <a href="/early-access.html" class="pricing-veil-btn" style="display:inline-block;text-decoration:none;margin-top:.6rem;">Entra in lista d'attesa →</a>
     </div>
   </div>
   <!-- / VELATURA -->
@@ -1891,108 +1890,59 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
   });
 })();
 
-/* ── Velatura prezzi: flusso OTP early access ─────────────── */
-(function initPricingVeil() {
-  const form1   = document.getElementById('veil-form-step1');
-  const step2   = document.getElementById('veil-step2');
-  const okEl    = document.getElementById('veil-ok');
-  const errEl   = document.getElementById('veil-err');
-  const btn1    = document.getElementById('veil-btn1');
-  const btn2    = document.getElementById('veil-btn2');
-  const codeEl  = document.getElementById('veil-code');
-  let   veilToken = null;
+/* ── Apertura iscrizioni: countdown all'apertura → finestra 24h → chiusura ──
+   - OPEN_AT  = momento di apertura (oggi 14:00, ora italiana).
+   - CLOSE_AT = OPEN_AT + 24h.
+   Stati:
+     PRIMA dell'apertura  → velatura "apre alle 14:00" + countdown all'apertura.
+     DURANTE le 24h       → prezzi acquistabili + banner "si chiudono tra …".
+     DOPO la chiusura      → velatura "iscrizioni chiuse" → lista d'attesa (early-access).
+   La lista d'attesa NON è più su index: vive solo su /early-access.html. */
+(function initOpeningGate() {
+  // Apertura: 1 giugno 2026, 14:00 ora italiana (CEST = UTC+2)
+  const OPEN_AT  = new Date('2026-06-01T14:00:00+02:00').getTime();
+  const CLOSE_AT = OPEN_AT + 24 * 60 * 60 * 1000;
 
-  if (!form1) return;
+  const preVeil    = document.getElementById('pricing-veil');
+  const openBanner = document.getElementById('open-window-banner');
+  const closedVeil = document.getElementById('pricing-closed-veil');
+  const preCount   = document.getElementById('veil-countdown');
+  const openCount  = document.getElementById('open-window-countdown');
 
-  // Stato early access / lista d'attesa
-  const spotsEl = document.getElementById('veil-spots');
-  const tagEl   = document.querySelector('#pricing-veil .pricing-veil-tag');
-  const titleEl = document.querySelector('#pricing-veil .pricing-veil-title');
-  const subEl   = document.querySelector('#pricing-veil .pricing-veil-sub');
-  const btn1El  = document.getElementById('veil-btn1');
-  let   waitlistMode = false;
-
-  function loadSpots() {
-    fetch('/api/early-access-count')
-      .then(r => r.json())
-      .then(d => {
-        if (d.mode === 'waitlist') {
-          // I 100 posti sono pieni → lista d'attesa, conteggio a INCREMENTO
-          waitlistMode = true;
-          const n = d.waitlistCount || 0;
-          if (tagEl)   tagEl.textContent = 'Lista d\'attesa';
-          if (titleEl) titleEl.innerHTML = 'I posti dell\'accesso anticipato<br>sono esauriti.';
-          if (subEl)   subEl.textContent = 'Iscriviti alla lista d\'attesa: ti avvisiamo appena si libera un posto o apriamo nuovi accessi.';
-          if (btn1El)  btn1El.textContent = 'Entra in lista d\'attesa →';
-          if (spotsEl) spotsEl.textContent = n > 0
-            ? `Già ${n} ${n === 1 ? 'persona' : 'persone'} in lista d'attesa`
-            : 'Sii il primo a entrare in lista d\'attesa';
-        } else if (typeof d.remaining === 'number') {
-          waitlistMode = false;
-          if (spotsEl) spotsEl.textContent = `Rimasti ${d.remaining} posti su ${d.total}`;
-        }
-      })
-      .catch(() => {});
+  function fmt(ms) {
+    if (ms < 0) ms = 0;
+    const s = Math.floor(ms / 1000);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const sec = s % 60;
+    const p = n => String(n).padStart(2, '0');
+    return `${p(h)}:${p(m)}:${p(sec)}`;
   }
-  loadSpots();
-  setInterval(loadSpots, 30000);
 
-  form1.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = document.getElementById('veil-email').value.trim();
-    btn1.disabled = true;
-    btn1.textContent = '…';
-    try {
-      const r = await fetch('/api/early-access-request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Errore');
-      veilToken = data.token;
-      form1.style.display = 'none';
-      step2.style.display = 'flex';
-      setTimeout(() => codeEl.focus(), 100);
-    } catch (err) {
-      btn1.disabled = false;
-      btn1.textContent = 'Avvisami →';
-      if (errEl) errEl.textContent = err.message;
+  function tick() {
+    const now = Date.now();
+    if (now < OPEN_AT) {
+      // PRIMA: solo velatura con countdown all'apertura
+      if (preVeil)    preVeil.style.display = '';
+      if (openBanner) openBanner.style.display = 'none';
+      if (closedVeil) closedVeil.style.display = 'none';
+      if (preCount)   preCount.textContent = fmt(OPEN_AT - now);
+    } else if (now < CLOSE_AT) {
+      // DURANTE: prezzi visibili/acquistabili + banner chiusura
+      if (preVeil)    preVeil.style.display = 'none';
+      if (closedVeil) closedVeil.style.display = 'none';
+      if (openBanner) openBanner.style.display = '';
+      if (openCount)  openCount.textContent = fmt(CLOSE_AT - now);
+    } else {
+      // DOPO: iscrizioni chiuse
+      if (preVeil)    preVeil.style.display = 'none';
+      if (openBanner) openBanner.style.display = 'none';
+      if (closedVeil) closedVeil.style.display = '';
     }
-  });
+  }
 
-  if (btn2) btn2.addEventListener('click', async () => {
-    const code = codeEl.value.trim();
-    if (!code || !veilToken) return;
-    btn2.disabled = true;
-    btn2.textContent = '…';
-    if (errEl) errEl.textContent = '';
-    try {
-      const r = await fetch('/api/early-access-verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: veilToken, code }),
-      });
-      const data = await r.json();
-      if (!r.ok) throw new Error(data.error || 'Errore');
-      step2.style.display = 'none';
-      if (okEl) {
-        if (data.waitlist) {
-          const pos = data.waitlistPosition;
-          okEl.textContent = pos
-            ? `✓ Sei il numero ${pos} in lista d'attesa. Facciamo entrare un nuovo gruppo di utenti ogni giorno.`
-            : '✓ Sei in lista d\'attesa. Facciamo entrare un nuovo gruppo di utenti ogni giorno.';
-        } else {
-          okEl.textContent = '✓ Sei nella lista. Ti avvisiamo appena si apre.';
-        }
-        okEl.style.display = 'block';
-      }
-    } catch (err) {
-      btn2.disabled = false;
-      btn2.textContent = 'Conferma';
-      if (errEl) errEl.textContent = err.message;
-    }
-  });
+  tick();
+  setInterval(tick, 1000);
 })();
 
 /* ── Smooth scroll per link interni ─────────────────────── */
