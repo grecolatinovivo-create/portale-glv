@@ -10,6 +10,9 @@ const resend           = new Resend(process.env.RESEND_API_KEY);
 const AUDIENCE_ID       = process.env.RESEND_EARLY_ACCESS_AUDIENCE_ID;
 const WAITLIST_AUDIENCE = process.env.RESEND_WAITLIST_AUDIENCE_ID;
 const MAX_SPOTS         = 100;
+// Numero di partenza mostrato per la lista d'attesa (chi era già in coda prima
+// dell'attivazione del segmento). Al conteggio reale si somma questa base.
+const WAITLIST_BASE     = parseInt(process.env.WAITLIST_BASE || '175', 10);
 
 async function countAudience(id) {
   if (!id) return 0;
@@ -41,8 +44,10 @@ export default async function handler(req, res) {
       return res.status(200).json({ mode: 'early', remaining, total: MAX_SPOTS, count: earlyCount });
     }
 
-    // Early access pieno → lista d'attesa (conteggio a incremento)
-    const waitlistCount = await countAudience(WAITLIST_AUDIENCE);
+    // Early access pieno → lista d'attesa (conteggio a incremento).
+    // Mostriamo la base (chi era già in coda) + gli iscritti reali del segmento.
+    const realWaitlist = await countAudience(WAITLIST_AUDIENCE);
+    const waitlistCount = WAITLIST_BASE + realWaitlist;
     return res.status(200).json({ mode: 'waitlist', waitlistCount, total: MAX_SPOTS });
   } catch (err) {
     console.error('[early-access-count]', err);
