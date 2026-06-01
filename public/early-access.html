@@ -924,8 +924,9 @@
           if (data.waitlist) {
             const h = successEl.querySelector('h2, h3, .success-title');
             const p = successEl.querySelector('p');
-            if (h) h.textContent = 'Sei in lista d\'attesa.';
-            if (p) p.textContent = 'I 100 posti sono esauriti, ma ti avvisiamo appena se ne libera uno o apriamo nuovi accessi.';
+            const pos = data.waitlistPosition;
+            if (h) h.textContent = pos ? ('Sei il numero ' + pos + ' in lista d\'attesa.') : 'Sei in lista d\'attesa.';
+            if (p) p.textContent = 'Facciamo entrare un nuovo gruppo di utenti ogni giorno: ti avvisiamo appena è il tuo turno.';
           }
           if (!waitlistMode && currentRemaining !== null && currentRemaining > 0) {
             currentRemaining--;

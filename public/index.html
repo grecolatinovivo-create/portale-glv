@@ -1977,9 +1977,14 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
       if (!r.ok) throw new Error(data.error || 'Errore');
       step2.style.display = 'none';
       if (okEl) {
-        okEl.textContent = data.waitlist
-          ? '✓ Sei in lista d\'attesa. Ti avvisiamo appena si libera un posto.'
-          : '✓ Sei nella lista. Ti avvisiamo appena si apre.';
+        if (data.waitlist) {
+          const pos = data.waitlistPosition;
+          okEl.textContent = pos
+            ? `✓ Sei il numero ${pos} in lista d'attesa. Facciamo entrare un nuovo gruppo di utenti ogni giorno.`
+            : '✓ Sei in lista d\'attesa. Facciamo entrare un nuovo gruppo di utenti ogni giorno.';
+        } else {
+          okEl.textContent = '✓ Sei nella lista. Ti avvisiamo appena si apre.';
+        }
         okEl.style.display = 'block';
       }
     } catch (err) {

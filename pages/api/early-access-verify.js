@@ -11,6 +11,7 @@ const SECRET      = process.env.NEXTAUTH_SECRET   || process.env.JWT_SECRET || '
 const AUDIENCE_ID = process.env.RESEND_EARLY_ACCESS_AUDIENCE_ID;
 const WAITLIST_AUDIENCE = process.env.RESEND_WAITLIST_AUDIENCE_ID;
 const MAX_SPOTS   = 100;
+const WAITLIST_BASE = parseInt(process.env.WAITLIST_BASE || '175', 10);
 
 function verifyToken(token) {
   try {
@@ -78,6 +79,18 @@ export default async function handler(req, res) {
       });
     }
 
+    // Posizione in lista d'attesa = base + iscritti reali del segmento waitlist.
+    let waitlistPosition = null;
+    if (isWaitlist) {
+      let realCount = 0;
+      try {
+        const { data } = await resend.contacts.list({ audienceId: WAITLIST_AUDIENCE });
+        realCount = data?.data?.length ?? 0;
+      } catch (_) { /* fallback sotto */ }
+      // realCount include l'iscritto appena creato → la sua posizione è base + realCount
+      waitlistPosition = WAITLIST_BASE + (realCount > 0 ? realCount : 1);
+    }
+
     // Email di conferma — testo diverso per early vs lista d'attesa
     const subject = isWaitlist
       ? 'Sei in lista d\'attesa — Portale GrecoLatinoVivo'
@@ -110,7 +123,7 @@ export default async function handler(req, res) {
         </div>`,
     });
 
-    return res.status(200).json({ ok: true, waitlist: isWaitlist });
+    return res.status(200).json({ ok: true, waitlist: isWaitlist, waitlistPosition });
 
   } catch (err) {
     console.error('[early-access-verify]', err);
