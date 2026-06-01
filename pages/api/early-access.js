@@ -45,25 +45,36 @@ export default async function handler(req, res) {
       from: FROM,
       to: email,
       subject: 'Sei nella lista — Portale GrecoLatinoVivo',
-      html: `
-        <div style="font-family:'Inter',Arial,sans-serif;max-width:560px;margin:0 auto;background:#0a0a0a;color:#f5f5f5;padding:40px;border-radius:12px;">
-          <p style="font-family:'Georgia',serif;font-size:13px;font-weight:700;color:rgba(245,245,245,0.5);letter-spacing:0.15em;text-transform:uppercase;margin:0 0 24px;">GrecoLatinoVivo</p>
-          <h1 style="font-family:'Georgia',serif;font-size:26px;font-weight:700;color:#f5f5f5;margin:0 0 16px;line-height:1.2;">Sei nella lista.</h1>
-          <p style="font-size:14px;color:rgba(245,245,245,0.65);line-height:1.7;margin:0 0 24px;">
-            Grazie per esserti iscritto all'accesso anticipato al nuovo Portale GLV.<br>
-            Sarai tra i primi ad essere avvisato quando apriamo le porte.
-          </p>
-          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:16px 20px;margin-bottom:28px;">
-            <p style="font-size:11px;color:rgba(245,245,245,0.4);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 6px;">Piano in arrivo</p>
-            <p style="font-size:13px;color:#f5f5f5;margin:0;">Latino · Greco Antico · Egiziano · Ebraico Biblico<br>
-            <span style="color:#c9962a;">Un abbonamento per l'intero catalogo.</span></p>
+      html: `<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#f4f1ea;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;">
+        <tr><td style="padding:32px 40px 0;">
+          <p style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#a01a36;margin:0;">GrecoLatinoVivo</p>
+          <p style="font-family:Arial,sans-serif;font-size:12px;color:#777;margin:4px 0 0;letter-spacing:.04em;">Centro Nazionale di Studi Classici</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px 8px;">
+          <h2 style="font-family:Arial,sans-serif;font-size:21px;font-weight:700;color:#1a1a1a;margin:0 0 16px;">Sei nella lista</h2>
+          <p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 22px;">Grazie per esserti iscritto all'accesso anticipato al nuovo Portale GLV. Sarai tra i primi a essere avvisato quando apriamo le porte.</p>
+          <div style="background:#f6f3ee;border:1px solid #e3ddd2;border-radius:8px;padding:16px 20px;margin:0 0 22px;">
+            <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.08em;margin:0 0 6px;">Piano in arrivo</p>
+            <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a;margin:0;">Latino · Greco Antico · Egiziano · Ebraico Biblico<br>
+            <span style="color:#9a7b1f;font-weight:700;">Un abbonamento per l'intero catalogo.</span></p>
           </div>
-          <a href="${APP_URL}" style="display:inline-block;background:#c9962a;color:#0a0a0a;font-size:13px;font-weight:700;padding:12px 28px;border-radius:8px;text-decoration:none;letter-spacing:0.02em;">Scopri il portale →</a>
-          <p style="font-size:10px;color:rgba(245,245,245,0.25);margin-top:32px;line-height:1.7;">
-            GrecoLatinoVivo · Centro Nazionale di Studi Classici · Firenze, 2015<br>
+          <a href="${APP_URL}" style="display:inline-block;background:#a01a36;color:#ffffff;padding:13px 30px;border-radius:6px;text-decoration:none;font-family:Arial,sans-serif;font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;">Scopri il portale →</a>
+        </td></tr>
+        <tr><td style="padding:24px 40px 32px;border-top:1px solid #e3ddd2;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;margin:16px 0 0;line-height:1.6;">
+            GrecoLatinoVivo · Centro Nazionale di Studi Classici · Firenze<br>
             Per disiscriverti rispondi a questa email con oggetto "Rimuovi".
           </p>
-        </div>`,
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
     });
 
     // 3. Notifica a Giampiero

@@ -44,20 +44,31 @@ export default async function handler(req, res) {
       from: FROM,
       to:   email,
       subject: `${code} — Il tuo codice GrecoLatinoVivo`,
-      html: `
-        <div style="font-family:'Inter',Arial,sans-serif;max-width:480px;margin:0 auto;background:#0a0a0a;color:#f5f5f5;padding:40px;border-radius:12px;">
-          <p style="font-family:'Georgia',serif;font-size:12px;font-weight:700;color:rgba(245,245,245,0.4);letter-spacing:0.15em;text-transform:uppercase;margin:0 0 24px;">GrecoLatinoVivo</p>
-          <h1 style="font-family:'Georgia',serif;font-size:24px;font-weight:700;color:#f5f5f5;margin:0 0 12px;">Il tuo codice di verifica</h1>
-          <p style="font-size:13px;color:rgba(245,245,245,0.6);line-height:1.6;margin:0 0 28px;">
-            Inserisci questo codice nella pagina per confermare la tua email e riservare il posto.
-          </p>
-          <div style="background:rgba(201,150,42,0.1);border:1px solid rgba(201,150,42,0.35);border-radius:10px;padding:28px 28px;text-align:center;margin-bottom:28px;">
-            <span style="font-family:'Georgia',serif;font-size:64px;font-weight:700;color:#e8c875;letter-spacing:0.22em;line-height:1;">${code}</span>
+      html: `<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#f4f1ea;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="max-width:480px;width:100%;background:#ffffff;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;">
+        <tr><td style="padding:32px 40px 0;">
+          <p style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#a01a36;margin:0;">GrecoLatinoVivo</p>
+          <p style="font-family:Arial,sans-serif;font-size:12px;color:#777;margin:4px 0 0;letter-spacing:.04em;">Centro Nazionale di Studi Classici</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px 8px;">
+          <h2 style="font-family:Arial,sans-serif;font-size:21px;font-weight:700;color:#1a1a1a;margin:0 0 12px;">Il tuo codice di verifica</h2>
+          <p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 22px;">Inserisci questo codice nella pagina per confermare la tua email e riservare il posto.</p>
+          <div style="background:#f6f3ee;border:1px solid #e3ddd2;border-radius:10px;padding:24px;text-align:center;margin:0 0 22px;">
+            <span style="font-family:'Courier New',monospace;font-size:46px;font-weight:700;color:#a01a36;letter-spacing:.18em;line-height:1;">${code}</span>
           </div>
-          <p style="font-size:11px;color:rgba(245,245,245,0.3);line-height:1.6;margin:0;">
-            Il codice scade tra 15 minuti. Se non hai richiesto questo codice, ignora questa email.
-          </p>
-        </div>`,
+          <p style="font-family:Arial,sans-serif;font-size:12px;color:#777;line-height:1.6;margin:0;">Il codice scade tra 15 minuti. Se non hai richiesto questo codice, ignora questa email.</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px 32px;border-top:1px solid #e3ddd2;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;margin:16px 0 0;">GrecoLatinoVivo · Centro Nazionale di Studi Classici · Firenze</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
     });
 
     return res.status(200).json({ token });

@@ -37,64 +37,52 @@ export default async function handler(req, res) {
       to:      email,
       replyTo: REPLY_EMAIL,
       subject: `Istruzioni pagamento con Bonus Docenti — Portale GrecoLatinoVivo`,
-      html: `
-        <div style="font-family:'Inter',Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#f5f5f5;padding:44px;border-radius:12px;">
+      html: `<!DOCTYPE html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"></head>
+<body style="margin:0;padding:0;background:#f4f1ea;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f1ea;padding:24px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid #e3ddd2;border-radius:12px;overflow:hidden;">
+        <tr><td style="padding:32px 40px 0;">
+          <p style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#a01a36;margin:0;">GrecoLatinoVivo</p>
+          <p style="font-family:Arial,sans-serif;font-size:12px;color:#777;margin:4px 0 0;letter-spacing:.04em;">Centro Nazionale di Studi Classici</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px 8px;">
+          <h2 style="font-family:Arial,sans-serif;font-size:21px;font-weight:700;color:#1a1a1a;margin:0 0 12px;">Gentile ${nomeCompleto},</h2>
+          <p style="font-family:Arial,sans-serif;font-size:15px;color:#444;line-height:1.7;margin:0 0 24px;">Di seguito trovi le istruzioni per completare l'iscrizione al piano <strong style="color:#1a1a1a;">Accademia Annuale</strong> (${IMPORTO}) tramite Carta del Docente.</p>
 
-          <p style="font-family:'Georgia',serif;font-size:12px;font-weight:700;color:rgba(245,245,245,0.4);letter-spacing:0.15em;text-transform:uppercase;margin:0 0 28px;">GrecoLatinoVivo</p>
-
-          <h1 style="font-family:'Georgia',serif;font-size:24px;font-weight:700;color:#f5f5f5;margin:0 0 10px;line-height:1.2;">Gentile ${nomeCompleto},</h1>
-          <p style="font-size:14px;color:rgba(245,245,245,0.65);line-height:1.7;margin:0 0 28px;">
-            Di seguito trovi le istruzioni per completare l'iscrizione al piano <strong style="color:#e8c875;">Accademia Annuale</strong> (${IMPORTO}) tramite Carta del Docente.
-          </p>
-
-          <!-- Box istruzioni -->
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:28px 32px;margin-bottom:28px;">
-
-            <p style="font-size:13px;font-weight:600;color:#f5f5f5;margin:0 0 16px;">Per effettuare il pagamento a conferma dell'iscrizione dovrai generare il buono pari all'importo del corso con la Carta Docente.</p>
-
-            <p style="font-size:13px;color:rgba(245,245,245,0.75);margin:0 0 12px;">Ecco il percorso da seguire <strong style="color:#f5f5f5;">(attenzione a seguirlo pedissequamente, altrimenti non sarà valido!):</strong></p>
-
-            <p style="font-size:13px;color:rgba(245,245,245,0.75);margin:0 0 8px;">Una volta effettuato il login nel portale del Ministero:</p>
-
-            <ol style="padding-left:20px;margin:0 0 16px;">
-              <li style="font-size:13px;color:rgba(245,245,245,0.85);padding:4px 0;"><strong style="color:#e8c875;">Formazione</strong></li>
-              <li style="font-size:13px;color:rgba(245,245,245,0.85);padding:4px 0;"><strong style="color:#e8c875;">Enti accreditati/qualificati ai sensi della direttiva 170/2016</strong></li>
+          <div style="background:#f6f3ee;border:1px solid #e3ddd2;border-radius:10px;padding:22px 24px;margin:0 0 24px;">
+            <p style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1a1a1a;margin:0 0 14px;">Per confermare l'iscrizione devi generare il buono pari all'importo del corso con la Carta del Docente.</p>
+            <p style="font-family:Arial,sans-serif;font-size:14px;color:#444;margin:0 0 10px;">Percorso da seguire <strong style="color:#1a1a1a;">(attenzione a seguirlo esattamente, altrimenti non sarà valido):</strong></p>
+            <p style="font-family:Arial,sans-serif;font-size:14px;color:#444;margin:0 0 6px;">Una volta effettuato il login nel portale del Ministero:</p>
+            <ol style="padding-left:20px;margin:0 0 14px;">
+              <li style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a;padding:3px 0;"><strong>Formazione</strong></li>
+              <li style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a;padding:3px 0;"><strong>Enti accreditati/qualificati ai sensi della direttiva 170/2016</strong></li>
             </ol>
-
-            <p style="font-size:13px;color:rgba(245,245,245,0.75);margin:0 0 20px;">A questo punto dovrai salvare in <strong style="color:#f5f5f5;">PDF il buono generato</strong>, che dovrai necessariamente inviarci via email.</p>
-
-            <!-- Warning box -->
-            <div style="background:rgba(160,26,54,0.15);border:1px solid rgba(160,26,54,0.4);border-radius:8px;padding:14px 18px;">
-              <p style="font-size:12px;font-weight:700;color:#f08080;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 6px;">⚠️ Attenzione</p>
-              <p style="font-size:13px;color:rgba(245,245,245,0.8);margin:0;line-height:1.6;">
-                <strong style="color:#f5f5f5;">NON SELEZIONARE</strong> "Corsi riconosciuti ai sensi della direttiva 170/2016" perché <strong style="color:#f5f5f5;">non validabili dal nostro ente.</strong>
-              </p>
+            <p style="font-family:Arial,sans-serif;font-size:14px;color:#444;margin:0 0 16px;">A questo punto salva in <strong style="color:#1a1a1a;">PDF il buono generato</strong>, che dovrai inviarci via email.</p>
+            <div style="background:#fbe9ec;border:1px solid #e6b8c2;border-radius:8px;padding:14px 18px;">
+              <p style="font-family:Arial,sans-serif;font-size:12px;font-weight:700;color:#a01a36;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px;">Attenzione</p>
+              <p style="font-family:Arial,sans-serif;font-size:14px;color:#1a1a1a;margin:0;line-height:1.6;"><strong>NON selezionare</strong> "Corsi riconosciuti ai sensi della direttiva 170/2016": non sono validabili dal nostro ente.</p>
             </div>
           </div>
 
-          <!-- Importo e destinatario -->
-          <div style="display:flex;gap:16px;margin-bottom:28px;">
-            <div style="flex:1;background:rgba(201,150,42,0.08);border:1px solid rgba(201,150,42,0.3);border-radius:8px;padding:14px 18px;">
-              <p style="font-size:11px;color:rgba(245,245,245,0.4);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px;">Importo da generare</p>
-              <p style="font-family:'Georgia',serif;font-size:22px;font-weight:700;color:#e8c875;margin:0;">${IMPORTO}</p>
-            </div>
-            <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:14px 18px;">
-              <p style="font-size:11px;color:rgba(245,245,245,0.4);text-transform:uppercase;letter-spacing:0.1em;margin:0 0 4px;">Invia il PDF a</p>
-              <p style="font-size:14px;font-weight:600;color:#f5f5f5;margin:0;">${REPLY_EMAIL}</p>
-            </div>
+          <div style="background:#f6f3ee;border:1px solid #e3ddd2;border-radius:8px;padding:16px 20px;margin:0 0 22px;">
+            <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.08em;margin:0 0 4px;">Importo da generare</p>
+            <p style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#a01a36;margin:0 0 14px;">${IMPORTO}</p>
+            <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.08em;margin:0 0 4px;">Invia il PDF a</p>
+            <p style="font-family:Arial,sans-serif;font-size:15px;font-weight:700;color:#1a1a1a;margin:0;">${REPLY_EMAIL}</p>
           </div>
 
-          <p style="font-size:13px;color:rgba(245,245,245,0.55);line-height:1.7;margin:0 0 8px;">
-            Una volta ricevuto e validato il buono, attiveremo il tuo abbonamento entro 24 ore lavorative e riceverai un'email di conferma con le credenziali di accesso.
-          </p>
-          <p style="font-size:13px;color:rgba(245,245,245,0.55);line-height:1.7;margin:0 0 32px;">
-            Per qualsiasi dubbio rispondi a questa email o scrivici a <a href="mailto:${REPLY_EMAIL}" style="color:#c9962a;">${REPLY_EMAIL}</a>.
-          </p>
-
-          <p style="font-size:10px;color:rgba(245,245,245,0.25);line-height:1.7;margin:0;">
-            GrecoLatinoVivo · Centro Nazionale di Studi Classici · Firenze, 2015
-          </p>
-        </div>`,
+          <p style="font-family:Arial,sans-serif;font-size:14px;color:#444;line-height:1.7;margin:0 0 8px;">Una volta ricevuto e validato il buono, attiveremo il tuo abbonamento entro 24 ore lavorative e riceverai un'email di conferma con le credenziali di accesso.</p>
+          <p style="font-family:Arial,sans-serif;font-size:14px;color:#444;line-height:1.7;margin:0;">Per qualsiasi dubbio rispondi a questa email o scrivici a <a href="mailto:${REPLY_EMAIL}" style="color:#a01a36;">${REPLY_EMAIL}</a>.</p>
+        </td></tr>
+        <tr><td style="padding:24px 40px 32px;border-top:1px solid #e3ddd2;">
+          <p style="font-family:Arial,sans-serif;font-size:11px;color:#777;margin:16px 0 0;">GrecoLatinoVivo · Centro Nazionale di Studi Classici · Firenze</p>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body></html>`,
     });
 
     // 2. Notifica admin
