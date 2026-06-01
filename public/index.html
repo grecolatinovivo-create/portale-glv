@@ -1904,15 +1904,32 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
 
   if (!form1) return;
 
-  // Carica il counter posti
+  // Stato early access / lista d'attesa
   const spotsEl = document.getElementById('veil-spots');
+  const tagEl   = document.querySelector('#pricing-veil .pricing-veil-tag');
+  const titleEl = document.querySelector('#pricing-veil .pricing-veil-title');
+  const subEl   = document.querySelector('#pricing-veil .pricing-veil-sub');
+  const btn1El  = document.getElementById('veil-btn1');
+  let   waitlistMode = false;
+
   function loadSpots() {
-    if (!spotsEl) return;
     fetch('/api/early-access-count')
       .then(r => r.json())
       .then(d => {
-        if (typeof d.remaining === 'number') {
-          spotsEl.textContent = `Rimasti ${d.remaining} posti su ${d.total}`;
+        if (d.mode === 'waitlist') {
+          // I 100 posti sono pieni → lista d'attesa, conteggio a INCREMENTO
+          waitlistMode = true;
+          const n = d.waitlistCount || 0;
+          if (tagEl)   tagEl.textContent = 'Lista d\'attesa';
+          if (titleEl) titleEl.innerHTML = 'I posti dell\'accesso anticipato<br>sono esauriti.';
+          if (subEl)   subEl.textContent = 'Iscriviti alla lista d\'attesa: ti avvisiamo appena si libera un posto o apriamo nuovi accessi.';
+          if (btn1El)  btn1El.textContent = 'Entra in lista d\'attesa →';
+          if (spotsEl) spotsEl.textContent = n > 0
+            ? `Già ${n} ${n === 1 ? 'persona' : 'persone'} in lista d'attesa`
+            : 'Sii il primo a entrare in lista d\'attesa';
+        } else if (typeof d.remaining === 'number') {
+          waitlistMode = false;
+          if (spotsEl) spotsEl.textContent = `Rimasti ${d.remaining} posti su ${d.total}`;
         }
       })
       .catch(() => {});
@@ -1959,7 +1976,12 @@ tabAnnual.addEventListener('click',  () => { if (!annual) { annual = true;  appl
       const data = await r.json();
       if (!r.ok) throw new Error(data.error || 'Errore');
       step2.style.display = 'none';
-      okEl.style.display = 'block';
+      if (okEl) {
+        okEl.textContent = data.waitlist
+          ? '✓ Sei in lista d\'attesa. Ti avvisiamo appena si libera un posto.'
+          : '✓ Sei nella lista. Ti avvisiamo appena si apre.';
+        okEl.style.display = 'block';
+      }
     } catch (err) {
       btn2.disabled = false;
       btn2.textContent = 'Conferma';

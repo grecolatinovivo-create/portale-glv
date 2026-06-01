@@ -572,10 +572,10 @@
       Un abbonamento per accedere all'intero catalogo.
     </p>
 
-    <!-- SPOTS COUNTER -->
+    <!-- SPOTS COUNTER / LISTA D'ATTESA -->
     <div class="spots-badge" id="spots-badge" style="display:none;">
       <span class="spots-dot"></span>
-      <span>Rimasti <span class="spots-n" id="spots-n">—</span> posti su 100</span>
+      <span id="spots-text">Rimasti <span class="spots-n" id="spots-n">—</span> posti su 100</span>
     </div>
 
     <!-- FORM -->
@@ -803,27 +803,46 @@
 
     let currentRemaining = null;
     let pendingToken     = null;
+    let waitlistMode     = false;
 
-    // ── Counter posti rimasti ────────────────────────────────
+    // ── Counter posti rimasti / lista d'attesa ───────────────
     async function loadSpotsCounter() {
       try {
         const res  = await fetch(API_COUNT);
         const data = await res.json();
-        currentRemaining = data.remaining;
-        setSpots(currentRemaining);
+        if (data.mode === 'waitlist') {
+          waitlistMode = true;
+          renderWaitlist(data.waitlistCount || 0);
+        } else {
+          waitlistMode = false;
+          currentRemaining = data.remaining;
+          setSpots(currentRemaining);
+        }
       } catch (e) {}
     }
 
     function setSpots(n) {
       const badge = document.getElementById('spots-badge');
-      const el    = document.getElementById('spots-n');
-      if (!badge || !el) return;
-      el.textContent = n;
+      const text  = document.getElementById('spots-text');
+      if (!badge || !text) return;
+      text.innerHTML = 'Rimasti <span class="spots-n" id="spots-n">' + n + '</span> posti su 100';
       badge.style.display = 'inline-flex';
-      el.classList.remove('bump');
-      void el.offsetWidth;
-      el.classList.add('bump');
-      setTimeout(() => el.classList.remove('bump'), 300);
+    }
+
+    // Lista d'attesa: numero a INCREMENTO, non countdown
+    function renderWaitlist(n) {
+      const badge = document.getElementById('spots-badge');
+      const text  = document.getElementById('spots-text');
+      const eyebrow = document.querySelector('.hero-eyebrow');
+      const btn   = document.getElementById('btn-request');
+      if (eyebrow) eyebrow.textContent = 'Posti esauriti · Lista d\'attesa';
+      if (btn) btn.textContent = 'Entra in lista d\'attesa →';
+      if (badge && text) {
+        text.innerHTML = n > 0
+          ? ('Già <span class="spots-n">' + n + '</span> ' + (n === 1 ? 'persona' : 'persone') + ' in lista d\'attesa')
+          : 'Sii il primo a entrare in lista d\'attesa';
+        badge.style.display = 'inline-flex';
+      }
     }
 
     loadSpotsCounter();
@@ -899,8 +918,16 @@
 
         if (res.ok && data.ok) {
           document.getElementById('step-code').style.display    = 'none';
-          document.getElementById('form-success').style.display = 'block';
-          if (currentRemaining !== null && currentRemaining > 0) {
+          const successEl = document.getElementById('form-success');
+          successEl.style.display = 'block';
+          // Adatta il messaggio se l'iscritto è finito in lista d'attesa
+          if (data.waitlist) {
+            const h = successEl.querySelector('h2, h3, .success-title');
+            const p = successEl.querySelector('p');
+            if (h) h.textContent = 'Sei in lista d\'attesa.';
+            if (p) p.textContent = 'I 100 posti sono esauriti, ma ti avvisiamo appena se ne libera uno o apriamo nuovi accessi.';
+          }
+          if (!waitlistMode && currentRemaining !== null && currentRemaining > 0) {
             currentRemaining--;
             setSpots(currentRemaining);
           }
